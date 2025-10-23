@@ -155,38 +155,49 @@ class AddSessionViewModel extends _$AddSessionViewModel {
             (!state.setBigGoals && state.tasks.isNotEmpty));
   }
 
+  // Save all info
   Future<void> createSession() async {
     // Final check before submitting
     if (!canSubmit()) {
       throw Exception('Please complete all required fields');
     }
 
-    final useCase = ref.read(createSessionUseCaseProvider);
+    final sessionUseCase = ref.read(createSessionUseCaseProvider);
+
     final session = _stateToSessionModel(state);
-    await useCase.call(session);
+    int sessionId = await sessionUseCase.call(session);
+
+    if (state.goals.isNotEmpty && state.setBigGoals) {
+      final goalUseCase = ref.read(createGoalsUseCaseProvider);
+      for (GoalModel goal in state.goals) {
+        GoalModel addGoal = goal.copyWith(sessionId: sessionId.toString());
+        goalUseCase.call(addGoal);
+      }
+    }
+
+    if (state.tasks.isNotEmpty && !state.setBigGoals) {
+      final taskUseCase = ref.read(createTasksUseCaseProvider);
+      for (TaskModel task in state.tasks) {
+        TaskModel addTask = task.copyWith(sessionId: sessionId.toString());
+        taskUseCase.call(addTask);
+      }
+    }
   }
 
   SessionModel _stateToSessionModel(AddSessionState state) {
     return SessionModel(
-      // Basic info
       title: state.title,
       isRepeating: state.isRepeating,
       startDate: state.startDate,
       endDate: state.endDate,
       selectedDays: state.selectedDays,
-
-      // Learning strategies
       learningStrategies: state.learningStrategies,
-
-      // Time settings
       isPomodoro: state.isPomodoro,
       totalTimeMin: state.totalTimeMin,
       focusTimeMin: state.focusTimeMin,
       breakTimeMin: state.breakTimeMin,
       longBreakTimeMin: state.longBreakTimeMin,
       cyclesBeforeLongBreak: state.cyclesBeforeLongBreak,
-
-      //Prompts
       hasFocusPrompt: state.hasFocusPrompt,
       hasMoodPrompt: state.hasMoodPrompt,
       hasFreetextPrompt: state.hasFreetextPrompt,
