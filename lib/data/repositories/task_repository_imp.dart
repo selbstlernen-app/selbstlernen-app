@@ -1,3 +1,4 @@
+import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/daos/task_dao.dart';
 import 'package:srl_app/data/entity_mappers/task_mapper.dart';
 import 'package:srl_app/domain/models/task_model.dart';
@@ -22,7 +23,10 @@ class TaskRepositoryImp implements TaskRepository {
   Stream<List<TaskModel>> getAllTasksFor(int sessionId) {
     return taskDao
         .watchAllTasksFor(sessionId)
-        .map((taskList) => TaskToModelMapper.mapFromListOfEntity(taskList));
+        .map(
+          (List<Task> taskList) =>
+              TaskToModelMapper.mapFromListOfEntity(taskList),
+        );
   }
 
   @override

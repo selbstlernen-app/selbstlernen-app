@@ -13,8 +13,8 @@ import 'package:srl_app/data/database/tables/task_table.dart';
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: [Sessions, Goals, Tasks],
-  daos: [SessionDao, GoalDao, TaskDao],
+  tables: <Type>[Sessions, Goals, Tasks],
+  daos: <Type>[SessionDao, GoalDao, TaskDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());

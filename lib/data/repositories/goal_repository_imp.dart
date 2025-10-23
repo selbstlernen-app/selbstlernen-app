@@ -1,3 +1,4 @@
+import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/daos/goal_dao.dart';
 import 'package:srl_app/data/entity_mappers/goal_mapper.dart';
 import 'package:srl_app/domain/goal_repository.dart';
@@ -22,7 +23,10 @@ class GoalRepositoryImp implements GoalRepository {
   Stream<List<GoalModel>> getAllGoalsFor(int sessionId) {
     return goalDao
         .watchAllGoalsFor(sessionId)
-        .map((goalList) => GoalToModelMapper.mapFromListOfEntity(goalList));
+        .map(
+          (List<Goal> goalList) =>
+              GoalToModelMapper.mapFromListOfEntity(goalList),
+        );
   }
 
   @override

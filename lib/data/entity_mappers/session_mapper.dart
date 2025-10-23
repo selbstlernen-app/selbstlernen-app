@@ -26,7 +26,7 @@ extension SessionToModelMapper on Session {
   }
 
   static List<SessionModel> mapFromListOfEntity(List<Session> entities) {
-    return entities.map((e) => e.toDomain()).toList();
+    return entities.map((Session e) => e.toDomain()).toList();
   }
 }
 

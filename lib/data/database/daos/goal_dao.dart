@@ -4,7 +4,7 @@ import 'package:srl_app/data/database/tables/goal_table.dart';
 
 part 'goal_dao.g.dart';
 
-@DriftAccessor(tables: [Goals])
+@DriftAccessor(tables: <Type>[Goals])
 class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
   GoalDao(super.db);
 
@@ -17,21 +17,27 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
   Stream<List<Goal>> watchAllGoalsFor(int sessionId) {
     return (select(
       goals,
-    )..where((goal) => goal.sessionId.equals(sessionId))).watch();
+    )..where(($GoalsTable goal) => goal.sessionId.equals(sessionId))).watch();
   }
 
   // Get goal by ID
   Stream<Goal?> getGoalById(int id) {
-    return (select(goals)..where((s) => s.id.equals(id))).watchSingleOrNull();
+    return (select(
+      goals,
+    )..where(($GoalsTable s) => s.id.equals(id))).watchSingleOrNull();
   }
 
   // Update goal
   Future<int> updateGoal(int id, GoalsCompanion companion) async {
-    return (update(goals)..where((tbl) => tbl.id.equals(id))).write(companion);
+    return (update(
+      goals,
+    )..where(($GoalsTable tbl) => tbl.id.equals(id))).write(companion);
   }
 
   // Delete goal
   Future<int> deleteGoal(int id) async {
-    return await (delete(goals)..where((s) => s.id.equals(id))).go();
+    return await (delete(
+      goals,
+    )..where(($GoalsTable s) => s.id.equals(id))).go();
   }
 }

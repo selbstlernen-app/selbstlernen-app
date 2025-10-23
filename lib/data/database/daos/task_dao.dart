@@ -4,7 +4,7 @@ import 'package:srl_app/data/database/tables/task_table.dart';
 
 part 'task_dao.g.dart';
 
-@DriftAccessor(tables: [Tasks])
+@DriftAccessor(tables: <Type>[Tasks])
 class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
   TaskDao(super.db);
 
@@ -17,21 +17,27 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
   Stream<List<Task>> watchAllTasksFor(int sessionId) {
     return (select(
       tasks,
-    )..where((task) => task.sessionId.equals(sessionId))).watch();
+    )..where(($TasksTable task) => task.sessionId.equals(sessionId))).watch();
   }
 
   // Get task by ID
   Stream<Task?> getTaskById(int id) {
-    return (select(tasks)..where((s) => s.id.equals(id))).watchSingleOrNull();
+    return (select(
+      tasks,
+    )..where(($TasksTable s) => s.id.equals(id))).watchSingleOrNull();
   }
 
   // Update task
   Future<int> updateTask(int id, TasksCompanion companion) async {
-    return (update(tasks)..where((tbl) => tbl.id.equals(id))).write(companion);
+    return (update(
+      tasks,
+    )..where(($TasksTable tbl) => tbl.id.equals(id))).write(companion);
   }
 
   // Delete task
   Future<int> deleteTask(int id) async {
-    return await (delete(tasks)..where((s) => s.id.equals(id))).go();
+    return await (delete(
+      tasks,
+    )..where(($TasksTable s) => s.id.equals(id))).go();
   }
 }

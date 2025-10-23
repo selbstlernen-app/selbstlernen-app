@@ -15,7 +15,7 @@ extension TaskToModelMapper on Task {
   }
 
   static List<TaskModel> mapFromListOfEntity(List<Task> entities) {
-    return entities.map((e) => e.toDomain()).toList();
+    return entities.map((Task e) => e.toDomain()).toList();
   }
 }
 

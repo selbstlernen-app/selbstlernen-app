@@ -15,7 +15,7 @@ extension GoalToModelMapper on Goal {
   }
 
   static List<GoalModel> mapFromListOfEntity(List<Goal> entities) {
-    return entities.map((e) => e.toDomain()).toList();
+    return entities.map((Goal e) => e.toDomain()).toList();
   }
 }
 

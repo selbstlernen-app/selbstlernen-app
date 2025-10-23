@@ -4,7 +4,7 @@ import 'package:srl_app/data/database/tables/session_table.dart';
 
 part 'session_dao.g.dart';
 
-@DriftAccessor(tables: [Sessions])
+@DriftAccessor(tables: <Type>[Sessions])
 class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
   SessionDao(super.db);
 
@@ -22,18 +22,20 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
   Stream<Session?> getSessionById(int id) {
     return (select(
       sessions,
-    )..where((s) => s.id.equals(id))).watchSingleOrNull();
+    )..where(($SessionsTable s) => s.id.equals(id))).watchSingleOrNull();
   }
 
   // Update session
   Future<int> updateSession(int id, SessionsCompanion companion) async {
     return (update(
       sessions,
-    )..where((tbl) => tbl.id.equals(id))).write(companion);
+    )..where(($SessionsTable tbl) => tbl.id.equals(id))).write(companion);
   }
 
   // Delete session
   Future<int> deleteSession(int id) async {
-    return await (delete(sessions)..where((s) => s.id.equals(id))).go();
+    return await (delete(
+      sessions,
+    )..where(($SessionsTable s) => s.id.equals(id))).go();
   }
 }

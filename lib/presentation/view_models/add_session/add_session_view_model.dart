@@ -3,6 +3,9 @@ import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/goal_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/models/task_model.dart';
+import 'package:srl_app/domain/usecases/create_goals_use_case.dart';
+import 'package:srl_app/domain/usecases/create_session_use_case.dart';
+import 'package:srl_app/domain/usecases/create_tasks_use_case.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 part 'add_session_view_model.g.dart';
@@ -36,7 +39,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void toggleDay(int day) {
-    final days = List<int>.from(state.selectedDays);
+    final List<int> days = List<int>.from(state.selectedDays);
     if (days.contains(day)) {
       days.remove(day);
     } else {
@@ -47,36 +50,36 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Goals and tasks
   void addGoal(GoalModel goal) {
-    state = state.copyWith(goals: [...state.goals, goal]);
+    state = state.copyWith(goals: <GoalModel>[...state.goals, goal]);
   }
 
   void removeGoal(int index) {
-    final goals = List<GoalModel>.from(state.goals);
+    final List<GoalModel> goals = List<GoalModel>.from(state.goals);
     goals.removeAt(index);
     state = state.copyWith(goals: goals);
   }
 
   void addTask(TaskModel task) {
-    state = state.copyWith(tasks: [...state.tasks, task]);
+    state = state.copyWith(tasks: <TaskModel>[...state.tasks, task]);
   }
 
   void removeTask(int index) {
-    final tasks = List<TaskModel>.from(state.tasks);
+    final List<TaskModel> tasks = List<TaskModel>.from(state.tasks);
     tasks.removeAt(index);
     state = state.copyWith(tasks: tasks);
   }
 
   // Creates a task directly linked to a goal
   void addTaskToGoal(TaskModel task, String goalId) {
-    final taskWithGoal = task.copyWith(goalId: goalId);
+    final TaskModel taskWithGoal = task.copyWith(goalId: goalId);
 
-    state = state.copyWith(tasks: [...state.tasks, taskWithGoal]);
+    state = state.copyWith(tasks: <TaskModel>[...state.tasks, taskWithGoal]);
   }
 
   // Task is udpated and linked to a goal
   void linkTaskToGoal(int taskIndex, String goalId) {
-    final tasks = List<TaskModel>.from(state.tasks);
-    final task = tasks[taskIndex];
+    final List<TaskModel> tasks = List<TaskModel>.from(state.tasks);
+    final TaskModel task = tasks[taskIndex];
 
     tasks[taskIndex] = task.copyWith(goalId: goalId);
 
@@ -84,7 +87,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void toggleStrategy(String strategy) {
-    final strategies = List<String>.from(state.learningStrategies);
+    final List<String> strategies = List<String>.from(state.learningStrategies);
     if (strategies.contains(strategy)) {
       strategies.remove(strategy);
     } else {
@@ -162,13 +165,17 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       throw Exception('Please complete all required fields');
     }
 
-    final sessionUseCase = ref.read(createSessionUseCaseProvider);
+    final CreateSessionUseCase sessionUseCase = ref.read(
+      createSessionUseCaseProvider,
+    );
 
-    final session = _stateToSessionModel(state);
+    final SessionModel session = _stateToSessionModel(state);
     int sessionId = await sessionUseCase.call(session);
 
     if (state.goals.isNotEmpty && state.setBigGoals) {
-      final goalUseCase = ref.read(createGoalsUseCaseProvider);
+      final CreateGoalsUseCase goalUseCase = ref.read(
+        createGoalsUseCaseProvider,
+      );
       for (GoalModel goal in state.goals) {
         GoalModel addGoal = goal.copyWith(sessionId: sessionId.toString());
         goalUseCase.call(addGoal);
@@ -176,7 +183,9 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     }
 
     if (state.tasks.isNotEmpty && !state.setBigGoals) {
-      final taskUseCase = ref.read(createTasksUseCaseProvider);
+      final CreateTasksUseCase taskUseCase = ref.read(
+        createTasksUseCaseProvider,
+      );
       for (TaskModel task in state.tasks) {
         TaskModel addTask = task.copyWith(sessionId: sessionId.toString());
         taskUseCase.call(addTask);

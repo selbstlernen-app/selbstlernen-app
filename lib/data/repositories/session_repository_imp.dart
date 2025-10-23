@@ -1,3 +1,4 @@
+import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/daos/session_dao.dart';
 import 'package:srl_app/data/entity_mappers/session_mapper.dart';
 import 'package:srl_app/domain/models/session_model.dart';
@@ -21,7 +22,8 @@ class SessionRepositoryImp implements SessionRepository {
   @override
   Stream<List<SessionModel>> getAllSessions() {
     return sessionDao.watchAllSessions().map(
-      (sessionList) => SessionToModelMapper.mapFromListOfEntity(sessionList),
+      (List<Session> sessionList) =>
+          SessionToModelMapper.mapFromListOfEntity(sessionList),
     );
   }
 
@@ -29,7 +31,7 @@ class SessionRepositoryImp implements SessionRepository {
   Stream<SessionModel?> getSession(int sessionId) {
     return sessionDao
         .getSessionById(sessionId)
-        .map((session) => session?.toDomain());
+        .map((Session? session) => session?.toDomain());
   }
 
   @override
