@@ -1,28 +1,32 @@
+import 'package:srl_app/data/database/daos/goal_dao.dart';
+import 'package:srl_app/data/entity_mappers/goal_mapper.dart';
 import 'package:srl_app/domain/goal_repository.dart';
 import 'package:srl_app/domain/models/goal_model.dart';
 
 class GoalRepositoryImp implements GoalRepository {
+  GoalRepositoryImp(this.goalDao);
+
+  final GoalDao goalDao;
+
   @override
   Future<int> addGoal(GoalModel goal) {
-    // TODO: implement addGoal
-    throw UnimplementedError();
+    return goalDao.addGoal(goal.toCompanion());
   }
 
   @override
   Future deleteGoal(int goalId) {
-    // TODO: implement deleteGoal
-    throw UnimplementedError();
+    return goalDao.deleteGoal(goalId);
   }
 
   @override
   Stream<List<GoalModel>> getAllGoalsFor(int sessionId) {
-    // TODO: implement getAllGoalsFor
-    throw UnimplementedError();
+    return goalDao
+        .watchAllGoalsFor(sessionId)
+        .map((goalList) => GoalToModelMapper.mapFromListOfEntity(goalList));
   }
 
   @override
-  Future<int> updateSession(int goalId, GoalModel updatedGoal) {
-    // TODO: implement updateSession
-    throw UnimplementedError();
+  Future<int> updateGoal(int goalId, GoalModel updatedGoal) {
+    return goalDao.updateGoal(goalId, updatedGoal.toCompanion());
   }
 }

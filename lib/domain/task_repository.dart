@@ -4,5 +4,5 @@ abstract class TaskRepository {
   Stream<List<TaskModel>> getAllTasksFor(int sessionId);
   Future<int> addTask(TaskModel task);
   Future deleteTask(int taskId);
-  Future<int> updateSession(int taskId, TaskModel updatedTask);
+  Future<int> updateTask(int taskId, TaskModel updatedTask);
 }

@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$GoalModel {
 
- String? get id; String get title; String? get sessionId; bool? get completed; DateTime? get completedAt; DateTime? get createdAt;
+ String? get id; String get title; String? get sessionId; bool get isCompleted; DateTime? get completedAt; DateTime? get createdAt;
 /// Create a copy of GoalModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $GoalModelCopyWith<GoalModel> get copyWith => _$GoalModelCopyWithImpl<GoalModel>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is GoalModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.completed, completed) || other.completed == completed)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is GoalModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.isCompleted, isCompleted) || other.isCompleted == isCompleted)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,title,sessionId,completed,completedAt,createdAt);
+int get hashCode => Object.hash(runtimeType,id,title,sessionId,isCompleted,completedAt,createdAt);
 
 @override
 String toString() {
-  return 'GoalModel(id: $id, title: $title, sessionId: $sessionId, completed: $completed, completedAt: $completedAt, createdAt: $createdAt)';
+  return 'GoalModel(id: $id, title: $title, sessionId: $sessionId, isCompleted: $isCompleted, completedAt: $completedAt, createdAt: $createdAt)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $GoalModelCopyWith<$Res>  {
   factory $GoalModelCopyWith(GoalModel value, $Res Function(GoalModel) _then) = _$GoalModelCopyWithImpl;
 @useResult
 $Res call({
- String? id, String title, String? sessionId, bool? completed, DateTime? completedAt, DateTime? createdAt
+ String? id, String title, String? sessionId, bool isCompleted, DateTime? completedAt, DateTime? createdAt
 });
 
 
@@ -62,13 +62,13 @@ class _$GoalModelCopyWithImpl<$Res>
 
 /// Create a copy of GoalModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? sessionId = freezed,Object? completed = freezed,Object? completedAt = freezed,Object? createdAt = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = freezed,Object? title = null,Object? sessionId = freezed,Object? isCompleted = null,Object? completedAt = freezed,Object? createdAt = freezed,}) {
   return _then(_self.copyWith(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,sessionId: freezed == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
-as String?,completed: freezed == completed ? _self.completed : completed // ignore: cast_nullable_to_non_nullable
-as bool?,completedAt: freezed == completedAt ? _self.completedAt : completedAt // ignore: cast_nullable_to_non_nullable
+as String?,isCompleted: null == isCompleted ? _self.isCompleted : isCompleted // ignore: cast_nullable_to_non_nullable
+as bool,completedAt: freezed == completedAt ? _self.completedAt : completedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));
@@ -155,10 +155,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String title,  String? sessionId,  bool? completed,  DateTime? completedAt,  DateTime? createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? id,  String title,  String? sessionId,  bool isCompleted,  DateTime? completedAt,  DateTime? createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GoalModel() when $default != null:
-return $default(_that.id,_that.title,_that.sessionId,_that.completed,_that.completedAt,_that.createdAt);case _:
+return $default(_that.id,_that.title,_that.sessionId,_that.isCompleted,_that.completedAt,_that.createdAt);case _:
   return orElse();
 
 }
@@ -176,10 +176,10 @@ return $default(_that.id,_that.title,_that.sessionId,_that.completed,_that.compl
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String title,  String? sessionId,  bool? completed,  DateTime? completedAt,  DateTime? createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? id,  String title,  String? sessionId,  bool isCompleted,  DateTime? completedAt,  DateTime? createdAt)  $default,) {final _that = this;
 switch (_that) {
 case _GoalModel():
-return $default(_that.id,_that.title,_that.sessionId,_that.completed,_that.completedAt,_that.createdAt);case _:
+return $default(_that.id,_that.title,_that.sessionId,_that.isCompleted,_that.completedAt,_that.createdAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -196,10 +196,10 @@ return $default(_that.id,_that.title,_that.sessionId,_that.completed,_that.compl
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String title,  String? sessionId,  bool? completed,  DateTime? completedAt,  DateTime? createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? id,  String title,  String? sessionId,  bool isCompleted,  DateTime? completedAt,  DateTime? createdAt)?  $default,) {final _that = this;
 switch (_that) {
 case _GoalModel() when $default != null:
-return $default(_that.id,_that.title,_that.sessionId,_that.completed,_that.completedAt,_that.createdAt);case _:
+return $default(_that.id,_that.title,_that.sessionId,_that.isCompleted,_that.completedAt,_that.createdAt);case _:
   return null;
 
 }
@@ -211,13 +211,13 @@ return $default(_that.id,_that.title,_that.sessionId,_that.completed,_that.compl
 
 
 class _GoalModel extends GoalModel {
-  const _GoalModel({this.id, required this.title, this.sessionId, this.completed, this.completedAt, this.createdAt}): super._();
+  const _GoalModel({this.id, required this.title, this.sessionId, required this.isCompleted, this.completedAt, this.createdAt}): super._();
   
 
 @override final  String? id;
 @override final  String title;
 @override final  String? sessionId;
-@override final  bool? completed;
+@override final  bool isCompleted;
 @override final  DateTime? completedAt;
 @override final  DateTime? createdAt;
 
@@ -231,16 +231,16 @@ _$GoalModelCopyWith<_GoalModel> get copyWith => __$GoalModelCopyWithImpl<_GoalMo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GoalModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.completed, completed) || other.completed == completed)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _GoalModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.sessionId, sessionId) || other.sessionId == sessionId)&&(identical(other.isCompleted, isCompleted) || other.isCompleted == isCompleted)&&(identical(other.completedAt, completedAt) || other.completedAt == completedAt)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,title,sessionId,completed,completedAt,createdAt);
+int get hashCode => Object.hash(runtimeType,id,title,sessionId,isCompleted,completedAt,createdAt);
 
 @override
 String toString() {
-  return 'GoalModel(id: $id, title: $title, sessionId: $sessionId, completed: $completed, completedAt: $completedAt, createdAt: $createdAt)';
+  return 'GoalModel(id: $id, title: $title, sessionId: $sessionId, isCompleted: $isCompleted, completedAt: $completedAt, createdAt: $createdAt)';
 }
 
 
@@ -251,7 +251,7 @@ abstract mixin class _$GoalModelCopyWith<$Res> implements $GoalModelCopyWith<$Re
   factory _$GoalModelCopyWith(_GoalModel value, $Res Function(_GoalModel) _then) = __$GoalModelCopyWithImpl;
 @override @useResult
 $Res call({
- String? id, String title, String? sessionId, bool? completed, DateTime? completedAt, DateTime? createdAt
+ String? id, String title, String? sessionId, bool isCompleted, DateTime? completedAt, DateTime? createdAt
 });
 
 
@@ -268,13 +268,13 @@ class __$GoalModelCopyWithImpl<$Res>
 
 /// Create a copy of GoalModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? sessionId = freezed,Object? completed = freezed,Object? completedAt = freezed,Object? createdAt = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = freezed,Object? title = null,Object? sessionId = freezed,Object? isCompleted = null,Object? completedAt = freezed,Object? createdAt = freezed,}) {
   return _then(_GoalModel(
 id: freezed == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String?,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,sessionId: freezed == sessionId ? _self.sessionId : sessionId // ignore: cast_nullable_to_non_nullable
-as String?,completed: freezed == completed ? _self.completed : completed // ignore: cast_nullable_to_non_nullable
-as bool?,completedAt: freezed == completedAt ? _self.completedAt : completedAt // ignore: cast_nullable_to_non_nullable
+as String?,isCompleted: null == isCompleted ? _self.isCompleted : isCompleted // ignore: cast_nullable_to_non_nullable
+as bool,completedAt: freezed == completedAt ? _self.completedAt : completedAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,createdAt: freezed == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
 as DateTime?,
   ));

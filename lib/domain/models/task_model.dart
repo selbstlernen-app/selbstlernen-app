@@ -11,7 +11,7 @@ abstract class TaskModel with _$TaskModel {
     required String title,
     String? sessionId,
     String? goalId,
-    bool? completed,
+    required bool isCompleted,
     DateTime? completedAt,
     DateTime? createdAt,
   }) = _TaskModel;

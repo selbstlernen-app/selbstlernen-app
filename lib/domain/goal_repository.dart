@@ -4,5 +4,5 @@ abstract class GoalRepository {
   Stream<List<GoalModel>> getAllGoalsFor(int sessionId);
   Future<int> addGoal(GoalModel goal);
   Future deleteGoal(int goalId);
-  Future<int> updateSession(int goalId, GoalModel updatedGoal);
+  Future<int> updateGoal(int goalId, GoalModel updatedGoal);
 }

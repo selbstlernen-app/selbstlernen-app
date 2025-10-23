@@ -1,0 +1,37 @@
+import 'package:drift/drift.dart';
+import 'package:srl_app/data/app_database.dart';
+import 'package:srl_app/data/database/tables/task_table.dart';
+
+part 'task_dao.g.dart';
+
+@DriftAccessor(tables: [Tasks])
+class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
+  TaskDao(super.db);
+
+  // Insert task
+  Future<int> addTask(TasksCompanion task) async {
+    return await into(tasks).insert(task);
+  }
+
+  // Watch all tasks of a session
+  Stream<List<Task>> watchAllTasksFor(int sessionId) {
+    return (select(
+      tasks,
+    )..where((task) => task.sessionId.equals(sessionId))).watch();
+  }
+
+  // Get task by ID
+  Stream<Task?> getTaskById(int id) {
+    return (select(tasks)..where((s) => s.id.equals(id))).watchSingleOrNull();
+  }
+
+  // Update task
+  Future<int> updateTask(int id, TasksCompanion companion) async {
+    return (update(tasks)..where((tbl) => tbl.id.equals(id))).write(companion);
+  }
+
+  // Delete task
+  Future<int> deleteTask(int id) async {
+    return await (delete(tasks)..where((s) => s.id.equals(id))).go();
+  }
+}
