@@ -5,10 +5,5 @@ class CreateSessionUseCase {
   CreateSessionUseCase(this.repository);
   final SessionRepository repository;
 
-  Future<int> createSession(SessionModel session) {
-    if (session.title.isEmpty) {
-      throw Exception('Session title cannot be empty');
-    }
-    return repository.addSession(session);
-  }
+  Future<int> call(SessionModel session) => repository.addSession(session);
 }
