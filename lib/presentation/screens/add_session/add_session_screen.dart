@@ -1,0 +1,89 @@
+import 'package:flutter/material.dart';
+import 'package:srl_app/common_widgets/main_layout.dart';
+import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/main_navigation.dart';
+
+class AddSessionScreen extends StatefulWidget {
+  const AddSessionScreen({super.key});
+
+  @override
+  State<AddSessionScreen> createState() => _AddSessionScreenState();
+}
+
+class _AddSessionScreenState extends State<AddSessionScreen> {
+  final PageController _pageController = PageController(initialPage: 0);
+  int currentPage = 0;
+  double _progress = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Denominator is the total amount of pages available
+    _progress = 1 / 5;
+  }
+
+  void _navigateBack() {
+    if (currentPage > 0) {
+      setState(() {
+        currentPage -= 1;
+        _progress = (currentPage + 1) / 5;
+      });
+      _pageController.previousPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInBack,
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) => const MainNavigation(),
+        ),
+      );
+    }
+  }
+
+  void _navigateForward() {
+    setState(() {
+      currentPage += 1;
+      _progress = (currentPage + 1) / 5;
+      _pageController.nextPage(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInCubic,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MainLayout(
+      appBarTitle: "Neue Einheit",
+      bottomBarWidget: PreferredSize(
+        preferredSize: const Size.fromHeight(30.0),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 20.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              minHeight: 8.0,
+              value: _progress,
+              color: context.colorScheme.primary,
+              backgroundColor: Colors.white,
+            ),
+          ),
+        ),
+      ),
+      content: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        children: <Widget>[
+          Placeholder(color: Colors.green),
+          Placeholder(color: Colors.red),
+          Placeholder(color: Colors.blue),
+          Placeholder(color: Colors.yellow),
+          Placeholder(color: Colors.purple),
+        ],
+      ),
+      navigateBack: _navigateBack,
+    );
+  }
+}
