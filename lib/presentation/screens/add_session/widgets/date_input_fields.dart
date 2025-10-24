@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_text_field.dart';
+import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/date_time_utils.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
@@ -68,7 +70,10 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
+        const VerticalSpace(size: SpaceSize.medium),
+
         Text("Jede Woche", style: context.textTheme.headlineSmall),
+        const VerticalSpace(size: SpaceSize.small),
         Center(
           child: Wrap(
             spacing: 24,
@@ -112,7 +117,10 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
           ),
         ),
 
+        const VerticalSpace(size: SpaceSize.medium),
+
         Text("ab dem", style: context.textTheme.headlineSmall),
+        const VerticalSpace(size: SpaceSize.small),
         CustomTextField(
           controller: _startDateController,
           readOnly: true,
@@ -123,7 +131,10 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
               .validateDates(),
         ),
 
+        const VerticalSpace(size: SpaceSize.medium),
+
         Text("bis zum", style: context.textTheme.headlineSmall),
+        const VerticalSpace(size: SpaceSize.small),
         CustomTextField(
           controller: _endDateController,
           readOnly: true,

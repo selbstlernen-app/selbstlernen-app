@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/custom_text_field.dart';
+import 'package:srl_app/common_widgets/horizontal_space.dart';
+import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/goal_model.dart';
 import 'package:srl_app/domain/models/task_model.dart';
@@ -98,6 +101,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                   "Name der Lerneinheit",
                   style: context.textTheme.headlineMedium,
                 ),
+                const VerticalSpace(size: SpaceSize.small),
                 CustomTextField(
                   onChanged: ref
                       .read(addSessionViewModelProvider.notifier)
@@ -109,11 +113,14 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       .validateTitle(),
                 ),
 
+                const VerticalSpace(size: SpaceSize.large),
+
                 // Date and days
                 Text(
                   "Art der Lerneinheit",
                   style: context.textTheme.headlineMedium,
                 ),
+                const VerticalSpace(size: SpaceSize.small),
                 Row(
                   children: <Widget>[
                     CustomButton(
@@ -125,6 +132,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       verticalPadding: 8.0,
                       label: "Einmalig",
                     ),
+                    const HorizontalSpace(size: SpaceSize.small),
                     CustomButton(
                       isActive: state.isRepeating,
                       onPressed: () => ref
@@ -138,11 +146,14 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                 ),
                 if (state.isRepeating) const DateInputFields(),
 
+                const VerticalSpace(size: SpaceSize.large),
+
                 // Big/small goals
                 Text(
                   "Ziele für diese Lerneinheit",
                   style: context.textTheme.headlineMedium,
                 ),
+                const VerticalSpace(size: SpaceSize.small),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -172,7 +183,8 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                   ],
                 ),
 
-                // Goal/Task input field
+                const VerticalSpace(size: SpaceSize.medium),
+
                 InputList(
                   controller: state.setBigGoals
                       ? _bigGoalController

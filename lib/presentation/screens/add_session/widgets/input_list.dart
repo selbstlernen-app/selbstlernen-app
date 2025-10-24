@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/custom_item_tile.dart';
 import 'package:srl_app/common_widgets/custom_text_field.dart';
+import 'package:srl_app/common_widgets/horizontal_space.dart';
+import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/goal_model.dart';
 import 'package:srl_app/domain/models/task_model.dart';
@@ -12,6 +15,7 @@ class InputList<T> extends StatelessWidget {
     required this.onEnter,
     required this.isBigGoal,
     required this.items,
+    this.hideHeadline = false,
     this.toolTip,
     this.errorText,
   });
@@ -19,6 +23,7 @@ class InputList<T> extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onEnter;
   final bool isBigGoal;
+  final bool hideHeadline;
   final List<T> items;
   final String? toolTip;
   final String? errorText;
@@ -30,7 +35,9 @@ class InputList<T> extends StatelessWidget {
       children: <Widget>[
         _buildInputRow(context),
         if (toolTip?.isNotEmpty ?? false) _buildTooltip(context),
-        _buildHeader(context),
+        const VerticalSpace(size: SpaceSize.medium),
+        if (!hideHeadline) _buildHeader(context),
+        const VerticalSpace(size: SpaceSize.small),
         ..._buildItemsList(),
       ],
     );
@@ -48,6 +55,7 @@ class InputList<T> extends StatelessWidget {
             errorText: errorText,
           ),
         ),
+        const HorizontalSpace(size: SpaceSize.small),
         IconButton(
           icon: const Icon(Icons.add),
           onPressed: onEnter,
@@ -78,7 +86,7 @@ class InputList<T> extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Text(
-      isBigGoal ? "Ziele (max. 3)" : "Kleine Ziele (max. 10)",
+      (isBigGoal) ? "Ziele (max. 3)" : "Kleine Ziele (max. 10)",
       style: context.textTheme.headlineSmall,
     );
   }

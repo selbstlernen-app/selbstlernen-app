@@ -3,6 +3,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/custom_item_tile.dart';
+import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/goal_model.dart';
 import 'package:srl_app/domain/models/task_model.dart';
@@ -76,17 +78,23 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                   "Kleine Ziele gruppieren",
                   style: context.textTheme.headlineMedium,
                 ),
+                const VerticalSpace(size: SpaceSize.small),
                 Text(
                   "Gruppiere kleine Ziele unter einem Großen zusammen. Du kannst diesen Schritt auch vorerst überspringen.",
                   style: context.textTheme.bodyMedium,
                 ),
 
+                const VerticalSpace(size: SpaceSize.large),
+
                 // Select tasks
-                if (state.ungroupedTasks.isNotEmpty) ...[
+                if (state.ungroupedTasks.isNotEmpty) ...<Widget>[
                   Text(
                     "Verfügbare kleine Ziele",
-                    style: context.textTheme.titleMedium,
+                    style: context.textTheme.headlineSmall,
                   ),
+
+                  const VerticalSpace(size: SpaceSize.small),
+
                   ...state.ungroupedTasks.map((TaskModel task) {
                     final bool isSelected = _selectedTasks.any(
                       (TaskModel t) => t.id == task.id,
@@ -122,27 +130,34 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                   }),
                 ],
 
-                if (_selectedTasks.isNotEmpty) ...[
+                if (_selectedTasks.isNotEmpty) ...<Widget>[
+                  const VerticalSpace(size: SpaceSize.large),
+
                   Text(
                     "Großes Ziel formulieren (${_selectedTasks.length} ausgewählt)",
-                    style: context.textTheme.headlineMedium,
+                    style: context.textTheme.headlineSmall,
                   ),
+
+                  const VerticalSpace(size: SpaceSize.small),
 
                   InputList(
                     controller: _goalController,
                     onEnter: _groupTasksTo,
                     isBigGoal: true,
-                    items: const <TaskModel>[], // Empty, showing input only
+                    items: const <TaskModel>[],
+                    hideHeadline: true, // Empty, showing input only
                   ),
                 ],
 
                 // Grouped tasks and their goal
-                if (state.goals.isNotEmpty) ...[
+                if (state.goals.isNotEmpty) ...<Widget>[
+                  const VerticalSpace(size: SpaceSize.large),
+
                   Text(
                     "Gruppierte Ziele",
                     style: context.textTheme.headlineMedium,
                   ),
-
+                  const VerticalSpace(size: SpaceSize.small),
                   ...state.goals.map((GoalModel goal) {
                     final List<TaskModel> tasksForGoal = state.tasks
                         .where((TaskModel t) => t.goalId == goal.id)
