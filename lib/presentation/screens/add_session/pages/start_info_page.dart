@@ -24,7 +24,6 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
   late TextEditingController _bigGoalController;
   late TextEditingController _smallGoalController;
   final ScrollController _scrollController = ScrollController();
-  final Uuid uuid = Uuid();
 
   @override
   void initState() {
@@ -59,6 +58,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
     final String text = _bigGoalController.text.trim();
     if (text.isEmpty) return;
 
+    const Uuid uuid = Uuid();
     ref
         .read(addSessionViewModelProvider.notifier)
         // Temporary goalId
@@ -72,6 +72,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
     final String text = _smallGoalController.text.trim();
     if (text.isEmpty) return;
 
+    const Uuid uuid = Uuid();
     ref
         .read(addSessionViewModelProvider.notifier)
         // Temporary taskId
@@ -171,7 +172,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                   ],
                 ),
 
-                // Goal input fields
+                // Goal/Task input field
                 InputList(
                   controller: state.setBigGoals
                       ? _bigGoalController
@@ -181,7 +182,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                   items: state.setBigGoals ? state.goals : state.tasks,
                   toolTip: state.setBigGoals
                       ? "Tipp: Halte deine Ziele so präzise und kurz wie möglich."
-                      : "Du kannst kleinere Ziele später gruppieren.",
+                      : "Tipp: Du kannst kleine Ziele später unter großen Zielen gruppieren.",
                 ),
               ],
             ),

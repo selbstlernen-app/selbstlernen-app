@@ -45,4 +45,7 @@ abstract class AddSessionState with _$AddSessionState {
     @Default(false) bool hasMoodPrompt,
     @Default(false) bool hasFreetextPrompt,
   }) = _AddSessionState;
+
+  List<TaskModel> get ungroupedTasks =>
+      tasks.where((TaskModel task) => task.goalId == null).toList();
 }
