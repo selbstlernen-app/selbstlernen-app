@@ -26,7 +26,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(isRepeating: isRepeating);
   }
 
-  void setSetBigGoals(bool setBigGoals) {
+  void setBigGoals(bool setBigGoals) {
     state = state.copyWith(setBigGoals: setBigGoals);
   }
 
@@ -129,23 +129,23 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   // Validation
   String? validateTitle() {
     if (state.title.trim().isEmpty) {
-      return 'Titel kann nicht leer sein';
+      return 'Titel kann nicht leer sein.';
     }
     if (state.title.length < 3) {
-      return 'Titel muss mind. 3 Charaktere lang sein';
+      return 'Titel muss mind. 3 Charaktere lang sein.';
     }
     return null;
   }
 
   String? validateDates() {
     if (state.isRepeating && state.startDate == null) {
-      return 'Startdatum muss gegeben sein';
+      return 'Startdatum muss gegeben sein.';
     }
     if (state.isRepeating && state.endDate == null) {
-      return 'Enddatum muss gegeben sein';
+      return 'Enddatum muss gegeben sein.';
     }
     if (state.endDate != null && state.endDate!.isBefore(state.startDate!)) {
-      return 'Enddatum kann nicht kleiner als Startdatum sein';
+      return 'Enddatum kann nicht kleiner als Startdatum sein.';
     }
     return null;
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/main_navigation.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/start_info_page.dart';
 
 class AddSessionScreen extends StatefulWidget {
   const AddSessionScreen({super.key});
@@ -76,7 +77,7 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
-          const Placeholder(color: Colors.green),
+          StartInfoPage(navigateForward: _navigateForward),
           const Placeholder(color: Colors.red),
           const Placeholder(color: Colors.blue),
           const Placeholder(color: Colors.yellow),
