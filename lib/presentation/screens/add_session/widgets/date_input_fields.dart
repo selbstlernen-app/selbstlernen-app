@@ -117,6 +117,12 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
           ),
         ),
 
+        if (state.selectedDaysError != null)
+          Text(
+            state.selectedDaysError!,
+            style: TextStyle(color: context.colorScheme.error, fontSize: 14),
+          ),
+
         const VerticalSpace(size: SpaceSize.medium),
 
         Text("ab dem", style: context.textTheme.headlineSmall),
@@ -126,9 +132,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
           readOnly: true,
           hintText: "Startdatum auswählen",
           onTap: () => _pickDate(_startDateController, true),
-          errorText: ref
-              .read(addSessionViewModelProvider.notifier)
-              .validateDates(),
+          errorText: state.startDateError,
         ),
 
         const VerticalSpace(size: SpaceSize.medium),
@@ -140,9 +144,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
           readOnly: true,
           hintText: "Enddatum auswählen",
           onTap: () => _pickDate(_endDateController, false),
-          errorText: ref
-              .read(addSessionViewModelProvider.notifier)
-              .validateDates(),
+          errorText: state.endDateError,
         ),
       ],
     );

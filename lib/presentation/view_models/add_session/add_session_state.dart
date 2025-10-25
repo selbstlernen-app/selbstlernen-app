@@ -44,6 +44,12 @@ abstract class AddSessionState with _$AddSessionState {
     @Default(false) bool hasFocusPrompt,
     @Default(false) bool hasMoodPrompt,
     @Default(false) bool hasFreetextPrompt,
+
+    //Validation fields
+    String? titleError,
+    String? startDateError,
+    String? endDateError,
+    String? selectedDaysError,
   }) = _AddSessionState;
 
   List<TaskModel> get ungroupedTasks =>

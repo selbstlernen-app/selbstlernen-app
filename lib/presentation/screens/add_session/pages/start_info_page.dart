@@ -108,9 +108,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       .setTitle,
                   controller: _titleController,
                   hintText: "z.B. Info 1 - Vorlesung 3...",
-                  errorText: ref
-                      .read(addSessionViewModelProvider.notifier)
-                      .validateTitle(),
+                  errorText: state.titleError,
                 ),
 
                 const VerticalSpace(size: SpaceSize.large),
@@ -206,10 +204,10 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
           child: CustomButton(
             label: "Weiter",
             isActive: ref
-                .read(addSessionViewModelProvider.notifier)
-                .canSubmit(),
+                .watch(addSessionViewModelProvider.notifier)
+                .isFormValid,
             onPressed: () =>
-                ref.read(addSessionViewModelProvider.notifier).canSubmit()
+                ref.read(addSessionViewModelProvider.notifier).validateAll()
                 ? widget.navigateForward()
                 : null,
           ),

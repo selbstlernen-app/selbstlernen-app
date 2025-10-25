@@ -19,7 +19,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Basic info
   void setTitle(String title) {
-    state = state.copyWith(title: title);
+    state = state.copyWith(title: title, titleError: _validateTitle(title));
   }
 
   void setIsRepeating(bool isRepeating) {
@@ -31,11 +31,14 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void setStartDate(DateTime? date) {
-    state = state.copyWith(startDate: date);
+    state = state.copyWith(
+      startDate: date,
+      startDateError: _validateStartDate(date),
+    );
   }
 
   void setEndDate(DateTime? date) {
-    state = state.copyWith(endDate: date);
+    state = state.copyWith(endDate: date, endDateError: _validateEndDate(date));
   }
 
   void toggleDay(int day) {
@@ -45,7 +48,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     } else {
       days.add(day);
     }
-    state = state.copyWith(selectedDays: days);
+    state = state.copyWith(
+      selectedDays: days,
+      selectedDaysError: _validateDays(days),
+    );
   }
 
   // Goals and tasks
@@ -127,33 +133,90 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   // Validation
-  String? validateTitle() {
-    if (state.title.trim().isEmpty) {
+  String? _validateTitle(String? title) {
+    if (title == null || title.trim().isEmpty) {
       return 'Titel kann nicht leer sein.';
     }
-    if (state.title.length < 3) {
+    if (title.length < 3) {
       return 'Titel muss mind. 3 Charaktere lang sein.';
     }
     return null;
   }
 
-  String? validateDates() {
-    if (state.isRepeating && state.startDate == null) {
+  String? _validateStartDate(DateTime? date) {
+    if (!state.isRepeating) {
+      return null;
+    }
+    if (date == null) {
       return 'Startdatum muss gegeben sein.';
     }
-    if (state.isRepeating && state.endDate == null) {
-      return 'Enddatum muss gegeben sein.';
-    }
-    if (state.endDate != null && state.endDate!.isBefore(state.startDate!)) {
-      return 'Enddatum kann nicht kleiner als Startdatum sein.';
+    if (state.endDate != null) {
+      if (state.endDate!.isBefore(date)) {
+        return 'Startdatum muss vor dem Enddatum liegen.';
+      }
+
+      if (state.endDate!.isAtSameMomentAs(date)) {
+        return 'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.';
+      }
     }
     return null;
   }
 
-  bool canSubmit() {
-    return validateTitle() == null &&
-        validateDates() == null &&
-        // Have at least one goal or task defined
+  String? _validateEndDate(DateTime? date) {
+    if (!state.isRepeating) return null;
+    if (date == null) {
+      return 'Enddatum muss gegeben sein.';
+    }
+    if (state.startDate != null) {
+      if (date.isBefore(state.startDate!)) {
+        return 'Enddatum muss nach dem Startdatum liegen.';
+      }
+
+      if (date.isAtSameMomentAs(state.startDate!)) {
+        return 'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.';
+      }
+    }
+    return null;
+  }
+
+  String? _validateDays(List<int> selectedDays) {
+    if (!state.isRepeating) return null;
+    if (selectedDays.isEmpty) {
+      return "Es muss mind. ein Tag ausgewählt werden.";
+    }
+    return null;
+  }
+
+  bool validateAll() {
+    final String? titleErr = _validateTitle(state.title);
+    final String? startErr = _validateStartDate(state.startDate);
+    final String? endErr = _validateEndDate(state.endDate);
+    final String? daysErr = _validateDays(state.selectedDays);
+
+    // Update state with all errors
+    state = state.copyWith(
+      titleError: titleErr,
+      startDateError: startErr,
+      endDateError: endErr,
+      selectedDaysError: daysErr,
+    );
+
+    // Return true only if all validations pass
+    return titleErr == null &&
+        startErr == null &&
+        endErr == null &&
+        daysErr == null &&
+        ((state.goals.isNotEmpty && state.setBigGoals) ||
+            (!state.setBigGoals && state.tasks.isNotEmpty));
+  }
+
+  bool get isFormValid {
+    return state.title.isNotEmpty &&
+        (state.isRepeating
+            ? (state.startDate != null &&
+                  state.endDate != null &&
+                  state.selectedDays?.isNotEmpty == true)
+            : true) &&
         ((state.goals.isNotEmpty && state.setBigGoals) ||
             (!state.setBigGoals && state.tasks.isNotEmpty));
   }
@@ -161,8 +224,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   // Save all info
   Future<void> createSession() async {
     // Final check before submitting
-    if (!canSubmit()) {
-      throw Exception('Please complete all required fields');
+    if (!validateAll()) {
+      throw Exception('Bitte fülle alle Felder korrekt aus!');
     }
 
     final CreateSessionUseCase sessionUseCase = ref.read(
