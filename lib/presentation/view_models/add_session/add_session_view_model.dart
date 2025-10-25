@@ -178,7 +178,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       );
       for (GoalModel goal in state.goals) {
         GoalModel addGoal = goal.copyWith(sessionId: sessionId.toString());
-        goalUseCase.call(addGoal);
+        await goalUseCase.call(addGoal);
       }
     }
 
@@ -188,7 +188,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       );
       for (TaskModel task in state.tasks) {
         TaskModel addTask = task.copyWith(sessionId: sessionId.toString());
-        taskUseCase.call(addTask);
+        await taskUseCase.call(addTask);
       }
     }
   }

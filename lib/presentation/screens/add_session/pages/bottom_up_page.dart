@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/custom_item_tile.dart';
@@ -140,7 +139,7 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
 
                   const VerticalSpace(size: SpaceSize.small),
 
-                  InputList(
+                  InputList<TaskModel>(
                     controller: _goalController,
                     onEnter: _groupTasksTo,
                     isBigGoal: true,
