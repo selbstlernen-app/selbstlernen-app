@@ -90,14 +90,26 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(tasks: tasks);
   }
 
+  void addStrategy(String strategy) {
+    if (state.learningStrategies.contains(strategy)) return;
+
+    state = state.copyWith(
+      learningStrategies: <String>[...state.learningStrategies, strategy],
+      // Add to available strategies if not already included
+      availableStrategies: state.availableStrategies.contains(strategy)
+          ? state.availableStrategies
+          : <String>[...state.availableStrategies, strategy],
+    );
+  }
+
   void toggleStrategy(String strategy) {
-    final List<String> strategies = List<String>.from(state.learningStrategies);
-    if (strategies.contains(strategy)) {
-      strategies.remove(strategy);
-    } else {
-      strategies.add(strategy);
-    }
-    state = state.copyWith(learningStrategies: strategies);
+    final bool isSelected = state.learningStrategies.contains(strategy);
+
+    state = state.copyWith(
+      learningStrategies: isSelected
+          ? state.learningStrategies.where((String s) => s != strategy).toList()
+          : <String>[...state.learningStrategies, strategy],
+    );
   }
 
   void setIsPomodoro(bool isPomodoro) {

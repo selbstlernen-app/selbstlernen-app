@@ -5,6 +5,7 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/bottom_up_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/start_info_page.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/strategy_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/top_down_page.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
@@ -88,7 +89,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
           state.setBigGoals
               ? TopDownPage(navigateForward: _navigateForward)
               : BottomUpPage(navigateForward: _navigateForward),
-          const Placeholder(color: Colors.blue),
+          StrategyPage(navigateForward: _navigateForward),
           const Placeholder(color: Colors.yellow),
           const Placeholder(color: Colors.purple),
         ],
