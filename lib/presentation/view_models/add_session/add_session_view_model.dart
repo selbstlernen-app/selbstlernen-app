@@ -1,8 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
-import 'package:srl_app/domain/models/goal_model.dart';
-import 'package:srl_app/domain/models/session_model.dart';
-import 'package:srl_app/domain/models/task_model.dart';
+import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/usecases/create_goals_use_case.dart';
 import 'package:srl_app/domain/usecases/create_session_use_case.dart';
 import 'package:srl_app/domain/usecases/create_tasks_use_case.dart';

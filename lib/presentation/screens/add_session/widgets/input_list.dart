@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:srl_app/common_widgets/custom_item_tile.dart';
-import 'package:srl_app/common_widgets/custom_text_field.dart';
-import 'package:srl_app/common_widgets/horizontal_space.dart';
-import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/domain/models/goal_model.dart';
-import 'package:srl_app/domain/models/task_model.dart';
+import 'package:srl_app/domain/models/models.dart';
 
 class InputList<T> extends StatelessWidget {
   const InputList({

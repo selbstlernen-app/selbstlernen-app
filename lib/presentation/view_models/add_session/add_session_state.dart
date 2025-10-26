@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:srl_app/domain/models/goal_model.dart';
-import 'package:srl_app/domain/models/task_model.dart';
+import 'package:srl_app/domain/models/models.dart';
 
 part 'add_session_state.freezed.dart';
 
@@ -54,4 +53,7 @@ abstract class AddSessionState with _$AddSessionState {
 
   List<TaskModel> get ungroupedTasks =>
       tasks.where((TaskModel task) => task.goalId == null).toList();
+
+  List<TaskModel> tasksForGoal(String goalId) =>
+      tasks.where((TaskModel task) => task.goalId == goalId).toList();
 }
