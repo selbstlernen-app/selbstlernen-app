@@ -84,49 +84,42 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
   Widget build(BuildContext context) {
     final AddSessionState state = ref.watch(addSessionViewModelProvider);
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    "Ziele aufbrechen",
-                    style: context.textTheme.headlineMedium,
-                  ),
-                  const VerticalSpace(size: SpaceSize.small),
-                  Text(
-                    "Erstelle für deine Ziele Aufgaben, die dir beim Erreichen dessen helfen. Du kannst diesen Schritt auch vorerst überspringen.",
-                    style: context.textTheme.bodyMedium,
-                  ),
-
-                  const VerticalSpace(size: SpaceSize.large),
-                  ...state.goals.map((GoalModel goal) {
-                    return GoalWithTasksCard(
-                      goal: goal,
-                      isExpanded: expandedGoalIds.contains(goal.id),
-                      onToggleExpand: () => _toggleGoalExpansion(goal.id!),
-                      onAddTask: () => _addTaskToGoal(goal: goal),
-                      taskController: _taskController,
-                    );
-                  }),
-                ],
+    return Column(
+      children: <Widget>[
+        SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text("Ziele aufbrechen", style: context.textTheme.headlineMedium),
+              const VerticalSpace(size: SpaceSize.small),
+              Text(
+                "Erstelle für deine Ziele Aufgaben, die dir beim Erreichen dessen helfen. Du kannst diesen Schritt auch vorerst überspringen.",
+                style: context.textTheme.bodyMedium,
               ),
-            ),
+
+              const VerticalSpace(size: SpaceSize.large),
+
+              ...state.goals.map((GoalModel goal) {
+                return GoalWithTasksCard(
+                  goal: goal,
+                  isExpanded: expandedGoalIds.contains(goal.id),
+                  onToggleExpand: () => _toggleGoalExpansion(goal.id!),
+                  onAddTask: () => _addTaskToGoal(goal: goal),
+                  taskController: _taskController,
+                );
+              }),
+            ],
           ),
-          // Navigation button
-          SizedBox(
-            width: MediaQuery.sizeOf(context).width,
-            child: CustomButton(
-              label: _getButtonText(state),
-              onPressed: () => widget.navigateForward(),
-            ),
+        ),
+        // Navigation button
+        SizedBox(
+          width: MediaQuery.sizeOf(context).width,
+          child: CustomButton(
+            label: _getButtonText(state),
+            onPressed: () => widget.navigateForward(),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

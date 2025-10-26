@@ -225,7 +225,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
         (state.isRepeating
             ? (state.startDate != null &&
                   state.endDate != null &&
-                  state.selectedDays?.isNotEmpty == true)
+                  state.selectedDays.isNotEmpty == true)
             : true) &&
         ((state.goals.isNotEmpty && state.setBigGoals) ||
             (!state.setBigGoals && state.tasks.isNotEmpty));

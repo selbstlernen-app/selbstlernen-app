@@ -64,7 +64,7 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                   children: <Widget>[
                     ...state.availableStrategies.map(
                       (String strategy) => SizedBox(
-                        width: (MediaQuery.sizeOf(context).width - 48) / 2,
+                        width: (MediaQuery.sizeOf(context).width - 56) / 2,
                         child: GestureDetector(
                           onTap: () => ref
                               .read(addSessionViewModelProvider.notifier)

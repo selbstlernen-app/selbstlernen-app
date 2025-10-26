@@ -65,132 +65,129 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
 
     return Column(
       children: <Widget>[
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
+        SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                "Kleine Ziele gruppieren",
+                style: context.textTheme.headlineMedium,
+              ),
+              const VerticalSpace(size: SpaceSize.small),
+              Text(
+                "Gruppiere kleine Ziele unter einem Großen zusammen. Du kannst diesen Schritt auch vorerst überspringen.",
+                style: context.textTheme.bodyMedium,
+              ),
+
+              const VerticalSpace(size: SpaceSize.large),
+
+              // Select tasks
+              if (state.ungroupedTasks.isNotEmpty) ...[
                 Text(
-                  "Kleine Ziele gruppieren",
+                  "Verfügbare kleine Ziele",
+                  style: context.textTheme.headlineSmall,
+                ),
+
+                const VerticalSpace(size: SpaceSize.small),
+
+                ...state.ungroupedTasks.map((TaskModel task) {
+                  final bool isSelected = _selectedTasks.any(
+                    (TaskModel t) => t.id == task.id,
+                  );
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Material(
+                      color: isSelected
+                          ? context.colorScheme.secondary
+                          : context.colorScheme.tertiary,
+                      borderRadius: BorderRadius.circular(10.0),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(10.0),
+                        onTap: () => setState(() {
+                          if (isSelected) {
+                            _selectedTasks.removeWhere(
+                              (TaskModel t) => t.id == task.id,
+                            );
+                          } else {
+                            _selectedTasks.add(task);
+                          }
+                        }),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: CustomItemTile(
+                            isLargeGoal: false,
+                            text: task.title,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+
+              const VerticalSpace(size: SpaceSize.large),
+
+              if (_selectedTasks.isNotEmpty) ...[
+                Text(
+                  "Großes Ziel formulieren (${_selectedTasks.length} ausgewählt)",
+                  style: context.textTheme.headlineSmall,
+                ),
+
+                const VerticalSpace(size: SpaceSize.small),
+
+                InputList(
+                  controller: _goalController,
+                  onEnter: _groupTasksTo,
+                  isBigGoal: true,
+                  items: const <TaskModel>[],
+                  hideHeadline: true, // Empty, showing input only
+                ),
+              ],
+
+              // Grouped tasks and their goal
+              if (state.goals.isNotEmpty) ...[
+                const VerticalSpace(size: SpaceSize.large),
+                Text(
+                  "Gruppierte Ziele",
                   style: context.textTheme.headlineMedium,
                 ),
-                const VerticalSpace(size: SpaceSize.small),
-                Text(
-                  "Gruppiere kleine Ziele unter einem Großen zusammen. Du kannst diesen Schritt auch vorerst überspringen.",
-                  style: context.textTheme.bodyMedium,
-                ),
 
-                const VerticalSpace(size: SpaceSize.large),
+                ...state.goals.map((GoalModel goal) {
+                  final List<TaskModel> tasksForGoal = state.tasks
+                      .where((TaskModel t) => t.goalId == goal.id)
+                      .toList();
 
-                // Select tasks
-                if (state.ungroupedTasks.isNotEmpty) ...<Widget>[
-                  Text(
-                    "Verfügbare kleine Ziele",
-                    style: context.textTheme.headlineSmall,
-                  ),
-
-                  const VerticalSpace(size: SpaceSize.small),
-
-                  ...state.ungroupedTasks.map((TaskModel task) {
-                    final bool isSelected = _selectedTasks.any(
-                      (TaskModel t) => t.id == task.id,
-                    );
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: Material(
-                        color: isSelected
-                            ? context.colorScheme.secondary
-                            : context.colorScheme.tertiary,
-                        borderRadius: BorderRadius.circular(10.0),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(10.0),
-                          onTap: () => setState(() {
-                            if (isSelected) {
-                              _selectedTasks.removeWhere(
-                                (TaskModel t) => t.id == task.id,
-                              );
-                            } else {
-                              _selectedTasks.add(task);
-                            }
-                          }),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12.0),
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        CustomItemTile(isLargeGoal: true, text: goal.title),
+                        ...tasksForGoal.map(
+                          (TaskModel task) => Padding(
+                            padding: const EdgeInsets.only(
+                              left: 16.0,
+                              top: 8.0,
+                            ),
                             child: CustomItemTile(
                               isLargeGoal: false,
                               text: task.title,
                             ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
-                ],
-
-                if (_selectedTasks.isNotEmpty) ...<Widget>[
-                  const VerticalSpace(size: SpaceSize.large),
-
-                  Text(
-                    "Großes Ziel formulieren (${_selectedTasks.length} ausgewählt)",
-                    style: context.textTheme.headlineSmall,
-                  ),
-
-                  const VerticalSpace(size: SpaceSize.small),
-
-                  InputList<TaskModel>(
-                    controller: _goalController,
-                    onEnter: _groupTasksTo,
-                    isBigGoal: true,
-                    items: const <TaskModel>[],
-                    hideHeadline: true, // Empty, showing input only
-                  ),
-                ],
-
-                // Grouped tasks and their goal
-                if (state.goals.isNotEmpty) ...<Widget>[
-                  const VerticalSpace(size: SpaceSize.large),
-
-                  Text(
-                    "Gruppierte Ziele",
-                    style: context.textTheme.headlineMedium,
-                  ),
-                  const VerticalSpace(size: SpaceSize.small),
-                  ...state.goals.map((GoalModel goal) {
-                    final List<TaskModel> tasksForGoal = state.tasks
-                        .where((TaskModel t) => t.goalId == goal.id)
-                        .toList();
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          CustomItemTile(isLargeGoal: true, text: goal.title),
-                          ...tasksForGoal.map(
-                            (TaskModel task) => Padding(
-                              padding: const EdgeInsets.only(
-                                left: 16.0,
-                                top: 8.0,
-                              ),
-                              child: CustomItemTile(
-                                isLargeGoal: false,
-                                text: task.title,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
-                ],
+                      ],
+                    ),
+                  );
+                }),
               ],
-            ),
+            ],
           ),
         ),
 
         SizedBox(
           width: MediaQuery.sizeOf(context).width,
           child: CustomButton(
-            label: "not",
+            label: "Weiter",
             onPressed: () => widget.navigateForward(),
           ),
         ),

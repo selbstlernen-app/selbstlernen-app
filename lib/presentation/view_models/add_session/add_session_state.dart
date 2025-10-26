@@ -33,11 +33,11 @@ abstract class AddSessionState with _$AddSessionState {
 
     // Time
     @Default(true) bool isPomodoro,
-    @Default(60) int totalTimeMin,
-    int? focusTimeMin,
-    int? breakTimeMin,
-    int? longBreakTimeMin,
-    int? cyclesBeforeLongBreak,
+    int? totalTimeMin,
+    @Default(25) int focusTimeMin,
+    @Default(5) int breakTimeMin,
+    @Default(15) int longBreakTimeMin,
+    @Default(4) int cyclesBeforeLongBreak,
 
     // Prompts
     @Default(false) bool hasFocusPrompt,
@@ -56,4 +56,9 @@ abstract class AddSessionState with _$AddSessionState {
 
   List<TaskModel> tasksForGoal(String goalId) =>
       tasks.where((TaskModel task) => task.goalId == goalId).toList();
+
+  bool get isTimeValid {
+    if (isPomodoro && focusTimeMin > 0) return true;
+    return false;
+  }
 }
