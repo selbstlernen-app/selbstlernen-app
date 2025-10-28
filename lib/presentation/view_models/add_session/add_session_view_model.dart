@@ -282,6 +282,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
         await taskUseCase.call(addTask);
       }
     }
+
+    resetFields();
   }
 
   void resetFields() {
