@@ -15,7 +15,7 @@ class TaskRepositoryImp implements TaskRepository {
   }
 
   @override
-  Future deleteTask(int taskId) {
+  Future<void> deleteTask(int taskId) {
     return taskDao.deleteTask(taskId);
   }
 

@@ -22,15 +22,15 @@ extension GoalToModelMapper on Goal {
 extension GoalToCompanionMapper on GoalModel {
   GoalsCompanion toCompanion() {
     return GoalsCompanion(
-      title: Value(title),
+      title: Value<String>(title),
       sessionId: sessionId != null
-          ? Value(int.parse(sessionId!))
-          : const Value.absent(),
-      isCompleted: Value(isCompleted),
+          ? Value<int>(int.parse(sessionId!))
+          : const Value<int>.absent(),
+      isCompleted: Value<bool>(isCompleted),
       completedAt: completedAt != null
-          ? Value(completedAt!)
-          : const Value.absent(),
-      createdAt: Value(createdAt ?? DateTime.now()),
+          ? Value<DateTime>(completedAt!)
+          : const Value<DateTime>.absent(),
+      createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
     );
   }
 }

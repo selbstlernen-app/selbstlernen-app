@@ -17,7 +17,7 @@ class EditSessionUseCase {
     return repository.updateSession(sessionId, updatedSession);
   }
 
-  Future deleteSession(int sessionId) {
+  Future<void> deleteSession(int sessionId) {
     return repository.deleteSession(sessionId);
   }
 }

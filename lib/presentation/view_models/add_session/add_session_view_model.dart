@@ -1,8 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
-import 'package:srl_app/domain/models/goal_model.dart';
-import 'package:srl_app/domain/models/session_model.dart';
-import 'package:srl_app/domain/models/task_model.dart';
+import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/usecases/create_goals_use_case.dart';
 import 'package:srl_app/domain/usecases/create_session_use_case.dart';
 import 'package:srl_app/domain/usecases/create_tasks_use_case.dart';
@@ -19,23 +17,26 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Basic info
   void setTitle(String title) {
-    state = state.copyWith(title: title);
+    state = state.copyWith(title: title, titleError: _validateTitle(title));
   }
 
   void setIsRepeating(bool isRepeating) {
     state = state.copyWith(isRepeating: isRepeating);
   }
 
-  void setSetBigGoals(bool setBigGoals) {
+  void setBigGoals(bool setBigGoals) {
     state = state.copyWith(setBigGoals: setBigGoals);
   }
 
   void setStartDate(DateTime? date) {
-    state = state.copyWith(startDate: date);
+    state = state.copyWith(
+      startDate: date,
+      startDateError: _validateStartDate(date),
+    );
   }
 
   void setEndDate(DateTime? date) {
-    state = state.copyWith(endDate: date);
+    state = state.copyWith(endDate: date, endDateError: _validateEndDate(date));
   }
 
   void toggleDay(int day) {
@@ -45,7 +46,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     } else {
       days.add(day);
     }
-    state = state.copyWith(selectedDays: days);
+    state = state.copyWith(
+      selectedDays: days,
+      selectedDaysError: _validateDays(days),
+    );
   }
 
   // Goals and tasks
@@ -86,14 +90,26 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(tasks: tasks);
   }
 
+  void addStrategy(String strategy) {
+    if (state.learningStrategies.contains(strategy)) return;
+
+    state = state.copyWith(
+      learningStrategies: <String>[...state.learningStrategies, strategy],
+      // Add to available strategies if not already included
+      availableStrategies: state.availableStrategies.contains(strategy)
+          ? state.availableStrategies
+          : <String>[...state.availableStrategies, strategy],
+    );
+  }
+
   void toggleStrategy(String strategy) {
-    final List<String> strategies = List<String>.from(state.learningStrategies);
-    if (strategies.contains(strategy)) {
-      strategies.remove(strategy);
-    } else {
-      strategies.add(strategy);
-    }
-    state = state.copyWith(learningStrategies: strategies);
+    final bool isSelected = state.learningStrategies.contains(strategy);
+
+    state = state.copyWith(
+      learningStrategies: isSelected
+          ? state.learningStrategies.where((String s) => s != strategy).toList()
+          : <String>[...state.learningStrategies, strategy],
+    );
   }
 
   void setIsPomodoro(bool isPomodoro) {
@@ -127,33 +143,108 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   // Validation
-  String? validateTitle() {
-    if (state.title.trim().isEmpty) {
-      return 'Titel kann nicht leer sein';
+  String? _validateTitle(String? title) {
+    if (title == null || title.trim().isEmpty) {
+      return 'Titel kann nicht leer sein.';
     }
-    if (state.title.length < 3) {
-      return 'Titel muss mind. 3 Charaktere lang sein';
-    }
-    return null;
-  }
-
-  String? validateDates() {
-    if (state.isRepeating && state.startDate == null) {
-      return 'Startdatum muss gegeben sein';
-    }
-    if (state.isRepeating && state.endDate == null) {
-      return 'Enddatum muss gegeben sein';
-    }
-    if (state.endDate != null && state.endDate!.isBefore(state.startDate!)) {
-      return 'Enddatum kann nicht kleiner als Startdatum sein';
+    if (title.length < 3) {
+      return 'Titel muss mind. 3 Charaktere lang sein.';
     }
     return null;
   }
 
-  bool canSubmit() {
-    return validateTitle() == null &&
-        validateDates() == null &&
-        // Have at least one goal or task defined
+  String? _validateStartDate(DateTime? date) {
+    if (!state.isRepeating) {
+      return null;
+    }
+    if (date == null) {
+      return 'Startdatum muss gegeben sein.';
+    }
+    if (state.endDate != null) {
+      if (state.endDate!.isBefore(date)) {
+        return 'Startdatum muss vor dem Enddatum liegen.';
+      }
+
+      if (state.endDate!.isAtSameMomentAs(date)) {
+        return 'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.';
+      }
+    }
+    return null;
+  }
+
+  String? _validateEndDate(DateTime? date) {
+    if (!state.isRepeating) return null;
+    if (date == null) {
+      return 'Enddatum muss gegeben sein.';
+    }
+    if (state.startDate != null) {
+      if (date.isBefore(state.startDate!)) {
+        return 'Enddatum muss nach dem Startdatum liegen.';
+      }
+
+      if (date.isAtSameMomentAs(state.startDate!)) {
+        return 'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.';
+      }
+    }
+    return null;
+  }
+
+  String? _validateDays(List<int> selectedDays) {
+    if (!state.isRepeating) return null;
+    if (selectedDays.isEmpty) {
+      return "Es muss mind. ein Tag ausgewählt werden.";
+    }
+    return null;
+  }
+
+  String? _validateGoals({
+    required List<GoalModel> goals,
+    required List<TaskModel> tasks,
+  }) {
+    if (state.setBigGoals && goals.isEmpty) {
+      return "Es muss mind. 1 großes Ziel festgelegt werden";
+    }
+    if (!state.setBigGoals && tasks.isEmpty) {
+      return "Es muss mind. 1 kleines Ziel festgelegt werden";
+    }
+    return null;
+  }
+
+  bool validateAll() {
+    final String? titleErr = _validateTitle(state.title);
+    final String? startErr = _validateStartDate(state.startDate);
+    final String? endErr = _validateEndDate(state.endDate);
+    final String? goalError = _validateGoals(
+      goals: state.goals,
+      tasks: state.tasks,
+    );
+    final String? daysErr = _validateDays(state.selectedDays);
+
+    // Update state with all errors
+    state = state.copyWith(
+      titleError: titleErr,
+      startDateError: startErr,
+      endDateError: endErr,
+      selectedDaysError: daysErr,
+      goalsError: goalError,
+    );
+
+    // Return true only if all validations pass
+    return titleErr == null &&
+        startErr == null &&
+        endErr == null &&
+        daysErr == null &&
+        ((state.goals.isNotEmpty && state.setBigGoals) ||
+            (!state.setBigGoals && state.tasks.isNotEmpty));
+  }
+
+  bool get isFormValid {
+    return state.title.isNotEmpty &&
+        (state.isRepeating
+            ? (state.startDate != null &&
+                  state.endDate != null &&
+                  state.selectedDays.isNotEmpty == true)
+            : true) &&
         ((state.goals.isNotEmpty && state.setBigGoals) ||
             (!state.setBigGoals && state.tasks.isNotEmpty));
   }
@@ -161,8 +252,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   // Save all info
   Future<void> createSession() async {
     // Final check before submitting
-    if (!canSubmit()) {
-      throw Exception('Please complete all required fields');
+    if (!validateAll()) {
+      throw Exception('Bitte fülle alle Felder korrekt aus!');
     }
 
     final CreateSessionUseCase sessionUseCase = ref.read(
@@ -178,7 +269,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       );
       for (GoalModel goal in state.goals) {
         GoalModel addGoal = goal.copyWith(sessionId: sessionId.toString());
-        goalUseCase.call(addGoal);
+        await goalUseCase.call(addGoal);
       }
     }
 
@@ -188,9 +279,18 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       );
       for (TaskModel task in state.tasks) {
         TaskModel addTask = task.copyWith(sessionId: sessionId.toString());
-        taskUseCase.call(addTask);
+        await taskUseCase.call(addTask);
       }
     }
+
+    resetFields();
+  }
+
+  void resetFields() {
+    // returns default state, with exception of saved available strategies
+    state = const AddSessionState().copyWith(
+      availableStrategies: state.availableStrategies,
+    );
   }
 
   SessionModel _stateToSessionModel(AddSessionState state) {

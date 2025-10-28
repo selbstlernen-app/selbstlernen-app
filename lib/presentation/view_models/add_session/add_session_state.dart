@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:srl_app/domain/models/goal_model.dart';
-import 'package:srl_app/domain/models/task_model.dart';
+import 'package:srl_app/domain/models/models.dart';
 
 part 'add_session_state.freezed.dart';
 
@@ -34,15 +33,33 @@ abstract class AddSessionState with _$AddSessionState {
 
     // Time
     @Default(true) bool isPomodoro,
-    @Default(60) int totalTimeMin,
-    int? focusTimeMin,
-    int? breakTimeMin,
-    int? longBreakTimeMin,
-    int? cyclesBeforeLongBreak,
+    int? totalTimeMin,
+    @Default(25) int focusTimeMin,
+    @Default(5) int breakTimeMin,
+    @Default(15) int longBreakTimeMin,
+    @Default(4) int cyclesBeforeLongBreak,
 
     // Prompts
     @Default(false) bool hasFocusPrompt,
     @Default(false) bool hasMoodPrompt,
     @Default(false) bool hasFreetextPrompt,
+
+    //Validation fields
+    String? titleError,
+    String? startDateError,
+    String? endDateError,
+    String? selectedDaysError,
+    String? goalsError,
   }) = _AddSessionState;
+
+  List<TaskModel> get ungroupedTasks =>
+      tasks.where((TaskModel task) => task.goalId == null).toList();
+
+  List<TaskModel> tasksForGoal(String goalId) =>
+      tasks.where((TaskModel task) => task.goalId == goalId).toList();
+
+  bool get isTimeValid {
+    if (isPomodoro && focusTimeMin > 0) return true;
+    return false;
+  }
 }

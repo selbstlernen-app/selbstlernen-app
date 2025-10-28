@@ -15,7 +15,7 @@ class GoalRepositoryImp implements GoalRepository {
   }
 
   @override
-  Future deleteGoal(int goalId) {
+  Future<void> deleteGoal(int goalId) {
     return goalDao.deleteGoal(goalId);
   }
 

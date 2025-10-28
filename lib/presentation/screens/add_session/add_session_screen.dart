@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/main_navigation.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/bottom_up_page.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/prompt_page.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/start_info_page.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/strategy_page.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/timer_page.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/top_down_page.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
-class AddSessionScreen extends StatefulWidget {
+class AddSessionScreen extends ConsumerStatefulWidget {
   const AddSessionScreen({super.key});
 
   @override
-  State<AddSessionScreen> createState() => _AddSessionScreenState();
+  ConsumerState<AddSessionScreen> createState() => _AddSessionScreenState();
 }
 
-class _AddSessionScreenState extends State<AddSessionScreen> {
+class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   final PageController _pageController = PageController(initialPage: 0);
   int currentPage = 0;
   double _progress = 0;
@@ -55,6 +64,8 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final AddSessionState state = ref.watch(addSessionViewModelProvider);
+
     return MainLayout(
       appBarTitle: "Neue Einheit",
       bottomBarWidget: PreferredSize(
@@ -76,11 +87,13 @@ class _AddSessionScreenState extends State<AddSessionScreen> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
-          const Placeholder(color: Colors.green),
-          const Placeholder(color: Colors.red),
-          const Placeholder(color: Colors.blue),
-          const Placeholder(color: Colors.yellow),
-          const Placeholder(color: Colors.purple),
+          StartInfoPage(navigateForward: _navigateForward),
+          state.setBigGoals
+              ? TopDownPage(navigateForward: _navigateForward)
+              : BottomUpPage(navigateForward: _navigateForward),
+          StrategyPage(navigateForward: _navigateForward),
+          TimerPage(navigateForward: _navigateForward),
+          PromptPage(navigateForward: _navigateForward),
         ],
       ),
       navigateBack: _navigateBack,

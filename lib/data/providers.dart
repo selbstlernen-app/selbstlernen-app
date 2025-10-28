@@ -12,13 +12,14 @@ import 'package:srl_app/domain/task_repository.dart';
 import 'package:srl_app/domain/usecases/create_goals_use_case.dart';
 import 'package:srl_app/domain/usecases/create_session_use_case.dart';
 import 'package:srl_app/domain/usecases/create_tasks_use_case.dart';
+import 'package:srl_app/domain/usecases/session_use_case.dart';
 
 part 'providers.g.dart';
 
 /// Contains all data-releated providers
 
 // Database and DAOs
-@riverpod
+@Riverpod(keepAlive: true) // Should be kept alive to ensure singleton
 AppDatabase appDatabase(Ref ref) {
   return AppDatabase();
 }
@@ -58,6 +59,11 @@ GoalRepository goalRepository(Ref ref) {
 @riverpod
 CreateSessionUseCase createSessionUseCase(Ref ref) {
   return CreateSessionUseCase(ref.watch(sessionRepositoryProvider));
+}
+
+@riverpod
+SessionUseCase sessionUseCase(Ref ref) {
+  return SessionUseCase(ref.watch(sessionRepositoryProvider));
 }
 
 @riverpod
