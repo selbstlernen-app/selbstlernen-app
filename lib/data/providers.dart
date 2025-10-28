@@ -77,3 +77,12 @@ CreateGoalsUseCase createGoalsUseCase(Ref ref) {
 CreateTasksUseCase createTasksUseCase(Ref ref) {
   return CreateTasksUseCase(ref.watch(taskRepositoryProvider));
 }
+
+@riverpod
+FullSessionUseCase fullSessionUseCase(Ref ref) {
+  return FullSessionUseCase(
+    ref.watch(sessionRepositoryProvider),
+    ref.watch(goalRepositoryProvider),
+    ref.watch(taskRepositoryProvider),
+  );
+}

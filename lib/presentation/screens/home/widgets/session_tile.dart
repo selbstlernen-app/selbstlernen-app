@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_model.dart';
+import 'package:srl_app/presentation/screens/detail_session/session_detail_screen.dart';
 
 class SessionTile extends StatelessWidget {
   const SessionTile({super.key, required this.session});
@@ -26,7 +27,13 @@ class SessionTile extends StatelessWidget {
         ),
         leading: const Icon(Icons.leaderboard_outlined),
         trailing: IconButton(
-          onPressed: () => print("lol"),
+          onPressed: () => Navigator.push(
+            context,
+            MaterialPageRoute<dynamic>(
+              builder: (BuildContext context) =>
+                  SessionDetailScreen(sessionId: int.parse(session.id!)),
+            ),
+          ),
           icon: const Icon(Icons.arrow_forward_ios_rounded),
         ),
         tileColor: context.colorScheme.secondary,

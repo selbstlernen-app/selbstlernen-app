@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/presentation/screens/home/widgets/session_tile.dart';
@@ -17,9 +18,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final HomeState homeState = ref.watch(homeViewModelProvider);
 
-    if (homeState.isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+    if (homeState.isLoading) return const LoadingIndicator();
 
     if (homeState.error != null) {
       return Scaffold(body: Center(child: Text('Error: ${homeState.error}')));
