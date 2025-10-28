@@ -57,6 +57,11 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
     final String text = _bigGoalController.text.trim();
     if (text.isEmpty) return;
 
+    final AddSessionState state = ref.read(addSessionViewModelProvider);
+    if (state.goals.any((GoalModel goal) => goal.title == text)) return;
+
+    if (state.goals.length == 5) return;
+
     const Uuid uuid = Uuid();
     ref
         .read(addSessionViewModelProvider.notifier)
@@ -64,12 +69,19 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
         .addGoal(GoalModel(title: text, isCompleted: false, id: uuid.v4()));
 
     _bigGoalController.clear();
+
+    ref.read(addSessionViewModelProvider.notifier).validateAll();
     _scrollDown();
   }
 
   void _handleAddTask() {
     final String text = _smallGoalController.text.trim();
     if (text.isEmpty) return;
+
+    final AddSessionState state = ref.read(addSessionViewModelProvider);
+    if (state.tasks.any((TaskModel task) => task.title == text)) return;
+
+    if (state.tasks.length == 10) return;
 
     const Uuid uuid = Uuid();
     ref
@@ -78,6 +90,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
         .addTask(TaskModel(title: text, isCompleted: false, id: uuid.v4()));
 
     _smallGoalController.clear();
+    ref.read(addSessionViewModelProvider.notifier).validateAll();
     _scrollDown();
   }
 
@@ -180,6 +193,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                 const VerticalSpace(size: SpaceSize.medium),
 
                 InputList(
+                  errorText: state.goalsError,
                   controller: state.setBigGoals
                       ? _bigGoalController
                       : _smallGoalController,

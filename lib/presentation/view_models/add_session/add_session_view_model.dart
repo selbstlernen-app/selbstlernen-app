@@ -197,10 +197,27 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     return null;
   }
 
+  String? _validateGoals({
+    required List<GoalModel> goals,
+    required List<TaskModel> tasks,
+  }) {
+    if (state.setBigGoals && goals.isEmpty) {
+      return "Es muss mind. 1 großes Ziel festgelegt werden";
+    }
+    if (!state.setBigGoals && tasks.isEmpty) {
+      return "Es muss mind. 1 kleines Ziel festgelegt werden";
+    }
+    return null;
+  }
+
   bool validateAll() {
     final String? titleErr = _validateTitle(state.title);
     final String? startErr = _validateStartDate(state.startDate);
     final String? endErr = _validateEndDate(state.endDate);
+    final String? goalError = _validateGoals(
+      goals: state.goals,
+      tasks: state.tasks,
+    );
     final String? daysErr = _validateDays(state.selectedDays);
 
     // Update state with all errors
@@ -209,6 +226,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       startDateError: startErr,
       endDateError: endErr,
       selectedDaysError: daysErr,
+      goalsError: goalError,
     );
 
     // Return true only if all validations pass

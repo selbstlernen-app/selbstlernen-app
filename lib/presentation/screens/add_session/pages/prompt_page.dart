@@ -31,7 +31,9 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
           content: Text("Einheit erfolgreich gespeichert!"),
         ),
       );
-      Navigator.of(context).pushNamed("/");
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil("/", (Route<dynamic> route) => false);
     } catch (e) {
       context.scaffoldMessenger.showSnackBar(
         SnackBar(

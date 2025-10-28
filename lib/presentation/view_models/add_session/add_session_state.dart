@@ -49,6 +49,7 @@ abstract class AddSessionState with _$AddSessionState {
     String? startDateError,
     String? endDateError,
     String? selectedDaysError,
+    String? goalsError,
   }) = _AddSessionState;
 
   List<TaskModel> get ungroupedTasks =>

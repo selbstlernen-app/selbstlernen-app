@@ -22,6 +22,15 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   final TextEditingController _longBreakController = TextEditingController();
   final TextEditingController _cycleController = TextEditingController();
 
+  @override
+  void dispose() {
+    _focusController.dispose();
+    _breakController.dispose();
+    _longBreakController.dispose();
+    _cycleController.dispose();
+    super.dispose();
+  }
+
   void _saveSettings() {
     // Save all Pomodoro settings
     ref
@@ -39,6 +48,15 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   @override
   Widget build(BuildContext context) {
     final AddSessionState state = ref.watch(addSessionViewModelProvider);
+
+    // Initialize empty fields on first build
+    if (_focusController.text.isEmpty) {
+      _focusController.text = state.focusTimeMin.toString();
+      _breakController.text = state.breakTimeMin.toString();
+      _longBreakController.text = state.longBreakTimeMin.toString();
+      _cycleController.text = state.cyclesBeforeLongBreak.toString();
+    }
+
     return Column(
       children: <Widget>[
         Expanded(

@@ -82,7 +82,7 @@ class InputList<T> extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Text(
-      (isBigGoal) ? "Ziele (max. 3)" : "Kleine Ziele (max. 10)",
+      (isBigGoal) ? "Ziele (max. 5)" : "Kleine Ziele (max. 10)",
       style: context.textTheme.headlineSmall,
     );
   }
