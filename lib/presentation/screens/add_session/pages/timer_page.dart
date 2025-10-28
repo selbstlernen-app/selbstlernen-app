@@ -46,10 +46,10 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text("Timer", style: context.textTheme.headlineMedium),
+                Text("Timer (min)", style: context.textTheme.headlineMedium),
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
-                  "Trage die Zeit ein, die du in dieser Lerneinheit verbringen willst.",
+                  "Lege die Zeit fest, die du in dieser Lerneinheit verbringen willst.",
                   style: context.textTheme.bodyMedium,
                 ),
 
@@ -106,10 +106,19 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        TimeInputField(controller: _focusController),
-        TimeInputField(controller: _breakController),
-        TimeInputField(controller: _longBreakController),
-        TimeInputField(controller: _cycleController),
+        const Text(
+          "Arbeite konzentriert in Intervallen mit kurzen Pausen dazwischen.",
+        ),
+
+        TimeInputField(label: "Fokuszeit", controller: _focusController),
+        TimeInputField(label: "Kurze Pause", controller: _breakController),
+        TimeInputField(label: "Lange Pause", controller: _longBreakController),
+        TimeInputField(
+          label: "Intervalle",
+          controller: _cycleController,
+          minValue: 0,
+          maxValue: 10,
+        ),
       ],
     );
   }

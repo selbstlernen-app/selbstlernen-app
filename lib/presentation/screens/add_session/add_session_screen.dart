@@ -4,6 +4,7 @@ import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/bottom_up_page.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/prompt_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/start_info_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/strategy_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/timer_page.dart';
@@ -92,7 +93,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
               : BottomUpPage(navigateForward: _navigateForward),
           StrategyPage(navigateForward: _navigateForward),
           TimerPage(navigateForward: _navigateForward),
-          const Placeholder(color: Colors.purple),
+          PromptPage(navigateForward: _navigateForward),
         ],
       ),
       navigateBack: _navigateBack,

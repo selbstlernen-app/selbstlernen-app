@@ -266,6 +266,13 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     }
   }
 
+  void resetFields() {
+    // returns default state, with exception of saved available strategies
+    state = const AddSessionState().copyWith(
+      availableStrategies: state.availableStrategies,
+    );
+  }
+
   SessionModel _stateToSessionModel(AddSessionState state) {
     return SessionModel(
       title: state.title,

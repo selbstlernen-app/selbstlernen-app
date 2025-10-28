@@ -18,7 +18,7 @@ part 'providers.g.dart';
 /// Contains all data-releated providers
 
 // Database and DAOs
-@riverpod
+@Riverpod(keepAlive: true) // Should be kept alive to ensure singleton
 AppDatabase appDatabase(Ref ref) {
   return AppDatabase();
 }
