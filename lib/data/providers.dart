@@ -9,10 +9,7 @@ import 'package:srl_app/data/repositories/task_repository_imp.dart';
 import 'package:srl_app/domain/goal_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 import 'package:srl_app/domain/task_repository.dart';
-import 'package:srl_app/domain/usecases/create_goals_use_case.dart';
-import 'package:srl_app/domain/usecases/create_session_use_case.dart';
-import 'package:srl_app/domain/usecases/create_tasks_use_case.dart';
-import 'package:srl_app/domain/usecases/session_use_case.dart';
+import 'package:srl_app/domain/usecases/use_cases.dart';
 
 part 'providers.g.dart';
 
@@ -59,6 +56,11 @@ GoalRepository goalRepository(Ref ref) {
 @riverpod
 CreateSessionUseCase createSessionUseCase(Ref ref) {
   return CreateSessionUseCase(ref.watch(sessionRepositoryProvider));
+}
+
+@riverpod
+EditSessionUseCase editSessionUseCase(Ref ref) {
+  return EditSessionUseCase(ref.watch(sessionRepositoryProvider));
 }
 
 @riverpod
