@@ -94,6 +94,11 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
     _scrollDown();
   }
 
+  void _moveToSecondPage() {
+    ref.read(addSessionViewModelProvider.notifier).resetGoalFields();
+    widget.navigateForward();
+  }
+
   @override
   Widget build(BuildContext context) {
     final AddSessionState state = ref.watch(addSessionViewModelProvider);
@@ -218,7 +223,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                 .isFormValid,
             onPressed: () =>
                 ref.read(addSessionViewModelProvider.notifier).validateAll()
-                ? widget.navigateForward()
+                ? _moveToSecondPage()
                 : null,
           ),
         ),

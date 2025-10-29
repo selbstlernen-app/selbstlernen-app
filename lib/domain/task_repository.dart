@@ -5,4 +5,5 @@ abstract class TaskRepository {
   Future<int> addTask(TaskModel task);
   Future<void> deleteTask(int taskId);
   Future<int> updateTask(int taskId, TaskModel updatedTask);
+  Future<void> deleteAllTasksFor(int sessionId);
 }

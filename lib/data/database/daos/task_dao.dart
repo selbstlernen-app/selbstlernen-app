@@ -40,4 +40,11 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
       tasks,
     )..where(($TasksTable s) => s.id.equals(id))).go();
   }
+
+  // Delete all tasks of a session
+  Future<int> deleteAllTasksFor(int sessionId) async {
+    return await (delete(
+      tasks,
+    )..where(($TasksTable s) => s.sessionId.equals(sessionId))).go();
+  }
 }

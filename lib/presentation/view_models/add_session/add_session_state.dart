@@ -38,6 +38,7 @@ abstract class AddSessionState with _$AddSessionState {
     @Default(5) int breakTimeMin,
     @Default(15) int longBreakTimeMin,
     @Default(4) int cyclesBeforeLongBreak,
+    @Default(1) int totalPomodoros,
 
     // Prompts
     @Default(false) bool hasFocusPrompt,

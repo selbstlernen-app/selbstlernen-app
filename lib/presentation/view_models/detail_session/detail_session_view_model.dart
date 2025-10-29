@@ -9,9 +9,11 @@ part 'detail_session_view_model.g.dart';
 @riverpod
 class DetailSessionViewModel extends _$DetailSessionViewModel {
   late final FullSessionUseCase _fullSessionUseCase;
+  late final int _sessionId;
 
   @override
   Future<DetailSessionState> build(int sessionId) async {
+    _sessionId = sessionId;
     _fullSessionUseCase = ref.watch(fullSessionUseCaseProvider);
     final FullSessionModel session = await _fullSessionUseCase.getFullModel(
       sessionId,
@@ -27,5 +29,9 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
       );
       return DetailSessionState(fullSession: session);
     });
+  }
+
+  Future<void> deleteSession() async {
+    await _fullSessionUseCase.deleteFullModel(_sessionId);
   }
 }

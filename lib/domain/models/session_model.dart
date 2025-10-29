@@ -20,6 +20,7 @@ abstract class SessionModel with _$SessionModel {
     @Default(5) int? breakTimeMin,
     @Default(15) int? longBreakTimeMin,
     @Default(4) int? cyclesBeforeLongBreak,
+    @Default(1) int? totalPomodoros,
     @Default(true) bool hasFocusPrompt,
     @Default(true) bool hasMoodPrompt,
     @Default(true) bool hasFreetextPrompt,

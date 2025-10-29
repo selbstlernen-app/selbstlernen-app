@@ -27,4 +27,10 @@ class FullSessionUseCase {
     );
     return fullSessionModel;
   }
+
+  Future<void> deleteFullModel(int sessionId) async {
+    await repository.deleteSession(sessionId);
+    await goalRepository.deleteAllGoalsFor(sessionId);
+    await taskRepository.deleteAllTasksFor(sessionId);
+  }
 }
