@@ -266,13 +266,21 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     final SessionModel session = _stateToSessionModel(state);
     int sessionId = await sessionUseCase.call(session);
 
+    // Map to store temporary UUIDs and actual db IDs
+    Map<String, int> goalIdMapping = <String, int>{};
+
     if (state.goals.isNotEmpty && state.setGoals) {
       final CreateGoalsUseCase goalUseCase = ref.read(
         createGoalsUseCaseProvider,
       );
       for (GoalModel goal in state.goals) {
         GoalModel addGoal = goal.copyWith(sessionId: sessionId.toString());
-        await goalUseCase.call(addGoal);
+        int goalId = await goalUseCase.call(addGoal);
+
+        // Map temporary to DB id
+        if (goal.id != null) {
+          goalIdMapping[goal.id!] = goalId;
+        }
       }
     }
 
@@ -280,8 +288,19 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       final CreateTasksUseCase taskUseCase = ref.read(
         createTasksUseCaseProvider,
       );
+
       for (TaskModel task in state.tasks) {
-        TaskModel addTask = task.copyWith(sessionId: sessionId.toString());
+        // If goal is linked find actual goalId
+        String? actualGoalId;
+        if (task.goalId != null && goalIdMapping.containsKey(task.goalId)) {
+          actualGoalId = goalIdMapping[task.goalId].toString();
+        }
+
+        TaskModel addTask = task.copyWith(
+          sessionId: sessionId.toString(),
+          goalId: actualGoalId,
+        );
+
         await taskUseCase.call(addTask);
       }
     }
