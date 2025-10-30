@@ -10,7 +10,7 @@ abstract class AddSessionState with _$AddSessionState {
   const factory AddSessionState({
     @Default('') String title,
     @Default(false) bool isRepeating,
-    @Default(true) bool setBigGoals,
+    @Default(true) bool setGoals,
     DateTime? startDate,
     DateTime? endDate,
     @Default(<int>[]) List<int> selectedDays,

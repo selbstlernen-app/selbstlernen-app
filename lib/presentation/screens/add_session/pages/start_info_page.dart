@@ -95,7 +95,6 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
   }
 
   void _moveToSecondPage() {
-    ref.read(addSessionViewModelProvider.notifier).resetGoalFields();
     widget.navigateForward();
   }
 
@@ -160,9 +159,11 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
 
                 const VerticalSpace(size: SpaceSize.large),
 
-                // Big/small goals
+                // Set goals/tasks
                 Text(
-                  "Ziele für diese Lerneinheit",
+                  state.setGoals
+                      ? "Ziele für diese Lerneinheit"
+                      : "Aufgaben für diese Lerneinheit",
                   style: context.textTheme.headlineMedium,
                 ),
                 const VerticalSpace(size: SpaceSize.small),
@@ -174,9 +175,9 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       child: CustomButton(
                         onPressed: () => ref
                             .read(addSessionViewModelProvider.notifier)
-                            .setBigGoals(true),
-                        label: "Große Ziele",
-                        isActive: state.setBigGoals,
+                            .setGoals(true),
+                        label: "Ziele",
+                        isActive: state.setGoals,
                         borderLeft: true,
                         verticalPadding: 8.0,
                       ),
@@ -185,9 +186,9 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       child: CustomButton(
                         onPressed: () => ref
                             .read(addSessionViewModelProvider.notifier)
-                            .setBigGoals(false),
-                        label: "Kleine Ziele",
-                        isActive: !state.setBigGoals,
+                            .setGoals(false),
+                        label: "Aufgaben",
+                        isActive: !state.setGoals,
                         borderRight: true,
                         verticalPadding: 8.0,
                       ),
@@ -199,15 +200,15 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
 
                 InputList(
                   errorText: state.goalsError,
-                  controller: state.setBigGoals
+                  controller: state.setGoals
                       ? _bigGoalController
                       : _smallGoalController,
-                  onEnter: state.setBigGoals ? _handleAddGoal : _handleAddTask,
-                  isBigGoal: state.setBigGoals,
-                  items: state.setBigGoals ? state.goals : state.tasks,
-                  toolTip: state.setBigGoals
+                  onEnter: state.setGoals ? _handleAddGoal : _handleAddTask,
+                  isBigGoal: state.setGoals,
+                  items: state.setGoals ? state.goals : state.tasks,
+                  toolTip: state.setGoals
                       ? "Tipp: Halte deine Ziele so präzise und kurz wie möglich."
-                      : "Tipp: Du kannst kleine Ziele später unter großen Zielen gruppieren.",
+                      : "Tipp: Du kannst Aufgaben später unter Zielen gruppieren.",
                 ),
               ],
             ),

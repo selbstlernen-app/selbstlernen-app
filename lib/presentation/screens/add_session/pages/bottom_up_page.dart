@@ -71,12 +71,12 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  "Kleine Ziele gruppieren",
+                  "Aufgaben gruppieren",
                   style: context.textTheme.headlineMedium,
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
-                  "Gruppiere kleine Ziele unter einem Großen zusammen. Du kannst diesen Schritt auch vorerst überspringen.",
+                  "Gruppiere Aufgaben unter einem Ziel zusammen. Du kannst diesen Schritt auch vorerst überspringen.",
                   style: context.textTheme.bodyMedium,
                 ),
 
@@ -85,7 +85,7 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                 // Select tasks
                 if (state.ungroupedTasks.isNotEmpty) ...<Widget>[
                   Text(
-                    "Verfügbare kleine Ziele",
+                    "Verfügbare Aufgaben",
                     style: context.textTheme.headlineSmall,
                   ),
 
@@ -130,13 +130,13 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
 
                 if (_selectedTasks.isNotEmpty) ...<Widget>[
                   Text(
-                    "Großes Ziel formulieren (${_selectedTasks.length} ausgewählt)",
+                    "Ziel formulieren (${_selectedTasks.length} ausgewählt)",
                     style: context.textTheme.headlineSmall,
                   ),
 
                   const VerticalSpace(size: SpaceSize.small),
 
-                  InputList(
+                  InputList<TaskModel>(
                     controller: _goalController,
                     onEnter: _groupTasksTo,
                     isBigGoal: true,
@@ -147,9 +147,8 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
 
                 // Grouped tasks and their goal
                 if (state.goals.isNotEmpty) ...<Widget>[
-                  const VerticalSpace(size: SpaceSize.large),
                   Text(
-                    "Gruppierte Ziele",
+                    "Gruppierte Aufgaben",
                     style: context.textTheme.headlineMedium,
                   ),
 
@@ -189,7 +188,7 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
         SizedBox(
           width: MediaQuery.sizeOf(context).width,
           child: CustomButton(
-            label: "Weiter",
+            label: state.goals.isEmpty ? "Überspringen" : "Weiter",
             onPressed: () => widget.navigateForward(),
           ),
         ),

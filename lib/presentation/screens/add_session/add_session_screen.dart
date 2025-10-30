@@ -88,7 +88,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
           StartInfoPage(navigateForward: _navigateForward),
-          state.setBigGoals
+          state.setGoals
               ? TopDownPage(navigateForward: _navigateForward)
               : BottomUpPage(navigateForward: _navigateForward),
           StrategyPage(navigateForward: _navigateForward),

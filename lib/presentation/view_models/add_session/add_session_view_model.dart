@@ -24,8 +24,9 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(isRepeating: isRepeating);
   }
 
-  void setBigGoals(bool setBigGoals) {
-    state = state.copyWith(setBigGoals: setBigGoals);
+  void setGoals(bool setGoals) {
+    state = state.copyWith(setGoals: setGoals);
+    _resetGoalFields();
   }
 
   void setStartDate(DateTime? date) {
@@ -203,11 +204,11 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     required List<GoalModel> goals,
     required List<TaskModel> tasks,
   }) {
-    if (state.setBigGoals && goals.isEmpty) {
-      return "Es muss mind. 1 großes Ziel festgelegt werden";
+    if (state.setGoals && goals.isEmpty) {
+      return "Es muss mind. 1 Ziel festgelegt werden.";
     }
-    if (!state.setBigGoals && tasks.isEmpty) {
-      return "Es muss mind. 1 kleines Ziel festgelegt werden";
+    if (!state.setGoals && tasks.isEmpty) {
+      return "Es muss mind. 1 Aufgabe festgelegt werden.";
     }
     return null;
   }
@@ -236,8 +237,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
         startErr == null &&
         endErr == null &&
         daysErr == null &&
-        ((state.goals.isNotEmpty && state.setBigGoals) ||
-            (!state.setBigGoals && state.tasks.isNotEmpty));
+        ((state.goals.isNotEmpty && state.setGoals) ||
+            (!state.setGoals && state.tasks.isNotEmpty));
   }
 
   bool get isFormValid {
@@ -247,8 +248,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
                   state.endDate != null &&
                   state.selectedDays.isNotEmpty == true)
             : true) &&
-        ((state.goals.isNotEmpty && state.setBigGoals) ||
-            (!state.setBigGoals && state.tasks.isNotEmpty));
+        ((state.goals.isNotEmpty && state.setGoals) ||
+            (!state.setGoals && state.tasks.isNotEmpty));
   }
 
   // Save all info
@@ -265,7 +266,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     final SessionModel session = _stateToSessionModel(state);
     int sessionId = await sessionUseCase.call(session);
 
-    if (state.goals.isNotEmpty && state.setBigGoals) {
+    if (state.goals.isNotEmpty && state.setGoals) {
       final CreateGoalsUseCase goalUseCase = ref.read(
         createGoalsUseCaseProvider,
       );
@@ -275,7 +276,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       }
     }
 
-    if (state.tasks.isNotEmpty && !state.setBigGoals) {
+    if (state.tasks.isNotEmpty && !state.setGoals) {
       final CreateTasksUseCase taskUseCase = ref.read(
         createTasksUseCaseProvider,
       );
@@ -288,9 +289,9 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     resetFields();
   }
 
-  void resetGoalFields() {
+  void _resetGoalFields() {
     // If we have big goals set, remove any tasks (small goals) for following pages
-    if (state.setBigGoals) {
+    if (state.setGoals) {
       state = state.copyWith(tasks: <TaskModel>[]);
     } else {
       // Similarly, if we have set small goals, remove big goals
