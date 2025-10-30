@@ -42,11 +42,12 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         curve: Curves.easeInBack,
       );
     } else {
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute<dynamic>(
           builder: (BuildContext context) => const MainNavigation(),
         ),
+        (Route<dynamic> route) => false,
       );
     }
   }
