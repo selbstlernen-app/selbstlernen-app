@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/time_formatter.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
@@ -73,7 +75,6 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
       _breakController.text = state.breakTimeMin.toString();
       _longBreakController.text = state.longBreakTimeMin.toString();
       _cycleController.text = state.cyclesBeforeLongBreak.toString();
-      _pomodoroController.text = state.totalPomodoros.toString();
     }
 
     return Column(
@@ -92,37 +93,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
 
                 const VerticalSpace(size: SpaceSize.medium),
 
-                // Mode toggle buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      child: CustomButton(
-                        onPressed: () => ref
-                            .read(addSessionViewModelProvider.notifier)
-                            .setIsPomodoro(true),
-                        isActive: state.isPomodoro,
-                        verticalPadding: 8.0,
-                        label: "Pomodoro",
-                        borderLeft: true,
-                      ),
-                    ),
-                    Expanded(
-                      child: CustomButton(
-                        onPressed: () => ref
-                            .read(addSessionViewModelProvider.notifier)
-                            .setIsPomodoro(false),
-                        isActive: !state.isPomodoro,
-                        verticalPadding: 8.0,
-                        label: "Benutzerdefiniert",
-                        borderRight: true,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const VerticalSpace(size: SpaceSize.large),
-                if (state.isPomodoro) _buildPomodoroView(),
+                _buildTimeSettings(),
               ],
             ),
           ),
@@ -139,41 +110,22 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
     );
   }
 
-  Widget _calculateTotalTime() {
-    final AddSessionState state = ref.read(addSessionViewModelProvider);
-
-    int totalMins =
-        state.totalPomodoros *
-        ((state.focusTimeMin + state.breakTimeMin) *
-                (state.cyclesBeforeLongBreak - 1) +
-            state.focusTimeMin +
-            state.longBreakTimeMin);
-
-    if (totalMins >= 60) {
-      int hours = totalMins ~/ 60;
-      int mins = totalMins % 60;
-
-      return Text("Zeit insgesamt: ${hours}h ${mins}m");
-    } else {
-      return Text("Zeit insgesamt: ${totalMins}m");
-    }
-  }
-
-  Widget _buildPomodoroView() {
+  Widget _buildTimeSettings() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            TimeInputField(
-              label: "Fokuszeit",
-              controller: _focusController,
-              onChanged: (int value) {
-                ref
-                    .read(addSessionViewModelProvider.notifier)
-                    .setPomodoroSettings(focusTime: value);
-              },
+            Expanded(
+              child: TimeInputField(
+                label: "Fokuszeit",
+                controller: _focusController,
+                onChanged: (int value) {
+                  ref
+                      .read(addSessionViewModelProvider.notifier)
+                      .setPomodoroSettings(focusTime: value);
+                },
+              ),
             ),
             TimeInputField(
               label: "Kurze Pause",
@@ -184,6 +136,28 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                     .setPomodoroSettings(breakTime: value);
               },
             ),
+          ],
+        ),
+
+        const VerticalSpace(size: SpaceSize.xsmall),
+
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            Expanded(
+              child: TimeInputField(
+                label: "Fokusphasen bis lange Pause",
+                controller: _cycleController,
+                onChanged: (int value) {
+                  ref
+                      .read(addSessionViewModelProvider.notifier)
+                      .setPomodoroSettings(cycles: value);
+                },
+                minValue: 0,
+                maxValue: 10,
+              ),
+            ),
+
             TimeInputField(
               label: "Lange Pause",
               controller: _longBreakController,
@@ -196,39 +170,93 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           ],
         ),
 
-        TimeInputField(
-          label: "Intervalle",
-          controller: _cycleController,
-          minValue: 1,
-          maxValue: 10,
-          onChanged: (int value) {
-            ref
-                .read(addSessionViewModelProvider.notifier)
-                .setPomodoroSettings(cycles: value);
-          },
-        ),
+        _buildTimerPreview(),
 
         Divider(
           color: context.colorScheme.tertiary,
           thickness: 4,
           radius: const BorderRadius.all(Radius.circular(10)),
         ),
-        const VerticalSpace(size: SpaceSize.small),
-        TimeInputField(
-          label: "Geschätzte Pomodoros insgesamt",
-          controller: _pomodoroController,
-          minValue: 1,
-          maxValue: 100,
-          onChanged: (int value) {
-            ref
-                .read(addSessionViewModelProvider.notifier)
-                .setPomodoroSettings(totalPomodoros: value);
-          },
-        ),
 
         const VerticalSpace(size: SpaceSize.small),
+
         _calculateTotalTime(),
       ],
     );
+  }
+
+  Widget _buildTimerPreview() {
+    final int cycles = int.tryParse(_cycleController.text) ?? 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text("Timer Vorschau", style: context.textTheme.headlineSmall),
+        const VerticalSpace(size: SpaceSize.small),
+        Wrap(
+          spacing: 4,
+          runSpacing: 4,
+          children: List<Widget>.generate(cycles + 1, (int index) {
+            if (index < cycles) {
+              return Container(
+                margin: const EdgeInsets.only(right: 8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    _buildPreviewBlock("F", context.colorScheme.primary),
+                    const HorizontalSpace(size: SpaceSize.xsmall),
+                    _buildPreviewBlock("K", context.colorScheme.secondary),
+                  ],
+                ),
+              );
+            } else {
+              return _buildPreviewBlock("L", context.colorScheme.onTertiary);
+            }
+          }),
+        ),
+        const VerticalSpace(size: SpaceSize.small),
+        Text(
+          "F = Fokuszeit, K = Kurze Pause, L = Lange Pause",
+          style: context.textTheme.bodyMedium,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPreviewBlock(String label, Color color) {
+    return Container(
+      width: 25,
+      height: 25,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Center(
+        child: Text(
+          label,
+          style: context.textTheme.labelLarge!.copyWith(
+            color: context.colorScheme.onPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _calculateTotalTime() {
+    final AddSessionState state = ref.read(addSessionViewModelProvider);
+
+    int totalMins =
+        ((state.focusTimeMin + state.breakTimeMin) *
+            state.cyclesBeforeLongBreak +
+        state.longBreakTimeMin);
+
+    if (totalMins >= 60) {
+      int hours = totalMins ~/ 60;
+      int mins = totalMins % 60;
+
+      return Text("Zeit insgesamt: ${hours}h ${mins}m");
+    } else {
+      return Text("Zeit insgesamt: ${totalMins}m");
+    }
   }
 }

@@ -18,7 +18,6 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
   IntColumn get breakTimeMin => integer().nullable()();
   IntColumn get longBreakTimeMin => integer().nullable()();
   IntColumn get cyclesBeforeLongBreak => integer().nullable()();
-  IntColumn get totalPomodoros => integer().nullable()();
 
   BoolColumn get hasFocusPrompt =>
       boolean().withDefault(const Constant<bool>(true))();

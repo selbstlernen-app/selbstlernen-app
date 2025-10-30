@@ -77,7 +77,7 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
                   "Gruppiere Aufgaben unter einem Ziel zusammen. Du kannst diesen Schritt auch vorerst überspringen.",
-                  style: context.textTheme.bodyMedium,
+                  style: context.textTheme.titleLarge,
                 ),
 
                 const VerticalSpace(size: SpaceSize.large),

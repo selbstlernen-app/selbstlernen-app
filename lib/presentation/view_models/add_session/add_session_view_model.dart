@@ -126,14 +126,12 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     int? breakTime,
     int? longBreakTime,
     int? cycles,
-    int? totalPomodoros,
   }) {
     state = state.copyWith(
       focusTimeMin: focusTime ?? state.focusTimeMin,
       breakTimeMin: breakTime ?? state.breakTimeMin,
       longBreakTimeMin: longBreakTime ?? state.longBreakTimeMin,
       cyclesBeforeLongBreak: cycles ?? state.cyclesBeforeLongBreak,
-      totalPomodoros: totalPomodoros ?? state.totalPomodoros,
     );
   }
 
@@ -339,7 +337,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       breakTimeMin: state.breakTimeMin,
       longBreakTimeMin: state.longBreakTimeMin,
       cyclesBeforeLongBreak: state.cyclesBeforeLongBreak,
-      totalPomodoros: state.totalPomodoros,
       hasFocusPrompt: state.hasFocusPrompt,
       hasMoodPrompt: state.hasMoodPrompt,
       hasFreetextPrompt: state.hasFreetextPrompt,

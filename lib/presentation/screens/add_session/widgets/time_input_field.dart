@@ -28,16 +28,20 @@ class TimeInputField extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            label,
-            style: context.textTheme.headlineSmall!.copyWith(
-              fontSize: 16,
-              color: context.colorScheme.primary,
+          SizedBox(
+            width: 150,
+            child: Text(
+              label,
+              maxLines: 2,
+              style: context.textTheme.headlineSmall!.copyWith(
+                fontSize: 16,
+                color: context.colorScheme.primary,
+              ),
             ),
           ),
           const VerticalSpace(size: SpaceSize.xsmall),
           SizedBox(
-            width: 100,
+            width: 150,
             child: TextField(
               controller: controller,
               onChanged: (String value) {
