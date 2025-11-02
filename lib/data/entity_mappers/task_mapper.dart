@@ -7,6 +7,7 @@ extension TaskToModelMapper on Task {
     return TaskModel(
       id: id.toString(),
       title: title,
+      goalId: goalId?.toString(),
       sessionId: sessionId.toString(),
       isCompleted: isCompleted,
       completedAt: completedAt,
@@ -27,6 +28,9 @@ extension TaskToCompanionMapper on TaskModel {
           ? Value<int>(int.parse(sessionId!))
           : const Value<int>.absent(),
       isCompleted: Value<bool>(isCompleted),
+      goalId: goalId != null
+          ? Value<int>(int.parse(goalId!))
+          : const Value<int>.absent(),
       completedAt: completedAt != null
           ? Value<DateTime>(completedAt!)
           : const Value<DateTime>.absent(),

@@ -5,6 +5,7 @@ import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/goals_page.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
@@ -65,100 +66,112 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      state.fullSession.session.title,
-                      style: context.textTheme.headlineLarge,
-                      textAlign: TextAlign.center,
-                    ),
-                    const VerticalSpace(size: SpaceSize.small),
-                    Text(
-                      _getPhaseLabel(state.currentPhase),
-                      style: context.textTheme.titleLarge,
-                    ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        state.fullSession.session.title,
+                        style: context.textTheme.headlineLarge,
+                        textAlign: TextAlign.center,
+                      ),
+                      const VerticalSpace(size: SpaceSize.small),
+                      Text(
+                        _getPhaseLabel(state.currentPhase),
+                        style: context.textTheme.titleLarge,
+                      ),
 
-                    const VerticalSpace(size: SpaceSize.medium),
+                      const VerticalSpace(size: SpaceSize.medium),
 
-                    Text(
-                      'Fokusphase ${state.totalFocusPhases + 1} | Zyklus ${state.completedCycles + 1}',
-                      style: context.textTheme.titleMedium,
-                    ),
+                      Text(
+                        'Fokusphase ${state.totalFocusPhases + 1} | Zyklus ${state.completedCycles + 1}',
+                        style: context.textTheme.titleMedium,
+                      ),
 
-                    const VerticalSpace(size: SpaceSize.large),
+                      const VerticalSpace(size: SpaceSize.large),
 
-                    // Timer and goals
-                    SizedBox(
-                      height: 300,
-                      child: PageView(
+                      // Horizontally scrollable timer and goals
+                      SizedBox(
+                        height: 350,
+                        child: PageView(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: _buildTimerPage(context, state),
+                            ),
+                            GoalsPage(
+                              fullSessionModel: widget.fullSessionModel,
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const VerticalSpace(size: SpaceSize.medium),
+
+                      // Pause and skip button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: _buildTimerPage(context, state),
+                          // Pause and continue
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundColor: context.colorScheme.primary,
+                            child: IconButton(
+                              icon:
+                                  (state.timerStatus == TimerStatus.paused ||
+                                      state.timerStatus == TimerStatus.initial)
+                                  ? const Icon(
+                                      Icons.play_arrow_rounded,
+                                      size: 35,
+                                    )
+                                  : const Icon(Icons.pause_rounded, size: 35),
+                              color: Colors.white,
+
+                              onPressed: () {
+                                if (state.timerStatus == TimerStatus.running) {
+                                  viewModel.pauseTimer();
+                                } else {
+                                  viewModel.startTimer();
+                                }
+                              },
+                            ),
                           ),
-                          Card(child: Center(child: Text("Statistics"))),
-                          Card(child: Center(child: Text("Notes"))),
+
+                          const HorizontalSpace(size: SpaceSize.large),
+
+                          // Skip phase
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundColor: context.colorScheme.primary,
+                            child: IconButton(
+                              icon: const Icon(
+                                Icons.skip_next_rounded,
+                                size: 35,
+                              ),
+                              color: Colors.white,
+                              onPressed: () {
+                                viewModel.skipPhase();
+                              },
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-
-                    const VerticalSpace(size: SpaceSize.medium),
-
-                    // Pause and skip button
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        // Pause and continue
-                        CircleAvatar(
-                          radius: 25,
-                          backgroundColor: context.colorScheme.primary,
-                          child: IconButton(
-                            icon:
-                                (state.timerStatus == TimerStatus.paused ||
-                                    state.timerStatus == TimerStatus.initial)
-                                ? const Icon(Icons.play_arrow_rounded, size: 35)
-                                : const Icon(Icons.pause_rounded, size: 35),
-                            color: Colors.white,
-
-                            onPressed: () {
-                              if (state.timerStatus == TimerStatus.running) {
-                                viewModel.pauseTimer();
-                              } else {
-                                viewModel.startTimer();
-                              }
-                            },
-                          ),
-                        ),
-
-                        const HorizontalSpace(size: SpaceSize.large),
-
-                        // Skip phase
-                        CircleAvatar(
-                          radius: 25,
-                          backgroundColor: context.colorScheme.primary,
-                          child: IconButton(
-                            icon: const Icon(Icons.skip_next_rounded, size: 35),
-                            color: Colors.white,
-                            onPressed: () {
-                              viewModel.skipPhase();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(12.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      const Text('Fokuszeit:'),
+                      Text(
+                        'Fokuszeit insgesamt:',
+                        style: context.textTheme.bodyMedium,
+                      ),
                       Text(_formatTime(state.totalFocusSecondsElapsed)),
                     ],
                   ),

@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
+import 'package:srl_app/domain/models/models.dart';
 
 part 'active_session_state.freezed.dart';
 
@@ -9,6 +10,8 @@ enum TimerStatus { initial, running, paused, completed }
 
 @freezed
 abstract class ActiveSessionState with _$ActiveSessionState {
+  const ActiveSessionState._();
+
   const factory ActiveSessionState({
     required FullSessionModel fullSession,
     @Default(SessionPhase.focus) SessionPhase currentPhase,
@@ -20,5 +23,15 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(0) int totalFocusPhases,
     @Default(0) int completedCycles,
     DateTime? sessionStartTime,
+
+    @Default(<String>{}) Set<String> completedGoalIds,
+    @Default(<String>{}) Set<String> completedTaskIds,
   }) = _ActiveSessionState;
+
+  List<TaskModel> get ungroupedTasks =>
+      fullSession.tasks.where((TaskModel task) => task.goalId == null).toList();
+
+  List<TaskModel> tasksForGoal(String goalId) => fullSession.tasks
+      .where((TaskModel task) => task.goalId == goalId)
+      .toList();
 }

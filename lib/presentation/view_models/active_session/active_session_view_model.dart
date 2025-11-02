@@ -130,6 +130,28 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     );
   }
 
+  // Complete a goal
+  void toggleGoalCompletion(String goalId) {
+    final Set<String> completed = Set<String>.from(state.completedGoalIds);
+    if (completed.contains(goalId)) {
+      completed.remove(goalId);
+    } else {
+      completed.add(goalId);
+    }
+    state = state.copyWith(completedGoalIds: completed);
+  }
+
+  // Complete a task
+  void toggleTaskCompletion(String taskId) {
+    final Set<String> completed = Set<String>.from(state.completedTaskIds);
+    if (completed.contains(taskId)) {
+      completed.remove(taskId);
+    } else {
+      completed.add(taskId);
+    }
+    state = state.copyWith(completedTaskIds: completed);
+  }
+
   Future<void> stopSession() async {
     _timer?.cancel();
     state = state.copyWith(timerStatus: TimerStatus.completed);
