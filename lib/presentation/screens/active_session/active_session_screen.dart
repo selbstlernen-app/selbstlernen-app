@@ -4,18 +4,36 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
-class ActiveSessionScreen extends ConsumerWidget {
+class ActiveSessionScreen extends ConsumerStatefulWidget {
   const ActiveSessionScreen({super.key, required this.fullSessionModel});
 
   final FullSessionModel fullSessionModel;
 
+  @override
+  ConsumerState<ActiveSessionScreen> createState() =>
+      _ActiveSessionScreenState();
+}
+
+class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   String _formatTime(int seconds) {
     final int minutes = seconds ~/ 60;
     final int secs = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  }
+
+  int _getPhaseDuration(ActiveSessionState state) {
+    switch (state.currentPhase) {
+      case SessionPhase.focus:
+        return (state.fullSession.session.focusTimeMin ?? 25) * 60;
+      case SessionPhase.shortBreak:
+        return (state.fullSession.session.breakTimeMin ?? 5) * 60;
+      case SessionPhase.longBreak:
+        return (state.fullSession.session.longBreakTimeMin ?? 15) * 60;
+    }
   }
 
   String _getPhaseLabel(SessionPhase phase) {
@@ -30,12 +48,12 @@ class ActiveSessionScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final ActiveSessionState state = ref.watch(
-      activeSessionViewModelProvider(fullSessionModel),
+      activeSessionViewModelProvider(widget.fullSessionModel),
     );
     final ActiveSessionViewModel viewModel = ref.read(
-      activeSessionViewModelProvider(fullSessionModel).notifier,
+      activeSessionViewModelProvider(widget.fullSessionModel).notifier,
     );
 
     return Scaffold(
@@ -46,61 +64,94 @@ class ActiveSessionScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text(
-                state.fullSession.session.title,
-                style: context.textTheme.headlineLarge,
-                textAlign: TextAlign.center,
-              ),
-              const VerticalSpace(size: SpaceSize.small),
-              Text(
-                _getPhaseLabel(state.currentPhase),
-                style: context.textTheme.titleLarge,
-              ),
-              const VerticalSpace(size: SpaceSize.large),
-              Text(
-                _formatTime(state.remainingSeconds),
-                style: context.textTheme.displayLarge?.copyWith(
-                  fontSize: 72,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      state.fullSession.session.title,
+                      style: context.textTheme.headlineLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                    const VerticalSpace(size: SpaceSize.small),
+                    Text(
+                      _getPhaseLabel(state.currentPhase),
+                      style: context.textTheme.titleLarge,
+                    ),
+
+                    const VerticalSpace(size: SpaceSize.medium),
+
+                    Text(
+                      'Fokusphase ${state.totalFocusPhases + 1} | Zyklus ${state.completedCycles + 1}',
+                      style: context.textTheme.titleMedium,
+                    ),
+
+                    const VerticalSpace(size: SpaceSize.large),
+
+                    // Timer and goals
+                    SizedBox(
+                      height: 300,
+                      child: PageView(
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: _buildTimerPage(context, state),
+                          ),
+                          Card(child: Center(child: Text("Statistics"))),
+                          Card(child: Center(child: Text("Notes"))),
+                        ],
+                      ),
+                    ),
+
+                    const VerticalSpace(size: SpaceSize.medium),
+
+                    // Pause and skip button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        // Pause and continue
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundColor: context.colorScheme.primary,
+                          child: IconButton(
+                            icon:
+                                (state.timerStatus == TimerStatus.paused ||
+                                    state.timerStatus == TimerStatus.initial)
+                                ? const Icon(Icons.play_arrow_rounded, size: 35)
+                                : const Icon(Icons.pause_rounded, size: 35),
+                            color: Colors.white,
+
+                            onPressed: () {
+                              if (state.timerStatus == TimerStatus.running) {
+                                viewModel.pauseTimer();
+                              } else {
+                                viewModel.startTimer();
+                              }
+                            },
+                          ),
+                        ),
+
+                        const HorizontalSpace(size: SpaceSize.large),
+
+                        // Skip phase
+                        CircleAvatar(
+                          radius: 25,
+                          backgroundColor: context.colorScheme.primary,
+                          child: IconButton(
+                            icon: const Icon(Icons.skip_next_rounded, size: 35),
+                            color: Colors.white,
+                            onPressed: () {
+                              viewModel.skipPhase();
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 24),
-              Text(
-                'Fokusphase ${state.totalFocusPhases + 1} | Zyklus ${state.completedCycles + 1}',
-                style: context.textTheme.titleMedium,
-              ),
-              const SizedBox(height: 48),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  if (state.timerStatus == TimerStatus.initial ||
-                      state.timerStatus == TimerStatus.paused)
-                    CustomButton(
-                      onPressed: viewModel.startTimer,
-                      label: state.timerStatus == TimerStatus.initial
-                          ? 'Start'
-                          : 'Weiter',
-                    ),
-                  if (state.timerStatus == TimerStatus.running) ...<Widget>[
-                    CustomButton(
-                      onPressed: viewModel.pauseTimer,
-                      label: 'Pause',
-                    ),
-                    const SizedBox(width: 16),
-                  ],
-                  if (state.timerStatus != TimerStatus.initial)
-                    CustomButton(
-                      onPressed: () async {
-                        await viewModel.stopSession();
-                        if (context.mounted) {
-                          Navigator.pop(context);
-                        }
-                      },
-                      label: 'Stop',
-                    ),
-                ],
-              ),
-              const SizedBox(height: 32),
+
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -113,9 +164,60 @@ class ActiveSessionScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+
+              const VerticalSpace(size: SpaceSize.medium),
+
+              // Start and stop button
+              SizedBox(
+                width: context.mediaQuery.size.width,
+                child: CustomButton(
+                  onPressed: () async {
+                    if (state.timerStatus == TimerStatus.initial) {
+                      viewModel.startTimer();
+                    }
+                    if (state.timerStatus != TimerStatus.initial) {
+                      await viewModel.stopSession();
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+                    }
+                  },
+                  label: state.timerStatus == TimerStatus.initial
+                      ? "Lerneinheit beginnen"
+                      : 'Lerneinheit beenden',
+                ),
+              ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTimerPage(BuildContext context, ActiveSessionState state) {
+    final int totalDuration = _getPhaseDuration(state);
+    final double progress = state.remainingSeconds / totalDuration;
+
+    return Center(
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          SizedBox(
+            width: context.mediaQuery.size.width,
+            height: context.mediaQuery.size.width,
+            child: CustomPaint(
+              painter: CircularTimePainter(
+                progress: progress,
+                backgroundColor: context.colorScheme.onPrimary,
+                progressColor: context.colorScheme.primary,
+              ),
+            ),
+          ),
+          Text(
+            _formatTime(state.remainingSeconds),
+            style: context.textTheme.headlineLarge?.copyWith(fontSize: 48),
+          ),
+        ],
       ),
     );
   }

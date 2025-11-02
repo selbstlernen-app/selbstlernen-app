@@ -20,33 +20,16 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   final TextEditingController _focusController = TextEditingController();
   final TextEditingController _breakController = TextEditingController();
   final TextEditingController _longBreakController = TextEditingController();
-  final TextEditingController _cycleController = TextEditingController();
-  final TextEditingController _pomodoroController = TextEditingController();
+  final TextEditingController _focusPhaseController = TextEditingController();
 
   @override
   void dispose() {
     _focusController.dispose();
     _breakController.dispose();
     _longBreakController.dispose();
-    _cycleController.dispose();
-    _pomodoroController.dispose();
+    _focusPhaseController.dispose();
+
     super.dispose();
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    _focusController.addListener(_updateTotalTime);
-    _breakController.addListener(_updateTotalTime);
-    _longBreakController.addListener(_updateTotalTime);
-    _cycleController.addListener(_updateTotalTime);
-    _pomodoroController.addListener(_updateTotalTime);
-  }
-
-  // To trigger rebuild of the text
-  void _updateTotalTime() {
-    setState(() {});
   }
 
   void _saveSettings() {
@@ -57,7 +40,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           focusTime: int.tryParse(_focusController.text),
           breakTime: int.tryParse(_breakController.text),
           longBreakTime: int.tryParse(_longBreakController.text),
-          cycles: int.tryParse(_cycleController.text),
+          cycles: int.tryParse(_focusPhaseController.text),
         );
     // Then navigate forward
     widget.navigateForward();
@@ -72,7 +55,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
       _focusController.text = state.focusTimeMin.toString();
       _breakController.text = state.breakTimeMin.toString();
       _longBreakController.text = state.longBreakTimeMin.toString();
-      _cycleController.text = state.focusPhases.toString();
+      _focusPhaseController.text = state.focusPhases.toString();
     }
 
     return Column(
@@ -145,7 +128,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
             Expanded(
               child: TimeInputField(
                 label: "Fokusphasen bis lange Pause",
-                controller: _cycleController,
+                controller: _focusPhaseController,
                 onChanged: (int value) {
                   ref
                       .read(addSessionViewModelProvider.notifier)
@@ -187,7 +170,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   }
 
   Widget _buildTimerPreview() {
-    final int cycles = int.tryParse(_cycleController.text) ?? 0;
+    final int focusPhases = int.tryParse(_focusPhaseController.text) ?? 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,8 +180,8 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
         Wrap(
           spacing: 4,
           runSpacing: 4,
-          children: List<Widget>.generate(cycles + 1, (int index) {
-            if (index < cycles) {
+          children: List<Widget>.generate(focusPhases, (int index) {
+            if (index < focusPhases - 1) {
               return Container(
                 margin: const EdgeInsets.only(right: 8.0),
                 child: Row(
@@ -211,13 +194,20 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                 ),
               );
             } else {
-              return _buildPreviewBlock("L", context.colorScheme.onTertiary);
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  _buildPreviewBlock("F", context.colorScheme.primary),
+                  const HorizontalSpace(size: SpaceSize.xsmall),
+                  _buildPreviewBlock("L", context.colorScheme.onTertiary),
+                ],
+              );
             }
           }),
         ),
         const VerticalSpace(size: SpaceSize.small),
         Text(
-          "F = Fokuszeit, K = Kurze Pause, L = Lange Pause",
+          "F = Fokusphase, K = Kurze Pause, L = Lange Pause",
           style: context.textTheme.bodyMedium,
         ),
       ],

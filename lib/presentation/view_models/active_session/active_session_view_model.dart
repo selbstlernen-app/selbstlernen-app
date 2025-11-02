@@ -63,43 +63,54 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
   }
 
+  void skipPhase() {
+    _handlePhaseComplete();
+  }
+
+  // Function to switch phase dependent on the current one (focus -> short/long break)
   void _handlePhaseComplete() {
     final SessionModel session = state.fullSession.session;
 
     switch (state.currentPhase) {
-      // If currently in focus add a short/long break
       case SessionPhase.focus:
-        final int newTotalFocusPhases = state.totalFocusPhases + 1;
+        // say we have 4 focus phases, then 3 are FK last is FL
+        final int nextFocusPhase = state.totalFocusPhases + 1;
         final int focusPhases = session.focusPhases ?? 4;
 
-        // Determine next break type
-        if (newTotalFocusPhases % focusPhases == 0) {
+        // Determine next break type (if we have 4 % 4 = 0, take long break, else short break)
+        if (nextFocusPhase % focusPhases == 0) {
+          // Just completed the last focus phase -> moving on to long break
           _startPhase(
             phase: SessionPhase.longBreak,
             durationSeconds: (session.longBreakTimeMin ?? 15) * 60,
-            totalFocusPhases: newTotalFocusPhases,
           );
         } else {
+          // Completed a regular focus phase
           _startPhase(
             phase: SessionPhase.shortBreak,
             durationSeconds: (session.breakTimeMin ?? 5) * 60,
-            totalFocusPhases: newTotalFocusPhases,
           );
         }
         break;
 
-      // In case of break, start new focus session
+      // After short break, start next focus phase and increase total focus phase
       case SessionPhase.shortBreak:
+        final int newTotalFocusPhases = state.totalFocusPhases + 1;
         _startPhase(
           phase: SessionPhase.focus,
           durationSeconds: (session.focusTimeMin ?? 25) * 60,
+          totalFocusPhases: newTotalFocusPhases,
         );
-      // Only count as new cycle, when long break is over
+        break;
+
+      // After long break, increment cycle and start new focus phase
       case SessionPhase.longBreak:
+        final int newTotalFocusPhases = state.totalFocusPhases + 1;
         _startPhase(
           phase: SessionPhase.focus,
           durationSeconds: (session.focusTimeMin ?? 25) * 60,
-          completedCycles: state.completedCycles,
+          totalFocusPhases: newTotalFocusPhases,
+          completedCycles: state.completedCycles + 1,
         );
         break;
     }
