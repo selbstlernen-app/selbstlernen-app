@@ -131,7 +131,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       focusTimeMin: focusTime ?? state.focusTimeMin,
       breakTimeMin: breakTime ?? state.breakTimeMin,
       longBreakTimeMin: longBreakTime ?? state.longBreakTimeMin,
-      cyclesBeforeLongBreak: cycles ?? state.cyclesBeforeLongBreak,
+      focusPhases: cycles ?? state.focusPhases,
     );
   }
 
@@ -336,7 +336,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       focusTimeMin: state.focusTimeMin,
       breakTimeMin: state.breakTimeMin,
       longBreakTimeMin: state.longBreakTimeMin,
-      cyclesBeforeLongBreak: state.cyclesBeforeLongBreak,
+      focusPhases: state.focusPhases,
       hasFocusPrompt: state.hasFocusPrompt,
       hasMoodPrompt: state.hasMoodPrompt,
       hasFreetextPrompt: state.hasFreetextPrompt,

@@ -6,6 +6,7 @@ import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
+import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_view_model.dart';
 
@@ -98,7 +99,14 @@ class SessionDetailScreen extends ConsumerWidget {
               SizedBox(
                 width: context.mediaQuery.size.width,
                 child: CustomButton(
-                  onPressed: () => print("go"),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute<dynamic>(
+                      builder: (BuildContext context) => ActiveSessionScreen(
+                        fullSessionModel: detailState.fullSession,
+                      ),
+                    ),
+                  ),
                   label: "Starten",
                 ),
               ),

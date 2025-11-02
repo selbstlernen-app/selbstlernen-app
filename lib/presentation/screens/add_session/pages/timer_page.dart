@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/core/utils/time_formatter.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
@@ -74,7 +72,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
       _focusController.text = state.focusTimeMin.toString();
       _breakController.text = state.breakTimeMin.toString();
       _longBreakController.text = state.longBreakTimeMin.toString();
-      _cycleController.text = state.cyclesBeforeLongBreak.toString();
+      _cycleController.text = state.focusPhases.toString();
     }
 
     return Column(
@@ -170,15 +168,18 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           ],
         ),
 
+        const VerticalSpace(size: SpaceSize.medium),
+
         _buildTimerPreview(),
+
+        const VerticalSpace(size: SpaceSize.xsmall),
 
         Divider(
           color: context.colorScheme.tertiary,
           thickness: 4,
           radius: const BorderRadius.all(Radius.circular(10)),
         ),
-
-        const VerticalSpace(size: SpaceSize.small),
+        const VerticalSpace(size: SpaceSize.xsmall),
 
         _calculateTotalTime(),
       ],
@@ -191,7 +192,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text("Timer Vorschau", style: context.textTheme.headlineSmall),
+        Text("Zyklus Vorschau", style: context.textTheme.headlineSmall),
         const VerticalSpace(size: SpaceSize.small),
         Wrap(
           spacing: 4,
@@ -246,8 +247,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
     final AddSessionState state = ref.read(addSessionViewModelProvider);
 
     int totalMins =
-        ((state.focusTimeMin + state.breakTimeMin) *
-            state.cyclesBeforeLongBreak +
+        ((state.focusTimeMin + state.breakTimeMin) * state.focusPhases +
         state.longBreakTimeMin);
 
     if (totalMins >= 60) {
