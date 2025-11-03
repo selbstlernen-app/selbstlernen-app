@@ -14,19 +14,6 @@ class SessionDetailScreen extends ConsumerWidget {
   const SessionDetailScreen({super.key, required this.sessionId});
   final int sessionId;
 
-  void _deleteSession(BuildContext context, WidgetRef ref) {
-    ref
-        .read(detailSessionViewModelProvider(sessionId).notifier)
-        .deleteSession();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => const MainNavigation(),
-      ),
-      (Route<dynamic> route) => false,
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final AsyncValue<DetailSessionState> state = ref.watch(
@@ -55,7 +42,13 @@ class SessionDetailScreen extends ConsumerWidget {
               icon: const Icon(Icons.mode_edit_outline_rounded),
             ),
             IconButton(
-              onPressed: () => _deleteSession(context, ref),
+              onPressed: () async {
+                await deleteSessionDialog(
+                  context,
+                  detailState.fullSession.session.isRepeating,
+                  ref,
+                );
+              },
               icon: const Icon(Icons.delete_forever_rounded),
             ),
           ],
@@ -112,6 +105,61 @@ class SessionDetailScreen extends ConsumerWidget {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Future<void> deleteSessionDialog(
+    BuildContext context,
+    bool isRepeating,
+    WidgetRef ref,
+  ) {
+    void deleteSession() {
+      ref
+          .read(detailSessionViewModelProvider(sessionId).notifier)
+          .deleteSession();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) => const MainNavigation(),
+        ),
+        (Route<dynamic> route) => false,
+      );
+    }
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Lerneinheit löschen',
+            style: context.textTheme.headlineMedium,
+          ),
+          content: Text(
+            isRepeating
+                ? 'Willst du diese und alle zukünftigen Einheiten löschen?'
+                : "Willst du diese Einheit wirklich löschen?",
+            style: context.textTheme.bodyLarge,
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                overlayColor: context.colorScheme.error,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                "Abbrechen",
+                style: context.textTheme.labelLarge!.copyWith(
+                  color: context.colorScheme.error,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => deleteSession(),
+              child: const Text("Bestätigen"),
+            ),
+          ],
         );
       },
     );
