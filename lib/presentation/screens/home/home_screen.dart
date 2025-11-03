@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
+import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/presentation/screens/home/widgets/session_tile.dart';
@@ -31,12 +33,61 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: ListView.builder(
-          itemCount: homeState.sessions.length,
-          itemBuilder: (BuildContext context, int index) {
-            final SessionModel session = homeState.sessions[index];
-            return SessionTile(session: session);
-          },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              "Deine Lerneinheiten",
+              style: context.textTheme.headlineMedium,
+            ),
+            const VerticalSpace(size: SpaceSize.small),
+            Wrap(
+              spacing: 8.0,
+              children: <Widget>[
+                CustomButton(
+                  verticalPadding: 8.0,
+                  borderRadius: 10.0,
+                  isActive: homeState.filter == SessionFilter.today,
+                  onPressed: () => ref
+                      .read(homeViewModelProvider.notifier)
+                      .setFilter(SessionFilter.today),
+                  label: "Für heute",
+                ),
+                CustomButton(
+                  verticalPadding: 8.0,
+                  borderRadius: 10.0,
+                  isActive: homeState.filter == SessionFilter.thisWeek,
+                  onPressed: () => ref
+                      .read(homeViewModelProvider.notifier)
+                      .setFilter(SessionFilter.thisWeek),
+                  label: "Diese Woche",
+                ),
+                CustomButton(
+                  verticalPadding: 8.0,
+                  borderRadius: 10.0,
+                  isActive: homeState.filter == SessionFilter.all,
+                  onPressed: () => ref
+                      .read(homeViewModelProvider.notifier)
+                      .setFilter(SessionFilter.all),
+                  label: "Alle",
+                ),
+              ],
+            ),
+
+            const VerticalSpace(size: SpaceSize.medium),
+
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: homeState.filteredSessions.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final SessionModel session =
+                      homeState.filteredSessions[index];
+                  return SessionTile(session: session);
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

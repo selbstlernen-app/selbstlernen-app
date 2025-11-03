@@ -4,6 +4,7 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
+import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/goals_page.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
@@ -20,6 +21,16 @@ class ActiveSessionScreen extends ConsumerStatefulWidget {
 }
 
 class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
+  late SessionInstanceModel sessionInstance;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeSessionInstance();
+  }
+
+  Future<void> _initializeSessionInstance() async {}
+
   String _formatTime(int seconds) {
     final int minutes = seconds ~/ 60;
     final int secs = seconds % 60;

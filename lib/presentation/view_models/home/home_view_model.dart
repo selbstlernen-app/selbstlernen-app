@@ -31,4 +31,8 @@ class HomeViewModel extends _$HomeViewModel {
       },
     );
   }
+
+  void setFilter(SessionFilter filter) {
+    state = state.copyWith(filter: filter);
+  }
 }
