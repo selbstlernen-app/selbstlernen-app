@@ -24,5 +24,9 @@ abstract class SessionModel with _$SessionModel {
     @Default(true) bool hasMoodPrompt,
     @Default(true) bool hasFreetextPrompt,
     DateTime? createdAt,
+
+    // Not saved in db;  computed upfront
+    int? totalInstances,
+    int? completedInstances,
   }) = _SessionModel;
 }

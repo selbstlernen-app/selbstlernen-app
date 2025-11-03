@@ -9,9 +9,15 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
   const factory SessionInstanceModel({
     String? id,
     required String sessionId,
-    DateTime? scheduledDate,
     @Default(SessionStatus.scheduled) SessionStatus status,
-    // TODO: add interesting measures here
+
+    // Time Measures
+    @Default(0) int totalFocusPhases,
+    @Default(0) int totalCompletedBlocks,
+    @Default(0) int totalFocusSecondsElapsed,
+    @Default(0) int totalBreakSecondsElapsed,
+
+    // Checked off goals/tasks
     @Default(0) int totalCompletedGoals,
     @Default(0) int totalCompletedTasks,
     DateTime? completedAt,

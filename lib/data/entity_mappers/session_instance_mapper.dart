@@ -8,9 +8,12 @@ extension SessionInstanceToModelMapper on SessionInstance {
       id: id.toString(),
       sessionId: sessionId.toString(),
       status: status,
+      totalFocusPhases: (totalFocusPhases),
+      totalCompletedBlocks: (totalCompletedBlocks),
+      totalFocusSecondsElapsed: (totalFocusSecondsElapsed),
+      totalBreakSecondsElapsed: totalBreakSecondsElapsed,
       totalCompletedGoals: totalCompletedGoals,
       totalCompletedTasks: totalCompletedTasks,
-      scheduledDate: scheduledDate,
       completedAt: completedAt,
       createdAt: createdAt,
     );
@@ -31,11 +34,12 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
           ? Value<DateTime>(completedAt!)
           : const Value<DateTime>.absent(),
       status: Value<SessionStatus>(status),
+      totalFocusPhases: Value<int>(totalFocusPhases),
+      totalCompletedBlocks: Value<int>(totalCompletedBlocks),
+      totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),
+      totalBreakSecondsElapsed: Value<int>(totalBreakSecondsElapsed),
       totalCompletedGoals: Value<int>(totalCompletedGoals),
       totalCompletedTasks: Value<int>(totalCompletedTasks),
-      scheduledDate: scheduledDate != null
-          ? Value<DateTime>(scheduledDate!)
-          : const Value<DateTime>.absent(),
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
     );
   }

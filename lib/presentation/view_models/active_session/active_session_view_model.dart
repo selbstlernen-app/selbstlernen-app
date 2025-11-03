@@ -1,8 +1,12 @@
 import 'dart:async';
 
+import 'package:path/path.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
+import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
+import 'package:srl_app/domain/usecases/create_session_instance_use_case.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 
 part 'active_session_view_model.g.dart';
@@ -10,12 +14,16 @@ part 'active_session_view_model.g.dart';
 @riverpod
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Timer? _timer;
+  late CreateSessionInstanceUseCase _createSessionInstanceUseCase;
 
   @override
   ActiveSessionState build(FullSessionModel fullSession) {
     ref.onDispose(() {
       _timer?.cancel();
     });
+    _createSessionInstanceUseCase = ref.read(
+      createSessionInstanceUseCaseProvider,
+    );
 
     return ActiveSessionState(
       fullSession: fullSession,
@@ -163,9 +171,20 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> _saveSessionTracking() async {
     if (state.sessionStartTime == null) return;
 
-    // TODO: Add a tracking model to database - including all information from the state (look up whats relevant)
+    final SessionInstanceModel sessionInstance = SessionInstanceModel(
+      sessionId: state.fullSession.session.id!,
+      status: SessionStatus.completed,
+      totalCompletedGoals: state.completedGoalIds.length,
+      totalCompletedTasks: state.completedTaskIds.length,
 
-    // TODO: Create and then save to corresponding repository, e.g.:
-    // await ref.read(sessionTrackingRepositoryProvider).insert(tracking);
+      totalBreakSecondsElapsed: state.totalBreakSecondsElapsed,
+      totalCompletedBlocks: state.completedCycles,
+      totalFocusPhases: state.totalFocusPhases,
+      totalFocusSecondsElapsed: state.totalFocusSecondsElapsed,
+
+      completedAt: DateTime.now(),
+    );
+
+    await _createSessionInstanceUseCase.call(sessionInstance);
   }
 }

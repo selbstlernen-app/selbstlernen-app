@@ -5,6 +5,7 @@ import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
+import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/goals_page.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
@@ -202,7 +203,20 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                     if (state.timerStatus != TimerStatus.initial) {
                       await viewModel.stopSession();
                       if (context.mounted) {
-                        Navigator.pop(context);
+                        context.scaffoldMessenger.showSnackBar(
+                          const SnackBar(
+                            duration: Duration(seconds: 2),
+                            content: Text("Einheit erfolgreich abgeschlossen!"),
+                          ),
+                        );
+                        await Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute<dynamic>(
+                            builder: (BuildContext context) =>
+                                const MainNavigation(),
+                          ),
+                          (Route<dynamic> route) => false,
+                        );
                       }
                     }
                   },

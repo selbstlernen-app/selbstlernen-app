@@ -14,10 +14,6 @@ class SessionTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<int> instanceCount = ref.watch(
-      sessionInstancesCountProvider(session.id!),
-    );
-
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -27,7 +23,9 @@ class SessionTile extends ConsumerWidget {
             color: context.colorScheme.onSecondary,
           ),
         ),
-        subtitle: Text(_buildSubtitle(instanceCount)),
+        subtitle: Text(
+          "${session.completedInstances} / ${session.totalInstances}",
+        ),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),

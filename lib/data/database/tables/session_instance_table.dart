@@ -4,10 +4,19 @@ import 'package:srl_app/domain/models/session_instance_model.dart';
 
 class SessionInstances extends Table with AutoIncrementingPrimaryKey {
   IntColumn get sessionId => integer().references(Sessions, #id)();
-  DateTimeColumn get scheduledDate => dateTime().nullable()();
   TextColumn get status => textEnum<SessionStatus>().withDefault(
     const Constant<String>('scheduled'),
   )();
+
+  IntColumn get totalFocusPhases =>
+      integer().withDefault(const Constant<int>(0))();
+  IntColumn get totalCompletedBlocks =>
+      integer().withDefault(const Constant<int>(0))();
+  IntColumn get totalFocusSecondsElapsed =>
+      integer().withDefault(const Constant<int>(0))();
+  IntColumn get totalBreakSecondsElapsed =>
+      integer().withDefault(const Constant<int>(0))();
+
   IntColumn get totalCompletedGoals =>
       integer().withDefault(const Constant<int>(0))();
   IntColumn get totalCompletedTasks =>

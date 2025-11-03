@@ -5,6 +5,7 @@ class SessionInstanceUseCase {
   const SessionInstanceUseCase(this.repository);
   final SessionInstanceRepository repository;
 
-  Future<List<SessionInstanceModel>> getAllSessionInstancesFor(int sessionId) =>
-      repository.getAllSessionInstancesFor(sessionId);
+  Stream<List<SessionInstanceModel>> watchAllSessionsInstancesFor(
+    int sessionId,
+  ) => repository.watchAllSessionsInstancesFor(sessionId);
 }

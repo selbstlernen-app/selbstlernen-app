@@ -22,16 +22,15 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   }
 
   @override
-  Future<List<SessionInstanceModel>> getAllSessionInstancesFor(
+  Stream<List<SessionInstanceModel>> watchAllSessionsInstancesFor(
     int sessionId,
-  ) async {
-    List<SessionInstance> sessionInstanceEntities = await sessionInstanceDao
-        .getAllSessionInstancesFor(sessionId);
-    List<SessionInstanceModel> instances =
-        SessionInstanceToModelMapper.mapFromListOfEntity(
-          sessionInstanceEntities,
+  ) {
+    return sessionInstanceDao
+        .watchAllSessionsInstancesFor(sessionId)
+        .map(
+          (List<SessionInstance> sessionList) =>
+              SessionInstanceToModelMapper.mapFromListOfEntity(sessionList),
         );
-    return instances;
   }
 
   @override

@@ -114,13 +114,3 @@ CreateSessionInstanceUseCase createSessionInstanceUseCase(Ref ref) {
     ref.watch(sessionInstanceRepositoryProvider),
   );
 }
-
-@riverpod
-Future<int> sessionInstancesCount(Ref ref, String sessionId) async {
-  final SessionInstanceUseCase useCase = ref.watch(
-    sessionInstanceUseCaseProvider,
-  );
-  final List<SessionInstanceModel> instances = await useCase
-      .getAllSessionInstancesFor(int.parse(sessionId));
-  return instances.length;
-}

@@ -11,6 +11,7 @@ abstract class HomeState with _$HomeState {
     @Default(<SessionModel>[]) List<SessionModel> sessions,
     @Default(SessionFilter.today) SessionFilter filter,
     @Default(false) bool isLoading,
+
     String? error,
   }) = _HomeState;
 

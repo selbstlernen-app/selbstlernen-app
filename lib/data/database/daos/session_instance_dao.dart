@@ -21,13 +21,17 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     )..where(($SessionInstancesTable s) => s.id.equals(id))).getSingleOrNull();
   }
 
+  // Watch all session instances for a specific session
+  Stream<List<SessionInstance>> watchAllSessionsInstancesFor(int sessionId) {
+    return (select(sessionInstances)
+          ..where(($SessionInstancesTable t) => t.sessionId.equals(sessionId)))
+        .watch();
+  }
+
   // Get all instances for a specific session
   Future<List<SessionInstance>> getAllSessionInstancesFor(int sessionId) {
     return (select(sessionInstances)
-          ..where(($SessionInstancesTable t) => t.sessionId.equals(sessionId))
-          ..orderBy(<OrderClauseGenerator<$SessionInstancesTable>>[
-            ($SessionInstancesTable t) => OrderingTerm.asc(t.scheduledDate),
-          ]))
+          ..where(($SessionInstancesTable t) => t.sessionId.equals(sessionId)))
         .get();
   }
 
