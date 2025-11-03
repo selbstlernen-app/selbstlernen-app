@@ -42,4 +42,9 @@ class SessionRepositoryImp implements SessionRepository {
   Future<int> updateSession(int sessionId, SessionModel updatedSession) {
     return sessionDao.updateSession(sessionId, updatedSession.toCompanion());
   }
+
+  @override
+  Future<void> patchIncrementCompletedInstances(int sessionId) {
+    return sessionDao.incrementCompletedInstances(sessionId);
+  }
 }

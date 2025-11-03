@@ -9,7 +9,6 @@ import 'package:srl_app/data/repositories/session_instance_repository_imp.dart';
 import 'package:srl_app/data/repositories/session_repository_imp.dart';
 import 'package:srl_app/data/repositories/task_repository_imp.dart';
 import 'package:srl_app/domain/goal_repository.dart';
-import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 import 'package:srl_app/domain/task_repository.dart';
@@ -111,6 +110,7 @@ SessionInstanceUseCase sessionInstanceUseCase(Ref ref) {
 @riverpod
 CreateSessionInstanceUseCase createSessionInstanceUseCase(Ref ref) {
   return CreateSessionInstanceUseCase(
+    ref.watch(sessionRepositoryProvider),
     ref.watch(sessionInstanceRepositoryProvider),
   );
 }

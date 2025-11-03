@@ -32,6 +32,15 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
     )..where(($SessionsTable tbl) => tbl.id.equals(id))).write(companion);
   }
 
+  // Patch completed instances
+  Future<void> incrementCompletedInstances(int id) async {
+    await customUpdate(
+      'UPDATE sessions SET completed_instances = completed_instances + 1 WHERE id = ?',
+      variables: <Variable<int>>[Variable<int>(id)],
+      updates: <$SessionsTable>{sessions},
+    );
+  }
+
   // Delete session
   Future<int> deleteSession(int id) async {
     return await (delete(

@@ -185,6 +185,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       completedAt: DateTime.now(),
     );
 
-    await _createSessionInstanceUseCase.call(sessionInstance);
+    await _createSessionInstanceUseCase.createSessionInstance(sessionInstance);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:srl_app/core/utils/date_time_utils.dart';
 
 part 'session_model.freezed.dart';
 
@@ -25,8 +26,18 @@ abstract class SessionModel with _$SessionModel {
     @Default(true) bool hasFreetextPrompt,
     DateTime? createdAt,
 
-    // Not saved in db;  computed upfront
-    int? totalInstances,
-    int? completedInstances,
+    @Default(0) int completedInstances,
   }) = _SessionModel;
+
+  // Helper
+  int get totalInstances {
+    if (!isRepeating) {
+      return 1;
+    }
+    return DateTimeUtils.countDaysBetweenDates(
+      startDate!,
+      endDate!,
+      selectedDays,
+    );
+  }
 }

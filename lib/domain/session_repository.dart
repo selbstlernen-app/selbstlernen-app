@@ -8,4 +8,5 @@ abstract class SessionRepository {
   Future<void> deleteSession(int sessionId);
   Future<SessionModel> getSessionById(int sessionId);
   Future<int> updateSession(int sessionId, SessionModel updatedSession);
+  Future<void> patchIncrementCompletedInstances(int sessionId);
 }
