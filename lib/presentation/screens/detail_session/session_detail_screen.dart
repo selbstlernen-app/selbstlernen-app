@@ -7,6 +7,7 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
+import 'package:srl_app/presentation/screens/add_session/add_session_screen.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_view_model.dart';
 
@@ -38,7 +39,16 @@ class SessionDetailScreen extends ConsumerWidget {
           appBarTitle: session.title,
           actions: <Widget>[
             IconButton(
-              onPressed: () => print("Edit"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute<dynamic>(
+                    builder: (BuildContext context) => AddSessionScreen(
+                      fullSessionModel: detailState.fullSession,
+                    ),
+                  ),
+                );
+              },
               icon: const Icon(Icons.mode_edit_outline_rounded),
             ),
             IconButton(

@@ -29,8 +29,8 @@ abstract class HomeState with _$HomeState {
       case SessionFilter.today:
         return sessions.where((SessionModel session) {
           if (session.isRepeating) {
-            // Check if session occurs today
-            return session.selectedDays.contains(today.weekday) &&
+            // Map weekday to selected days (starting at 0 not 1)
+            return session.selectedDays.contains(today.weekday - 1) &&
                 (session.startDate?.isBefore(
                       today.add(const Duration(days: 1)),
                     ) ??
