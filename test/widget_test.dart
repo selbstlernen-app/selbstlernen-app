@@ -18,6 +18,6 @@ void main() {
     // Trigger a frame
     await tester.pumpAndSettle();
 
-    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('Home'), findsAtLeast(2));
   });
 }
