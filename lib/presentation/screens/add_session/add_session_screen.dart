@@ -46,13 +46,18 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         curve: Curves.easeInBack,
       );
     } else {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) => const MainNavigation(),
-        ),
-        (Route<dynamic> route) => false,
-      );
+      if (widget.fullSessionModel != null) {
+        // Go back to details page
+        Navigator.pop(context);
+      } else {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute<dynamic>(
+            builder: (BuildContext context) => const MainNavigation(),
+          ),
+          (Route<dynamic> route) => false,
+        );
+      }
     }
   }
 

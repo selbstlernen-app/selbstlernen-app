@@ -15,7 +15,6 @@ abstract class SessionModel with _$SessionModel {
     DateTime? endDate,
     @Default(<int>[]) List<int> selectedDays,
     @Default(<String>[]) List<String> learningStrategies,
-    @Default(true) bool isPomodoro,
     int? totalTimeMin,
     @Default(25) int? focusTimeMin,
     @Default(5) int? breakTimeMin,

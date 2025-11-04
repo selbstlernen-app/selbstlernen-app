@@ -12,7 +12,6 @@ extension SessionToModelMapper on Session {
       endDate: endDate,
       selectedDays: selectedDays?.split(',').map(int.parse).toList() ?? <int>[],
       learningStrategies: learningStrategies?.split(',').toList() ?? <String>[],
-      isPomodoro: isPomodoro,
       totalTimeMin: totalTimeMin,
       focusTimeMin: focusTimeMin,
       breakTimeMin: breakTimeMin,
@@ -44,7 +43,6 @@ extension SessionToCompanionMapper on SessionModel {
       learningStrategies: Value<String?>(
         learningStrategies.isNotEmpty ? learningStrategies.join(',') : null,
       ),
-      isPomodoro: Value<bool>(isPomodoro),
       totalTimeMin: Value<int?>(totalTimeMin),
       focusTimeMin: Value<int?>(focusTimeMin),
       breakTimeMin: Value<int?>(breakTimeMin),

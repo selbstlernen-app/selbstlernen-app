@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
+import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/usecases/create_goals_use_case.dart';
 import 'package:srl_app/domain/usecases/create_session_use_case.dart';
@@ -113,10 +114,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  void setIsPomodoro(bool isPomodoro) {
-    state = state.copyWith(isPomodoro: isPomodoro);
-  }
-
   void setTotalTime(int minutes) {
     state = state.copyWith(totalTimeMin: minutes);
   }
@@ -140,6 +137,39 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       hasFocusPrompt: focus ?? state.hasFocusPrompt,
       hasMoodPrompt: mood ?? state.hasMoodPrompt,
       hasFreetextPrompt: freetext ?? state.hasFreetextPrompt,
+    );
+  }
+
+  // Initialization (if in edit mode)
+  void initializeState(FullSessionModel fullSessionModel) {
+    SessionModel session = fullSessionModel.session;
+    bool hasUngroupedTasks = fullSessionModel.tasks.any(
+      (TaskModel task) => task.goalId == null,
+    );
+
+    if (session.isRepeating) {
+      state = state.copyWith(
+        startDate: session.startDate,
+        endDate: session.endDate,
+        selectedDays: session.selectedDays,
+      );
+    }
+
+    state = state.copyWith(
+      title: session.title,
+      isRepeating: session.isRepeating,
+      setGoals:
+          !hasUngroupedTasks, // if no ungrouped tasks, we had set goals to true
+      goals: fullSessionModel.goals,
+      tasks: fullSessionModel.tasks,
+      learningStrategies: session.learningStrategies,
+      totalTimeMin: session.totalTimeMin,
+      breakTimeMin: session.breakTimeMin ?? 0,
+      longBreakTimeMin: session.longBreakTimeMin ?? 0,
+      focusPhases: session.focusPhases ?? 0,
+      hasFocusPrompt: session.hasFocusPrompt,
+      hasFreetextPrompt: session.hasFreetextPrompt,
+      hasMoodPrompt: session.hasMoodPrompt,
     );
   }
 
@@ -330,7 +360,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       endDate: state.endDate,
       selectedDays: state.selectedDays,
       learningStrategies: state.learningStrategies,
-      isPomodoro: state.isPomodoro,
       totalTimeMin: state.totalTimeMin,
       focusTimeMin: state.focusTimeMin,
       breakTimeMin: state.breakTimeMin,

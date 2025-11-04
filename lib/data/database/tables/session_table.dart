@@ -11,8 +11,6 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
 
   TextColumn get learningStrategies => text().nullable()();
 
-  BoolColumn get isPomodoro =>
-      boolean().withDefault(const Constant<bool>(true))();
   IntColumn get totalTimeMin => integer().nullable()();
   IntColumn get focusTimeMin => integer().nullable()();
   IntColumn get breakTimeMin => integer().nullable()();
