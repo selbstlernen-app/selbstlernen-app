@@ -41,11 +41,11 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   int _getPhaseDuration(ActiveSessionState state) {
     switch (state.currentPhase) {
       case SessionPhase.focus:
-        return (state.fullSession.session.focusTimeMin ?? 25) * 60;
+        return (state.fullSession.session.focusTimeMin) * 60;
       case SessionPhase.shortBreak:
-        return (state.fullSession.session.breakTimeMin ?? 5) * 60;
+        return (state.fullSession.session.breakTimeMin) * 60;
       case SessionPhase.longBreak:
-        return (state.fullSession.session.longBreakTimeMin ?? 15) * 60;
+        return (state.fullSession.session.longBreakTimeMin) * 60;
     }
   }
 
