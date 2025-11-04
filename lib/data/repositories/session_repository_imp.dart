@@ -28,14 +28,23 @@ class SessionRepositoryImp implements SessionRepository {
   }
 
   @override
-  Stream<SessionModel?> getSession(int sessionId) {
-    return sessionDao
-        .getSessionById(sessionId)
-        .map((Session? session) => session?.toDomain());
+  Future<SessionModel> getSessionById(int sessionId) async {
+    final Session? sessionEntity = await sessionDao.getSessionById(sessionId);
+
+    if (sessionEntity == null) {
+      throw Exception('Session with ID $sessionId not found.');
+    }
+
+    return sessionEntity.toDomain();
   }
 
   @override
   Future<int> updateSession(int sessionId, SessionModel updatedSession) {
     return sessionDao.updateSession(sessionId, updatedSession.toCompanion());
+  }
+
+  @override
+  Future<void> patchIncrementCompletedInstances(int sessionId) {
+    return sessionDao.incrementCompletedInstances(sessionId);
   }
 }

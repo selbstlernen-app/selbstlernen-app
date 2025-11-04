@@ -17,7 +17,7 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
   IntColumn get focusTimeMin => integer().nullable()();
   IntColumn get breakTimeMin => integer().nullable()();
   IntColumn get longBreakTimeMin => integer().nullable()();
-  IntColumn get cyclesBeforeLongBreak => integer().nullable()();
+  IntColumn get focusPhases => integer().nullable()();
 
   BoolColumn get hasFocusPrompt =>
       boolean().withDefault(const Constant<bool>(true))();
@@ -25,6 +25,9 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
       boolean().withDefault(const Constant<bool>(true))();
   BoolColumn get hasFreetextPrompt =>
       boolean().withDefault(const Constant<bool>(true))();
+
+  IntColumn get completedInstances =>
+      integer().withDefault(const Constant<int>(0))();
 
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

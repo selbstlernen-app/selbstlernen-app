@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_formatter.dart';
 
@@ -8,13 +10,13 @@ class TimeInputField extends StatelessWidget {
     super.key,
     required this.controller,
     required this.label,
-    this.onChanged,
+    required this.onChanged,
     this.minValue = 1,
     this.maxValue = 480, // 480 min = 8 hours of learning
   });
 
   final TextEditingController controller;
-  final Function(int)? onChanged;
+  final Function(int) onChanged;
   final String label;
   final int minValue;
   final int maxValue;
@@ -22,17 +24,35 @@ class TimeInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Row(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Expanded(child: Text(label)),
           SizedBox(
-            width: 65,
+            width: 150,
+            child: Text(
+              label,
+              maxLines: 2,
+              style: context.textTheme.headlineSmall!.copyWith(
+                fontSize: 16,
+                color: context.colorScheme.primary,
+              ),
+            ),
+          ),
+          const VerticalSpace(size: SpaceSize.xsmall),
+          SizedBox(
+            width: 150,
             child: TextField(
               controller: controller,
-              onChanged: onChanged != null
-                  ? (String value) => onChanged!(int.parse(value))
-                  : null,
+              onChanged: (String value) {
+                int? parsed = int.tryParse(value);
+                if (parsed == null) {
+                  return;
+                } else {
+                  onChanged(parsed);
+                }
+              },
+
               textAlign: TextAlign.center,
               decoration: InputDecoration(
                 filled: true,

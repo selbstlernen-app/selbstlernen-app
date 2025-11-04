@@ -20,13 +20,15 @@ class TaskRepositoryImp implements TaskRepository {
   }
 
   @override
-  Stream<List<TaskModel>> getAllTasksFor(int sessionId) {
-    return taskDao
-        .watchAllTasksFor(sessionId)
-        .map(
-          (List<Task> taskList) =>
-              TaskToModelMapper.mapFromListOfEntity(taskList),
-        );
+  Future<void> deleteAllTasksFor(int sessionId) {
+    return taskDao.deleteAllTasksFor(sessionId);
+  }
+
+  @override
+  Future<List<TaskModel>> getAllTasksFor(int sessionId) async {
+    List<Task> taskEntities = await taskDao.getAllTasksFor(sessionId);
+    List<TaskModel> tasks = TaskToModelMapper.mapFromListOfEntity(taskEntities);
+    return tasks;
   }
 
   @override

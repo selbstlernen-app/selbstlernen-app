@@ -24,8 +24,9 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(isRepeating: isRepeating);
   }
 
-  void setBigGoals(bool setBigGoals) {
-    state = state.copyWith(setBigGoals: setBigGoals);
+  void setGoals(bool setGoals) {
+    state = state.copyWith(setGoals: setGoals);
+    _resetGoalFields();
   }
 
   void setStartDate(DateTime? date) {
@@ -130,7 +131,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       focusTimeMin: focusTime ?? state.focusTimeMin,
       breakTimeMin: breakTime ?? state.breakTimeMin,
       longBreakTimeMin: longBreakTime ?? state.longBreakTimeMin,
-      cyclesBeforeLongBreak: cycles ?? state.cyclesBeforeLongBreak,
+      focusPhases: cycles ?? state.focusPhases,
     );
   }
 
@@ -201,11 +202,11 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     required List<GoalModel> goals,
     required List<TaskModel> tasks,
   }) {
-    if (state.setBigGoals && goals.isEmpty) {
-      return "Es muss mind. 1 großes Ziel festgelegt werden";
+    if (state.setGoals && goals.isEmpty) {
+      return "Es muss mind. 1 Ziel festgelegt werden.";
     }
-    if (!state.setBigGoals && tasks.isEmpty) {
-      return "Es muss mind. 1 kleines Ziel festgelegt werden";
+    if (!state.setGoals && tasks.isEmpty) {
+      return "Es muss mind. 1 Aufgabe festgelegt werden.";
     }
     return null;
   }
@@ -234,8 +235,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
         startErr == null &&
         endErr == null &&
         daysErr == null &&
-        ((state.goals.isNotEmpty && state.setBigGoals) ||
-            (!state.setBigGoals && state.tasks.isNotEmpty));
+        ((state.goals.isNotEmpty && state.setGoals) ||
+            (!state.setGoals && state.tasks.isNotEmpty));
   }
 
   bool get isFormValid {
@@ -245,8 +246,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
                   state.endDate != null &&
                   state.selectedDays.isNotEmpty == true)
             : true) &&
-        ((state.goals.isNotEmpty && state.setBigGoals) ||
-            (!state.setBigGoals && state.tasks.isNotEmpty));
+        ((state.goals.isNotEmpty && state.setGoals) ||
+            (!state.setGoals && state.tasks.isNotEmpty));
   }
 
   // Save all info
@@ -263,27 +264,55 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     final SessionModel session = _stateToSessionModel(state);
     int sessionId = await sessionUseCase.call(session);
 
-    if (state.goals.isNotEmpty && state.setBigGoals) {
+    // Map to store temporary UUIDs and actual db IDs
+    Map<String, int> goalIdMapping = <String, int>{};
+
+    if (state.goals.isNotEmpty) {
       final CreateGoalsUseCase goalUseCase = ref.read(
         createGoalsUseCaseProvider,
       );
       for (GoalModel goal in state.goals) {
         GoalModel addGoal = goal.copyWith(sessionId: sessionId.toString());
-        await goalUseCase.call(addGoal);
+        int goalId = await goalUseCase.call(addGoal);
+
+        // Map temporary UUID to actual DB id
+        if (goal.id != null) {
+          goalIdMapping[goal.id!] = goalId;
+        }
       }
     }
 
-    if (state.tasks.isNotEmpty && !state.setBigGoals) {
+    // Save tasks if they exist
+    if (state.tasks.isNotEmpty) {
       final CreateTasksUseCase taskUseCase = ref.read(
         createTasksUseCaseProvider,
       );
       for (TaskModel task in state.tasks) {
-        TaskModel addTask = task.copyWith(sessionId: sessionId.toString());
+        // If task is linked to a goal, find the actual DB goalId
+        String? actualGoalId;
+        if (task.goalId != null && goalIdMapping.containsKey(task.goalId)) {
+          actualGoalId = goalIdMapping[task.goalId].toString();
+        }
+
+        TaskModel addTask = task.copyWith(
+          sessionId: sessionId.toString(),
+          goalId: actualGoalId,
+        );
         await taskUseCase.call(addTask);
       }
     }
 
     resetFields();
+  }
+
+  void _resetGoalFields() {
+    // If we have big goals set, remove any tasks (small goals) for following pages
+    if (state.setGoals) {
+      state = state.copyWith(tasks: <TaskModel>[]);
+    } else {
+      // Similarly, if we have set small goals, remove big goals
+      state = state.copyWith(goals: <GoalModel>[]);
+    }
   }
 
   void resetFields() {
@@ -306,7 +335,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       focusTimeMin: state.focusTimeMin,
       breakTimeMin: state.breakTimeMin,
       longBreakTimeMin: state.longBreakTimeMin,
-      cyclesBeforeLongBreak: state.cyclesBeforeLongBreak,
+      focusPhases: state.focusPhases,
       hasFocusPrompt: state.hasFocusPrompt,
       hasMoodPrompt: state.hasMoodPrompt,
       hasFreetextPrompt: state.hasFreetextPrompt,

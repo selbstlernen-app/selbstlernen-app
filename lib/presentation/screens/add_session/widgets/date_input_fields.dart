@@ -89,7 +89,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                   children: <Widget>[
                     Text(
                       day,
-                      style: context.textTheme.bodyMedium?.copyWith(
+                      style: context.textTheme.bodyLarge?.copyWith(
                         color: isSelected
                             ? context.colorScheme.primary
                             : context.colorScheme.onSurface,

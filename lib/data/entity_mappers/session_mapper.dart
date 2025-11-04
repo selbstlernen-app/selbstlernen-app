@@ -17,11 +17,12 @@ extension SessionToModelMapper on Session {
       focusTimeMin: focusTimeMin,
       breakTimeMin: breakTimeMin,
       longBreakTimeMin: longBreakTimeMin,
-      cyclesBeforeLongBreak: cyclesBeforeLongBreak,
+      focusPhases: focusPhases,
       hasFocusPrompt: hasFocusPrompt,
       hasMoodPrompt: hasMoodPrompt,
       hasFreetextPrompt: hasFreetextPrompt,
       createdAt: createdAt,
+      completedInstances: completedInstances,
     );
   }
 
@@ -48,11 +49,12 @@ extension SessionToCompanionMapper on SessionModel {
       focusTimeMin: Value<int?>(focusTimeMin),
       breakTimeMin: Value<int?>(breakTimeMin),
       longBreakTimeMin: Value<int?>(longBreakTimeMin),
-      cyclesBeforeLongBreak: Value<int?>(cyclesBeforeLongBreak),
+      focusPhases: Value<int?>(focusPhases),
       hasFocusPrompt: Value<bool>(hasFocusPrompt),
       hasMoodPrompt: Value<bool>(hasMoodPrompt),
       hasFreetextPrompt: Value<bool>(hasFreetextPrompt),
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
+      completedInstances: Value<int>(completedInstances),
     );
   }
 }

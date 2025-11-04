@@ -13,11 +13,11 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     return await into(goals).insert(goal);
   }
 
-  // Watch all goals of a session
-  Stream<List<Goal>> watchAllGoalsFor(int sessionId) {
+  // Get all goals of a session
+  Future<List<Goal>> getAllGoalsFor(int sessionId) {
     return (select(
       goals,
-    )..where(($GoalsTable goal) => goal.sessionId.equals(sessionId))).watch();
+    )..where(($GoalsTable goal) => goal.sessionId.equals(sessionId))).get();
   }
 
   // Get goal by ID
@@ -39,5 +39,12 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     return await (delete(
       goals,
     )..where(($GoalsTable s) => s.id.equals(id))).go();
+  }
+
+  // Delete all goals of a session
+  Future<int> deleteAllGoalsFor(int sessionId) async {
+    return await (delete(
+      goals,
+    )..where(($GoalsTable s) => s.sessionId.equals(sessionId))).go();
   }
 }

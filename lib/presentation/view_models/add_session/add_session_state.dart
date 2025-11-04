@@ -10,7 +10,7 @@ abstract class AddSessionState with _$AddSessionState {
   const factory AddSessionState({
     @Default('') String title,
     @Default(false) bool isRepeating,
-    @Default(true) bool setBigGoals,
+    @Default(true) bool setGoals,
     DateTime? startDate,
     DateTime? endDate,
     @Default(<int>[]) List<int> selectedDays,
@@ -37,7 +37,7 @@ abstract class AddSessionState with _$AddSessionState {
     @Default(25) int focusTimeMin,
     @Default(5) int breakTimeMin,
     @Default(15) int longBreakTimeMin,
-    @Default(4) int cyclesBeforeLongBreak,
+    @Default(4) int focusPhases,
 
     // Prompts
     @Default(false) bool hasFocusPrompt,

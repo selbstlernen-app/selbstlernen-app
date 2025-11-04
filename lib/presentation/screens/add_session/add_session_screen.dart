@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/bottom_up_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/prompt_page.dart';
@@ -13,7 +14,10 @@ import 'package:srl_app/presentation/view_models/add_session/add_session_state.d
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class AddSessionScreen extends ConsumerStatefulWidget {
-  const AddSessionScreen({super.key});
+  const AddSessionScreen({super.key, this.fullSessionModel});
+
+  // If in editing mode
+  final FullSessionModel? fullSessionModel;
 
   @override
   ConsumerState<AddSessionScreen> createState() => _AddSessionScreenState();
@@ -42,11 +46,12 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         curve: Curves.easeInBack,
       );
     } else {
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute<dynamic>(
           builder: (BuildContext context) => const MainNavigation(),
         ),
+        (Route<dynamic> route) => false,
       );
     }
   }
@@ -67,7 +72,9 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     final AddSessionState state = ref.watch(addSessionViewModelProvider);
 
     return MainLayout(
-      appBarTitle: "Neue Einheit",
+      appBarTitle: widget.fullSessionModel != null
+          ? "Lerneinheit bearbeiten"
+          : "Neue Einheit",
       bottomBarWidget: PreferredSize(
         preferredSize: const Size.fromHeight(30.0),
         child: Padding(
@@ -88,7 +95,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
           StartInfoPage(navigateForward: _navigateForward),
-          state.setBigGoals
+          state.setGoals
               ? TopDownPage(navigateForward: _navigateForward)
               : BottomUpPage(navigateForward: _navigateForward),
           StrategyPage(navigateForward: _navigateForward),

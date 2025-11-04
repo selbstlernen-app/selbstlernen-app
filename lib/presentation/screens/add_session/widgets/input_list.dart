@@ -73,7 +73,7 @@ class InputList<T> extends StatelessWidget {
       padding: const EdgeInsets.only(top: 4.0),
       child: Text(
         toolTip!,
-        style: context.textTheme.bodySmall?.copyWith(
+        style: context.textTheme.bodyMedium?.copyWith(
           color: context.colorScheme.primary,
         ),
       ),
@@ -82,7 +82,7 @@ class InputList<T> extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Text(
-      (isBigGoal) ? "Ziele (max. 5)" : "Kleine Ziele (max. 10)",
+      (isBigGoal) ? "Ziele (max. 5)" : "Aufgaben (max. 10)",
       style: context.textTheme.headlineSmall,
     );
   }

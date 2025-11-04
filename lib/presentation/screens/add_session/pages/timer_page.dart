@@ -20,14 +20,15 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   final TextEditingController _focusController = TextEditingController();
   final TextEditingController _breakController = TextEditingController();
   final TextEditingController _longBreakController = TextEditingController();
-  final TextEditingController _cycleController = TextEditingController();
+  final TextEditingController _focusPhaseController = TextEditingController();
 
   @override
   void dispose() {
     _focusController.dispose();
     _breakController.dispose();
     _longBreakController.dispose();
-    _cycleController.dispose();
+    _focusPhaseController.dispose();
+
     super.dispose();
   }
 
@@ -39,7 +40,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           focusTime: int.tryParse(_focusController.text),
           breakTime: int.tryParse(_breakController.text),
           longBreakTime: int.tryParse(_longBreakController.text),
-          cycles: int.tryParse(_cycleController.text),
+          cycles: int.tryParse(_focusPhaseController.text),
         );
     // Then navigate forward
     widget.navigateForward();
@@ -54,7 +55,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
       _focusController.text = state.focusTimeMin.toString();
       _breakController.text = state.breakTimeMin.toString();
       _longBreakController.text = state.longBreakTimeMin.toString();
-      _cycleController.text = state.cyclesBeforeLongBreak.toString();
+      _focusPhaseController.text = state.focusPhases.toString();
     }
 
     return Column(
@@ -64,7 +65,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text("Timer (min)", style: context.textTheme.headlineMedium),
+                Text("Timer (in min)", style: context.textTheme.headlineMedium),
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
                   "Lege die Zeit fest, die du in dieser Lerneinheit verbringen willst.",
@@ -73,37 +74,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
 
                 const VerticalSpace(size: SpaceSize.medium),
 
-                // Mode toggle buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      child: CustomButton(
-                        onPressed: () => ref
-                            .read(addSessionViewModelProvider.notifier)
-                            .setIsPomodoro(true),
-                        isActive: state.isPomodoro,
-                        verticalPadding: 8.0,
-                        label: "Pomodoro",
-                        borderLeft: true,
-                      ),
-                    ),
-                    Expanded(
-                      child: CustomButton(
-                        onPressed: () => ref
-                            .read(addSessionViewModelProvider.notifier)
-                            .setIsPomodoro(false),
-                        isActive: !state.isPomodoro,
-                        verticalPadding: 8.0,
-                        label: "Benutzerdefiniert",
-                        borderRight: true,
-                      ),
-                    ),
-                  ],
-                ),
-
-                const VerticalSpace(size: SpaceSize.large),
-                if (state.isPomodoro) _buildPomodoroView(),
+                _buildTimeSettings(),
               ],
             ),
           ),
@@ -120,24 +91,162 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
     );
   }
 
-  Widget _buildPomodoroView() {
+  Widget _buildTimeSettings() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        const Text(
-          "Arbeite konzentriert in Intervallen mit kurzen Pausen dazwischen.",
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: TimeInputField(
+                label: "Fokuszeit",
+                controller: _focusController,
+                onChanged: (int value) {
+                  ref
+                      .read(addSessionViewModelProvider.notifier)
+                      .setPomodoroSettings(focusTime: value);
+                },
+              ),
+            ),
+            TimeInputField(
+              label: "Kurze Pause",
+              controller: _breakController,
+              onChanged: (int value) {
+                ref
+                    .read(addSessionViewModelProvider.notifier)
+                    .setPomodoroSettings(breakTime: value);
+              },
+            ),
+          ],
         ),
 
-        TimeInputField(label: "Fokuszeit", controller: _focusController),
-        TimeInputField(label: "Kurze Pause", controller: _breakController),
-        TimeInputField(label: "Lange Pause", controller: _longBreakController),
-        TimeInputField(
-          label: "Intervalle",
-          controller: _cycleController,
-          minValue: 0,
-          maxValue: 10,
+        const VerticalSpace(size: SpaceSize.xsmall),
+
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            Expanded(
+              child: TimeInputField(
+                label: "Fokusphasen bis lange Pause",
+                controller: _focusPhaseController,
+                onChanged: (int value) {
+                  ref
+                      .read(addSessionViewModelProvider.notifier)
+                      .setPomodoroSettings(cycles: value);
+                },
+                minValue: 0,
+                maxValue: 10,
+              ),
+            ),
+
+            TimeInputField(
+              label: "Lange Pause",
+              controller: _longBreakController,
+              onChanged: (int value) {
+                ref
+                    .read(addSessionViewModelProvider.notifier)
+                    .setPomodoroSettings(longBreakTime: value);
+              },
+            ),
+          ],
+        ),
+
+        const VerticalSpace(size: SpaceSize.medium),
+
+        _buildTimerPreview(),
+
+        const VerticalSpace(size: SpaceSize.xsmall),
+
+        Divider(
+          color: context.colorScheme.tertiary,
+          thickness: 4,
+          radius: const BorderRadius.all(Radius.circular(10)),
+        ),
+        const VerticalSpace(size: SpaceSize.xsmall),
+
+        _calculateTotalTime(),
+      ],
+    );
+  }
+
+  Widget _buildTimerPreview() {
+    final int focusPhases = int.tryParse(_focusPhaseController.text) ?? 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text("Zyklus Vorschau", style: context.textTheme.headlineSmall),
+        const VerticalSpace(size: SpaceSize.small),
+        Wrap(
+          spacing: 4,
+          runSpacing: 4,
+          children: List<Widget>.generate(focusPhases, (int index) {
+            if (index < focusPhases - 1) {
+              return Container(
+                margin: const EdgeInsets.only(right: 8.0),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    _buildPreviewBlock("F", context.colorScheme.primary),
+                    const HorizontalSpace(size: SpaceSize.xsmall),
+                    _buildPreviewBlock("K", context.colorScheme.secondary),
+                  ],
+                ),
+              );
+            } else {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  _buildPreviewBlock("F", context.colorScheme.primary),
+                  const HorizontalSpace(size: SpaceSize.xsmall),
+                  _buildPreviewBlock("L", context.colorScheme.onTertiary),
+                ],
+              );
+            }
+          }),
+        ),
+        const VerticalSpace(size: SpaceSize.small),
+        Text(
+          "F = Fokusphase, K = Kurze Pause, L = Lange Pause",
+          style: context.textTheme.bodyMedium,
         ),
       ],
     );
+  }
+
+  Widget _buildPreviewBlock(String label, Color color) {
+    return Container(
+      width: 25,
+      height: 25,
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Center(
+        child: Text(
+          label,
+          style: context.textTheme.labelLarge!.copyWith(
+            color: context.colorScheme.onPrimary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _calculateTotalTime() {
+    final AddSessionState state = ref.read(addSessionViewModelProvider);
+
+    int totalMins =
+        ((state.focusTimeMin + state.breakTimeMin) * state.focusPhases +
+        state.longBreakTimeMin);
+
+    if (totalMins >= 60) {
+      int hours = totalMins ~/ 60;
+      int mins = totalMins % 60;
+
+      return Text("Zeit insgesamt: ${hours}h ${mins}m");
+    } else {
+      return Text("Zeit insgesamt: ${totalMins}m");
+    }
   }
 }

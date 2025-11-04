@@ -13,11 +13,11 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     return await into(tasks).insert(task);
   }
 
-  // Watch all tasks of a session
-  Stream<List<Task>> watchAllTasksFor(int sessionId) {
+  // Get all tasks of a session
+  Future<List<Task>> getAllTasksFor(int sessionId) async {
     return (select(
       tasks,
-    )..where(($TasksTable task) => task.sessionId.equals(sessionId))).watch();
+    )..where(($TasksTable task) => task.sessionId.equals(sessionId))).get();
   }
 
   // Get task by ID
@@ -39,5 +39,12 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     return await (delete(
       tasks,
     )..where(($TasksTable s) => s.id.equals(id))).go();
+  }
+
+  // Delete all tasks of a session
+  Future<int> deleteAllTasksFor(int sessionId) async {
+    return await (delete(
+      tasks,
+    )..where(($TasksTable s) => s.sessionId.equals(sessionId))).go();
   }
 }
