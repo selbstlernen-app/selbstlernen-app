@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/custom_error_text.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
@@ -127,10 +128,12 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       .setTitle,
                   controller: _titleController,
                   hintText: "z.B. Info 1 - Vorlesung 3...",
-                  errorText: state.titleError,
+                  hasError: state.titleError != null,
                 ),
+                if (state.titleError != null)
+                  CustomErrorText(errorText: state.titleError!),
 
-                const VerticalSpace(size: SpaceSize.large),
+                const VerticalSpace(size: SpaceSize.medium),
 
                 // Date and days
                 Text(

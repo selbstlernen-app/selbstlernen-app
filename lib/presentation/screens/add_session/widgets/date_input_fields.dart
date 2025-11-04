@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/custom_error_text.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/date_time_utils.dart';
@@ -84,80 +85,117 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
       children: <Widget>[
         const VerticalSpace(size: SpaceSize.medium),
 
-        Text("Jede Woche", style: context.textTheme.headlineSmall),
-        const VerticalSpace(size: SpaceSize.small),
-        Center(
-          child: Wrap(
-            spacing: 24,
-            children: dayNames.map((String day) {
-              final int dayIndex = dayNames.indexOf(day);
-              final bool isSelected = state.selectedDays.contains(dayIndex);
-
-              return InkWell(
-                onTap: () => ref
-                    .read(addSessionViewModelProvider.notifier)
-                    .toggleDay(dayIndex),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      day,
-                      style: context.textTheme.bodyLarge?.copyWith(
-                        color: isSelected
-                            ? context.colorScheme.primary
-                            : context.colorScheme.onSurface,
-                        fontWeight: isSelected
-                            ? FontWeight.w700
-                            : FontWeight.w500,
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(top: 2),
-                      height: 2,
-                      width: 24,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? context.colorScheme.primary
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
+        // Pick weekdays
+        Text(
+          "Jede Woche",
+          style: context.textTheme.headlineSmall!.copyWith(
+            fontSize: 16,
+            color: context.colorScheme.primary,
           ),
+        ),
+        const VerticalSpace(size: SpaceSize.xsmall),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: dayNames.map((String day) {
+            final int dayIndex = dayNames.indexOf(day);
+            final bool isSelected = state.selectedDays.contains(dayIndex);
+
+            return InkWell(
+              onTap: () => ref
+                  .read(addSessionViewModelProvider.notifier)
+                  .toggleDay(dayIndex),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    day,
+                    style: context.textTheme.bodyLarge?.copyWith(
+                      color: isSelected
+                          ? context.colorScheme.primary
+                          : context.colorScheme.onSurface,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 2),
+                    height: 2,
+                    width: 20,
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? context.colorScheme.primary
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
         ),
 
         if (state.selectedDaysError != null)
-          Text(
-            state.selectedDaysError!,
-            style: TextStyle(color: context.colorScheme.error, fontSize: 14),
-          ),
+          CustomErrorText(errorText: state.selectedDaysError!),
 
-        const VerticalSpace(size: SpaceSize.medium),
-
-        Text("ab dem", style: context.textTheme.headlineSmall),
         const VerticalSpace(size: SpaceSize.small),
-        CustomTextField(
-          controller: _startDateController,
-          readOnly: true,
-          hintText: "Startdatum auswählen",
-          onTap: () => _pickDate(_startDateController, true),
-          errorText: state.startDateError,
+
+        // Pick start and end dates
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              width: 150,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "von dem",
+                    style: context.textTheme.headlineSmall!.copyWith(
+                      fontSize: 16,
+                      color: context.colorScheme.primary,
+                    ),
+                  ),
+                  const VerticalSpace(size: SpaceSize.xsmall),
+                  CustomTextField(
+                    controller: _startDateController,
+                    readOnly: true,
+                    hintText: "Startdatum",
+                    onTap: () => _pickDate(_startDateController, true),
+                    hasError: state.dateError != null,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              width: 150,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    "zu dem",
+                    style: context.textTheme.headlineSmall!.copyWith(
+                      fontSize: 16,
+                      color: context.colorScheme.primary,
+                    ),
+                  ),
+                  const VerticalSpace(size: SpaceSize.xsmall),
+                  CustomTextField(
+                    controller: _endDateController,
+                    readOnly: true,
+                    hintText: "Enddatum auswählen",
+                    onTap: () => _pickDate(_endDateController, false),
+                    hasError: state.dateError != null,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
 
-        const VerticalSpace(size: SpaceSize.medium),
-
-        Text("bis zum", style: context.textTheme.headlineSmall),
-        const VerticalSpace(size: SpaceSize.small),
-        CustomTextField(
-          controller: _endDateController,
-          readOnly: true,
-          hintText: "Enddatum auswählen",
-          onTap: () => _pickDate(_endDateController, false),
-          errorText: state.endDateError,
-        ),
+        if (state.dateError != null)
+          CustomErrorText(errorText: state.dateError!),
       ],
     );
   }

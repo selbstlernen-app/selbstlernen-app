@@ -58,6 +58,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
       if (widget.fullSessionModel != null) {
         // Go back to details page
         Navigator.pop(context);
+        ref.read(addSessionViewModelProvider.notifier).resetFields();
       } else {
         Navigator.pushAndRemoveUntil(
           context,

@@ -12,42 +12,23 @@ class AddSessionValidator {
     return null;
   }
 
-  static String? validateStartDate(
-    DateTime? date, {
+  static String? validateDate({
+    required DateTime? startDate,
     required bool isRepeating,
-    DateTime? endDate,
+    required DateTime? endDate,
   }) {
     if (!isRepeating) return null;
-    if (date == null) {
+    if (startDate == null) {
       return 'Startdatum muss gegeben sein.';
     }
-    if (endDate != null) {
-      if (endDate.isBefore(date)) {
-        return 'Startdatum muss vor dem Enddatum liegen.';
-      }
-      if (endDate.isAtSameMomentAs(date)) {
-        return 'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.';
-      }
-    }
-    return null;
-  }
-
-  static String? validateEndDate(
-    DateTime? date, {
-    required bool isRepeating,
-    DateTime? startDate,
-  }) {
-    if (!isRepeating) return null;
-    if (date == null) {
+    if (endDate == null) {
       return 'Enddatum muss gegeben sein.';
     }
-    if (startDate != null) {
-      if (date.isBefore(startDate)) {
-        return 'Enddatum muss nach dem Startdatum liegen.';
-      }
-      if (date.isAtSameMomentAs(startDate)) {
-        return 'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.';
-      }
+    if (endDate.isBefore(startDate)) {
+      return 'Startdatum muss vor dem Enddatum liegen.';
+    }
+    if (endDate.isAtSameMomentAs(startDate)) {
+      return 'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.';
     }
     return null;
   }
@@ -58,7 +39,7 @@ class AddSessionValidator {
   }) {
     if (!isRepeating) return null;
     if (selectedDays.isEmpty) {
-      return "Es muss mind. ein Tag ausgewählt werden.";
+      return "Es muss mind. ein Tag ausgewählt sein.";
     }
     return null;
   }

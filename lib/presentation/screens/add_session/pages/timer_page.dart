@@ -33,12 +33,11 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
     // Initialize after build; if in edit mode
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final AddSessionState state = ref.read(addSessionViewModelProvider);
-      if (state.isEditingMode) {
-        _focusController.text = state.focusTimeMin.toString();
-        _breakController.text = state.breakTimeMin.toString();
-        _longBreakController.text = state.longBreakTimeMin.toString();
-        _focusPhaseController.text = state.focusPhases.toString();
-      }
+
+      _focusController.text = state.focusTimeMin.toString();
+      _breakController.text = state.breakTimeMin.toString();
+      _longBreakController.text = state.longBreakTimeMin.toString();
+      _focusPhaseController.text = state.focusPhases.toString();
     });
   }
 
@@ -181,7 +180,9 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   }
 
   Widget _buildTimerPreview() {
-    final int focusPhases = int.tryParse(_focusPhaseController.text) ?? 1;
+    final AddSessionState state = ref.read(addSessionViewModelProvider);
+
+    int focusPhases = state.focusPhases != 0 ? state.focusPhases : 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -247,7 +248,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   Widget _calculateTotalTime() {
     final AddSessionState state = ref.read(addSessionViewModelProvider);
 
-    int focusPhases = state.focusPhases > 0 ? state.focusPhases : 1;
+    int focusPhases = state.focusPhases != 0 ? state.focusPhases : 1;
 
     int totalMins =
         ((state.focusTimeMin + state.breakTimeMin) * focusPhases +

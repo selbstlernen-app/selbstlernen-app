@@ -7,7 +7,7 @@ class CustomTextField extends StatelessWidget {
     super.key,
     required this.controller,
     this.hintText,
-    this.errorText,
+    this.hasError = false,
     this.onChanged,
     this.onSubmitted,
     this.onTap,
@@ -16,7 +16,7 @@ class CustomTextField extends StatelessWidget {
 
   final TextEditingController controller;
   final String? hintText;
-  final String? errorText;
+  final bool hasError;
   final Function? onChanged;
   final Function? onSubmitted;
   final Function? onTap;
@@ -37,10 +37,11 @@ class CustomTextField extends StatelessWidget {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(
+            color: hasError ? context.colorScheme.error : Colors.transparent,
+          ),
         ),
-        errorText: errorText,
-        errorMaxLines: 2,
+
         hintText: hintText,
         hintStyle: TextStyle(color: context.colorScheme.onTertiary),
       ),

@@ -47,8 +47,7 @@ abstract class AddSessionState with _$AddSessionState {
 
     //Validation fields
     String? titleError,
-    String? startDateError,
-    String? endDateError,
+    String? dateError,
     String? selectedDaysError,
     String? goalsError,
   }) = _AddSessionState;

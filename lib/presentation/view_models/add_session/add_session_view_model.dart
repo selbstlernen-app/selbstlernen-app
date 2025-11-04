@@ -34,9 +34,9 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   void setStartDate(DateTime? date) {
     state = state.copyWith(
       startDate: date,
-      startDateError: AddSessionValidator.validateStartDate(
+      dateError: AddSessionValidator.validateDate(
         isRepeating: state.isRepeating,
-        date,
+        startDate: date,
         endDate: state.endDate,
       ),
     );
@@ -45,10 +45,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   void setEndDate(DateTime? date) {
     state = state.copyWith(
       endDate: date,
-      endDateError: AddSessionValidator.validateEndDate(
-        isRepeating: state.isRepeating,
-        date,
+      dateError: AddSessionValidator.validateDate(
         startDate: state.startDate,
+        isRepeating: state.isRepeating,
+        endDate: date,
       ),
     );
   }
@@ -139,13 +139,15 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void toggleStrategy(String strategy) {
-    final bool isSelected = state.learningStrategies.contains(strategy);
+    final List<String> updated = List<String>.from(state.learningStrategies);
 
-    state = state.copyWith(
-      learningStrategies: isSelected
-          ? state.learningStrategies.where((String s) => s != strategy).toList()
-          : <String>[...state.learningStrategies, strategy],
-    );
+    if (updated.contains(strategy)) {
+      updated.remove(strategy);
+    } else {
+      updated.add(strategy);
+    }
+
+    state = state.copyWith(learningStrategies: updated);
   }
 
   void setPomodoroSettings({
@@ -206,15 +208,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   bool validateAll() {
     final String? titleErr = AddSessionValidator.validateTitle(state.title);
-    final String? startErr = AddSessionValidator.validateStartDate(
-      state.startDate,
+    final String? dateErr = AddSessionValidator.validateDate(
+      startDate: state.startDate,
       isRepeating: state.isRepeating,
       endDate: state.endDate,
-    );
-    final String? endErr = AddSessionValidator.validateEndDate(
-      state.endDate,
-      isRepeating: state.isRepeating,
-      startDate: state.startDate,
     );
     final String? goalError = AddSessionValidator.validateGoals(
       setGoals: state.setGoals,
@@ -228,21 +225,19 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
     state = state.copyWith(
       titleError: titleErr,
-      startDateError: startErr,
-      endDateError: endErr,
+      dateError: dateErr,
       selectedDaysError: daysErr,
       goalsError: goalError,
     );
 
     return titleErr == null &&
-        startErr == null &&
-        endErr == null &&
+        dateErr == null &&
         daysErr == null &&
         goalError == null;
   }
 
   bool get isFormValid {
-    return state.title.isNotEmpty &&
+    return state.titleError == null &&
         (state.isRepeating
             ? (state.startDate != null &&
                   state.endDate != null &&
@@ -285,16 +280,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
 
     resetFields();
-  }
-
-  void _resetGoalFields() {
-    // If we have big goals set, remove any tasks (small goals) for following pages
-    if (state.setGoals) {
-      state = state.copyWith(tasks: <TaskModel>[]);
-    } else {
-      // Similarly, if we have set small goals, remove big goals
-      state = state.copyWith(goals: <GoalModel>[]);
-    }
   }
 
   void resetFields() {
