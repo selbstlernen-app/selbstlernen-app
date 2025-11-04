@@ -32,6 +32,16 @@ class TaskRepositoryImp implements TaskRepository {
   }
 
   @override
+  Stream<List<TaskModel>> watchAllTasksFor(int sessionId) {
+    return taskDao
+        .watchAllTasksFor(sessionId)
+        .map(
+          (List<Task> taskList) =>
+              TaskToModelMapper.mapFromListOfEntity(taskList),
+        );
+  }
+
+  @override
   Future<int> updateTask(int taskId, TaskModel updatedtask) {
     return taskDao.updateTask(taskId, updatedtask.toCompanion());
   }

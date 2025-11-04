@@ -3,6 +3,7 @@ import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/session_repository.dart';
 import 'package:srl_app/domain/task_repository.dart';
+import 'package:async/async.dart';
 
 class FullSessionUseCase {
   const FullSessionUseCase(
@@ -26,6 +27,19 @@ class FullSessionUseCase {
       tasks: tasks,
     );
     return fullSessionModel;
+  }
+
+  Stream<FullSessionModel> watchFullSession(int sessionId) {
+    Stream<SessionModel> session = repository.watchSessionById(sessionId);
+    Stream<List<GoalModel>> goals = goalRepository.watchAllGoalsFor(sessionId);
+    Stream<List<TaskModel>> tasks = taskRepository.watchAllTasksFor(sessionId);
+
+    // If any of the three changes; we update the full session model
+    return StreamGroup.merge(<Stream<Null>>[
+      session.map((_) => null),
+      goals.map((_) => null),
+      tasks.map((_) => null),
+    ]).asyncMap((_) => getFullModel(sessionId));
   }
 
   Future<void> deleteFullModel(int sessionId) async {

@@ -81,7 +81,12 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                                     .read(addSessionViewModelProvider.notifier)
                                     .toggleStrategy(strategy),
                               ),
-                              Flexible(child: Text(strategy)),
+                              Flexible(
+                                child: Text(
+                                  strategy,
+                                  style: context.textTheme.bodyLarge,
+                                ),
+                              ),
                             ],
                           ),
                         ),

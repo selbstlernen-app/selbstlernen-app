@@ -25,6 +25,13 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
     )..where(($SessionsTable s) => s.id.equals(id))).getSingleOrNull();
   }
 
+  // Watch session by ID
+  Stream<Session?> watchSessionById(int id) {
+    return (select(
+      sessions,
+    )..where(($SessionsTable s) => s.id.equals(id))).watchSingleOrNull();
+  }
+
   // Update session
   Future<int> updateSession(int id, SessionsCompanion companion) async {
     return (update(
