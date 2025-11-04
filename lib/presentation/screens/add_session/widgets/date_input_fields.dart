@@ -174,7 +174,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                   CustomTextField(
                     controller: _endDateController,
                     readOnly: true,
-                    hintText: "Enddatum auswählen",
+                    hintText: "Enddatum",
                     onTap: () => _pickDate(_endDateController, false),
                     hasError: state.dateError != null,
                   ),

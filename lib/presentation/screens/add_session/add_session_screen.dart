@@ -90,7 +90,18 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     return MainLayout(
       appBarTitle: widget.fullSessionModel != null
           ? "Lerneinheit bearbeiten"
-          : "Neue Einheit",
+          : "Neue Lerneinheit erstellen",
+      showFloatingActionButton: state.isEditingMode ? true : false,
+      onPressedFAB: () {
+        ref.read(addSessionViewModelProvider.notifier).updateSession();
+        context.scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            duration: Duration(seconds: 2),
+            content: Text("Änderungen erfolgreich gespeichert!"),
+          ),
+        );
+        Navigator.pop(context);
+      },
       bottomBarWidget: PreferredSize(
         preferredSize: const Size.fromHeight(30.0),
         child: Padding(

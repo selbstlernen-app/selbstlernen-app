@@ -50,7 +50,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
       context.scaffoldMessenger.showSnackBar(
         const SnackBar(
           duration: Duration(seconds: 2),
-          content: Text("Einheit erfolgreich aktualisiert!"),
+          content: Text("Änderungen erfolgreich gespeichert!!"),
         ),
       );
       Navigator.of(
@@ -165,7 +165,9 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         SizedBox(
           width: MediaQuery.sizeOf(context).width,
           child: CustomButton(
-            label: "Lerneinheit erstellen",
+            label: state.isEditingMode
+                ? "Änderungen speichern"
+                : "Lerneinheit erstellen",
             onPressed: () =>
                 state.isEditingMode ? _updateSession() : _saveSession(),
           ),

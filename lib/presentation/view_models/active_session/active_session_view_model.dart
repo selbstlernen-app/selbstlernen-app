@@ -26,7 +26,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
     return ActiveSessionState(
       fullSession: fullSession,
-      remainingSeconds: (fullSession.session.focusTimeMin ?? 25) * 60,
+      remainingSeconds: (fullSession.session.focusTimeMin) * 60,
     );
   }
 
@@ -82,20 +82,20 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       case SessionPhase.focus:
         // say we have 4 focus phases, then 3 are FK last is FL
         final int nextFocusPhase = state.totalFocusPhases + 1;
-        final int focusPhases = session.focusPhases ?? 4;
+        final int focusPhases = session.focusPhases;
 
         // Determine next break type (if we have 4 % 4 = 0, take long break, else short break)
         if (nextFocusPhase % focusPhases == 0) {
           // Just completed the last focus phase -> moving on to long break
           _startPhase(
             phase: SessionPhase.longBreak,
-            durationSeconds: (session.longBreakTimeMin ?? 15) * 60,
+            durationSeconds: (session.longBreakTimeMin) * 60,
           );
         } else {
           // Completed a regular focus phase
           _startPhase(
             phase: SessionPhase.shortBreak,
-            durationSeconds: (session.breakTimeMin ?? 5) * 60,
+            durationSeconds: (session.breakTimeMin) * 60,
           );
         }
         break;
@@ -105,7 +105,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         final int newTotalFocusPhases = state.totalFocusPhases + 1;
         _startPhase(
           phase: SessionPhase.focus,
-          durationSeconds: (session.focusTimeMin ?? 25) * 60,
+          durationSeconds: (session.focusTimeMin) * 60,
           totalFocusPhases: newTotalFocusPhases,
         );
         break;
@@ -115,7 +115,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         final int newTotalFocusPhases = state.totalFocusPhases + 1;
         _startPhase(
           phase: SessionPhase.focus,
-          durationSeconds: (session.focusTimeMin ?? 25) * 60,
+          durationSeconds: (session.focusTimeMin) * 60,
           totalFocusPhases: newTotalFocusPhases,
           completedCycles: state.completedCycles + 1,
         );
