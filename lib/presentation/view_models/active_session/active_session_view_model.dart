@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:path/path.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';

@@ -2,9 +2,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/usecases/create_goals_use_case.dart';
-import 'package:srl_app/domain/usecases/create_session_use_case.dart';
-import 'package:srl_app/domain/usecases/create_tasks_use_case.dart';
+import 'package:srl_app/domain/services/add_session_service.dart';
+import 'package:srl_app/presentation/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 part 'add_session_view_model.g.dart';
@@ -18,7 +17,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Basic info
   void setTitle(String title) {
-    state = state.copyWith(title: title, titleError: _validateTitle(title));
+    state = state.copyWith(
+      title: title,
+      titleError: AddSessionValidator.validateTitle(title),
+    );
   }
 
   void setIsRepeating(bool isRepeating) {
@@ -27,18 +29,28 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   void setGoals(bool setGoals) {
     state = state.copyWith(setGoals: setGoals);
-    _resetGoalFields();
   }
 
   void setStartDate(DateTime? date) {
     state = state.copyWith(
       startDate: date,
-      startDateError: _validateStartDate(date),
+      startDateError: AddSessionValidator.validateStartDate(
+        isRepeating: state.isRepeating,
+        date,
+        endDate: state.endDate,
+      ),
     );
   }
 
   void setEndDate(DateTime? date) {
-    state = state.copyWith(endDate: date, endDateError: _validateEndDate(date));
+    state = state.copyWith(
+      endDate: date,
+      endDateError: AddSessionValidator.validateEndDate(
+        isRepeating: state.isRepeating,
+        date,
+        startDate: state.startDate,
+      ),
+    );
   }
 
   void toggleDay(int day) {
@@ -50,7 +62,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     }
     state = state.copyWith(
       selectedDays: days,
-      selectedDaysError: _validateDays(days),
+      selectedDaysError: AddSessionValidator.validateDays(
+        isRepeating: state.isRepeating,
+        days,
+      ),
     );
   }
 
@@ -73,6 +88,25 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     final List<TaskModel> tasks = List<TaskModel>.from(state.tasks);
     tasks.removeAt(index);
     state = state.copyWith(tasks: tasks);
+  }
+
+  void markTaskIdForDeletion(String index) {
+    state = state.copyWith(
+      taskIdsToDelete: <String>[...state.taskIdsToDelete, index],
+    );
+  }
+
+  // Marks goals and associated tasks for deletion
+  void markGoalForDeletion(String goalId) {
+    final List<String> associatedTaskIds = state.tasks
+        .where((TaskModel task) => task.goalId == goalId && task.id != null)
+        .map((TaskModel task) => task.id!)
+        .toList();
+
+    state = state.copyWith(
+      goalIdsToDelete: <String>[...state.goalIdsToDelete, goalId],
+      taskIdsToDelete: <String>[...state.taskIdsToDelete, ...associatedTaskIds],
+    );
   }
 
   // Creates a task directly linked to a goal
@@ -114,10 +148,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  void setTotalTime(int minutes) {
-    state = state.copyWith(totalTimeMin: minutes);
-  }
-
   void setPomodoroSettings({
     int? focusTime,
     int? breakTime,
@@ -156,6 +186,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     }
 
     state = state.copyWith(
+      sessionId: session.id,
       title: session.title,
       isRepeating: session.isRepeating,
       setGoals:
@@ -163,95 +194,38 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       goals: fullSessionModel.goals,
       tasks: fullSessionModel.tasks,
       learningStrategies: session.learningStrategies,
-      totalTimeMin: session.totalTimeMin,
-      breakTimeMin: session.breakTimeMin ?? 0,
-      longBreakTimeMin: session.longBreakTimeMin ?? 0,
-      focusPhases: session.focusPhases ?? 0,
+      focusTimeMin: session.focusTimeMin,
+      breakTimeMin: session.breakTimeMin,
+      longBreakTimeMin: session.longBreakTimeMin,
+      focusPhases: session.focusPhases,
       hasFocusPrompt: session.hasFocusPrompt,
       hasFreetextPrompt: session.hasFreetextPrompt,
       hasMoodPrompt: session.hasMoodPrompt,
     );
   }
 
-  // Validation
-  String? _validateTitle(String? title) {
-    if (title == null || title.trim().isEmpty) {
-      return 'Titel kann nicht leer sein.';
-    }
-    if (title.length < 3) {
-      return 'Titel muss mind. 3 Charaktere lang sein.';
-    }
-    return null;
-  }
-
-  String? _validateStartDate(DateTime? date) {
-    if (!state.isRepeating) {
-      return null;
-    }
-    if (date == null) {
-      return 'Startdatum muss gegeben sein.';
-    }
-    if (state.endDate != null) {
-      if (state.endDate!.isBefore(date)) {
-        return 'Startdatum muss vor dem Enddatum liegen.';
-      }
-
-      if (state.endDate!.isAtSameMomentAs(date)) {
-        return 'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.';
-      }
-    }
-    return null;
-  }
-
-  String? _validateEndDate(DateTime? date) {
-    if (!state.isRepeating) return null;
-    if (date == null) {
-      return 'Enddatum muss gegeben sein.';
-    }
-    if (state.startDate != null) {
-      if (date.isBefore(state.startDate!)) {
-        return 'Enddatum muss nach dem Startdatum liegen.';
-      }
-
-      if (date.isAtSameMomentAs(state.startDate!)) {
-        return 'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.';
-      }
-    }
-    return null;
-  }
-
-  String? _validateDays(List<int> selectedDays) {
-    if (!state.isRepeating) return null;
-    if (selectedDays.isEmpty) {
-      return "Es muss mind. ein Tag ausgewählt werden.";
-    }
-    return null;
-  }
-
-  String? _validateGoals({
-    required List<GoalModel> goals,
-    required List<TaskModel> tasks,
-  }) {
-    if (state.setGoals && goals.isEmpty) {
-      return "Es muss mind. 1 Ziel festgelegt werden.";
-    }
-    if (!state.setGoals && tasks.isEmpty) {
-      return "Es muss mind. 1 Aufgabe festgelegt werden.";
-    }
-    return null;
-  }
-
   bool validateAll() {
-    final String? titleErr = _validateTitle(state.title);
-    final String? startErr = _validateStartDate(state.startDate);
-    final String? endErr = _validateEndDate(state.endDate);
-    final String? goalError = _validateGoals(
+    final String? titleErr = AddSessionValidator.validateTitle(state.title);
+    final String? startErr = AddSessionValidator.validateStartDate(
+      state.startDate,
+      isRepeating: state.isRepeating,
+      endDate: state.endDate,
+    );
+    final String? endErr = AddSessionValidator.validateEndDate(
+      state.endDate,
+      isRepeating: state.isRepeating,
+      startDate: state.startDate,
+    );
+    final String? goalError = AddSessionValidator.validateGoals(
+      setGoals: state.setGoals,
       goals: state.goals,
       tasks: state.tasks,
     );
-    final String? daysErr = _validateDays(state.selectedDays);
+    final String? daysErr = AddSessionValidator.validateDays(
+      state.selectedDays,
+      isRepeating: state.isRepeating,
+    );
 
-    // Update state with all errors
     state = state.copyWith(
       titleError: titleErr,
       startDateError: startErr,
@@ -260,13 +234,11 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       goalsError: goalError,
     );
 
-    // Return true only if all validations pass
     return titleErr == null &&
         startErr == null &&
         endErr == null &&
         daysErr == null &&
-        ((state.goals.isNotEmpty && state.setGoals) ||
-            (!state.setGoals && state.tasks.isNotEmpty));
+        goalError == null;
   }
 
   bool get isFormValid {
@@ -280,57 +252,37 @@ class AddSessionViewModel extends _$AddSessionViewModel {
             (!state.setGoals && state.tasks.isNotEmpty));
   }
 
+  // Update session info
+  Future<void> updateSession() async {
+    final AddSessionService service = ref.read(addSessioNServiceProvider);
+    final SessionModel session = _stateToSessionModel(state);
+
+    await service.updateSessionWithChanges(
+      sessionId: int.parse(state.sessionId!),
+      session: session,
+      goalsToUpdate: state.goals,
+      tasksToUpdate: state.tasks,
+      goalIdsToDelete: state.goalIdsToDelete,
+      taskIdsToDelete: state.taskIdsToDelete,
+    );
+
+    resetFields();
+  }
+
   // Save all info
   Future<void> createSession() async {
-    // Final check before submitting
     if (!validateAll()) {
       throw Exception('Bitte fülle alle Felder korrekt aus!');
     }
 
-    final CreateSessionUseCase sessionUseCase = ref.read(
-      createSessionUseCaseProvider,
-    );
-
+    final AddSessionService service = ref.read(addSessioNServiceProvider);
     final SessionModel session = _stateToSessionModel(state);
-    int sessionId = await sessionUseCase.call(session);
 
-    // Map to store temporary UUIDs and actual db IDs
-    Map<String, int> goalIdMapping = <String, int>{};
-
-    if (state.goals.isNotEmpty) {
-      final CreateGoalsUseCase goalUseCase = ref.read(
-        createGoalsUseCaseProvider,
-      );
-      for (GoalModel goal in state.goals) {
-        GoalModel addGoal = goal.copyWith(sessionId: sessionId.toString());
-        int goalId = await goalUseCase.call(addGoal);
-
-        // Map temporary UUID to actual DB id
-        if (goal.id != null) {
-          goalIdMapping[goal.id!] = goalId;
-        }
-      }
-    }
-
-    // Save tasks if they exist
-    if (state.tasks.isNotEmpty) {
-      final CreateTasksUseCase taskUseCase = ref.read(
-        createTasksUseCaseProvider,
-      );
-      for (TaskModel task in state.tasks) {
-        // If task is linked to a goal, find the actual DB goalId
-        String? actualGoalId;
-        if (task.goalId != null && goalIdMapping.containsKey(task.goalId)) {
-          actualGoalId = goalIdMapping[task.goalId].toString();
-        }
-
-        TaskModel addTask = task.copyWith(
-          sessionId: sessionId.toString(),
-          goalId: actualGoalId,
-        );
-        await taskUseCase.call(addTask);
-      }
-    }
+    await service.createSessionWithGoalsAndTasks(
+      session: session,
+      goals: state.goals,
+      tasks: state.tasks,
+    );
 
     resetFields();
   }
@@ -360,7 +312,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       endDate: state.endDate,
       selectedDays: state.selectedDays,
       learningStrategies: state.learningStrategies,
-      totalTimeMin: state.totalTimeMin,
       focusTimeMin: state.focusTimeMin,
       breakTimeMin: state.breakTimeMin,
       longBreakTimeMin: state.longBreakTimeMin,

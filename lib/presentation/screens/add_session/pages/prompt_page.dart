@@ -44,6 +44,28 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
     }
   }
 
+  void _updateSession() {
+    try {
+      ref.read(addSessionViewModelProvider.notifier).updateSession();
+      context.scaffoldMessenger.showSnackBar(
+        const SnackBar(
+          duration: Duration(seconds: 2),
+          content: Text("Einheit erfolgreich aktualisiert!"),
+        ),
+      );
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil("/", (Route<dynamic> route) => false);
+    } catch (e) {
+      context.scaffoldMessenger.showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          content: Text('Fehler: $e'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final AddSessionState state = ref.watch(addSessionViewModelProvider);
@@ -144,7 +166,8 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
           width: MediaQuery.sizeOf(context).width,
           child: CustomButton(
             label: "Lerneinheit erstellen",
-            onPressed: () => _saveSession(),
+            onPressed: () =>
+                state.isEditingMode ? _updateSession() : _saveSession(),
           ),
         ),
       ],

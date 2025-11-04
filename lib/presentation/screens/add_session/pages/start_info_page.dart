@@ -32,6 +32,12 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
     );
     _bigGoalController = TextEditingController();
     _smallGoalController = TextEditingController();
+
+    // Initialize after build; if in edit mode
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final AddSessionState state = ref.read(addSessionViewModelProvider);
+      _titleController.text = state.title;
+    });
   }
 
   @override

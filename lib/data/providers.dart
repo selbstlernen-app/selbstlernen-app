@@ -9,18 +9,15 @@ import 'package:srl_app/data/repositories/session_instance_repository_imp.dart';
 import 'package:srl_app/data/repositories/session_repository_imp.dart';
 import 'package:srl_app/data/repositories/task_repository_imp.dart';
 import 'package:srl_app/domain/goal_repository.dart';
+import 'package:srl_app/domain/services/add_session_service.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 import 'package:srl_app/domain/task_repository.dart';
-import 'package:srl_app/domain/usecases/create_session_instance_use_case.dart';
-import 'package:srl_app/domain/usecases/session_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 
 part 'providers.g.dart';
 
-/// Contains all data-releated providers
-
-// Database and DAOs
+// --- Database and DAOs ---
 @Riverpod(keepAlive: true) // Should be kept alive to ensure singleton
 AppDatabase appDatabase(Ref ref) {
   return AppDatabase();
@@ -46,7 +43,7 @@ SessionInstanceDao sessionInstanceDao(Ref ref) {
   return SessionInstanceDao(ref.watch(appDatabaseProvider));
 }
 
-// Repositories
+// --- Repositories ---
 @riverpod
 SessionRepository sessionRepository(Ref ref) {
   return SessionRepositoryImp(ref.watch(sessionDaoProvider));
@@ -67,7 +64,7 @@ GoalRepository goalRepository(Ref ref) {
   return GoalRepositoryImp(ref.watch(goalDaoProvider));
 }
 
-// UseCases
+/// --- UseCases ---
 @riverpod
 CreateSessionUseCase createSessionUseCase(Ref ref) {
   return CreateSessionUseCase(ref.watch(sessionRepositoryProvider));
@@ -94,6 +91,16 @@ CreateTasksUseCase createTasksUseCase(Ref ref) {
 }
 
 @riverpod
+EditGoalsUseCase editGoalsUseCase(Ref ref) {
+  return EditGoalsUseCase(ref.watch(goalRepositoryProvider));
+}
+
+@riverpod
+EditTasksUseCase editTasksUseCase(Ref ref) {
+  return EditTasksUseCase(ref.watch(taskRepositoryProvider));
+}
+
+@riverpod
 FullSessionUseCase fullSessionUseCase(Ref ref) {
   return FullSessionUseCase(
     ref.watch(sessionRepositoryProvider),
@@ -112,5 +119,18 @@ CreateSessionInstanceUseCase createSessionInstanceUseCase(Ref ref) {
   return CreateSessionInstanceUseCase(
     ref.watch(sessionRepositoryProvider),
     ref.watch(sessionInstanceRepositoryProvider),
+  );
+}
+
+/// --- Services ---
+@riverpod
+AddSessionService addSessioNService(Ref ref) {
+  return AddSessionService(
+    createSessionUseCase: ref.read(createSessionUseCaseProvider),
+    createGoalsUseCase: ref.read(createGoalsUseCaseProvider),
+    createTasksUseCase: ref.read(createTasksUseCaseProvider),
+    editSessionUseCase: ref.read(editSessionUseCaseProvider),
+    editGoalsUseCase: ref.read(editGoalsUseCaseProvider),
+    editTasksUseCase: ref.read(editTasksUseCaseProvider),
   );
 }

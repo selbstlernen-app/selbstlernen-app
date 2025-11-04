@@ -33,6 +33,15 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     super.initState();
     // Denominator is the total amount of pages available
     _progress = 1 / 5;
+
+    // if in edit mode
+    if (widget.fullSessionModel != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref
+            .read(addSessionViewModelProvider.notifier)
+            .initializeState(widget.fullSessionModel!);
+      });
+    }
   }
 
   void _navigateBack() {

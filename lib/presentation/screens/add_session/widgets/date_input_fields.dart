@@ -33,6 +33,19 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
     super.initState();
     _startDateController = TextEditingController();
     _endDateController = TextEditingController();
+
+    // Initialize after build; if in edit mode
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final AddSessionState state = ref.read(addSessionViewModelProvider);
+      if (state.isEditingMode) {
+        _startDateController.text = state.startDate != null
+            ? DateTimeUtils.dateTimeToString(date: state.startDate!)
+            : "";
+        _endDateController.text = state.endDate != null
+            ? DateTimeUtils.dateTimeToString(date: state.endDate!)
+            : "";
+      }
+    });
   }
 
   @override

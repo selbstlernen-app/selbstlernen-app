@@ -79,6 +79,15 @@ class GoalWithTasksCard extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.delete, size: 25),
               onPressed: () {
+                final AddSessionViewModel notifier = ref.read(
+                  addSessionViewModelProvider.notifier,
+                );
+                final AddSessionState state = ref.read(
+                  addSessionViewModelProvider,
+                );
+                if (state.isEditingMode && task.id != null) {
+                  notifier.markTaskIdForDeletion(task.id!);
+                }
                 ref
                     .read(addSessionViewModelProvider.notifier)
                     .removeTask(state.tasks.indexOf(task));
