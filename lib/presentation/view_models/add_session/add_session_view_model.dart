@@ -154,13 +154,13 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     int? focusTime,
     int? breakTime,
     int? longBreakTime,
-    int? cycles,
+    int? focusPhases,
   }) {
     state = state.copyWith(
       focusTimeMin: focusTime ?? state.focusTimeMin,
       breakTimeMin: breakTime ?? state.breakTimeMin,
       longBreakTimeMin: longBreakTime ?? state.longBreakTimeMin,
-      focusPhases: cycles ?? state.focusPhases,
+      focusPhases: focusPhases ?? state.focusPhases,
     );
   }
 

@@ -110,14 +110,14 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         );
         break;
 
-      // After long break, increment cycle and start new focus phase
+      // After long break, increment block and start new focus phase
       case SessionPhase.longBreak:
         final int newTotalFocusPhases = state.totalFocusPhases + 1;
         _startPhase(
           phase: SessionPhase.focus,
           durationSeconds: (session.focusTimeMin) * 60,
           totalFocusPhases: newTotalFocusPhases,
-          completedCycles: state.completedCycles + 1,
+          completedBlocks: state.completedBlocks + 1,
         );
         break;
     }
@@ -127,13 +127,13 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     required SessionPhase phase,
     required int durationSeconds,
     int? totalFocusPhases,
-    int? completedCycles,
+    int? completedBlocks,
   }) {
     state = state.copyWith(
       currentPhase: phase,
       remainingSeconds: durationSeconds,
       totalFocusPhases: totalFocusPhases ?? state.totalFocusPhases,
-      completedCycles: completedCycles ?? state.completedCycles,
+      completedBlocks: completedBlocks ?? state.completedBlocks,
     );
   }
 
@@ -177,7 +177,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       totalCompletedTasks: state.completedTaskIds.length,
 
       totalBreakSecondsElapsed: state.totalBreakSecondsElapsed,
-      totalCompletedBlocks: state.completedCycles,
+      totalCompletedBlocks: state.completedBlocks,
       totalFocusPhases: state.totalFocusPhases,
       totalFocusSecondsElapsed: state.totalFocusSecondsElapsed,
 

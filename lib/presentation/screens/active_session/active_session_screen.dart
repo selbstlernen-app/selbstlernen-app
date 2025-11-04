@@ -97,7 +97,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                       const VerticalSpace(size: SpaceSize.medium),
 
                       Text(
-                        'Fokusphase ${state.totalFocusPhases + 1} | Zyklus ${state.completedCycles + 1}',
+                        'Fokusphase ${state.totalFocusPhases + 1} | Block ${state.completedBlocks + 1}',
                         style: context.textTheme.titleMedium,
                       ),
 

@@ -118,6 +118,7 @@ class _GoalWithTasksItem extends StatelessWidget {
           value: isGoalCompleted,
           onChanged: (_) => onGoalToggle(goal.id!),
         ),
+        showTrailingIcon: tasks.isNotEmpty,
         title: Text(
           goal.title,
           style: context.textTheme.titleLarge!.copyWith(

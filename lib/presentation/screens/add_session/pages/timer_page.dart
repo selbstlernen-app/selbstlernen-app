@@ -58,7 +58,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           focusTime: int.tryParse(_focusController.text) ?? 0,
           breakTime: int.tryParse(_breakController.text) ?? 0,
           longBreakTime: int.tryParse(_longBreakController.text) ?? 0,
-          cycles: int.tryParse(_focusPhaseController.text) ?? 1,
+          focusPhases: int.tryParse(_focusPhaseController.text) ?? 1,
         );
     // Then navigate forward
     widget.navigateForward();
@@ -142,7 +142,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                 onChanged: (int value) {
                   ref
                       .read(addSessionViewModelProvider.notifier)
-                      .setPomodoroSettings(cycles: value);
+                      .setPomodoroSettings(focusPhases: value);
                 },
                 minValue: 1,
                 maxValue: 15,
