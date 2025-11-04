@@ -38,10 +38,11 @@ class CustomTextField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: hasError ? context.colorScheme.error : Colors.transparent,
+            color: hasError
+                ? context.colorScheme.error
+                : context.colorScheme.tertiary,
           ),
         ),
-
         hintText: hintText,
         hintStyle: TextStyle(color: context.colorScheme.onTertiary),
       ),

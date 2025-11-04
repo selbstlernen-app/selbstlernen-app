@@ -86,14 +86,6 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
         const VerticalSpace(size: SpaceSize.medium),
 
         // Pick weekdays
-        Text(
-          "Jede Woche",
-          style: context.textTheme.headlineSmall!.copyWith(
-            fontSize: 16,
-            color: context.colorScheme.primary,
-          ),
-        ),
-        const VerticalSpace(size: SpaceSize.xsmall),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: dayNames.map((String day) {
@@ -138,7 +130,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
         if (state.selectedDaysError != null)
           CustomErrorText(errorText: state.selectedDaysError!),
 
-        const VerticalSpace(size: SpaceSize.small),
+        const VerticalSpace(size: SpaceSize.medium),
 
         // Pick start and end dates
         Row(
@@ -151,10 +143,9 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    "von dem",
+                    "Startdatum",
                     style: context.textTheme.headlineSmall!.copyWith(
                       fontSize: 16,
-                      color: context.colorScheme.primary,
                     ),
                   ),
                   const VerticalSpace(size: SpaceSize.xsmall),
@@ -174,10 +165,9 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    "zu dem",
+                    "Enddatum",
                     style: context.textTheme.headlineSmall!.copyWith(
                       fontSize: 16,
-                      color: context.colorScheme.primary,
                     ),
                   ),
                   const VerticalSpace(size: SpaceSize.xsmall),

@@ -7,12 +7,12 @@ class CustomTextTheme {
     // Used for any large display texts like on appBars
     headlineLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
     headlineMedium: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-    headlineSmall: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+    headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
 
     // Used for any text not headline
-    bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.normal),
-    bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-    bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+    bodyLarge: TextStyle(fontSize: 17, fontWeight: FontWeight.normal),
+    bodyMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.normal),
+    bodySmall: TextStyle(fontSize: 13, fontWeight: FontWeight.normal),
 
     // Used for buttons and textfield labels
     labelLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),

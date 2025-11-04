@@ -77,10 +77,10 @@ class InputList<T> extends StatelessWidget {
 
   Widget _buildTooltip(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0),
+      padding: const EdgeInsets.only(top: 4.0, left: 12.0),
       child: Text(
         toolTip!,
-        style: context.textTheme.bodyMedium?.copyWith(
+        style: context.textTheme.bodySmall?.copyWith(
           color: context.colorScheme.primary,
         ),
       ),

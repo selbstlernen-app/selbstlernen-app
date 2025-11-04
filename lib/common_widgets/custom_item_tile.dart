@@ -15,25 +15,23 @@ class CustomItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         isLargeGoal
             ? Text("🏁", style: context.textTheme.headlineLarge)
             : Icon(
                 Icons.check_box_outline_blank_rounded,
-                size: 25,
+                size: 24,
                 color: context.colorScheme.primary,
               ),
 
         const HorizontalSpace(size: SpaceSize.small),
 
-        Expanded(
-          child: Text(
-            text,
-            style: context.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+        Text(
+          text,
+          style: context.textTheme.bodyLarge!.copyWith(
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],

@@ -118,7 +118,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
               children: <Widget>[
                 // Title
                 Text(
-                  "Name der Lerneinheit",
+                  "Titel der Lerneinheit",
                   style: context.textTheme.headlineMedium,
                 ),
                 const VerticalSpace(size: SpaceSize.small),
@@ -133,12 +133,15 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                 if (state.titleError != null)
                   CustomErrorText(errorText: state.titleError!),
 
-                const VerticalSpace(size: SpaceSize.medium),
+                const VerticalSpace(size: SpaceSize.large),
 
                 // Date and days
-                Text(
-                  "Art der Lerneinheit",
-                  style: context.textTheme.headlineMedium,
+                Row(
+                  children: <Widget>[
+                    const Icon(Icons.event_repeat_rounded),
+                    const HorizontalSpace(size: SpaceSize.small),
+                    Text("Häufigkeit", style: context.textTheme.headlineSmall),
+                  ],
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 Row(
@@ -153,6 +156,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       label: "Einmalig",
                     ),
                     const HorizontalSpace(size: SpaceSize.small),
+
                     CustomButton(
                       isActive: state.isRepeating,
                       onPressed: () => ref
@@ -164,16 +168,17 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                     ),
                   ],
                 ),
+
                 if (state.isRepeating) const DateInputFields(),
 
-                const VerticalSpace(size: SpaceSize.large),
+                const VerticalSpace(size: SpaceSize.medium),
 
                 // Set goals/tasks
                 Text(
                   state.setGoals
                       ? "Ziele für diese Lerneinheit"
                       : "Aufgaben für diese Lerneinheit",
-                  style: context.textTheme.headlineMedium,
+                  style: context.textTheme.headlineSmall,
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 Row(

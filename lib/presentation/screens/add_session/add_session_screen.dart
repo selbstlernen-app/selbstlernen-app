@@ -58,8 +58,8 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
       if (widget.fullSessionModel != null) {
         // Go back to details page
         Navigator.pop(context);
-        ref.read(addSessionViewModelProvider.notifier).resetFields();
       } else {
+        // Go back to home screen
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute<dynamic>(
@@ -68,6 +68,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
           (Route<dynamic> route) => false,
         );
       }
+      ref.read(addSessionViewModelProvider.notifier).resetFields();
     }
   }
 

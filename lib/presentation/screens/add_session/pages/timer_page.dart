@@ -145,7 +145,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                       .setPomodoroSettings(cycles: value);
                 },
                 minValue: 1,
-                maxValue: 20,
+                maxValue: 15,
               ),
             ),
 

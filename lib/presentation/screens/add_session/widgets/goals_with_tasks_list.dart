@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/input_list.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
@@ -35,15 +36,15 @@ class GoalWithTasksCard extends ConsumerWidget {
         children: <Widget>[
           CustomItemTile(text: goal.title, isLargeGoal: true),
 
+          const VerticalSpace(size: SpaceSize.small),
+
           TextButton(
             style: TextButton.styleFrom(
               padding: const EdgeInsets.all(8.0),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             onPressed: onToggleExpand,
-            child: Text(
-              isExpanded ? "Aufgabe ausblenden" : "Aufgabe hinzufügen?",
-            ),
+            child: Text(isExpanded ? "Ausblenden" : "Aufgabe hinzufügen?"),
           ),
 
           const VerticalSpace(size: SpaceSize.small),
@@ -57,15 +58,15 @@ class GoalWithTasksCard extends ConsumerWidget {
               hideHeadline: true,
             ),
 
-          if (goalTasks.isNotEmpty) ..._buildTasksList(goalTasks, state, ref),
+          if (goalTasks.isNotEmpty) ..._buildTasksList(context, goalTasks, ref),
         ],
       ),
     );
   }
 
   List<Widget> _buildTasksList(
+    BuildContext context,
     List<TaskModel> goalTasks,
-    AddSessionState state,
     WidgetRef ref,
   ) {
     return goalTasks.map((TaskModel task) {
@@ -74,8 +75,14 @@ class GoalWithTasksCard extends ConsumerWidget {
         child: Row(
           children: <Widget>[
             const Icon(Icons.check_box_outline_blank_rounded, size: 25),
-            const SizedBox(width: 8),
-            Expanded(child: Text(task.title, overflow: TextOverflow.ellipsis)),
+            const HorizontalSpace(size: SpaceSize.small),
+            Expanded(
+              child: Text(
+                task.title,
+                style: context.textTheme.bodyLarge,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             IconButton(
               icon: const Icon(Icons.delete, size: 25),
               onPressed: () {

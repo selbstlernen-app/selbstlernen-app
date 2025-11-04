@@ -77,10 +77,10 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
                   "Gruppiere Aufgaben unter einem Ziel zusammen. Du kannst diesen Schritt auch vorerst überspringen.",
-                  style: context.textTheme.titleLarge,
+                  style: context.textTheme.bodyMedium,
                 ),
 
-                const VerticalSpace(size: SpaceSize.large),
+                const VerticalSpace(size: SpaceSize.medium),
 
                 // Select tasks
                 if (state.ungroupedTasks.isNotEmpty) ...<Widget>[
@@ -126,7 +126,7 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                   }),
                 ],
 
-                const VerticalSpace(size: SpaceSize.large),
+                const VerticalSpace(size: SpaceSize.small),
 
                 if (_selectedTasks.isNotEmpty) ...<Widget>[
                   Text(
@@ -149,8 +149,10 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                 if (state.goals.isNotEmpty) ...<Widget>[
                   Text(
                     "Gruppierte Aufgaben",
-                    style: context.textTheme.headlineMedium,
+                    style: context.textTheme.headlineSmall,
                   ),
+
+                  const VerticalSpace(size: SpaceSize.small),
 
                   ...state.goals.map((GoalModel goal) {
                     final List<TaskModel> tasksForGoal = state.tasks
