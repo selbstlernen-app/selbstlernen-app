@@ -35,7 +35,7 @@ class GoalsPage extends ConsumerWidget {
           children: <Widget>[
             Text('Ziele & Aufgaben', style: context.textTheme.headlineMedium),
 
-            const VerticalSpace(size: SpaceSize.medium),
+            const VerticalSpace(size: SpaceSize.small),
 
             Expanded(
               child: ListView(

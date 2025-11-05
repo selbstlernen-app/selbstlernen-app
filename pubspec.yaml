@@ -48,6 +48,7 @@ dependencies:
   riverpod_annotation: ^3.0.3
   auto_size_text: ^3.0.0
   async: ^2.13.0
+  smooth_page_indicator: ^1.2.1
 
 dev_dependencies:
   flutter_test:
