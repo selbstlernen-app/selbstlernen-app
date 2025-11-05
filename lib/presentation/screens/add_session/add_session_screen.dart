@@ -33,6 +33,15 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     super.initState();
     // Denominator is the total amount of pages available
     _progress = 1 / 5;
+
+    // if in edit mode
+    if (widget.fullSessionModel != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref
+            .read(addSessionViewModelProvider.notifier)
+            .initializeState(widget.fullSessionModel!);
+      });
+    }
   }
 
   void _navigateBack() {
@@ -46,13 +55,20 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         curve: Curves.easeInBack,
       );
     } else {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) => const MainNavigation(),
-        ),
-        (Route<dynamic> route) => false,
-      );
+      if (widget.fullSessionModel != null) {
+        // Go back to details page
+        Navigator.pop(context);
+      } else {
+        // Go back to home screen
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute<dynamic>(
+            builder: (BuildContext context) => const MainNavigation(),
+          ),
+          (Route<dynamic> route) => false,
+        );
+      }
+      ref.read(addSessionViewModelProvider.notifier).resetFields();
     }
   }
 
@@ -74,7 +90,18 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     return MainLayout(
       appBarTitle: widget.fullSessionModel != null
           ? "Lerneinheit bearbeiten"
-          : "Neue Einheit",
+          : "Neue Lerneinheit erstellen",
+      showFloatingActionButton: state.isEditingMode ? true : false,
+      onPressedFAB: () {
+        ref.read(addSessionViewModelProvider.notifier).updateSession();
+        context.scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            duration: Duration(seconds: 2),
+            content: Text("Änderungen erfolgreich gespeichert!"),
+          ),
+        );
+        Navigator.pop(context);
+      },
       bottomBarWidget: PreferredSize(
         preferredSize: const Size.fromHeight(30.0),
         child: Padding(

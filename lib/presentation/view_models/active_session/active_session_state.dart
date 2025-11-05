@@ -21,7 +21,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(0) int totalBreakSecondsElapsed,
 
     @Default(0) int totalFocusPhases,
-    @Default(0) int completedCycles,
+    @Default(0) int completedBlocks,
     DateTime? sessionStartTime,
 
     @Default(<String>{}) Set<String> completedGoalIds,

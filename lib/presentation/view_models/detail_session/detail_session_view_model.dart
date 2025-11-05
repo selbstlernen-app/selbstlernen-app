@@ -12,23 +12,16 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   late final int _sessionId;
 
   @override
-  Future<DetailSessionState> build(int sessionId) async {
+  Stream<DetailSessionState> build(int sessionId) {
     _sessionId = sessionId;
     _fullSessionUseCase = ref.watch(fullSessionUseCaseProvider);
-    final FullSessionModel session = await _fullSessionUseCase.getFullModel(
-      sessionId,
-    );
-    return DetailSessionState(fullSession: session);
-  }
 
-  Future<void> refresh() async {
-    state = const AsyncValue<DetailSessionState>.loading();
-    state = await AsyncValue.guard(() async {
-      final FullSessionModel session = await _fullSessionUseCase.getFullModel(
-        sessionId,
-      );
-      return DetailSessionState(fullSession: session);
-    });
+    return _fullSessionUseCase
+        .watchFullSession(sessionId)
+        .map(
+          (FullSessionModel session) =>
+              DetailSessionState(fullSession: session),
+        );
   }
 
   Future<void> deleteSession() async {

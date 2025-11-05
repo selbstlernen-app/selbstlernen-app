@@ -7,6 +7,7 @@ abstract class SessionRepository {
   Future<int> addSession(SessionModel session);
   Future<void> deleteSession(int sessionId);
   Future<SessionModel> getSessionById(int sessionId);
+  Stream<SessionModel> watchSessionById(int sessionId);
   Future<int> updateSession(int sessionId, SessionModel updatedSession);
   Future<void> patchIncrementCompletedInstances(int sessionId);
 }

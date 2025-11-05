@@ -39,6 +39,16 @@ class SessionRepositoryImp implements SessionRepository {
   }
 
   @override
+  Stream<SessionModel> watchSessionById(int sessionId) {
+    return sessionDao.watchSessionById(sessionId).map((Session? session) {
+      if (session == null) {
+        throw Exception('Session with ID $sessionId not found.');
+      }
+      return session.toDomain();
+    });
+  }
+
+  @override
   Future<int> updateSession(int sessionId, SessionModel updatedSession) {
     return sessionDao.updateSession(sessionId, updatedSession.toCompanion());
   }

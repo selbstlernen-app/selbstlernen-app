@@ -57,14 +57,15 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                   style: context.textTheme.bodyMedium,
                 ),
 
-                const VerticalSpace(size: SpaceSize.large),
+                const VerticalSpace(size: SpaceSize.medium),
 
                 // Grid of learning strategies
                 Wrap(
                   children: <Widget>[
                     ...state.availableStrategies.map(
                       (String strategy) => SizedBox(
-                        width: (MediaQuery.sizeOf(context).width - 56) / 2,
+                        // Padding * 2 = 48
+                        width: (context.mediaQuery.size.width - 48) / 2,
                         child: GestureDetector(
                           onTap: () => ref
                               .read(addSessionViewModelProvider.notifier)
@@ -80,7 +81,12 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                                     .read(addSessionViewModelProvider.notifier)
                                     .toggleStrategy(strategy),
                               ),
-                              Flexible(child: Text(strategy)),
+                              Flexible(
+                                child: Text(
+                                  strategy,
+                                  style: context.textTheme.bodyLarge,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -88,8 +94,6 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                     ),
                   ],
                 ),
-
-                const VerticalSpace(size: SpaceSize.medium),
 
                 TextButton(
                   onPressed: () => setState(() {
@@ -102,33 +106,36 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                   child: Text(_showInput ? "Abbrechen" : "Andere Strategien?"),
                 ),
 
-                if (_showInput) const VerticalSpace(size: SpaceSize.small),
-
-                if (_showInput)
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: CustomTextField(
-                          onSubmitted: (_) => _addCustomStrategy(),
-                          controller: _strategyController,
-                          hintText: "z.B. Notizen auf Papier machen",
-                        ),
-                      ),
-                      const HorizontalSpace(size: SpaceSize.small),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: _addCustomStrategy,
-                        style: IconButton.styleFrom(
-                          padding: const EdgeInsets.all(14),
-                          foregroundColor: context.colorScheme.onPrimary,
-                          backgroundColor: context.colorScheme.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadiusGeometry.circular(10),
+                if (_showInput) ...<Widget>[
+                  const VerticalSpace(size: SpaceSize.small),
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Expanded(
+                          child: CustomTextField(
+                            onSubmitted: (_) => _addCustomStrategy(),
+                            controller: _strategyController,
+                            hintText: "z.B. Notizen auf Papier machen",
                           ),
                         ),
-                      ),
-                    ],
+                        const HorizontalSpace(size: SpaceSize.small),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: _addCustomStrategy,
+                          style: IconButton.styleFrom(
+                            padding: const EdgeInsets.all(16.0),
+                            foregroundColor: context.colorScheme.onPrimary,
+                            backgroundColor: context.colorScheme.primary,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadiusGeometry.circular(10),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                ],
               ],
             ),
           ),

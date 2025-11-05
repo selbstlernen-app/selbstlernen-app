@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/custom_error_text.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
@@ -32,6 +33,12 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
     );
     _bigGoalController = TextEditingController();
     _smallGoalController = TextEditingController();
+
+    // Initialize after build; if in edit mode
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final AddSessionState state = ref.read(addSessionViewModelProvider);
+      _titleController.text = state.title;
+    });
   }
 
   @override
@@ -111,7 +118,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
               children: <Widget>[
                 // Title
                 Text(
-                  "Name der Lerneinheit",
+                  "Titel der Lerneinheit",
                   style: context.textTheme.headlineMedium,
                 ),
                 const VerticalSpace(size: SpaceSize.small),
@@ -121,15 +128,20 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       .setTitle,
                   controller: _titleController,
                   hintText: "z.B. Info 1 - Vorlesung 3...",
-                  errorText: state.titleError,
+                  hasError: state.titleError != null,
                 ),
+                if (state.titleError != null)
+                  CustomErrorText(errorText: state.titleError!),
 
                 const VerticalSpace(size: SpaceSize.large),
 
                 // Date and days
-                Text(
-                  "Art der Lerneinheit",
-                  style: context.textTheme.headlineMedium,
+                Row(
+                  children: <Widget>[
+                    const Icon(Icons.event_repeat_rounded),
+                    const HorizontalSpace(size: SpaceSize.small),
+                    Text("Häufigkeit", style: context.textTheme.headlineSmall),
+                  ],
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 Row(
@@ -144,6 +156,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       label: "Einmalig",
                     ),
                     const HorizontalSpace(size: SpaceSize.small),
+
                     CustomButton(
                       isActive: state.isRepeating,
                       onPressed: () => ref
@@ -155,16 +168,17 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                     ),
                   ],
                 ),
+
                 if (state.isRepeating) const DateInputFields(),
 
-                const VerticalSpace(size: SpaceSize.large),
+                const VerticalSpace(size: SpaceSize.medium),
 
                 // Set goals/tasks
                 Text(
                   state.setGoals
                       ? "Ziele für diese Lerneinheit"
                       : "Aufgaben für diese Lerneinheit",
-                  style: context.textTheme.headlineMedium,
+                  style: context.textTheme.headlineSmall,
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 Row(

@@ -8,6 +8,7 @@ abstract class AddSessionState with _$AddSessionState {
   const AddSessionState._();
 
   const factory AddSessionState({
+    final String? sessionId,
     @Default('') String title,
     @Default(false) bool isRepeating,
     @Default(true) bool setGoals,
@@ -18,6 +19,8 @@ abstract class AddSessionState with _$AddSessionState {
     // Goals and tasks
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,
+    @Default(<String>[]) List<String> taskIdsToDelete,
+    @Default(<String>[]) List<String> goalIdsToDelete,
 
     // Strategies
     @Default(<String>[]) List<String> learningStrategies,
@@ -32,8 +35,6 @@ abstract class AddSessionState with _$AddSessionState {
     List<String> availableStrategies,
 
     // Time
-    @Default(true) bool isPomodoro,
-    int? totalTimeMin,
     @Default(25) int focusTimeMin,
     @Default(5) int breakTimeMin,
     @Default(15) int longBreakTimeMin,
@@ -46,8 +47,7 @@ abstract class AddSessionState with _$AddSessionState {
 
     //Validation fields
     String? titleError,
-    String? startDateError,
-    String? endDateError,
+    String? dateError,
     String? selectedDaysError,
     String? goalsError,
   }) = _AddSessionState;
@@ -59,7 +59,9 @@ abstract class AddSessionState with _$AddSessionState {
       tasks.where((TaskModel task) => task.goalId == goalId).toList();
 
   bool get isTimeValid {
-    if (isPomodoro && focusTimeMin > 0) return true;
+    if (focusTimeMin > 0) return true;
     return false;
   }
+
+  bool get isEditingMode => sessionId != null;
 }

@@ -45,6 +45,10 @@ class TimeInputField extends StatelessWidget {
             child: TextField(
               controller: controller,
               onChanged: (String value) {
+                if (value.isEmpty) {
+                  onChanged(0);
+                  return;
+                }
                 int? parsed = int.tryParse(value);
                 if (parsed == null) {
                   return;

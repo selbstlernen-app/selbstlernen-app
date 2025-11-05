@@ -17,10 +17,29 @@ class TimerPage extends ConsumerStatefulWidget {
 
 class _$TimerPageState extends ConsumerState<TimerPage> {
   // Controllers
-  final TextEditingController _focusController = TextEditingController();
-  final TextEditingController _breakController = TextEditingController();
-  final TextEditingController _longBreakController = TextEditingController();
-  final TextEditingController _focusPhaseController = TextEditingController();
+  late TextEditingController _focusController = TextEditingController();
+  late TextEditingController _breakController = TextEditingController();
+  late TextEditingController _longBreakController = TextEditingController();
+  late TextEditingController _focusPhaseController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusController = TextEditingController();
+    _breakController = TextEditingController();
+    _longBreakController = TextEditingController();
+    _focusPhaseController = TextEditingController();
+
+    // Initialize after build; if in edit mode
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final AddSessionState state = ref.read(addSessionViewModelProvider);
+
+      _focusController.text = state.focusTimeMin.toString();
+      _breakController.text = state.breakTimeMin.toString();
+      _longBreakController.text = state.longBreakTimeMin.toString();
+      _focusPhaseController.text = state.focusPhases.toString();
+    });
+  }
 
   @override
   void dispose() {
@@ -33,14 +52,13 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   }
 
   void _saveSettings() {
-    // Save all Pomodoro settings
     ref
         .watch(addSessionViewModelProvider.notifier)
         .setPomodoroSettings(
-          focusTime: int.tryParse(_focusController.text),
-          breakTime: int.tryParse(_breakController.text),
-          longBreakTime: int.tryParse(_longBreakController.text),
-          cycles: int.tryParse(_focusPhaseController.text),
+          focusTime: int.tryParse(_focusController.text) ?? 0,
+          breakTime: int.tryParse(_breakController.text) ?? 0,
+          longBreakTime: int.tryParse(_longBreakController.text) ?? 0,
+          focusPhases: int.tryParse(_focusPhaseController.text) ?? 1,
         );
     // Then navigate forward
     widget.navigateForward();
@@ -49,14 +67,6 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   @override
   Widget build(BuildContext context) {
     final AddSessionState state = ref.watch(addSessionViewModelProvider);
-
-    // Initialize empty fields on first build
-    if (_focusController.text.isEmpty) {
-      _focusController.text = state.focusTimeMin.toString();
-      _breakController.text = state.breakTimeMin.toString();
-      _longBreakController.text = state.longBreakTimeMin.toString();
-      _focusPhaseController.text = state.focusPhases.toString();
-    }
 
     return Column(
       children: <Widget>[
@@ -132,10 +142,10 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                 onChanged: (int value) {
                   ref
                       .read(addSessionViewModelProvider.notifier)
-                      .setPomodoroSettings(cycles: value);
+                      .setPomodoroSettings(focusPhases: value);
                 },
-                minValue: 0,
-                maxValue: 10,
+                minValue: 1,
+                maxValue: 15,
               ),
             ),
 
@@ -170,7 +180,9 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   }
 
   Widget _buildTimerPreview() {
-    final int focusPhases = int.tryParse(_focusPhaseController.text) ?? 0;
+    final AddSessionState state = ref.read(addSessionViewModelProvider);
+
+    int focusPhases = state.focusPhases != 0 ? state.focusPhases : 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,8 +248,10 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   Widget _calculateTotalTime() {
     final AddSessionState state = ref.read(addSessionViewModelProvider);
 
+    int focusPhases = state.focusPhases != 0 ? state.focusPhases : 1;
+
     int totalMins =
-        ((state.focusTimeMin + state.breakTimeMin) * state.focusPhases +
+        ((state.focusTimeMin + state.breakTimeMin) * focusPhases +
         state.longBreakTimeMin);
 
     if (totalMins >= 60) {

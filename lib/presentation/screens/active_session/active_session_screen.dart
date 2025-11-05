@@ -41,11 +41,11 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   int _getPhaseDuration(ActiveSessionState state) {
     switch (state.currentPhase) {
       case SessionPhase.focus:
-        return (state.fullSession.session.focusTimeMin ?? 25) * 60;
+        return (state.fullSession.session.focusTimeMin) * 60;
       case SessionPhase.shortBreak:
-        return (state.fullSession.session.breakTimeMin ?? 5) * 60;
+        return (state.fullSession.session.breakTimeMin) * 60;
       case SessionPhase.longBreak:
-        return (state.fullSession.session.longBreakTimeMin ?? 15) * 60;
+        return (state.fullSession.session.longBreakTimeMin) * 60;
     }
   }
 
@@ -97,7 +97,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                       const VerticalSpace(size: SpaceSize.medium),
 
                       Text(
-                        'Fokusphase ${state.totalFocusPhases + 1} | Zyklus ${state.completedCycles + 1}',
+                        'Fokusphase ${state.totalFocusPhases + 1} | Block ${state.completedBlocks + 1}',
                         style: context.textTheme.titleMedium,
                       ),
 

@@ -97,11 +97,11 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
-                  "Erstelle für deine Ziele Aufgaben, die dir beim Erreichen dessen helfen. Du kannst diesen Schritt auch vorerst überspringen.",
+                  "Erstelle zusätzliche Aufgaben, die dir beim Erreichen deiner Ziele helfen. Du kannst diesen Schritt auch vorerst überspringen.",
                   style: context.textTheme.bodyMedium,
                 ),
 
-                const VerticalSpace(size: SpaceSize.large),
+                const VerticalSpace(size: SpaceSize.medium),
 
                 ...state.goals.map((GoalModel goal) {
                   return GoalWithTasksCard(

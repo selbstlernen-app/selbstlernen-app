@@ -20,6 +20,13 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     )..where(($GoalsTable goal) => goal.sessionId.equals(sessionId))).get();
   }
 
+  // Watch all goals of a session
+  Stream<List<Goal>> watchAllGoalsFor(int sessionId) {
+    return (select(
+      goals,
+    )..where(($GoalsTable goal) => goal.sessionId.equals(sessionId))).watch();
+  }
+
   // Get goal by ID
   Stream<Goal?> getGoalById(int id) {
     return (select(

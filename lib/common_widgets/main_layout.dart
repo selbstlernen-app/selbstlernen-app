@@ -9,6 +9,8 @@ class MainLayout extends StatelessWidget {
     required this.navigateBack,
     this.bottomBarWidget,
     this.actions,
+    this.showFloatingActionButton = false,
+    this.onPressedFAB,
   });
 
   final String appBarTitle;
@@ -16,11 +18,24 @@ class MainLayout extends StatelessWidget {
   final VoidCallback navigateBack;
   final PreferredSizeWidget? bottomBarWidget;
   final List<Widget>? actions;
+  final bool showFloatingActionButton;
+  final void Function()? onPressedFAB;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colorScheme.secondary,
+      floatingActionButton: showFloatingActionButton
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 50.0),
+              child: FloatingActionButton(
+                onPressed: onPressedFAB,
+                tooltip: "Änderungen speichern",
+                child: const Icon(Icons.save_rounded),
+              ),
+            )
+          : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
         centerTitle: true,
         title: Text(appBarTitle, style: context.textTheme.headlineLarge),

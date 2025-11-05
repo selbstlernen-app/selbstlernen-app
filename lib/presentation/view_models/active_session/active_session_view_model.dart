@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:path/path.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
@@ -27,7 +26,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
     return ActiveSessionState(
       fullSession: fullSession,
-      remainingSeconds: (fullSession.session.focusTimeMin ?? 25) * 60,
+      remainingSeconds: (fullSession.session.focusTimeMin) * 60,
     );
   }
 
@@ -83,20 +82,20 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       case SessionPhase.focus:
         // say we have 4 focus phases, then 3 are FK last is FL
         final int nextFocusPhase = state.totalFocusPhases + 1;
-        final int focusPhases = session.focusPhases ?? 4;
+        final int focusPhases = session.focusPhases;
 
         // Determine next break type (if we have 4 % 4 = 0, take long break, else short break)
         if (nextFocusPhase % focusPhases == 0) {
           // Just completed the last focus phase -> moving on to long break
           _startPhase(
             phase: SessionPhase.longBreak,
-            durationSeconds: (session.longBreakTimeMin ?? 15) * 60,
+            durationSeconds: (session.longBreakTimeMin) * 60,
           );
         } else {
           // Completed a regular focus phase
           _startPhase(
             phase: SessionPhase.shortBreak,
-            durationSeconds: (session.breakTimeMin ?? 5) * 60,
+            durationSeconds: (session.breakTimeMin) * 60,
           );
         }
         break;
@@ -106,19 +105,19 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         final int newTotalFocusPhases = state.totalFocusPhases + 1;
         _startPhase(
           phase: SessionPhase.focus,
-          durationSeconds: (session.focusTimeMin ?? 25) * 60,
+          durationSeconds: (session.focusTimeMin) * 60,
           totalFocusPhases: newTotalFocusPhases,
         );
         break;
 
-      // After long break, increment cycle and start new focus phase
+      // After long break, increment block and start new focus phase
       case SessionPhase.longBreak:
         final int newTotalFocusPhases = state.totalFocusPhases + 1;
         _startPhase(
           phase: SessionPhase.focus,
-          durationSeconds: (session.focusTimeMin ?? 25) * 60,
+          durationSeconds: (session.focusTimeMin) * 60,
           totalFocusPhases: newTotalFocusPhases,
-          completedCycles: state.completedCycles + 1,
+          completedBlocks: state.completedBlocks + 1,
         );
         break;
     }
@@ -128,13 +127,13 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     required SessionPhase phase,
     required int durationSeconds,
     int? totalFocusPhases,
-    int? completedCycles,
+    int? completedBlocks,
   }) {
     state = state.copyWith(
       currentPhase: phase,
       remainingSeconds: durationSeconds,
       totalFocusPhases: totalFocusPhases ?? state.totalFocusPhases,
-      completedCycles: completedCycles ?? state.completedCycles,
+      completedBlocks: completedBlocks ?? state.completedBlocks,
     );
   }
 
@@ -178,7 +177,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       totalCompletedTasks: state.completedTaskIds.length,
 
       totalBreakSecondsElapsed: state.totalBreakSecondsElapsed,
-      totalCompletedBlocks: state.completedCycles,
+      totalCompletedBlocks: state.completedBlocks,
       totalFocusPhases: state.totalFocusPhases,
       totalFocusSecondsElapsed: state.totalFocusSecondsElapsed,
 

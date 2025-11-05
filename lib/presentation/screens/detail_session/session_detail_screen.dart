@@ -63,6 +63,7 @@ class SessionDetailScreen extends ConsumerWidget {
             ),
           ],
           content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Expanded(
                 child: SingleChildScrollView(
@@ -75,7 +76,20 @@ class SessionDetailScreen extends ConsumerWidget {
                       ),
                       const VerticalSpace(size: SpaceSize.small),
                       ...detailState.fullSession.goals.map((GoalModel goal) {
-                        return Text(goal.title);
+                        return Row(
+                          children: <Widget>[
+                            Text(
+                              "🏁",
+                              style: context.textTheme.bodyLarge!.copyWith(
+                                fontSize: 25,
+                              ),
+                            ),
+                            Text(
+                              goal.title,
+                              style: context.textTheme.bodyLarge,
+                            ),
+                          ],
+                        );
                       }),
 
                       const VerticalSpace(size: SpaceSize.large),
