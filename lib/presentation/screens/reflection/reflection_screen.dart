@@ -40,30 +40,19 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
     if (!mounted) return;
 
-    context.scaffoldMessenger.showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         duration: Duration(seconds: 2),
         content: Text("Einheit erfolgreich abgeschlossen!"),
       ),
     );
 
-    if (!mounted) return;
-
-    await Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (context) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                duration: Duration(seconds: 2),
-                content: Text("Einheit erfolgreich abgeschlossen!"),
-              ),
-            );
-          });
-          return const MainNavigation();
-        },
+    await Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) => const MainNavigation(),
       ),
-      (route) => false,
+      (Route<dynamic> route) => false,
     );
   }
 

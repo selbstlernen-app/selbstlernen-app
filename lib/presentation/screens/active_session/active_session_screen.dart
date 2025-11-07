@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/show_custom_dialog.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
@@ -55,21 +56,35 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
       activeSessionViewModelProvider(widget.fullSessionModel).notifier,
     );
 
+    // Show start text; start the session
     if (state.timerStatus == TimerStatus.initial) {
       viewModel.startTimer();
     }
+    // End the session
     if (state.timerStatus != TimerStatus.initial) {
-      await viewModel.stopSession();
-      if (context.mounted) {
-        await Navigator.pushReplacement(
-          context,
-          MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => ReflectionScreen(
-              sessionInstanceId: int.parse(state.instanceId!),
-            ),
-          ),
-        );
-      }
+      viewModel.pauseTimer();
+      await showCustomDialog(
+        context: context,
+        title: "Lerneinheit beenden",
+        onConfirm: () async {
+          await viewModel.stopSession();
+          if (context.mounted) {
+            await Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<dynamic>(
+                builder: (BuildContext context) => ReflectionScreen(
+                  sessionInstanceId: int.parse(state.instanceId!),
+                ),
+              ),
+            );
+          }
+        },
+        onCancel: () {
+          viewModel.startTimer();
+        },
+        confirmLabel: "Bestätigen",
+        cancelLabel: "Abbrechen",
+      );
     }
   }
 
