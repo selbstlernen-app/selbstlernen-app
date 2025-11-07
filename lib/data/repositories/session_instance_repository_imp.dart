@@ -34,6 +34,18 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   }
 
   @override
+  Stream<SessionInstanceModel> watchSessionInstanceById(int sessionInstanceId) {
+    return sessionInstanceDao.watchSessionInstanceById(sessionInstanceId).map((
+      SessionInstance? sessionInstance,
+    ) {
+      if (sessionInstance == null) {
+        throw Exception('Session with ID $sessionInstanceId not found.');
+      }
+      return sessionInstance.toDomain();
+    });
+  }
+
+  @override
   Future<SessionInstanceModel> getSessionInstanceById(int sessionId) async {
     SessionInstance? instance = await sessionInstanceDao.getSessionInstanceById(
       sessionId,

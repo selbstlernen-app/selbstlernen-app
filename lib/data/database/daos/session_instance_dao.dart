@@ -21,6 +21,13 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     )..where(($SessionInstancesTable s) => s.id.equals(id))).getSingleOrNull();
   }
 
+  // Watch session instance by ID
+  Stream<SessionInstance?> watchSessionInstanceById(int id) {
+    return (select(sessionInstances)
+          ..where(($SessionInstancesTable s) => s.id.equals(id)))
+        .watchSingleOrNull();
+  }
+
   // Watch all session instances for a specific session
   Stream<List<SessionInstance>> watchAllSessionsInstancesFor(int sessionId) {
     return (select(sessionInstances)

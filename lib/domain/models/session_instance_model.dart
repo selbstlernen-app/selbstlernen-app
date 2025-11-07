@@ -9,6 +9,7 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
   const factory SessionInstanceModel({
     String? id,
     required String sessionId,
+
     @Default(SessionStatus.scheduled) SessionStatus status,
 
     // Time Measures
