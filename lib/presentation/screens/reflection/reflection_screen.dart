@@ -71,7 +71,6 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
           Center(child: Text('Error: $error')),
       data: (ReflectionState reflectionState) {
         return MainLayout(
-          navigateBack: () => Navigator.of(context).pop(),
           appBarTitle: "Reflexion",
           content: Column(
             children: <Widget>[
@@ -81,7 +80,6 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      // Session Summary
                       Text(
                         'Lerneinheit abgeschlossen!',
                         style: context.textTheme.headlineMedium,
@@ -90,7 +88,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
                       const VerticalSpace(size: SpaceSize.medium),
 
-                      // Stats Card
+                      // Small overview (TODO: maybe include checked off goals/tasks?)
                       Column(
                         children: <Widget>[
                           _StatRow(
