@@ -10,8 +10,8 @@ abstract class ReflectionState with _$ReflectionState {
 
   const factory ReflectionState({
     required SessionInstanceModel sessionInstance,
-    @Default("") String? freeText,
-    @Default(3) int? mood,
+    String? notes,
+    int? mood,
     @Default(false) bool isLoading,
   }) = _ReflectionState;
 

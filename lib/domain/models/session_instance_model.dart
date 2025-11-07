@@ -21,6 +21,11 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
     // Checked off goals/tasks
     @Default(0) int totalCompletedGoals,
     @Default(0) int totalCompletedTasks,
+
+    // Reflection stats
+    int? mood,
+    String? notes,
+
     DateTime? completedAt,
     DateTime? createdAt,
   }) = _SessionInstanceModel;

@@ -60,15 +60,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
     }
     if (state.timerStatus != TimerStatus.initial) {
       await viewModel.stopSession();
-
-      await viewModel.stopSession();
       if (context.mounted) {
-        context.scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            duration: Duration(seconds: 2),
-            content: Text("Einheit erfolgreich abgeschlossen!"),
-          ),
-        );
         await Navigator.pushReplacement(
           context,
           MaterialPageRoute<dynamic>(

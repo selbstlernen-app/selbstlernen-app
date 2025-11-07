@@ -143,12 +143,21 @@ class SessionDetailScreen extends ConsumerWidget {
       ref
           .read(detailSessionViewModelProvider(sessionId).notifier)
           .deleteSession();
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) => const MainNavigation(),
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  duration: Duration(seconds: 2),
+                  content: Text("Lerneinheit erfolgreich gelöscht!"),
+                ),
+              );
+            });
+            return const MainNavigation();
+          },
         ),
-        (Route<dynamic> route) => false,
+        (route) => false,
       );
     }
 

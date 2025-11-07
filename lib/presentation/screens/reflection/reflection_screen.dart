@@ -7,35 +7,80 @@ import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_view_model.dart';
 
-class ReflectionScreen extends ConsumerWidget {
+class ReflectionScreen extends ConsumerStatefulWidget {
   const ReflectionScreen({super.key, required this.sessionInstanceId});
 
   final int sessionInstanceId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final TextEditingController notesController = TextEditingController();
-    final AsyncValue<ReflectionState> state = ref.watch(
-      reflectionViewModelProvider((sessionInstanceId)),
-    );
+  ConsumerState<ReflectionScreen> createState() => _ReflectionScreenState();
+}
+
+class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
+  final TextEditingController notesController = TextEditingController();
+
+  List<String> emojiMoods = <String>["😥", '😡', '😐', "🙂", '🥳'];
+
+  @override
+  void dispose() {
+    notesController.dispose();
+    super.dispose();
+  }
+
+  Future<void> submitReflection() async {
     final ReflectionViewModel viewModel = ref.read(
-      reflectionViewModelProvider((sessionInstanceId)).notifier,
+      reflectionViewModelProvider(widget.sessionInstanceId).notifier,
     );
 
-    List<String> emojiMoods = <String>["😥", '😡', '😐', "🙂", '🥳'];
+    await viewModel.submitReflection(notes: notesController.text);
+
+    if (!mounted) return;
+
+    context.scaffoldMessenger.showSnackBar(
+      const SnackBar(
+        duration: Duration(seconds: 2),
+        content: Text("Einheit erfolgreich abgeschlossen!"),
+      ),
+    );
+
+    if (!mounted) return;
+
+    await Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                duration: Duration(seconds: 2),
+                content: Text("Einheit erfolgreich abgeschlossen!"),
+              ),
+            );
+          });
+          return const MainNavigation();
+        },
+      ),
+      (route) => false,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AsyncValue<ReflectionState> state = ref.watch(
+      reflectionViewModelProvider(widget.sessionInstanceId),
+    );
+    final ReflectionViewModel viewModel = ref.read(
+      reflectionViewModelProvider(widget.sessionInstanceId).notifier,
+    );
 
     return state.when(
       loading: () => const LoadingIndicator(),
       error: (Object error, StackTrace stack) =>
           Center(child: Text('Error: $error')),
       data: (ReflectionState reflectionState) {
-        final SessionInstanceModel instance = reflectionState.sessionInstance;
-
         return MainLayout(
           navigateBack: () => Navigator.of(context).pop(),
           appBarTitle: "Reflexion",
@@ -80,7 +125,9 @@ class ReflectionScreen extends ConsumerWidget {
                       const VerticalSpace(size: SpaceSize.small),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: emojiMoods.asMap().entries.map((entry) {
+                        children: emojiMoods.asMap().entries.map((
+                          MapEntry<int, String> entry,
+                        ) {
                           final int emojiIndex = entry.key;
                           final String emoji = entry.value;
 
@@ -122,7 +169,6 @@ class ReflectionScreen extends ConsumerWidget {
                         controller: notesController,
                         maxLines: 5,
                         hintText: "Was hast du gelernt? Wie lief die Einheit?",
-                        onChanged: viewModel.updateNotes,
                       ),
                     ],
                   ),
@@ -134,13 +180,7 @@ class ReflectionScreen extends ConsumerWidget {
                 child: CustomButton(
                   label: 'Abschließen',
                   // TODO: instead of home navigate to LAD later
-                  onPressed: () => Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute<dynamic>(
-                      builder: (BuildContext context) => const MainNavigation(),
-                    ),
-                    (Route<dynamic> route) => false,
-                  ),
+                  onPressed: submitReflection,
                 ),
               ),
             ],
