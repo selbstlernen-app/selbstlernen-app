@@ -5,7 +5,6 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/show_custom_dialog.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/active_session/pages/goals_page.dart';
@@ -150,22 +149,6 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                         ),
                       ),
                       const VerticalSpace(size: SpaceSize.medium),
-
-                      // Total time
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                            'Fokuszeit insgesamt:',
-                            style: context.textTheme.bodyMedium,
-                          ),
-                          Text(
-                            TimeUtils.formatTime(
-                              state.totalFocusSecondsElapsed,
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -183,7 +166,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                 ),
               ),
 
-              if (state.timerStatus == TimerStatus.initial) ...[
+              if (state.timerStatus == TimerStatus.initial) ...<Widget>[
                 const VerticalSpace(size: SpaceSize.small),
                 SizedBox(
                   width: context.mediaQuery.size.width,

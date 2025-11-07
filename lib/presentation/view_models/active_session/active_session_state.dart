@@ -20,6 +20,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(0) int remainingSeconds,
     @Default(0) int totalFocusSecondsElapsed,
     @Default(0) int totalBreakSecondsElapsed,
+    @Default(0) int totalLongBreakSecondsElapsed,
 
     @Default(0) int totalFocusPhases,
     @Default(0) int completedBlocks,
@@ -27,6 +28,9 @@ abstract class ActiveSessionState with _$ActiveSessionState {
 
     @Default(<String>{}) Set<String> completedGoalIds,
     @Default(<String>{}) Set<String> completedTaskIds,
+
+    // Only for screen
+    @Default(false) bool countUpwards,
   }) = _ActiveSessionState;
 
   List<TaskModel> get ungroupedTasks =>

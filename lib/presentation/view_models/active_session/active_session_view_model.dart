@@ -33,6 +33,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     );
   }
 
+  void setCountUpwards(bool countUpwards) {
+    state = state.copyWith(countUpwards: countUpwards);
+  }
+
   void startTimer() {
     if (state.timerStatus == TimerStatus.initial) {
       state = state.copyWith(
@@ -63,9 +67,13 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         state = state.copyWith(
           totalFocusSecondsElapsed: state.totalFocusSecondsElapsed + 1,
         );
-      } else {
+      } else if (state.currentPhase == SessionPhase.shortBreak) {
         state = state.copyWith(
           totalBreakSecondsElapsed: state.totalBreakSecondsElapsed + 1,
+        );
+      } else {
+        state = state.copyWith(
+          totalLongBreakSecondsElapsed: state.totalLongBreakSecondsElapsed + 1,
         );
       }
     } else {
