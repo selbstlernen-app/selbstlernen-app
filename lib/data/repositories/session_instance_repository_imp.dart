@@ -45,4 +45,15 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
 
     return instance.toDomain();
   }
+
+  @override
+  Future<int> updateSessionInstance(
+    int sessionInstanceId,
+    SessionInstanceModel updatedSession,
+  ) {
+    return sessionInstanceDao.updateSessionInstance(
+      sessionInstanceId,
+      updatedSession.toCompanion(),
+    );
+  }
 }

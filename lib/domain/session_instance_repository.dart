@@ -9,4 +9,8 @@ abstract class SessionInstanceRepository {
   Future<int> addSessionInstance(SessionInstanceModel sessionInstance);
   Future<void> deleteSessionInstance(int sessionId);
   Future<SessionInstanceModel> getSessionInstanceById(int sessionId);
+  Future<int> updateSessionInstance(
+    int sessionInstanceId,
+    SessionInstanceModel updatedSessionInstance,
+  );
 }

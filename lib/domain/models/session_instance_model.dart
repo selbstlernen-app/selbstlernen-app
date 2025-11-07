@@ -25,4 +25,4 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
   }) = _SessionInstanceModel;
 }
 
-enum SessionStatus { scheduled, completed, paused, cancelled }
+enum SessionStatus { inProgress, scheduled, completed, paused, cancelled }

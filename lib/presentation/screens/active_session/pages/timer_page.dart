@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/horizontal_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
@@ -12,12 +13,6 @@ class TimerPage extends ConsumerWidget {
   const TimerPage({super.key, required this.fullSessionModel});
 
   final FullSessionModel fullSessionModel;
-
-  String _formatTime(int seconds) {
-    final int minutes = seconds ~/ 60;
-    final int secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-  }
 
   int _getPhaseDuration(ActiveSessionState state) {
     switch (state.currentPhase) {
@@ -75,9 +70,9 @@ class TimerPage extends ConsumerWidget {
                   ),
                 ),
                 Column(
-                  children: [
+                  children: <Widget>[
                     Text(
-                      _formatTime(state.remainingSeconds),
+                      TimeUtils.formatTime(state.remainingSeconds),
                       style: context.textTheme.headlineLarge?.copyWith(
                         fontSize: 48,
                       ),

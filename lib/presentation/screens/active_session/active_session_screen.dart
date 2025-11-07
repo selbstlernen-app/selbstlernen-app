@@ -4,6 +4,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
@@ -31,6 +32,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   @override
   void initState() {
     super.initState();
+
     _initializeSessionInstance();
 
     pages.addAll(<Widget>[
@@ -39,12 +41,10 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
     ]);
   }
 
-  Future<void> _initializeSessionInstance() async {}
-
-  String _formatTime(int seconds) {
-    final int minutes = seconds ~/ 60;
-    final int secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  Future<void> _initializeSessionInstance() async {
+    await ref
+        .read(activeSessionViewModelProvider(widget.fullSessionModel).notifier)
+        .initializeSession();
   }
 
   @override
@@ -122,7 +122,11 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                             'Fokuszeit insgesamt:',
                             style: context.textTheme.bodyMedium,
                           ),
-                          Text(_formatTime(state.totalFocusSecondsElapsed)),
+                          Text(
+                            TimeUtils.formatTime(
+                              state.totalFocusSecondsElapsed,
+                            ),
+                          ),
                         ],
                       ),
                     ],
