@@ -25,7 +25,7 @@ class ActiveSessionScreen extends ConsumerStatefulWidget {
 
 class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   late SessionInstanceModel sessionInstance;
-  final controller = PageController(initialPage: 0);
+  final PageController controller = PageController(initialPage: 0);
 
   final List<Widget> pages = <Widget>[];
 

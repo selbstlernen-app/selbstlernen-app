@@ -5,7 +5,7 @@ class CreateSessionInstanceUseCase {
   const CreateSessionInstanceUseCase(this.instanceRepository);
   final SessionInstanceRepository instanceRepository;
 
-  Future<int> createSessionInstance(SessionInstanceModel instance) async {
+  Future<int> call(SessionInstanceModel instance) async {
     final int id = await instanceRepository.addSessionInstance(instance);
 
     return id;

@@ -25,6 +25,7 @@ abstract class SessionModel with _$SessionModel {
     DateTime? createdAt,
 
     @Default(0) int completedInstances,
+    @Default(false) bool isCompleted,
   }) = _SessionModel;
 
   // Helper

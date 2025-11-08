@@ -4,6 +4,7 @@ import 'package:srl_app/domain/models/session_model.dart';
 /// Can be implemented for local/remote data access
 abstract class SessionRepository {
   Stream<List<SessionModel>> getAllSessions();
+  Stream<List<SessionModel>> getAllSessionsNotCompletedYet();
   Future<int> addSession(SessionModel session);
   Future<void> deleteSession(int sessionId);
   Future<SessionModel> getSessionById(int sessionId);

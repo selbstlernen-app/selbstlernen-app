@@ -22,7 +22,7 @@ class HomeViewModel extends _$HomeViewModel {
   }
 
   void _subscribe() {
-    _subscription = _sessionUseCase.getAllSessions().listen(
+    _subscription = _sessionUseCase.getAllUncompletedSessions().listen(
       (List<SessionModel> sessions) {
         state = state.copyWith(sessions: sessions, isLoading: false);
       },

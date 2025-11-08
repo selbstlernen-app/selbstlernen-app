@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/tables/session_table.dart';
+import 'package:srl_app/data/entity_mappers/session_mapper.dart';
+import 'package:srl_app/domain/models/session_model.dart';
 
 part 'session_dao.g.dart';
 
@@ -16,6 +18,13 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
   // Watch all sessions
   Stream<List<Session>> watchAllSessions() {
     return select(sessions).watch();
+  }
+
+  // Watch all sessions which are not yet completed
+  Stream<List<Session>> watchAllSessionsNotCompletedYet() {
+    return (select(
+      sessions,
+    )..where(($SessionsTable s) => s.isCompleted.equals(false))).watch();
   }
 
   // Get session by ID
@@ -41,10 +50,21 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
 
   // Patch completed instances
   Future<void> incrementCompletedInstances(int id) async {
-    await customUpdate(
-      'UPDATE sessions SET completed_instances = completed_instances + 1 WHERE id = ?',
-      variables: <Variable<int>>[Variable<int>(id)],
-      updates: <$SessionsTable>{sessions},
+    final Session session = await (select(
+      sessions,
+    )..where(($SessionsTable s) => s.id.equals(id))).getSingle();
+    final SessionModel model = session.toDomain();
+
+    final int newCompletedCount = session.completedInstances + 1;
+    final bool newIsCompleted = newCompletedCount >= model.totalInstances;
+
+    await (update(
+      sessions,
+    )..where(($SessionsTable s) => s.id.equals(id))).write(
+      SessionsCompanion(
+        completedInstances: Value<int>(newCompletedCount),
+        isCompleted: Value<bool>(newIsCompleted),
+      ),
     );
   }
 

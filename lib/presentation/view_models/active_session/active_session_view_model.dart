@@ -185,8 +185,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       createdAt: DateTime.now(),
     );
 
-    final int instanceId = await _createSessionInstanceUseCase
-        .createSessionInstance(sessionInstance);
+    final int instanceId = await _createSessionInstanceUseCase.call(
+      sessionInstance,
+    );
 
     state = state.copyWith(instanceId: instanceId.toString());
   }

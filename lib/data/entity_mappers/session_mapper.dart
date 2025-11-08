@@ -21,6 +21,7 @@ extension SessionToModelMapper on Session {
       hasFreetextPrompt: hasFreetextPrompt,
       createdAt: createdAt,
       completedInstances: completedInstances,
+      isCompleted: isCompleted,
     );
   }
 
@@ -51,6 +52,7 @@ extension SessionToCompanionMapper on SessionModel {
       hasFreetextPrompt: Value<bool>(hasFreetextPrompt),
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
       completedInstances: Value<int>(completedInstances),
+      isCompleted: Value<bool>(isCompleted),
     );
   }
 }
