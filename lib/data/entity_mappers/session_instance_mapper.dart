@@ -14,6 +14,8 @@ extension SessionInstanceToModelMapper on SessionInstance {
       totalBreakSecondsElapsed: totalBreakSecondsElapsed,
       totalCompletedGoals: totalCompletedGoals,
       totalCompletedTasks: totalCompletedTasks,
+      mood: mood,
+      notes: notes,
       completedAt: completedAt,
       createdAt: createdAt,
     );
@@ -39,6 +41,10 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
       totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),
       totalBreakSecondsElapsed: Value<int>(totalBreakSecondsElapsed),
       totalCompletedGoals: Value<int>(totalCompletedGoals),
+      mood: mood != null ? Value<int>(mood!) : const Value<int>.absent(),
+      notes: notes != null
+          ? Value<String>(notes!)
+          : const Value<String>.absent(),
       totalCompletedTasks: Value<int>(totalCompletedTasks),
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
     );

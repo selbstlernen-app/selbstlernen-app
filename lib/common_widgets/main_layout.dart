@@ -6,7 +6,7 @@ class MainLayout extends StatelessWidget {
     super.key,
     required this.appBarTitle,
     required this.content,
-    required this.navigateBack,
+    this.navigateBack,
     this.bottomBarWidget,
     this.actions,
     this.showFloatingActionButton = false,
@@ -15,7 +15,7 @@ class MainLayout extends StatelessWidget {
 
   final String appBarTitle;
   final Widget content;
-  final VoidCallback navigateBack;
+  final VoidCallback? navigateBack;
   final PreferredSizeWidget? bottomBarWidget;
   final List<Widget>? actions;
   final bool showFloatingActionButton;
@@ -37,15 +37,18 @@ class MainLayout extends StatelessWidget {
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         centerTitle: true,
         title: Text(appBarTitle, style: context.textTheme.headlineLarge),
         backgroundColor: context.colorScheme.secondary,
         actions: actions,
-        leading: IconButton(
-          onPressed: navigateBack,
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          color: context.colorScheme.onSurface,
-        ),
+        leading: navigateBack != null
+            ? IconButton(
+                onPressed: navigateBack,
+                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                color: context.colorScheme.onSurface,
+              )
+            : null,
         bottom: bottomBarWidget,
       ),
       body: ClipRRect(

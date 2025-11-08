@@ -6,6 +6,7 @@ import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/usecases/create_session_instance_use_case.dart';
+import 'package:srl_app/domain/usecases/edit_session_instance_use_case.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 
 part 'active_session_view_model.g.dart';
@@ -14,6 +15,7 @@ part 'active_session_view_model.g.dart';
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Timer? _timer;
   late CreateSessionInstanceUseCase _createSessionInstanceUseCase;
+  late EditSessionInstanceUseCase _editSessionInstanceUseCase;
 
   @override
   ActiveSessionState build(FullSessionModel fullSession) {
@@ -23,11 +25,16 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     _createSessionInstanceUseCase = ref.read(
       createSessionInstanceUseCaseProvider,
     );
+    _editSessionInstanceUseCase = ref.read(editSessionInstanceUseCaseProvider);
 
     return ActiveSessionState(
       fullSession: fullSession,
       remainingSeconds: (fullSession.session.focusTimeMin) * 60,
     );
+  }
+
+  void setCountUpwards(bool countUpwards) {
+    state = state.copyWith(countUpwards: countUpwards);
   }
 
   void startTimer() {
@@ -60,9 +67,13 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         state = state.copyWith(
           totalFocusSecondsElapsed: state.totalFocusSecondsElapsed + 1,
         );
-      } else {
+      } else if (state.currentPhase == SessionPhase.shortBreak) {
         state = state.copyWith(
           totalBreakSecondsElapsed: state.totalBreakSecondsElapsed + 1,
+        );
+      } else {
+        state = state.copyWith(
+          totalLongBreakSecondsElapsed: state.totalLongBreakSecondsElapsed + 1,
         );
       }
     } else {
@@ -167,12 +178,26 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     await _saveSessionTracking();
   }
 
+  Future<void> initializeSession() async {
+    final SessionInstanceModel sessionInstance = SessionInstanceModel(
+      sessionId: state.fullSession.session.id!,
+      status: SessionStatus.inProgress,
+      createdAt: DateTime.now(),
+    );
+
+    final int instanceId = await _createSessionInstanceUseCase
+        .createSessionInstance(sessionInstance);
+
+    state = state.copyWith(instanceId: instanceId.toString());
+  }
+
   Future<void> _saveSessionTracking() async {
     if (state.sessionStartTime == null) return;
 
     final SessionInstanceModel sessionInstance = SessionInstanceModel(
       sessionId: state.fullSession.session.id!,
       status: SessionStatus.completed,
+
       totalCompletedGoals: state.completedGoalIds.length,
       totalCompletedTasks: state.completedTaskIds.length,
 
@@ -184,6 +209,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       completedAt: DateTime.now(),
     );
 
-    await _createSessionInstanceUseCase.createSessionInstance(sessionInstance);
+    await _editSessionInstanceUseCase.editSessionInstance(
+      int.parse(state.instanceId!),
+      sessionInstance,
+    );
   }
 }

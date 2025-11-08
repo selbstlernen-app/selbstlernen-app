@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:srl_app/common_widgets/horizontal_space.dart';
-import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
@@ -13,12 +12,7 @@ class TimerPage extends ConsumerWidget {
 
   final FullSessionModel fullSessionModel;
 
-  String _formatTime(int seconds) {
-    final int minutes = seconds ~/ 60;
-    final int secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-  }
-
+  // Get the total time to calculate progress percentage
   int _getPhaseDuration(ActiveSessionState state) {
     switch (state.currentPhase) {
       case SessionPhase.focus:
@@ -41,6 +35,17 @@ class TimerPage extends ConsumerWidget {
     }
   }
 
+  int _getElapsedSecondsForPhase(ActiveSessionState state) {
+    switch (state.currentPhase) {
+      case SessionPhase.focus:
+        return state.totalFocusSecondsElapsed;
+      case SessionPhase.shortBreak:
+        return state.totalBreakSecondsElapsed;
+      case SessionPhase.longBreak:
+        return state.totalLongBreakSecondsElapsed;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ActiveSessionState state = ref.watch(
@@ -52,7 +57,12 @@ class TimerPage extends ConsumerWidget {
     );
 
     final int totalDuration = _getPhaseDuration(state);
-    final double progress = state.remainingSeconds / totalDuration;
+
+    /// If we count upwards, get the total seconds passed per phase,
+    /// else get the seconds remaining of a phase
+    final double progress = state.countUpwards
+        ? (_getElapsedSecondsForPhase(state) / totalDuration)
+        : (state.remainingSeconds / totalDuration);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -71,13 +81,18 @@ class TimerPage extends ConsumerWidget {
                       progress: progress,
                       backgroundColor: context.colorScheme.onPrimary,
                       progressColor: context.colorScheme.primary,
+                      isReversed: state.countUpwards,
                     ),
                   ),
                 ),
                 Column(
-                  children: [
+                  children: <Widget>[
                     Text(
-                      _formatTime(state.remainingSeconds),
+                      state.countUpwards
+                          ? TimeUtils.formatTime(
+                              _getElapsedSecondsForPhase(state),
+                            )
+                          : TimeUtils.formatTime(state.remainingSeconds),
                       style: context.textTheme.headlineLarge?.copyWith(
                         fontSize: 48,
                       ),
@@ -86,6 +101,10 @@ class TimerPage extends ConsumerWidget {
                       _getPhaseLabel(state.currentPhase),
                       style: context.textTheme.titleMedium,
                     ),
+                    if (state.countUpwards)
+                      Text(
+                        "Zeit insgesamt: ${TimeUtils.formatTime(state.totalBreakSecondsElapsed + state.totalFocusSecondsElapsed)}",
+                      ),
                   ],
                 ),
               ],
@@ -95,8 +114,22 @@ class TimerPage extends ConsumerWidget {
 
         // Pause and skip button
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            // Switch timer view
+            CircleAvatar(
+              radius: 25,
+              backgroundColor: context.colorScheme.primary,
+              child: IconButton(
+                icon: const Icon(Icons.sync_alt_rounded, size: 35),
+                color: Colors.white,
+                onPressed: () {
+                  viewModel.setCountUpwards(!state.countUpwards);
+                },
+              ),
+            ),
+
             // Pause and continue
             CircleAvatar(
               radius: 25,
@@ -118,8 +151,6 @@ class TimerPage extends ConsumerWidget {
                 },
               ),
             ),
-
-            const HorizontalSpace(size: SpaceSize.large),
 
             // Skip phase
             CircleAvatar(

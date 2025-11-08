@@ -21,6 +21,10 @@ class SessionInstances extends Table with AutoIncrementingPrimaryKey {
       integer().withDefault(const Constant<int>(0))();
   IntColumn get totalCompletedTasks =>
       integer().withDefault(const Constant<int>(0))();
+
+  IntColumn get mood => integer().nullable()();
+  TextColumn get notes => text().nullable()();
+
   DateTimeColumn get completedAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

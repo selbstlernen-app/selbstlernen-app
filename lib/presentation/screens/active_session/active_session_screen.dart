@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/show_custom_dialog.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/active_session/pages/goals_page.dart';
 import 'package:srl_app/presentation/screens/active_session/pages/timer_page.dart';
+import 'package:srl_app/presentation/screens/reflection/reflection_screen.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
@@ -31,6 +32,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   @override
   void initState() {
     super.initState();
+
     _initializeSessionInstance();
 
     pages.addAll(<Widget>[
@@ -39,21 +41,56 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
     ]);
   }
 
-  Future<void> _initializeSessionInstance() async {}
+  Future<void> _initializeSessionInstance() async {
+    await ref
+        .read(activeSessionViewModelProvider(widget.fullSessionModel).notifier)
+        .initializeSession();
+  }
 
-  String _formatTime(int seconds) {
-    final int minutes = seconds ~/ 60;
-    final int secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  Future<void> _startOrStopButton() async {
+    final ActiveSessionState state = ref.watch(
+      activeSessionViewModelProvider(widget.fullSessionModel),
+    );
+    final ActiveSessionViewModel viewModel = ref.read(
+      activeSessionViewModelProvider(widget.fullSessionModel).notifier,
+    );
+
+    // Show start text; start the session
+    if (state.timerStatus == TimerStatus.initial) {
+      viewModel.startTimer();
+    }
+    // End the session
+    if (state.timerStatus != TimerStatus.initial) {
+      viewModel.pauseTimer();
+      await showCustomDialog(
+        context: context,
+        title: "Lerneinheit beenden",
+        onConfirm: () async {
+          await viewModel.stopSession();
+          if (context.mounted) {
+            await Navigator.pushReplacement(
+              context,
+              MaterialPageRoute<dynamic>(
+                builder: (BuildContext context) => ReflectionScreen(
+                  sessionInstanceId: int.parse(state.instanceId!),
+                ),
+              ),
+            );
+          }
+        },
+        onCancel: () {
+          viewModel.startTimer();
+        },
+        confirmLabel: "Bestätigen",
+        cancelLabel: "Abbrechen",
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final ActiveSessionState state = ref.watch(
       activeSessionViewModelProvider(widget.fullSessionModel),
-    );
-    final ActiveSessionViewModel viewModel = ref.read(
-      activeSessionViewModelProvider(widget.fullSessionModel).notifier,
     );
 
     return Scaffold(
@@ -63,7 +100,6 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Expanded(
                 child: SingleChildScrollView(
@@ -113,55 +149,34 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                         ),
                       ),
                       const VerticalSpace(size: SpaceSize.medium),
-
-                      // Total time
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                            'Fokuszeit insgesamt:',
-                            style: context.textTheme.bodyMedium,
-                          ),
-                          Text(_formatTime(state.totalFocusSecondsElapsed)),
-                        ],
-                      ),
                     ],
                   ),
                 ),
               ),
 
               // Start and stop button
-              CustomButton(
-                verticalPadding: 8.0,
-                onPressed: () async {
-                  if (state.timerStatus == TimerStatus.initial) {
-                    viewModel.startTimer();
-                  }
-                  if (state.timerStatus != TimerStatus.initial) {
-                    await viewModel.stopSession();
-                    if (context.mounted) {
-                      context.scaffoldMessenger.showSnackBar(
-                        const SnackBar(
-                          duration: Duration(seconds: 2),
-                          content: Text("Einheit erfolgreich abgeschlossen!"),
-                        ),
-                      );
-                      // TODO: push to finish screen
-                      await Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute<dynamic>(
-                          builder: (BuildContext context) =>
-                              const MainNavigation(),
-                        ),
-                        (Route<dynamic> route) => false,
-                      );
-                    }
-                  }
-                },
-                label: state.timerStatus == TimerStatus.initial
-                    ? "Lerneinheit beginnen"
-                    : 'Lerneinheit beenden',
+              SizedBox(
+                width: context.mediaQuery.size.width,
+                child: CustomButton(
+                  verticalPadding: 8.0,
+                  onPressed: _startOrStopButton,
+                  label: state.timerStatus == TimerStatus.initial
+                      ? "Lerneinheit beginnen"
+                      : 'Lerneinheit beenden',
+                ),
               ),
+
+              if (state.timerStatus == TimerStatus.initial) ...<Widget>[
+                const VerticalSpace(size: SpaceSize.small),
+                SizedBox(
+                  width: context.mediaQuery.size.width,
+                  child: CustomButton(
+                    verticalPadding: 8.0,
+                    onPressed: () => Navigator.of(context).pop(),
+                    label: "Lerneinheit verlassen",
+                  ),
+                ),
+              ],
             ],
           ),
         ),

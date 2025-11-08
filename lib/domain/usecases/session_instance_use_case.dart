@@ -8,4 +8,11 @@ class SessionInstanceUseCase {
   Stream<List<SessionInstanceModel>> watchAllSessionsInstancesFor(
     int sessionId,
   ) => repository.watchAllSessionsInstancesFor(sessionId);
+
+  Stream<SessionInstanceModel> watchSessionInstanceById(
+    int sessionInstanceId,
+  ) => repository.watchSessionInstanceById(sessionInstanceId);
+
+  Future<SessionInstanceModel> getSessionInstanceById(sessionInstanceId) =>
+      repository.getSessionInstanceById(sessionInstanceId);
 }

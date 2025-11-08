@@ -4,8 +4,8 @@ Future<void> showCustomDialog({
   required BuildContext context,
   required String title,
   String? subtitle,
-  required Future<void> Function() onConfirm,
-  required Future<void> Function() onCancel,
+  required Function() onConfirm,
+  required Function() onCancel,
   required String confirmLabel,
   required String cancelLabel,
 }) {
@@ -30,7 +30,7 @@ Future<void> showCustomDialog({
           ),
           TextButton(
             onPressed: () async {
-              await onConfirm();
+              onConfirm();
               if (context.mounted) Navigator.of(context).pop();
             },
             child: Text(confirmLabel),

@@ -21,6 +21,13 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     )..where(($SessionInstancesTable s) => s.id.equals(id))).getSingleOrNull();
   }
 
+  // Watch session instance by ID
+  Stream<SessionInstance?> watchSessionInstanceById(int id) {
+    return (select(sessionInstances)
+          ..where(($SessionInstancesTable s) => s.id.equals(id)))
+        .watchSingleOrNull();
+  }
+
   // Watch all session instances for a specific session
   Stream<List<SessionInstance>> watchAllSessionsInstancesFor(int sessionId) {
     return (select(sessionInstances)
@@ -35,15 +42,14 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
         .get();
   }
 
-  // Mark a session instance as completed
-  Future<bool> completeSessionInstance(
+  // Update session instance
+  Future<int> updateSessionInstance(
     int id,
     SessionInstancesCompanion companion,
-  ) {
+  ) async {
     return (update(sessionInstances)
-          ..where(($SessionInstancesTable t) => t.id.equals(id)))
-        .write(companion)
-        .then((int rows) => rows > 0);
+          ..where(($SessionInstancesTable tbl) => tbl.id.equals(id)))
+        .write(companion);
   }
 
   // Delete a session instance
