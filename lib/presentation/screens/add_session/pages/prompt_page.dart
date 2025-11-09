@@ -7,7 +7,6 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
-import 'package:srl_app/presentation/screens/detail_session/session_detail_screen.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
