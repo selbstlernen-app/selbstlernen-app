@@ -57,4 +57,32 @@ extension SessionToCompanionMapper on SessionModel {
       isCompleted: Value<bool>(isCompleted),
     );
   }
+
+  // Used when updating a session (in edit mode)
+  SessionsCompanion toUpdateCompanion() {
+    return SessionsCompanion(
+      title: Value<String>(title),
+      isRepeating: Value<bool>(isRepeating),
+      startDate: Value<DateTime?>(startDate),
+      endDate: Value<DateTime?>(endDate),
+      selectedDays: Value<String?>(
+        selectedDays.isNotEmpty ? selectedDays.join(',') : null,
+      ),
+      learningStrategies: Value<String?>(
+        learningStrategies.isNotEmpty ? learningStrategies.join(',') : null,
+      ),
+      focusTimeMin: Value<int>(focusTimeMin),
+      breakTimeMin: Value<int>(breakTimeMin),
+      longBreakTimeMin: Value<int>(longBreakTimeMin),
+      focusPhases: Value<int>(focusPhases),
+      hasFocusPrompt: Value<bool>(hasFocusPrompt),
+      focusPromptInterval: Value<int>(focusPromptInterval),
+      showFocusPromptAlways: Value<bool>(showFocusPromptAlways),
+      hasFreetextPrompt: Value<bool>(hasFreetextPrompt),
+
+      completedInstances: const Value<int>.absent(),
+      isCompleted: const Value<bool>.absent(),
+      createdAt: const Value<DateTime>.absent(),
+    );
+  }
 }
