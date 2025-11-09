@@ -61,6 +61,7 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
 
                 // Grid of learning strategies
                 Wrap(
+                  runSpacing: 8,
                   children: <Widget>[
                     ...state.availableStrategies.map(
                       (String strategy) => SizedBox(

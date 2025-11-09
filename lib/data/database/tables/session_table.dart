@@ -18,8 +18,9 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
 
   BoolColumn get hasFocusPrompt =>
       boolean().withDefault(const Constant<bool>(true))();
-  BoolColumn get hasMoodPrompt =>
-      boolean().withDefault(const Constant<bool>(true))();
+  IntColumn get focusPromptInterval => integer()();
+  BoolColumn get showFocusPromptAlways =>
+      boolean().withDefault(const Constant<bool>(false))();
   BoolColumn get hasFreetextPrompt =>
       boolean().withDefault(const Constant<bool>(true))();
 

@@ -3,6 +3,7 @@ import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/services/add_session_service.dart';
+import 'package:srl_app/domain/usecases/full_session_use_case.dart';
 import 'package:srl_app/presentation/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
@@ -164,10 +165,17 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  void setPrompts({bool? focus, bool? mood, bool? freetext}) {
+  void setPrompts({
+    bool? focus,
+    int? focusPromptInterval,
+    bool? showFocusPromptAlways,
+    bool? freetext,
+  }) {
     state = state.copyWith(
       hasFocusPrompt: focus ?? state.hasFocusPrompt,
-      hasMoodPrompt: mood ?? state.hasMoodPrompt,
+      focusPromptInterval: focusPromptInterval ?? state.focusPromptInterval,
+      showFocusPromptAlways:
+          showFocusPromptAlways ?? state.showFocusPromptAlways,
       hasFreetextPrompt: freetext ?? state.hasFreetextPrompt,
     );
   }
@@ -202,7 +210,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       focusPhases: session.focusPhases,
       hasFocusPrompt: session.hasFocusPrompt,
       hasFreetextPrompt: session.hasFreetextPrompt,
-      hasMoodPrompt: session.hasMoodPrompt,
     );
   }
 
@@ -249,7 +256,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Update session info
   Future<void> updateSession() async {
-    final AddSessionService service = ref.read(addSessioNServiceProvider);
+    final AddSessionService service = ref.read(addSessionServiceProvider);
     final SessionModel session = _stateToSessionModel(state);
 
     await service.updateSessionWithChanges(
@@ -260,8 +267,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       goalIdsToDelete: state.goalIdsToDelete,
       taskIdsToDelete: state.taskIdsToDelete,
     );
-
-    resetFields();
   }
 
   // Save all info
@@ -270,16 +275,16 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       throw Exception('Bitte fülle alle Felder korrekt aus!');
     }
 
-    final AddSessionService service = ref.read(addSessioNServiceProvider);
+    final AddSessionService service = ref.read(addSessionServiceProvider);
     final SessionModel session = _stateToSessionModel(state);
 
-    await service.createSessionWithGoalsAndTasks(
+    int sessionId = await service.createSessionWithGoalsAndTasks(
       session: session,
       goals: state.goals,
       tasks: state.tasks,
     );
 
-    resetFields();
+    state = state.copyWith(sessionId: sessionId.toString());
   }
 
   void resetFields() {
@@ -302,8 +307,18 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       longBreakTimeMin: state.longBreakTimeMin,
       focusPhases: state.focusPhases,
       hasFocusPrompt: state.hasFocusPrompt,
-      hasMoodPrompt: state.hasMoodPrompt,
       hasFreetextPrompt: state.hasFreetextPrompt,
     );
+  }
+
+  // Get full model to start session directly
+  Future<FullSessionModel> getFullSession() async {
+    final FullSessionUseCase fullSessionUseCase = ref.read(
+      fullSessionUseCaseProvider,
+    );
+    FullSessionModel fullSession = await fullSessionUseCase.getFullModel(
+      int.parse(state.sessionId!),
+    );
+    return fullSession;
   }
 }

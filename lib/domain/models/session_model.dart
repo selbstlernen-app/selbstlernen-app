@@ -19,9 +19,13 @@ abstract class SessionModel with _$SessionModel {
     @Default(5) int breakTimeMin,
     @Default(15) int longBreakTimeMin,
     @Default(4) int focusPhases,
+
     @Default(true) bool hasFocusPrompt,
-    @Default(true) bool hasMoodPrompt,
+    @Default(15) int focusPromptInterval,
+    @Default(false) bool showFocusPromptAlways,
+
     @Default(true) bool hasFreetextPrompt,
+
     DateTime? createdAt,
 
     @Default(0) int completedInstances,

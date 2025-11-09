@@ -132,7 +132,7 @@ EditSessionInstanceUseCase editSessionInstanceUseCase(Ref ref) {
 
 /// --- Services ---
 @riverpod
-AddSessionService addSessioNService(Ref ref) {
+AddSessionService addSessionService(Ref ref) {
   return AddSessionService(
     createSessionUseCase: ref.read(createSessionUseCaseProvider),
     createGoalsUseCase: ref.read(createGoalsUseCaseProvider),
