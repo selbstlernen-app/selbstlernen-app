@@ -10,9 +10,16 @@ class EditSessionInstanceUseCase {
   Future<int> editSessionInstance(
     int sessionInstanceId,
     SessionInstanceModel updatedSession,
-  ) {
-    if (updatedSession.status == SessionStatus.completed) {
-      sessionRepository.patchIncrementCompletedInstances(
+  ) async {
+    final SessionInstanceModel oldInstance = await repository
+        .getSessionInstanceById(sessionInstanceId);
+
+    final bool wasCompleted = oldInstance.status == SessionStatus.completed;
+    final bool isNowCompleted =
+        updatedSession.status == SessionStatus.completed;
+    // Ensure only once the session instance is getting updated
+    if (!wasCompleted && isNowCompleted) {
+      await sessionRepository.patchIncrementCompletedInstances(
         int.parse(updatedSession.sessionId),
       );
     }

@@ -42,7 +42,9 @@ abstract class AddSessionState with _$AddSessionState {
 
     // Prompts
     @Default(false) bool hasFocusPrompt,
-    @Default(false) bool hasMoodPrompt,
+    @Default(15) int focusPromptInterval,
+    // Show independent of user inactivity
+    @Default(false) bool showFocusPromptAlways,
     @Default(false) bool hasFreetextPrompt,
 
     //Validation fields

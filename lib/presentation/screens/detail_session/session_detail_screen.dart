@@ -29,11 +29,12 @@ class SessionDetailScreen extends ConsumerWidget {
         final SessionModel session = detailState.fullSession.session;
         return MainLayout(
           navigateBack: () {
-            Navigator.pop(
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute<dynamic>(
                 builder: (BuildContext context) => const MainNavigation(),
               ),
+              (Route<dynamic> route) => false,
             );
           },
           appBarTitle: session.title,

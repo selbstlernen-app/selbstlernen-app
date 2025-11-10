@@ -171,6 +171,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   Future<void> stopSession() async {
+    if (state.timerStatus == TimerStatus.completed) return;
     _timer?.cancel();
     state = state.copyWith(timerStatus: TimerStatus.completed);
 
@@ -209,6 +210,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
       completedAt: DateTime.now(),
     );
+
+    print("Save instance: $sessionInstance");
+
+    print("Save instance w id: ${state.instanceId!}");
 
     await _editSessionInstanceUseCase.editSessionInstance(
       int.parse(state.instanceId!),

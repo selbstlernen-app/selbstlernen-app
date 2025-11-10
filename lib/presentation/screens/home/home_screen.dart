@@ -31,7 +31,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
         backgroundColor: context.colorScheme.surface,
         title: Text('Home', style: context.textTheme.headlineMedium),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,19 +73,10 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                 ),
               ],
             ),
-
             const VerticalSpace(size: SpaceSize.medium),
-
-            Expanded(
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: homeState.filteredSessions.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final SessionModel session =
-                      homeState.filteredSessions[index];
-                  return SessionTile(session: session);
-                },
-              ),
+            // Sessions list - spreads all session tiles into the column
+            ...homeState.filteredSessions.map(
+              (SessionModel session) => SessionTile(session: session),
             ),
           ],
         ),

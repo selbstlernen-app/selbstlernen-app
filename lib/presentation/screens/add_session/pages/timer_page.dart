@@ -17,10 +17,10 @@ class TimerPage extends ConsumerStatefulWidget {
 
 class _$TimerPageState extends ConsumerState<TimerPage> {
   // Controllers
-  late TextEditingController _focusController = TextEditingController();
-  late TextEditingController _breakController = TextEditingController();
-  late TextEditingController _longBreakController = TextEditingController();
-  late TextEditingController _focusPhaseController = TextEditingController();
+  late TextEditingController _focusController;
+  late TextEditingController _breakController;
+  late TextEditingController _longBreakController;
+  late TextEditingController _focusPhaseController;
 
   @override
   void initState() {
