@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
-import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/bottom_up_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/prompt_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/start_info_page.dart';
@@ -34,14 +33,17 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     // Denominator is the total amount of pages available
     _progress = 1 / 5;
 
-    // if in edit mode
-    if (widget.fullSessionModel != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.fullSessionModel != null) {
+        // Edit mode: initialize with existing data; navigating back always possible
         ref
             .read(addSessionViewModelProvider.notifier)
             .initializeState(widget.fullSessionModel!);
-      });
-    }
+      } else {
+        // Create mode: ensure state is clean by resetting
+        ref.read(addSessionViewModelProvider.notifier).resetFields();
+      }
+    });
   }
 
   void _navigateBack() {
@@ -58,17 +60,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
       if (widget.fullSessionModel != null) {
         // Go back to details page
         Navigator.pop(context);
-      } else {
-        // Go back to home screen
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => const MainNavigation(),
-          ),
-          (Route<dynamic> route) => false,
-        );
       }
-      ref.read(addSessionViewModelProvider.notifier).resetFields();
     }
   }
 
@@ -87,11 +79,14 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   Widget build(BuildContext context) {
     final AddSessionState state = ref.watch(addSessionViewModelProvider);
 
+    final bool showBackButton =
+        widget.fullSessionModel != null || currentPage > 0;
+
     return MainLayout(
       appBarTitle: widget.fullSessionModel != null
           ? "Lerneinheit bearbeiten"
           : "Neue Lerneinheit erstellen",
-      showFloatingActionButton: state.isEditingMode ? true : false,
+      showFloatingActionButton: state.isEditingMode,
       onPressedFAB: () {
         ref.read(addSessionViewModelProvider.notifier).updateSession();
         context.scaffoldMessenger.showSnackBar(
@@ -130,7 +125,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
           PromptPage(navigateForward: _navigateForward),
         ],
       ),
-      navigateBack: _navigateBack,
+      navigateBack: showBackButton ? _navigateBack : null,
     );
   }
 }

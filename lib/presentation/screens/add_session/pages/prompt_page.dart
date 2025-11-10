@@ -55,20 +55,23 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         );
   }
 
-  void _saveSession() {
+  Future<void> _saveSession() async {
     try {
-      ref.read(addSessionViewModelProvider.notifier).createSession();
+      await ref.read(addSessionViewModelProvider.notifier).createSession();
+      if (!mounted) return;
+
       context.scaffoldMessenger.showSnackBar(
         const SnackBar(
           duration: Duration(seconds: 2),
           content: Text("Einheit erfolgreich gespeichert!"),
         ),
       );
-      Navigator.of(
+
+      await Navigator.of(
         context,
       ).pushNamedAndRemoveUntil("/", (Route<dynamic> route) => false);
-      ref.read(addSessionViewModelProvider.notifier).resetFields();
     } catch (e) {
+      if (!mounted) return;
       context.scaffoldMessenger.showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 2),
@@ -78,16 +81,18 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
     }
   }
 
-  void _updateSession() {
+  Future<void> _updateSession() async {
     try {
-      ref.read(addSessionViewModelProvider.notifier).updateSession();
+      await ref.read(addSessionViewModelProvider.notifier).updateSession();
+      if (!mounted) return;
       context.scaffoldMessenger.showSnackBar(
         const SnackBar(
           duration: Duration(seconds: 2),
           content: Text("Änderungen erfolgreich gespeichert!!"),
         ),
       );
-      Navigator.of(
+
+      await Navigator.of(
         context,
       ).pushNamedAndRemoveUntil("/", (Route<dynamic> route) => false);
     } catch (e) {
@@ -107,20 +112,22 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
       } else {
         await ref.read(addSessionViewModelProvider.notifier).createSession();
       }
-      final viewModel = ref.read(addSessionViewModelProvider.notifier);
+      final AddSessionViewModel viewModel = ref.read(
+        addSessionViewModelProvider.notifier,
+      );
       FullSessionModel fullSessionModel = await viewModel.getFullSession();
 
-      Navigator.push(
+      if (!mounted) return;
+
+      await Navigator.push(
         context,
         MaterialPageRoute<dynamic>(
           builder: (BuildContext context) =>
               ActiveSessionScreen(fullSessionModel: fullSessionModel),
         ),
       );
-      ref.read(addSessionViewModelProvider.notifier).resetFields();
     } catch (e) {
-      if (!context.mounted) return;
-
+      if (!mounted) return;
       context.scaffoldMessenger.showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 2),
@@ -179,7 +186,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
                   ],
                 ),
 
-                if (state.hasFocusPrompt) ...[
+                if (state.hasFocusPrompt) ...<Widget>[
                   const VerticalSpace(size: SpaceSize.medium),
                   TimeInputField(
                     minValue: 10,

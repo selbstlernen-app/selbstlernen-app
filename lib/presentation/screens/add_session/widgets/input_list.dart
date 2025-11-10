@@ -45,7 +45,7 @@ class InputList<T> extends StatelessWidget {
   Widget _buildInputRow(BuildContext context) {
     return IntrinsicHeight(
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Expanded(
             child: CustomTextField(

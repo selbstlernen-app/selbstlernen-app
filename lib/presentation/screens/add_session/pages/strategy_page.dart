@@ -111,7 +111,7 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                   const VerticalSpace(size: SpaceSize.small),
                   IntrinsicHeight(
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Expanded(
                           child: CustomTextField(
