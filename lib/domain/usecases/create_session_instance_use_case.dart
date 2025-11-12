@@ -6,7 +6,7 @@ class CreateSessionInstanceUseCase {
   final SessionInstanceRepository instanceRepository;
 
   Future<int> call(SessionInstanceModel instance) async {
-    final int id = await instanceRepository.addSessionInstance(instance);
+    final int id = await instanceRepository.addInstance(instance);
 
     return id;
   }

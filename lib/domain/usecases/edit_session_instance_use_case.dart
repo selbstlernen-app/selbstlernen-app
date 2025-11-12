@@ -11,10 +11,10 @@ class EditSessionInstanceUseCase {
     int sessionInstanceId,
     SessionInstanceModel updatedSession,
   ) async {
-    return repository.updateSessionInstance(sessionInstanceId, updatedSession);
+    return repository.updateInstance(sessionInstanceId, updatedSession);
   }
 
   Future<void> deleteSession(int sessionId) {
-    return repository.deleteSessionInstance(sessionId);
+    return repository.deleteInstanceBySessionId(sessionId);
   }
 }

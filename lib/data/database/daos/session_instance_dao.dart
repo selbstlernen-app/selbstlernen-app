@@ -10,12 +10,12 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   SessionInstanceDao(super.db);
 
   // Insert new session instance
-  Future<int> createSessionInstance(SessionInstancesCompanion companion) {
+  Future<int> createInstance(SessionInstancesCompanion companion) {
     return into(sessionInstances).insert(companion);
   }
 
   // Get a single session instance by id
-  Future<SessionInstance?> getSessionInstanceById(int id) {
+  Future<SessionInstance?> getInstanceById(int id) {
     return (select(
       sessionInstances,
     )..where(($SessionInstancesTable s) => s.id.equals(id))).getSingleOrNull();
@@ -29,21 +29,21 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Watch all session instances for a specific session
-  Stream<List<SessionInstance>> watchAllSessionsInstancesFor(int sessionId) {
+  Stream<List<SessionInstance>> watchInstancesBySessionId(int sessionId) {
     return (select(sessionInstances)
           ..where(($SessionInstancesTable t) => t.sessionId.equals(sessionId)))
         .watch();
   }
 
   // Get all instances for a specific session
-  Future<List<SessionInstance>> getAllSessionInstancesFor(int sessionId) {
+  Future<List<SessionInstance>> getInstancesBySessionId(int sessionId) {
     return (select(sessionInstances)
           ..where(($SessionInstancesTable t) => t.sessionId.equals(sessionId)))
         .get();
   }
 
   // Update session instance
-  Future<int> updateSessionInstance(
+  Future<int> updateInstance(
     int id,
     SessionInstancesCompanion companion,
   ) async {
@@ -53,14 +53,14 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Delete a session instance
-  Future<int> deleteSessionInstance(int id) {
+  Future<int> deleteInstance(int id) {
     return (delete(
       sessionInstances,
     )..where(($SessionInstancesTable t) => t.id.equals(id))).go();
   }
 
   // Delete all instances for a session
-  Future<int> deleteSessionInstances(int sessionId) {
+  Future<int> deleteInstances(int sessionId) {
     return (delete(
       sessionInstances,
     )..where(($SessionInstancesTable t) => t.sessionId.equals(sessionId))).go();
