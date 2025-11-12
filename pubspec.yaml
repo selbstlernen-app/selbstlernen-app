@@ -50,6 +50,7 @@ dependencies:
   async: ^2.13.0
   smooth_page_indicator: ^1.2.1
   rxdart: ^0.28.0
+  flutter_slidable: ^4.0.3
 
 dev_dependencies:
   flutter_test:

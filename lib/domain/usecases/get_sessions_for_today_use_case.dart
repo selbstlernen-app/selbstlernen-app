@@ -16,10 +16,8 @@ class GetSessionsForTodayUseCase {
   Stream<List<SessionWithInstanceModel>> call(DateTime today) async* {
     await for (final List<SessionWithInstanceModel> list
         in _watchSessionsWithInstancesForDate(today)) {
-      // Detect sessions that don't have a persisted instance
       for (final SessionWithInstanceModel item in list) {
         if (item.instance!.id == "-1") {
-          // Fire and forget — don't block the stream
           unawaited(
             instanceRepo.createInstance(
               sessionId: int.parse(item.session.id!),
