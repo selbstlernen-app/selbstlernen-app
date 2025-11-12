@@ -7,6 +7,7 @@ extension SessionInstanceToModelMapper on SessionInstance {
     return SessionInstanceModel(
       id: id.toString(),
       sessionId: sessionId.toString(),
+      scheduledAt: scheduledAt,
       status: status,
       totalFocusPhases: (totalFocusPhases),
       totalCompletedBlocks: (totalCompletedBlocks),
@@ -36,6 +37,7 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
           ? Value<DateTime>(completedAt!)
           : const Value<DateTime>.absent(),
       status: Value<SessionStatus>(status),
+      scheduledAt: Value<DateTime>(scheduledAt),
       totalFocusPhases: Value<int>(totalFocusPhases),
       totalCompletedBlocks: Value<int>(totalCompletedBlocks),
       totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),

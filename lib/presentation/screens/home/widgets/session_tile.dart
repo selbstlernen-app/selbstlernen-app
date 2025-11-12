@@ -21,9 +21,7 @@ class SessionTile extends ConsumerWidget {
             color: context.colorScheme.onSecondary,
           ),
         ),
-        subtitle: Text(
-          "${session.completedInstances} / ${session.totalInstances}",
-        ),
+        subtitle: Text("${session.isArchived} / ${session.totalInstances}"),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),

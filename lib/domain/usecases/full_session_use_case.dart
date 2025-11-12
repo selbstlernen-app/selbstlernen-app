@@ -18,8 +18,8 @@ class FullSessionUseCase {
 
   Future<FullSessionModel> getFullModel(int sessionId) async {
     SessionModel session = await repository.getSessionById(sessionId);
-    List<GoalModel> goals = await goalRepository.getAllGoalsFor(sessionId);
-    List<TaskModel> tasks = await taskRepository.getAllTasksFor(sessionId);
+    List<GoalModel> goals = await goalRepository.getGoalsBySessionId(sessionId);
+    List<TaskModel> tasks = await taskRepository.getTasksBySessionId(sessionId);
 
     FullSessionModel fullSessionModel = FullSessionModel(
       session: session,
@@ -31,8 +31,12 @@ class FullSessionUseCase {
 
   Stream<FullSessionModel> watchFullSession(int sessionId) {
     Stream<SessionModel> session = repository.watchSessionById(sessionId);
-    Stream<List<GoalModel>> goals = goalRepository.watchAllGoalsFor(sessionId);
-    Stream<List<TaskModel>> tasks = taskRepository.watchAllTasksFor(sessionId);
+    Stream<List<GoalModel>> goals = goalRepository.watchGoalsBySessionId(
+      sessionId,
+    );
+    Stream<List<TaskModel>> tasks = taskRepository.watchTasksBySessionId(
+      sessionId,
+    );
 
     // If any of the three changes; we update the full session model
     return StreamGroup.merge(<Stream<Null>>[
@@ -44,7 +48,7 @@ class FullSessionUseCase {
 
   Future<void> deleteFullModel(int sessionId) async {
     await repository.deleteSession(sessionId);
-    await goalRepository.deleteAllGoalsFor(sessionId);
-    await taskRepository.deleteAllTasksFor(sessionId);
+    await goalRepository.deleteGoalsBySessionId(sessionId);
+    await taskRepository.deleteTasksBySessionId(sessionId);
   }
 }

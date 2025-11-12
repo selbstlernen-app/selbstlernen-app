@@ -28,8 +28,8 @@ class SessionRepositoryImp implements SessionRepository {
   }
 
   @override
-  Stream<List<SessionModel>> getAllSessionsNotCompletedYet() {
-    return sessionDao.watchAllSessionsNotCompletedYet().map(
+  Stream<List<SessionModel>> watchAllActiveSessions() {
+    return sessionDao.watchAllActiveSessions().map(
       (List<Session> sessionList) =>
           SessionToModelMapper.mapFromListOfEntity(sessionList),
     );
@@ -62,10 +62,5 @@ class SessionRepositoryImp implements SessionRepository {
       sessionId,
       updatedSession.toUpdateCompanion(),
     );
-  }
-
-  @override
-  Future<void> patchIncrementCompletedInstances(int sessionId) {
-    return sessionDao.incrementCompletedInstances(sessionId);
   }
 }

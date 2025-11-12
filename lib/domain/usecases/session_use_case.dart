@@ -9,7 +9,7 @@ class SessionUseCase {
     return repository.getAllSessions();
   }
 
-  Stream<List<SessionModel>> getAllUncompletedSessions() {
-    return repository.getAllSessionsNotCompletedYet();
+  Stream<List<SessionModel>> watchAllActiveSessions() {
+    return repository.watchAllActiveSessions();
   }
 }

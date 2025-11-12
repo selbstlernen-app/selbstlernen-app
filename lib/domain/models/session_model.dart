@@ -26,10 +26,9 @@ abstract class SessionModel with _$SessionModel {
 
     @Default(true) bool hasFreetextPrompt,
 
-    DateTime? createdAt,
+    @Default(false) bool isArchived,
 
-    @Default(0) int completedInstances,
-    @Default(false) bool isCompleted,
+    DateTime? createdAt,
   }) = _SessionModel;
 
   // Helper

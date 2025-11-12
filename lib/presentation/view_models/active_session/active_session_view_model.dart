@@ -184,6 +184,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       sessionId: state.fullSession.session.id!,
       status: SessionStatus.inProgress,
       createdAt: DateTime.now(),
+      scheduledAt: DateTime.now(),
     );
 
     final int instanceId = await _createSessionInstanceUseCase.call(
@@ -199,6 +200,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     final SessionInstanceModel sessionInstance = SessionInstanceModel(
       sessionId: state.fullSession.session.id!,
       status: SessionStatus.completed,
+      scheduledAt: state.scheduledAt ?? DateTime.now(),
 
       totalCompletedGoals: state.completedGoalIds.length,
       totalCompletedTasks: state.completedTaskIds.length,
@@ -215,7 +217,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
     print("Save instance w id: ${state.instanceId!}");
 
-    await _editSessionInstanceUseCase.editSessionInstance(
+    await _editSessionInstanceUseCase.updateInstance(
       int.parse(state.instanceId!),
       sessionInstance,
     );

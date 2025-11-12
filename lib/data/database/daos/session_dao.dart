@@ -20,11 +20,11 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
     return select(sessions).watch();
   }
 
-  // Watch all sessions which are not yet completed
-  Stream<List<Session>> watchAllSessionsNotCompletedYet() {
+  // Watch all sessions which not archived yet
+  Stream<List<Session>> watchAllActiveSessions() {
     return (select(
       sessions,
-    )..where(($SessionsTable s) => s.isCompleted.equals(false))).watch();
+    )..where(($SessionsTable s) => s.isArchived.equals(false))).watch();
   }
 
   // Get session by ID
@@ -46,26 +46,6 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
     return (update(
       sessions,
     )..where(($SessionsTable tbl) => tbl.id.equals(id))).write(companion);
-  }
-
-  // Patch completed instances
-  Future<void> incrementCompletedInstances(int id) async {
-    final Session session = await (select(
-      sessions,
-    )..where(($SessionsTable s) => s.id.equals(id))).getSingle();
-    final SessionModel model = session.toDomain();
-
-    final int newCompletedCount = session.completedInstances + 1;
-    final bool newIsCompleted = newCompletedCount >= model.totalInstances;
-
-    await (update(
-      sessions,
-    )..where(($SessionsTable s) => s.id.equals(id))).write(
-      SessionsCompanion(
-        completedInstances: Value<int>(newCompletedCount),
-        isCompleted: Value<bool>(newIsCompleted),
-      ),
-    );
   }
 
   // Delete session

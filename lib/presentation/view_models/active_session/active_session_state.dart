@@ -15,6 +15,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
   const factory ActiveSessionState({
     required FullSessionModel fullSession,
     String? instanceId,
+    DateTime? scheduledAt,
     @Default(SessionPhase.focus) SessionPhase currentPhase,
     @Default(TimerStatus.initial) TimerStatus timerStatus,
     @Default(0) int remainingSeconds,

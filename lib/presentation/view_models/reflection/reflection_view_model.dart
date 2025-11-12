@@ -43,7 +43,7 @@ class ReflectionViewModel extends _$ReflectionViewModel {
       final SessionInstanceModel updatedInstance = current.sessionInstance
           .copyWith(mood: current.mood, notes: notes);
 
-      await _editSessionInstanceUseCase.editSessionInstance(
+      await _editSessionInstanceUseCase.updateInstance(
         _instanceId,
         updatedInstance,
       );

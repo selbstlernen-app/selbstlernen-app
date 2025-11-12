@@ -24,9 +24,7 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
   BoolColumn get hasFreetextPrompt =>
       boolean().withDefault(const Constant<bool>(true))();
 
-  IntColumn get completedInstances =>
-      integer().withDefault(const Constant<int>(0))();
-  BoolColumn get isCompleted =>
+  BoolColumn get isArchived =>
       boolean().withDefault(const Constant<bool>(false))();
 
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

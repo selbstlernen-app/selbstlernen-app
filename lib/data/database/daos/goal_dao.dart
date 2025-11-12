@@ -14,14 +14,14 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
   }
 
   // Get all goals of a session
-  Future<List<Goal>> getAllGoalsFor(int sessionId) {
+  Future<List<Goal>> getGoalsBySessionId(int sessionId) {
     return (select(
       goals,
     )..where(($GoalsTable goal) => goal.sessionId.equals(sessionId))).get();
   }
 
   // Watch all goals of a session
-  Stream<List<Goal>> watchAllGoalsFor(int sessionId) {
+  Stream<List<Goal>> watchGoalsBySessionId(int sessionId) {
     return (select(
       goals,
     )..where(($GoalsTable goal) => goal.sessionId.equals(sessionId))).watch();
@@ -49,7 +49,7 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
   }
 
   // Delete all goals of a session
-  Future<int> deleteAllGoalsFor(int sessionId) async {
+  Future<int> deleteGoalsBySessionId(int sessionId) async {
     return await (delete(
       goals,
     )..where(($GoalsTable s) => s.sessionId.equals(sessionId))).go();
