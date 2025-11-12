@@ -32,19 +32,10 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   @override
   void initState() {
     super.initState();
-
-    _initializeSessionInstance();
-
     pages.addAll(<Widget>[
       TimerPage(fullSessionModel: widget.fullSessionModel),
       GoalsPage(fullSessionModel: widget.fullSessionModel),
     ]);
-  }
-
-  Future<void> _initializeSessionInstance() async {
-    await ref
-        .read(activeSessionViewModelProvider(widget.fullSessionModel).notifier)
-        .initializeSession();
   }
 
   Future<void> _startOrStopButton() async {

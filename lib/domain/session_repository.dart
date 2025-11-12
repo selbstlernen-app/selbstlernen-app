@@ -4,6 +4,7 @@ import 'package:srl_app/domain/models/session_model.dart';
 abstract class SessionRepository {
   // CRUD operations
   Stream<List<SessionModel>> getAllSessions();
+  Future<List<SessionModel>> getAllActiveSessions();
   Stream<List<SessionModel>> watchAllActiveSessions();
   Future<SessionModel> getSessionById(int sessionId);
   Stream<SessionModel> watchSessionById(int sessionId);

@@ -20,6 +20,12 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
     return select(sessions).watch();
   }
 
+  Future<List<Session>> getAllActiveSessions() {
+    return (select(
+      sessions,
+    )..where(($SessionsTable tbl) => tbl.isArchived.equals(false))).get();
+  }
+
   // Watch all sessions which not archived yet
   Stream<List<Session>> watchAllActiveSessions() {
     return (select(

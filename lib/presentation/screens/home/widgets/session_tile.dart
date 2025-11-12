@@ -14,6 +14,7 @@ class SessionTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final SessionInstanceModel instance = sessionWithInstanceModel.instance!;
     final SessionModel session = sessionWithInstanceModel.session;
+    print(sessionWithInstanceModel);
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -30,8 +31,8 @@ class SessionTile extends ConsumerWidget {
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
         leading: sessionWithInstanceModel.isCompleted
-            ? const Icon(Icons.abc)
-            : const Icon(Icons.access_alarm),
+            ? const Icon(Icons.check_rounded)
+            : const Icon(Icons.circle_outlined),
         trailing: IconButton(
           onPressed: () => Navigator.push(
             context,

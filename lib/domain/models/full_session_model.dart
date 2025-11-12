@@ -9,5 +9,6 @@ abstract class FullSessionModel with _$FullSessionModel {
     required SessionModel session,
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,
+    int? instanceId,
   }) = _FullSessionModel;
 }

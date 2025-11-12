@@ -35,6 +35,17 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
         .watch();
   }
 
+  // Watch all session instances for date
+  Stream<List<SessionInstance>> watchAllInstancesForDate(DateTime date) {
+    return (select(sessionInstances)..where(
+          ($SessionInstancesTable s) =>
+              s.scheduledAt.year.equals(date.year) &
+              s.scheduledAt.month.equals(date.month) &
+              s.scheduledAt.day.equals(date.day),
+        ))
+        .watch();
+  }
+
   // Get all instances for a specific session
   Future<List<SessionInstance>> getInstancesBySessionId(int sessionId) {
     return (select(sessionInstances)

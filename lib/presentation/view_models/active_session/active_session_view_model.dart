@@ -5,8 +5,8 @@ import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
-import 'package:srl_app/domain/usecases/create_session_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/edit_session_instance_use_case.dart';
+import 'package:srl_app/domain/usecases/session_instance_use_case.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 
 part 'active_session_view_model.g.dart';
@@ -14,7 +14,7 @@ part 'active_session_view_model.g.dart';
 @riverpod
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Timer? _timer;
-  late CreateSessionInstanceUseCase _createSessionInstanceUseCase;
+  late SessionInstanceUseCase _sessionInstanceUseCase;
   late EditSessionInstanceUseCase _editSessionInstanceUseCase;
 
   @override
@@ -22,15 +22,28 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     ref.onDispose(() {
       _timer?.cancel();
     });
-    _createSessionInstanceUseCase = ref.read(
-      createSessionInstanceUseCaseProvider,
-    );
+    _sessionInstanceUseCase = ref.read(sessionInstanceUseCaseProvider);
     _editSessionInstanceUseCase = ref.read(editSessionInstanceUseCaseProvider);
+
+    _initializeSessionInstance();
 
     return ActiveSessionState(
       fullSession: fullSession,
       remainingSeconds: (fullSession.session.focusTimeMin) * 60,
     );
+  }
+
+  Future<void> _initializeSessionInstance() async {
+    final DateTime today = DateTime.now();
+
+    // Get or initialize instance
+    final SessionInstanceModel instance = await _sessionInstanceUseCase
+        .getInstanceBySessionIdAndDate(
+          int.parse(fullSession.session.id!),
+          today,
+        );
+
+    state = state.copyWith(instanceId: instance.id);
   }
 
   void setCountUpwards(bool countUpwards) {
@@ -179,26 +192,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     await _saveSessionTracking();
   }
 
-  Future<void> initializeSession() async {
-    final SessionInstanceModel sessionInstance = SessionInstanceModel(
-      sessionId: state.fullSession.session.id!,
-      status: SessionStatus.inProgress,
-      createdAt: DateTime.now(),
-      scheduledAt: DateTime.now(),
-    );
-
-    final int instanceId = await _createSessionInstanceUseCase.call(
-      sessionInstance,
-    );
-
-    state = state.copyWith(instanceId: instanceId.toString());
-  }
-
   Future<void> _saveSessionTracking() async {
     if (state.sessionStartTime == null) return;
 
     final SessionInstanceModel sessionInstance = SessionInstanceModel(
       sessionId: state.fullSession.session.id!,
+      id: state.instanceId,
       status: SessionStatus.completed,
       scheduledAt: state.scheduledAt ?? DateTime.now(),
 
@@ -212,10 +211,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
       completedAt: DateTime.now(),
     );
-
-    print("Save instance: $sessionInstance");
-
-    print("Save instance w id: ${state.instanceId!}");
+    // TODO: REWORK UPDATE!
+    print(sessionInstance);
 
     await _editSessionInstanceUseCase.updateInstance(
       int.parse(state.instanceId!),

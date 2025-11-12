@@ -33,4 +33,18 @@ extension GoalToCompanionMapper on GoalModel {
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
     );
   }
+
+  GoalsCompanion toUpdateCompanion() {
+    return GoalsCompanion(
+      title: Value<String>(title),
+      sessionId: sessionId != null
+          ? Value<int>(int.parse(sessionId!))
+          : const Value<int>.absent(),
+      isCompleted: Value<bool>(isCompleted),
+      completedAt: completedAt != null
+          ? Value<DateTime>(completedAt!)
+          : const Value<DateTime>.absent(),
+      createdAt: const Value<DateTime>.absent(),
+    );
+  }
 }

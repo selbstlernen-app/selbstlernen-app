@@ -47,6 +47,16 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   }
 
   @override
+  Stream<List<SessionInstanceModel>> watchAllInstancesForDate(DateTime date) {
+    return sessionInstanceDao
+        .watchAllInstancesForDate(date)
+        .map(
+          (List<SessionInstance> sessionList) =>
+              SessionInstanceToModelMapper.mapFromListOfEntity(sessionList),
+        );
+  }
+
+  @override
   Stream<SessionInstanceModel> watchInstanceById(int sessionInstanceId) {
     return sessionInstanceDao.watchSessionInstanceById(sessionInstanceId).map((
       SessionInstance? sessionInstance,
@@ -78,7 +88,7 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   ) {
     return sessionInstanceDao.updateInstance(
       sessionInstanceId,
-      updatedSession.toCompanion(),
+      updatedSession.tUpdateCompanion(),
     );
   }
 

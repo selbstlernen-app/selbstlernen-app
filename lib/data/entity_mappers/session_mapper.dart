@@ -77,7 +77,7 @@ extension SessionToCompanionMapper on SessionModel {
       focusPromptInterval: Value<int>(focusPromptInterval),
       showFocusPromptAlways: Value<bool>(showFocusPromptAlways),
       hasFreetextPrompt: Value<bool>(hasFreetextPrompt),
-      isArchived: const Value<bool>.absent(),
+      isArchived: Value<bool>(isArchived),
       createdAt: const Value<DateTime>.absent(),
     );
   }

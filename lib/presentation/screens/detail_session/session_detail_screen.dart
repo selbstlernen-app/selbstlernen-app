@@ -113,21 +113,14 @@ class SessionDetailScreen extends ConsumerWidget {
                 width: context.mediaQuery.size.width,
                 child: CustomButton(
                   onPressed: () async {
-                    final today = DateTime.now();
-
-                    // TODO: change to usecase instead!
-                    final instance = await ref
-                        .read(sessionInstanceUseCaseProvider)
-                        .getInstanceBySessionIdAndDate(sessionId, today);
-
-                    print(instance);
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (_) =>
-                    //         ActiveSessionScreen(sessionInstanceId: instance.id),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<dynamic>(
+                        builder: (BuildContext context) => ActiveSessionScreen(
+                          fullSessionModel: detailState.fullSession,
+                        ),
+                      ),
+                    );
                   },
                   label: "Starten",
                 ),
