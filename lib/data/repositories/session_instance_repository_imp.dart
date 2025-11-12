@@ -15,6 +15,23 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   }
 
   @override
+  Future<SessionInstanceModel> createInstance({
+    required int sessionId,
+    required DateTime scheduledAt,
+    required SessionStatus status,
+  }) async {
+    SessionInstanceModel sessionInstanceModel = SessionInstanceModel(
+      sessionId: sessionId.toString(),
+      scheduledAt: scheduledAt,
+      status: status,
+    );
+    int id = await sessionInstanceDao.createInstance(
+      sessionInstanceModel.toCompanion(),
+    );
+    return sessionInstanceModel.copyWith(id: id.toString());
+  }
+
+  @override
   Future<void> deleteInstanceBySessionId(int sessionId) {
     return sessionInstanceDao.deleteInstance(sessionId);
   }
@@ -63,5 +80,16 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
       sessionInstanceId,
       updatedSession.toCompanion(),
     );
+  }
+
+  @override
+  Future<SessionInstanceModel?> getInstanceForDate(
+    int sessionId,
+    DateTime date,
+  ) async {
+    SessionInstance? instance = await sessionInstanceDao
+        .getInstancesBySessionIdAndDate(sessionId, date);
+
+    return instance?.toDomain();
   }
 }

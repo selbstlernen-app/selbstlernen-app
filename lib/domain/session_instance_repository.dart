@@ -6,10 +6,23 @@ abstract class SessionInstanceRepository {
   Future<SessionInstanceModel> getInstanceById(int sessionId);
   Stream<List<SessionInstanceModel>> watchInstancesBySessionId(int sessionId);
   Stream<SessionInstanceModel> watchInstanceById(int sessionInstanceId);
+  // TODO: delete add Instance
   Future<int> addInstance(SessionInstanceModel sessionInstance);
-  Future<void> deleteInstanceBySessionId(int sessionId);
+
   Future<int> updateInstance(
     int sessionInstanceId,
     SessionInstanceModel updatedSessionInstance,
+  );
+  Future<void> deleteInstanceBySessionId(int sessionId);
+
+  // Date-related queries
+  Future<SessionInstanceModel> createInstance({
+    required int sessionId,
+    required DateTime scheduledAt,
+    required SessionStatus status,
+  });
+  Future<SessionInstanceModel?> getInstanceForDate(
+    int sessionId,
+    DateTime date,
   );
 }

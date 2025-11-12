@@ -9,13 +9,13 @@ abstract class SessionWithInstanceModel with _$SessionWithInstanceModel {
 
   const factory SessionWithInstanceModel({
     required SessionModel session,
-    SessionInstanceModel? todayInstance,
+    // Instance; if any was created yet
+    SessionInstanceModel? instance,
   }) = _SessionWithInstanceModel;
 
   // Helpers
-  SessionStatus get todayStatus =>
-      todayInstance?.status ?? SessionStatus.scheduled;
-  bool get isCompletedToday => todayStatus == SessionStatus.completed;
+  SessionStatus get todayStatus => instance?.status ?? SessionStatus.scheduled;
+  bool get isCompleted => todayStatus == SessionStatus.completed;
   bool get isSkippedToday => todayStatus == SessionStatus.skipped;
   bool get canStartToday =>
       todayStatus == SessionStatus.scheduled ||

@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/models/session_model.dart';
+import 'package:srl_app/domain/models/session_with_instance_model.dart';
 import 'package:srl_app/presentation/screens/detail_session/session_detail_screen.dart';
 
 class SessionTile extends ConsumerWidget {
-  const SessionTile({super.key, required this.session});
+  const SessionTile({super.key, required this.sessionWithInstanceModel});
 
-  final SessionModel session;
+  final SessionWithInstanceModel sessionWithInstanceModel;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final SessionInstanceModel instance = sessionWithInstanceModel.instance!;
+    final SessionModel session = sessionWithInstanceModel.session;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -21,11 +23,15 @@ class SessionTile extends ConsumerWidget {
             color: context.colorScheme.onSecondary,
           ),
         ),
-        subtitle: Text("${session.isArchived} / ${session.totalInstances}"),
+        subtitle: Text(
+          "${instance.scheduledAt.day}.${instance.scheduledAt.month}.${instance.scheduledAt.year}",
+        ),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
         ),
-        leading: const Icon(Icons.school_rounded),
+        leading: sessionWithInstanceModel.isCompleted
+            ? const Icon(Icons.abc)
+            : const Icon(Icons.access_alarm),
         trailing: IconButton(
           onPressed: () => Navigator.push(
             context,

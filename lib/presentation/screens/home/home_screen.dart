@@ -4,7 +4,7 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/domain/models/session_model.dart';
+import 'package:srl_app/domain/models/session_with_instance_model.dart';
 import 'package:srl_app/presentation/screens/home/widgets/session_tile.dart';
 import 'package:srl_app/presentation/view_models/home/home_state.dart';
 import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
@@ -75,8 +75,9 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
             ),
             const VerticalSpace(size: SpaceSize.medium),
             // Sessions list - spreads all session tiles into the column
-            ...homeState.filteredSessions.map(
-              (SessionModel session) => SessionTile(session: session),
+            ...homeState.sessions.map(
+              (SessionWithInstanceModel session) =>
+                  SessionTile(sessionWithInstanceModel: session),
             ),
           ],
         ),

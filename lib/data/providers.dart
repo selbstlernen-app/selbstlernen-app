@@ -14,6 +14,7 @@ import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 import 'package:srl_app/domain/task_repository.dart';
 import 'package:srl_app/domain/usecases/edit_session_instance_use_case.dart';
+import 'package:srl_app/domain/usecases/get_sessions_for_today_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 
 part 'providers.g.dart';
@@ -127,6 +128,14 @@ EditSessionInstanceUseCase editSessionInstanceUseCase(Ref ref) {
   return EditSessionInstanceUseCase(
     ref.watch(sessionInstanceRepositoryProvider),
     ref.watch(sessionRepositoryProvider),
+  );
+}
+
+@riverpod
+GetSessionsForTodayUseCase getSessionsForTodayUseCase(Ref ref) {
+  return GetSessionsForTodayUseCase(
+    ref.watch(sessionRepositoryProvider),
+    ref.watch(sessionInstanceRepositoryProvider),
   );
 }
 

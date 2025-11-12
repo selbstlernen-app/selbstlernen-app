@@ -65,4 +65,19 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
       sessionInstances,
     )..where(($SessionInstancesTable t) => t.sessionId.equals(sessionId))).go();
   }
+
+  // Get scheduled instance if it exists
+  Future<SessionInstance?> getInstancesBySessionIdAndDate(
+    int sessionId,
+    DateTime date,
+  ) {
+    return (select(sessionInstances)..where(
+          ($SessionInstancesTable s) =>
+              s.sessionId.equals(sessionId) &
+              s.scheduledAt.year.equals(date.year) &
+              s.scheduledAt.month.equals(date.month) &
+              s.scheduledAt.day.equals(date.day),
+        ))
+        .getSingleOrNull();
+  }
 }

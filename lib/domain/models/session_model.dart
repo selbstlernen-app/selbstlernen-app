@@ -13,7 +13,7 @@ abstract class SessionModel with _$SessionModel {
     @Default(false) bool isRepeating,
     DateTime? startDate,
     DateTime? endDate,
-    @Default(<int>[]) List<int> selectedDays,
+    @Default(<int>[]) List<int> selectedDays, // 0 = Monday, 6 = Sunday
     @Default(<String>[]) List<String> learningStrategies,
     @Default(25) int focusTimeMin,
     @Default(5) int breakTimeMin,
@@ -41,5 +41,25 @@ abstract class SessionModel with _$SessionModel {
       endDate!,
       selectedDays,
     );
+  }
+}
+
+extension SessionExtensions on SessionModel {
+  bool isScheduledForDate(DateTime date) {
+    if (isArchived) return false;
+
+    // One-time session: always shown
+    if (!isRepeating) {
+      return true;
+    }
+
+    final start = startDate ?? date;
+    final end = endDate ?? date;
+
+    if (date.isBefore(start) || date.isAfter(end)) return false;
+
+    if (selectedDays.isEmpty) return false;
+    // Since weekdays are from 1 to 7 -> We have 0 to 6
+    return selectedDays.contains(date.weekday - 1);
   }
 }
