@@ -14,11 +14,18 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     return into(sessionInstances).insert(companion);
   }
 
-  // Get a single session instance by id
+  // Get an instance by its id
   Future<SessionInstance?> getInstanceById(int id) {
     return (select(
       sessionInstances,
     )..where(($SessionInstancesTable s) => s.id.equals(id))).getSingleOrNull();
+  }
+
+  // Get an instance by its session id
+  Future<SessionInstance?> getInstanceBySessionId(int sessionId) {
+    return (select(sessionInstances)
+          ..where(($SessionInstancesTable s) => s.sessionId.equals(sessionId)))
+        .getSingleOrNull();
   }
 
   // Watch session instance by ID
@@ -90,5 +97,14 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
               s.scheduledAt.day.equals(date.day),
         ))
         .getSingleOrNull();
+  }
+
+  Future<int> countTotalInstancesBySessionId(int sessionId) async {
+    List<SessionInstance> instances =
+        await (select(sessionInstances)..where(
+              ($SessionInstancesTable tbl) => tbl.sessionId.equals(sessionId),
+            ))
+            .get();
+    return instances.length;
   }
 }

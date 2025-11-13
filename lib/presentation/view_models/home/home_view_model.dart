@@ -4,8 +4,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
-import 'package:srl_app/domain/usecases/edit_session_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/get_sessions_for_today_use_case.dart';
+import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/home/home_state.dart';
 
 part 'home_view_model.g.dart';
@@ -13,13 +13,13 @@ part 'home_view_model.g.dart';
 @riverpod
 class HomeViewModel extends _$HomeViewModel {
   late final GetSessionsForTodayUseCase _useCase;
-  late final EditSessionInstanceUseCase _editInstanceUseCase;
+  late final CompleteInstanceUseCase _completeInstanceUseCase;
   late final StreamSubscription _subscription;
 
   @override
   HomeState build() {
     _useCase = ref.watch(getSessionsForTodayUseCaseProvider);
-    _editInstanceUseCase = ref.watch(editSessionInstanceUseCaseProvider);
+    _completeInstanceUseCase = ref.watch(completeInstanceUseCaseProvider);
     _subscribe();
     return const HomeState();
   }
@@ -47,9 +47,6 @@ class HomeViewModel extends _$HomeViewModel {
       completedAt: DateTime.now(),
     );
 
-    await _editInstanceUseCase.updateInstance(
-      int.parse(instance.id!),
-      sessionInstance,
-    );
+    await _completeInstanceUseCase.call(sessionInstance);
   }
 }

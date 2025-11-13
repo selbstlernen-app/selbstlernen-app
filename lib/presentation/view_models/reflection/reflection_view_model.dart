@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/usecases/edit_session_instance_use_case.dart';
+import 'package:srl_app/domain/usecases/instance/edit_session_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 

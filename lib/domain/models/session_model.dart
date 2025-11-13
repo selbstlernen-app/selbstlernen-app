@@ -45,6 +45,8 @@ abstract class SessionModel with _$SessionModel {
 }
 
 extension SessionExtensions on SessionModel {
+  /// Function to determine if a session is scheduled for today or not
+  /// @returns true if its not repeating, and false if not scheduled for the day
   bool isScheduledForDate(DateTime date) {
     if (isArchived) return false;
 
@@ -53,8 +55,8 @@ extension SessionExtensions on SessionModel {
       return true;
     }
 
-    final start = startDate ?? date;
-    final end = endDate ?? date;
+    final DateTime start = startDate ?? date;
+    final DateTime end = endDate ?? date;
 
     if (date.isBefore(start) || date.isAfter(end)) return false;
 

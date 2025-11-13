@@ -10,11 +10,6 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   final SessionInstanceDao sessionInstanceDao;
 
   @override
-  Future<int> addInstance(SessionInstanceModel sessionInstance) {
-    return sessionInstanceDao.createInstance(sessionInstance.toCompanion());
-  }
-
-  @override
   Future<SessionInstanceModel> createInstance({
     required int sessionId,
     required DateTime scheduledAt,
@@ -69,15 +64,24 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   }
 
   @override
+  Future<SessionInstanceModel?> getInstanceBySessionId(int sessionId) async {
+    SessionInstance? instance = await sessionInstanceDao.getInstanceBySessionId(
+      sessionId,
+    );
+    if (instance == null) {
+      throw Exception('Session instance with session ID $sessionId not found.');
+    }
+    return instance.toDomain();
+  }
+
+  @override
   Future<SessionInstanceModel> getInstanceById(int instanceId) async {
     SessionInstance? instance = await sessionInstanceDao.getInstanceById(
       instanceId,
     );
-
     if (instance == null) {
       throw Exception('Session instance with ID $instanceId not found.');
     }
-
     return instance.toDomain();
   }
 
@@ -101,5 +105,10 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
         .getInstancesBySessionIdAndDate(sessionId, date);
 
     return instance?.toDomain();
+  }
+
+  @override
+  Future<int> countTotalInstancesBySessionId(int sessionId) {
+    return sessionInstanceDao.countTotalInstancesBySessionId(sessionId);
   }
 }

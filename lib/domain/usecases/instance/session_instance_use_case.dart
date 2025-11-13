@@ -16,6 +16,20 @@ class SessionInstanceUseCase {
   Future<SessionInstanceModel> getSessionInstanceById(int sessionInstanceId) =>
       repository.getInstanceById(sessionInstanceId);
 
+  Future<SessionInstanceModel> getInstanceBySessionId(int sessionId) async {
+    SessionInstanceModel? instance = await repository.getInstanceBySessionId(
+      sessionId,
+    );
+
+    instance ??= await repository.createInstance(
+      sessionId: sessionId,
+      scheduledAt: DateTime.now(),
+      status: SessionStatus.scheduled,
+    );
+
+    return instance;
+  }
+
   Future<SessionInstanceModel> getInstanceBySessionIdAndDate(
     int sessionId,
     DateTime date,

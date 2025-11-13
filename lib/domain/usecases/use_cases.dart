@@ -10,5 +10,6 @@ export 'full_session_use_case.dart';
 
 export 'session_use_case.dart';
 
-export 'create_session_instance_use_case.dart';
-export 'session_instance_use_case.dart';
+export 'instance/session_instance_use_case.dart';
+export 'instance/edit_session_instance_use_case.dart';
+export 'instance/complete_instance_use_case.dart';

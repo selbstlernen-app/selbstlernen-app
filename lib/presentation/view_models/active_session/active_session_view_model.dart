@@ -5,8 +5,7 @@ import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
-import 'package:srl_app/domain/usecases/edit_session_instance_use_case.dart';
-import 'package:srl_app/domain/usecases/session_instance_use_case.dart';
+import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 
 part 'active_session_view_model.g.dart';
@@ -15,7 +14,8 @@ part 'active_session_view_model.g.dart';
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Timer? _timer;
   late SessionInstanceUseCase _sessionInstanceUseCase;
-  late EditSessionInstanceUseCase _editSessionInstanceUseCase;
+
+  late CompleteInstanceUseCase _completeInstanceUseCase;
 
   @override
   ActiveSessionState build(FullSessionModel fullSession) {
@@ -23,8 +23,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       _timer?.cancel();
     });
     _sessionInstanceUseCase = ref.read(sessionInstanceUseCaseProvider);
-    _editSessionInstanceUseCase = ref.read(editSessionInstanceUseCaseProvider);
-
+    _completeInstanceUseCase = ref.read(completeInstanceUseCaseProvider);
     _initializeSessionInstance();
 
     return ActiveSessionState(
@@ -35,14 +34,19 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   Future<void> _initializeSessionInstance() async {
     final DateTime today = DateTime.now();
+    final SessionInstanceModel instance;
 
-    // Get or initialize instance
-    final SessionInstanceModel instance = await _sessionInstanceUseCase
-        .getInstanceBySessionIdAndDate(
-          int.parse(fullSession.session.id!),
-          today,
-        );
-
+    // In case we have a non-repeating session; get its one and only instance
+    if (!fullSession.session.isRepeating) {
+      instance = await _sessionInstanceUseCase.getInstanceBySessionId(
+        int.parse(fullSession.session.id!),
+      );
+    } else {
+      instance = await _sessionInstanceUseCase.getInstanceBySessionIdAndDate(
+        int.parse(fullSession.session.id!),
+        today,
+      );
+    }
     state = state.copyWith(instanceId: instance.id);
   }
 
@@ -188,7 +192,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     _timer?.cancel();
     state = state.copyWith(timerStatus: TimerStatus.completed);
 
-    // Save session tracking data
+    // Save instance tracking data
     await _saveSessionTracking();
   }
 
@@ -211,12 +215,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
       completedAt: DateTime.now(),
     );
-    // TODO: REWORK UPDATE!
-    print(sessionInstance);
 
-    await _editSessionInstanceUseCase.updateInstance(
-      int.parse(state.instanceId!),
-      sessionInstance,
-    );
+    await _completeInstanceUseCase.call(sessionInstance);
   }
 }

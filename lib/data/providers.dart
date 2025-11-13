@@ -13,7 +13,6 @@ import 'package:srl_app/domain/services/add_session_service.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 import 'package:srl_app/domain/task_repository.dart';
-import 'package:srl_app/domain/usecases/edit_session_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/get_sessions_for_today_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 
@@ -117,13 +116,6 @@ SessionInstanceUseCase sessionInstanceUseCase(Ref ref) {
 }
 
 @riverpod
-CreateSessionInstanceUseCase createSessionInstanceUseCase(Ref ref) {
-  return CreateSessionInstanceUseCase(
-    ref.watch(sessionInstanceRepositoryProvider),
-  );
-}
-
-@riverpod
 EditSessionInstanceUseCase editSessionInstanceUseCase(Ref ref) {
   return EditSessionInstanceUseCase(
     ref.watch(sessionInstanceRepositoryProvider),
@@ -134,6 +126,14 @@ EditSessionInstanceUseCase editSessionInstanceUseCase(Ref ref) {
 @riverpod
 GetSessionsForTodayUseCase getSessionsForTodayUseCase(Ref ref) {
   return GetSessionsForTodayUseCase(
+    ref.watch(sessionRepositoryProvider),
+    ref.watch(sessionInstanceRepositoryProvider),
+  );
+}
+
+@riverpod
+CompleteInstanceUseCase completeInstanceUseCase(Ref ref) {
+  return CompleteInstanceUseCase(
     ref.watch(sessionRepositoryProvider),
     ref.watch(sessionInstanceRepositoryProvider),
   );

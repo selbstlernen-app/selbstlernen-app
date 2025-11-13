@@ -48,23 +48,59 @@ class GetSessionsForTodayUseCase {
         );
       }
 
-      return instanceRepo.watchAllInstancesForDate(today).map((
-        List<SessionInstanceModel> instances,
-      ) {
-        return todaysSessions.map((SessionModel session) {
-          final SessionInstanceModel instance = instances.firstWhere(
-            (SessionInstanceModel i) =>
-                int.parse(i.sessionId) == int.parse(session.id!),
-            orElse: () => SessionInstanceModel(
-              id: "-1",
-              sessionId: session.id!,
-              scheduledAt: today,
-              status: SessionStatus.scheduled,
-            ),
-          );
-          return SessionWithInstanceModel(session: session, instance: instance);
-        }).toList();
-      });
+      // Split list into non-repeating and repeating sessions
+      final List<SessionModel> oneTimeSessions = todaysSessions
+          .where((SessionModel s) => !s.isRepeating)
+          .toList();
+      final List<SessionModel> repeatingSessions = todaysSessions
+          .where((SessionModel s) => s.isRepeating)
+          .toList();
+
+      final Stream<List<SessionInstanceModel>> oneTimeInstancesStream =
+          oneTimeSessions.isEmpty
+          ? Stream.value(<SessionInstanceModel>[])
+          : Rx.combineLatestList(
+              oneTimeSessions.map(
+                (s) => instanceRepo.watchInstancesBySessionId(int.parse(s.id!)),
+              ),
+            ).map((listOfLists) => listOfLists.expand((e) => e).toList());
+
+      // Get the stream of repeating instances - watch which ones we have scheduled for the day
+      final Stream<List<SessionInstanceModel>> repeatingInstancesStream =
+          repeatingSessions.isEmpty
+          ? Stream.value(<SessionInstanceModel>[])
+          : instanceRepo.watchAllInstancesForDate(today);
+
+      return Rx.combineLatest2(
+        repeatingInstancesStream,
+        oneTimeInstancesStream,
+        (
+          List<SessionInstanceModel> repeatingInstances,
+          List<SessionInstanceModel> oneTimeInstances,
+        ) {
+          final List<SessionInstanceModel> allInstances = [
+            ...repeatingInstances,
+            ...oneTimeInstances,
+          ];
+
+          return todaysSessions.map((SessionModel session) {
+            final SessionInstanceModel instance = allInstances.firstWhere(
+              (SessionInstanceModel i) =>
+                  int.parse(i.sessionId) == int.parse(session.id!),
+              orElse: () => SessionInstanceModel(
+                id: "-1",
+                sessionId: session.id!,
+                scheduledAt: today,
+                status: SessionStatus.scheduled,
+              ),
+            );
+            return SessionWithInstanceModel(
+              session: session,
+              instance: instance,
+            );
+          }).toList();
+        },
+      );
     });
   }
 }

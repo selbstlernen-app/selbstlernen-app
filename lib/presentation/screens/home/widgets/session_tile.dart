@@ -22,6 +22,7 @@ class SessionTile extends ConsumerWidget {
     }
   }
 
+  // Get color based on session status
   Color _switchColor(SessionStatus status, BuildContext context) {
     switch (status) {
       case SessionStatus.scheduled:
@@ -41,60 +42,86 @@ class SessionTile extends ConsumerWidget {
     final SessionModel session = sessionWithInstanceModel.session;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Slidable(
-        endActionPane: ActionPane(
-          motion: const BehindMotion(),
-          children: [
-            SlidableAction(
-              onPressed: (BuildContext context) {
-                print("bearbeiten");
-              },
-              backgroundColor: Colors.blue,
-              foregroundColor: Colors.white,
-              icon: Icons.edit,
-              label: 'Bearbeiten',
-            ),
-
-            SlidableAction(
-              onPressed: (BuildContext slidableContext) async {
-                await skipInstanceDialog(context, ref, instance);
-              },
-              backgroundColor: Colors.amber,
-              foregroundColor: Colors.white,
-              icon: Icons.skip_next,
-              label: 'Überspringen',
-            ),
-          ],
-        ),
-        child: ListTile(
-          title: Text(
-            session.title,
-            style: context.textTheme.headlineSmall!.copyWith(
-              color: context.colorScheme.onSecondary,
-            ),
-          ),
-          subtitle: Text(
-            "${instance.scheduledAt.day}.${instance.scheduledAt.month}.${instance.scheduledAt.year}",
-          ),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(10)),
-          ),
-          leading: _switchIcon(instance.status),
-          trailing: IconButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute<dynamic>(
-                builder: (BuildContext context) =>
-                    SessionDetailScreen(sessionId: int.parse(session.id!)),
+      margin: const EdgeInsets.only(bottom: 8.0),
+      child: Stack(
+        clipBehavior: Clip.antiAlias,
+        children: <Widget>[
+          Positioned.fill(
+            child: Builder(
+              builder: (BuildContext context) => Container(
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
-            icon: const Icon(Icons.arrow_forward_ios_rounded),
           ),
-          tileColor: _switchColor(instance.status, context),
-          textColor: context.colorScheme.onSecondary,
-          iconColor: context.colorScheme.onSecondary,
-        ),
+          ClipRRect(
+            child: Slidable(
+              key: UniqueKey(),
+              direction: Axis.horizontal,
+              endActionPane: ActionPane(
+                motion: const BehindMotion(),
+                children: <Widget>[
+                  SlidableAction(
+                    autoClose: false,
+                    onPressed: (BuildContext context) {
+                      print("bearbeiten");
+                    },
+                    backgroundColor: Colors.transparent,
+                    icon: Icons.edit,
+                    label: 'Bearbeiten',
+                  ),
+
+                  SlidableAction(
+                    autoClose: false,
+                    onPressed: (BuildContext slidableContext) async {
+                      await skipInstanceDialog(context, ref, instance);
+                    },
+                    backgroundColor: Colors.transparent,
+                    icon: Icons.skip_next,
+                    label: 'Überspringen',
+                  ),
+                ],
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: _switchColor(instance.status, context),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: ListTile(
+                  title: Text(
+                    session.title,
+                    style: context.textTheme.headlineSmall!.copyWith(
+                      color: context.colorScheme.onSecondary,
+                    ),
+                  ),
+                  subtitle: Text(
+                    "${instance.scheduledAt.day}.${instance.scheduledAt.month}.${instance.scheduledAt.year}",
+                  ),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                  leading: _switchIcon(instance.status),
+                  trailing: IconButton(
+                    onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute<dynamic>(
+                        builder: (BuildContext context) => SessionDetailScreen(
+                          sessionId: int.parse(session.id!),
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.arrow_forward_ios_rounded),
+                  ),
+
+                  textColor: context.colorScheme.onSecondary,
+                  iconColor: context.colorScheme.onSecondary,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

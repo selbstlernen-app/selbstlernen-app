@@ -1,8 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/tables/session_table.dart';
-import 'package:srl_app/data/entity_mappers/session_mapper.dart';
-import 'package:srl_app/domain/models/session_model.dart';
 
 part 'session_dao.g.dart';
 

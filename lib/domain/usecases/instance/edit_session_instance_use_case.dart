@@ -13,8 +13,4 @@ class EditSessionInstanceUseCase {
   ) async {
     return repository.updateInstance(sessionInstanceId, updatedSession);
   }
-
-  Future<void> deleteSession(int sessionId) {
-    return repository.deleteInstanceBySessionId(sessionId);
-  }
 }
