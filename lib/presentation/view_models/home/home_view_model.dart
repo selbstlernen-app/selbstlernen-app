@@ -14,7 +14,7 @@ part 'home_view_model.g.dart';
 class HomeViewModel extends _$HomeViewModel {
   late final GetSessionsForTodayUseCase _useCase;
   late final CompleteInstanceUseCase _completeInstanceUseCase;
-  late final StreamSubscription _subscription;
+  late final StreamSubscription<dynamic> _subscription;
 
   @override
   HomeState build() {

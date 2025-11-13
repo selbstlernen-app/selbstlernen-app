@@ -50,7 +50,7 @@ class SessionTile extends ConsumerWidget {
             child: Builder(
               builder: (BuildContext context) => Container(
                 decoration: BoxDecoration(
-                  color: Colors.green,
+                  color: Colors.blue,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
@@ -65,18 +65,11 @@ class SessionTile extends ConsumerWidget {
                 children: <Widget>[
                   SlidableAction(
                     autoClose: false,
-                    onPressed: (BuildContext context) {
-                      print("bearbeiten");
-                    },
-                    backgroundColor: Colors.transparent,
-                    icon: Icons.edit,
-                    label: 'Bearbeiten',
-                  ),
-
-                  SlidableAction(
-                    autoClose: false,
                     onPressed: (BuildContext slidableContext) async {
-                      await skipInstanceDialog(context, ref, instance);
+                      if (!sessionWithInstanceModel.isCompleted &&
+                          !sessionWithInstanceModel.isSkipped) {
+                        await skipInstanceDialog(context, ref, instance);
+                      }
                     },
                     backgroundColor: Colors.transparent,
                     icon: Icons.skip_next,

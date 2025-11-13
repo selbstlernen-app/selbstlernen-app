@@ -16,7 +16,7 @@ abstract class SessionWithInstanceModel with _$SessionWithInstanceModel {
   // Helpers
   SessionStatus get todayStatus => instance?.status ?? SessionStatus.scheduled;
   bool get isCompleted => todayStatus == SessionStatus.completed;
-  bool get isSkippedToday => todayStatus == SessionStatus.skipped;
+  bool get isSkipped => todayStatus == SessionStatus.skipped;
   bool get canStartToday =>
       todayStatus == SessionStatus.scheduled ||
       todayStatus == SessionStatus.inProgress;
