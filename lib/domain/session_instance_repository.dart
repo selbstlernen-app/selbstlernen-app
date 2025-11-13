@@ -3,11 +3,7 @@ import 'package:srl_app/domain/models/session_instance_model.dart';
 /// Abstract repository class for the session instance repository
 abstract class SessionInstanceRepository {
   // CRUD operations
-  Future<SessionInstanceModel> createInstance({
-    required int sessionId,
-    required DateTime scheduledAt,
-    required SessionStatus status,
-  });
+  Future<int> createInstance({required SessionInstanceModel instance});
   Future<SessionInstanceModel> getInstanceById(int instanceId);
   Future<SessionInstanceModel?> getInstanceBySessionId(int sessionId);
   Stream<List<SessionInstanceModel>> watchInstancesBySessionId(int sessionId);

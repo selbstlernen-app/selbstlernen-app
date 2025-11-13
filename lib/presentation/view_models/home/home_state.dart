@@ -10,6 +10,8 @@ abstract class HomeState with _$HomeState {
   const factory HomeState({
     @Default(<SessionWithInstanceModel>[])
     List<SessionWithInstanceModel> sessions,
+    @Default(<SessionWithInstanceModel>[])
+    List<SessionWithInstanceModel> completedSessionsForToday,
     @Default(SessionFilter.today) SessionFilter filter,
     @Default(false) bool isLoading,
 

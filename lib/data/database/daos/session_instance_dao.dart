@@ -42,13 +42,21 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
         .watch();
   }
 
-  // Watch all session instances for date
+  /// Watch all session instances for a given date
   Stream<List<SessionInstance>> watchAllInstancesForDate(DateTime date) {
+    final DateTime startOfDay = DateTime(date.year, date.month, date.day);
+    final DateTime endOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      23,
+      59,
+      59,
+    );
+
     return (select(sessionInstances)..where(
-          ($SessionInstancesTable s) =>
-              s.scheduledAt.year.equals(date.year) &
-              s.scheduledAt.month.equals(date.month) &
-              s.scheduledAt.day.equals(date.day),
+          ($SessionInstancesTable t) =>
+              t.scheduledAt.isBetweenValues(startOfDay, endOfDay),
         ))
         .watch();
   }
@@ -89,12 +97,13 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     int sessionId,
     DateTime date,
   ) {
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+
     return (select(sessionInstances)..where(
           ($SessionInstancesTable s) =>
               s.sessionId.equals(sessionId) &
-              s.scheduledAt.year.equals(date.year) &
-              s.scheduledAt.month.equals(date.month) &
-              s.scheduledAt.day.equals(date.day),
+              s.scheduledAt.isBetweenValues(startOfDay, endOfDay),
         ))
         .getSingleOrNull();
   }

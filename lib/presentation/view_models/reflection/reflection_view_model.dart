@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/usecases/instance/edit_session_instance_use_case.dart';
+import 'package:srl_app/domain/usecases/instance/update_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 
@@ -12,7 +12,7 @@ part 'reflection_view_model.g.dart';
 @riverpod
 class ReflectionViewModel extends _$ReflectionViewModel {
   late final SessionInstanceUseCase _sessionInstanceUseCase;
-  late final EditSessionInstanceUseCase _editSessionInstanceUseCase;
+  late final UpdateInstanceUseCase _UpdateInstanceUseCase;
 
   late int _instanceId;
 
@@ -21,7 +21,7 @@ class ReflectionViewModel extends _$ReflectionViewModel {
     _instanceId = instanceId;
 
     _sessionInstanceUseCase = ref.watch(sessionInstanceUseCaseProvider);
-    _editSessionInstanceUseCase = ref.watch(editSessionInstanceUseCaseProvider);
+    _UpdateInstanceUseCase = ref.watch(updateInstanceUseCaseProvider);
 
     final SessionInstanceModel instance = await _sessionInstanceUseCase
         .getSessionInstanceById(instanceId);
@@ -43,10 +43,7 @@ class ReflectionViewModel extends _$ReflectionViewModel {
       final SessionInstanceModel updatedInstance = current.sessionInstance
           .copyWith(mood: current.mood, notes: notes);
 
-      await _editSessionInstanceUseCase.updateInstance(
-        _instanceId,
-        updatedInstance,
-      );
+      await _UpdateInstanceUseCase.call(updatedInstance);
 
       state = AsyncValue<ReflectionState>.data(
         current.copyWith(sessionInstance: updatedInstance, isLoading: false),

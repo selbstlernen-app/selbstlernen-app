@@ -51,6 +51,7 @@ dependencies:
   smooth_page_indicator: ^1.2.1
   rxdart: ^0.28.0
   flutter_slidable: ^4.0.3
+  collection: ^1.19.1
 
 dev_dependencies:
   flutter_test:

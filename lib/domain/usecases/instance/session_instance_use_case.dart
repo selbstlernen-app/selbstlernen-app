@@ -5,9 +5,8 @@ class SessionInstanceUseCase {
   const SessionInstanceUseCase(this.repository);
   final SessionInstanceRepository repository;
 
-  Stream<List<SessionInstanceModel>> watchAllSessionsInstancesFor(
-    int sessionId,
-  ) => repository.watchInstancesBySessionId(sessionId);
+  Stream<List<SessionInstanceModel>> watchInstancesBySessionId(int sessionId) =>
+      repository.watchInstancesBySessionId(sessionId);
 
   Stream<SessionInstanceModel> watchSessionInstanceById(
     int sessionInstanceId,
@@ -15,36 +14,4 @@ class SessionInstanceUseCase {
 
   Future<SessionInstanceModel> getSessionInstanceById(int sessionInstanceId) =>
       repository.getInstanceById(sessionInstanceId);
-
-  Future<SessionInstanceModel> getInstanceBySessionId(int sessionId) async {
-    SessionInstanceModel? instance = await repository.getInstanceBySessionId(
-      sessionId,
-    );
-
-    instance ??= await repository.createInstance(
-      sessionId: sessionId,
-      scheduledAt: DateTime.now(),
-      status: SessionStatus.scheduled,
-    );
-
-    return instance;
-  }
-
-  Future<SessionInstanceModel> getInstanceBySessionIdAndDate(
-    int sessionId,
-    DateTime date,
-  ) async {
-    SessionInstanceModel? instance = await repository.getInstanceForDate(
-      sessionId,
-      date,
-    );
-
-    instance ??= await repository.createInstance(
-      sessionId: sessionId,
-      scheduledAt: DateTime.now(),
-      status: SessionStatus.scheduled,
-    );
-
-    return instance;
-  }
 }

@@ -42,6 +42,14 @@ class SessionRepositoryImp implements SessionRepository {
   }
 
   @override
+  Stream<List<SessionModel>> watchAllSessions() {
+    return sessionDao.watchAllSessions().map(
+      (List<Session> sessionList) =>
+          SessionToModelMapper.mapFromListOfEntity(sessionList),
+    );
+  }
+
+  @override
   Future<SessionModel> getSessionById(int sessionId) async {
     final Session? sessionEntity = await sessionDao.getSessionById(sessionId);
 

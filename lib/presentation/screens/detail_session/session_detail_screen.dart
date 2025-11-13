@@ -4,6 +4,7 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
@@ -17,16 +18,21 @@ class SessionDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<DetailSessionState> state = ref.watch(
-      detailSessionViewModelProvider(sessionId),
-    );
+    final state = ref.watch(detailSessionViewModelProvider(sessionId));
 
     return state.when(
       loading: () => const LoadingIndicator(),
       error: (Object error, StackTrace stack) =>
           Center(child: Text('Error: $error')),
       data: (DetailSessionState detailState) {
-        final SessionModel session = detailState.fullSession.session;
+        if (detailState.fullSession == null) {
+          return const Scaffold(
+            body: Center(child: Text('Session nicht gefunden')),
+          );
+        }
+
+        final session = detailState.fullSession!.session;
+
         return MainLayout(
           navigateBack: () {
             Navigator.of(context).pop();
@@ -48,11 +54,7 @@ class SessionDetailScreen extends ConsumerWidget {
             ),
             IconButton(
               onPressed: () async {
-                await deleteSessionDialog(
-                  context,
-                  detailState.fullSession.session.isRepeating,
-                  ref,
-                );
+                await deleteSessionDialog(context, session.isRepeating, ref);
               },
               icon: const Icon(Icons.delete_forever_rounded),
             ),
@@ -70,7 +72,7 @@ class SessionDetailScreen extends ConsumerWidget {
                         style: context.textTheme.headlineMedium,
                       ),
                       const VerticalSpace(size: SpaceSize.small),
-                      ...detailState.fullSession.goals.map((GoalModel goal) {
+                      ...detailState.fullSession!.goals.map((GoalModel goal) {
                         return Row(
                           children: <Widget>[
                             Text(
@@ -116,7 +118,7 @@ class SessionDetailScreen extends ConsumerWidget {
                       context,
                       MaterialPageRoute<dynamic>(
                         builder: (BuildContext context) => ActiveSessionScreen(
-                          fullSessionModel: detailState.fullSession,
+                          fullSessionModel: detailState.fullSession!,
                         ),
                       ),
                     );

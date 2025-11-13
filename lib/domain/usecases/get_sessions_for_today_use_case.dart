@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
@@ -8,99 +9,61 @@ import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 
 class GetSessionsForTodayUseCase {
-  GetSessionsForTodayUseCase(this.sessionRepo, this.instanceRepo);
+  GetSessionsForTodayUseCase(this._sessionRepo, this._instanceRepo);
 
-  final SessionRepository sessionRepo;
-  final SessionInstanceRepository instanceRepo;
+  final SessionRepository _sessionRepo;
+  final SessionInstanceRepository _instanceRepo;
 
-  Stream<List<SessionWithInstanceModel>> call(DateTime today) async* {
-    await for (final List<SessionWithInstanceModel> list
-        in _watchSessionsWithInstancesForDate(today)) {
-      for (final SessionWithInstanceModel item in list) {
-        if (item.instance!.id == "-1") {
-          unawaited(
-            instanceRepo.createInstance(
-              sessionId: int.parse(item.session.id!),
-              scheduledAt: today,
-              status: SessionStatus.scheduled,
-            ),
+  Stream<List<SessionWithInstanceModel>> call(DateTime date) {
+    // Stream active (non-archived) sessions
+    final Stream<List<SessionModel>> sessionsStream = _sessionRepo
+        .watchAllActiveSessions();
+
+    // Stream instances for given date
+    final Stream<List<SessionInstanceModel>> instancesStream = _instanceRepo
+        .watchAllInstancesForDate(date);
+
+    return Rx.combineLatest2(sessionsStream, instancesStream, (
+      List<SessionModel> sessions,
+      List<SessionInstanceModel> instances,
+    ) {
+      final List<SessionWithInstanceModel> occurrences =
+          <SessionWithInstanceModel>[];
+
+      for (final SessionModel session in sessions) {
+        // Check if session should occur on this date
+        if (_shouldOccurOnDate(session, date)) {
+          final SessionInstanceModel? instance = instances.firstWhereOrNull(
+            (SessionInstanceModel i) => i.sessionId == session.id,
           );
+
+          // If it should occur and cannot be found in the db yet;
+          // then show the session w/o instance (for pending list)
+          if (instance == null) {
+            occurrences.add(
+              SessionWithInstanceModel(session: session, instance: null),
+            );
+          }
         }
       }
 
-      yield list;
-    }
+      return occurrences;
+    });
   }
 
-  Stream<List<SessionWithInstanceModel>> _watchSessionsWithInstancesForDate(
-    DateTime today,
-  ) {
-    return sessionRepo.watchAllActiveSessions().switchMap((
-      List<SessionModel> sessions,
-    ) {
-      final List<SessionModel> todaysSessions = sessions
-          .where((SessionModel s) => s.isScheduledForDate(today))
-          .toList();
+  /// Helper to check if a session should occur that day
+  /// @returns true if its a one-time session
+  /// @returns false if the dates are not matching
+  bool _shouldOccurOnDate(SessionModel session, DateTime date) {
+    if (session.isArchived) return false;
 
-      if (todaysSessions.isEmpty) {
-        return Stream<List<SessionWithInstanceModel>>.value(
-          <SessionWithInstanceModel>[],
-        );
-      }
+    if (!session.isRepeating) {
+      return true;
+    }
 
-      // Split list into non-repeating and repeating sessions
-      final List<SessionModel> oneTimeSessions = todaysSessions
-          .where((SessionModel s) => !s.isRepeating)
-          .toList();
-      final List<SessionModel> repeatingSessions = todaysSessions
-          .where((SessionModel s) => s.isRepeating)
-          .toList();
-
-      final Stream<List<SessionInstanceModel>> oneTimeInstancesStream =
-          oneTimeSessions.isEmpty
-          ? Stream.value(<SessionInstanceModel>[])
-          : Rx.combineLatestList(
-              oneTimeSessions.map(
-                (s) => instanceRepo.watchInstancesBySessionId(int.parse(s.id!)),
-              ),
-            ).map((listOfLists) => listOfLists.expand((e) => e).toList());
-
-      // Get the stream of repeating instances - watch which ones we have scheduled for the day
-      final Stream<List<SessionInstanceModel>> repeatingInstancesStream =
-          repeatingSessions.isEmpty
-          ? Stream.value(<SessionInstanceModel>[])
-          : instanceRepo.watchAllInstancesForDate(today);
-
-      return Rx.combineLatest2(
-        repeatingInstancesStream,
-        oneTimeInstancesStream,
-        (
-          List<SessionInstanceModel> repeatingInstances,
-          List<SessionInstanceModel> oneTimeInstances,
-        ) {
-          final List<SessionInstanceModel> allInstances = [
-            ...repeatingInstances,
-            ...oneTimeInstances,
-          ];
-
-          return todaysSessions.map((SessionModel session) {
-            final SessionInstanceModel instance = allInstances.firstWhere(
-              (SessionInstanceModel i) =>
-                  int.parse(i.sessionId) == int.parse(session.id!),
-              orElse: () => SessionInstanceModel(
-                id: "-1",
-                sessionId: session.id!,
-                scheduledAt: today,
-                status: SessionStatus.scheduled,
-              ),
-            );
-            return SessionWithInstanceModel(
-              session: session,
-              instance: instance,
-            );
-          }).toList();
-        },
-      );
-    });
+    // For scheduled sessions
+    if (date.isBefore(session.startDate!)) return false;
+    if (session.endDate != null && date.isAfter(session.endDate!)) return false;
+    return session.selectedDays.contains(date.weekday - 1);
   }
 }

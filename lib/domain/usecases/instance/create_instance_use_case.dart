@@ -3,21 +3,15 @@ import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 
-/// "Completes" a session instance this can be either because a session has been conducted
-/// or a session has been skipped/missed
-class CompleteInstanceUseCase {
-  const CompleteInstanceUseCase(this.sessionRepo, this.instanceRepo);
+/// Use case for when creating a session (when completing a session; or when skipped)
+class CreateInstanceUseCase {
+  const CreateInstanceUseCase(this.repository, this.sessionRepo);
 
+  final SessionInstanceRepository repository;
   final SessionRepository sessionRepo;
-  final SessionInstanceRepository instanceRepo;
 
-  Future<void> call(SessionInstanceModel updatedInstance) async {
-    // Complete it with date and status
-    final SessionInstanceModel instance = updatedInstance.copyWith(
-      completedAt: DateTime.now(),
-      status: SessionStatus.completed,
-    );
-    await instanceRepo.updateInstance(int.parse(instance.id!), instance);
+  Future<void> call(SessionInstanceModel instance) async {
+    await repository.createInstance(instance: instance);
 
     // Check if session should be archived
     await _checkAndArchiveIfComplete(instance.sessionId);
@@ -28,6 +22,7 @@ class CompleteInstanceUseCase {
       int.parse(sessionId),
     );
 
+    // One-time sessions: archive immediately
     if (!session.isRepeating) {
       await sessionRepo.updateSession(
         int.parse(session.id!),
@@ -36,8 +31,10 @@ class CompleteInstanceUseCase {
       return;
     }
 
-    final int totalInstances = await instanceRepo
-        .countTotalInstancesBySessionId(int.parse(session.id!));
+    // Repeating sessions: check if all instances are done
+    final int totalInstances = await repository.countTotalInstancesBySessionId(
+      int.parse(session.id!),
+    );
 
     final int expectedCount = DateTimeUtils.countDaysBetweenDates(
       session.startDate!,

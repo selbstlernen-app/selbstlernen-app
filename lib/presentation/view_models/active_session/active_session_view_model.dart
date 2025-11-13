@@ -12,18 +12,19 @@ part 'active_session_view_model.g.dart';
 
 @riverpod
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
+  late final UpdateInstanceUseCase _updateInstanceUseCase;
+  late final CompleteInstanceUseCase _completeInstanceUseCase;
   Timer? _timer;
-  late SessionInstanceUseCase _sessionInstanceUseCase;
-
-  late CompleteInstanceUseCase _completeInstanceUseCase;
 
   @override
   ActiveSessionState build(FullSessionModel fullSession) {
+    _updateInstanceUseCase = ref.watch(updateInstanceUseCaseProvider);
+    _completeInstanceUseCase = ref.watch(completeInstanceUseCaseProvider);
+
     ref.onDispose(() {
       _timer?.cancel();
     });
-    _sessionInstanceUseCase = ref.read(sessionInstanceUseCaseProvider);
-    _completeInstanceUseCase = ref.read(completeInstanceUseCaseProvider);
+
     _initializeSessionInstance();
 
     return ActiveSessionState(
@@ -37,17 +38,17 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     final SessionInstanceModel instance;
 
     // In case we have a non-repeating session; get its one and only instance
-    if (!fullSession.session.isRepeating) {
-      instance = await _sessionInstanceUseCase.getInstanceBySessionId(
-        int.parse(fullSession.session.id!),
-      );
-    } else {
-      instance = await _sessionInstanceUseCase.getInstanceBySessionIdAndDate(
-        int.parse(fullSession.session.id!),
-        today,
-      );
-    }
-    state = state.copyWith(instanceId: instance.id);
+    // if (!fullSession.session.isRepeating) {
+    //   instance = await _sessionInstanceUseCase.getInstanceBySessionId(
+    //     int.parse(fullSession.session.id!),
+    //   );
+    // } else {
+    //   instance = await _sessionInstanceUseCase.getInstanceBySessionIdAndDate(
+    //     int.parse(fullSession.session.id!),
+    //     today,
+    //   );
+    // }
+    // state = state.copyWith(instanceId: instance.id);
   }
 
   void setCountUpwards(bool countUpwards) {
@@ -202,7 +203,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     final SessionInstanceModel sessionInstance = SessionInstanceModel(
       sessionId: state.fullSession.session.id!,
       id: state.instanceId,
-      status: SessionStatus.completed,
       scheduledAt: state.scheduledAt ?? DateTime.now(),
 
       totalCompletedGoals: state.completedGoalIds.length,
@@ -212,8 +212,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       totalCompletedBlocks: state.completedBlocks,
       totalFocusPhases: state.totalFocusPhases,
       totalFocusSecondsElapsed: state.totalFocusSecondsElapsed,
-
-      completedAt: DateTime.now(),
     );
 
     await _completeInstanceUseCase.call(sessionInstance);
