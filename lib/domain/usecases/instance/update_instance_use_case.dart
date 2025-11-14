@@ -15,5 +15,7 @@ class UpdateInstanceUseCase {
       int.parse(updatedInstance.id!),
       updatedInstance,
     );
+
+    print(updatedInstance);
   }
 }

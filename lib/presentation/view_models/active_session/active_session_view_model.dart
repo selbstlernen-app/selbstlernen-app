@@ -216,9 +216,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     _timer?.cancel();
     state = state.copyWith(timerStatus: TimerStatus.completed);
 
-    // Final save before completion
-    await _autoSave();
-
     // Then complete (w/o mood or notes)
     await completeSession();
   }
@@ -250,16 +247,19 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   /// Final completion of the instance; is called
   /// after the reflection screen
-  Future<void> completeSession() async {
-    if (state.instance == null) return;
+  Future<SessionInstanceModel> completeSession() async {
+    if (state.instance == null) return state.instance!;
 
     try {
-      await _completeInstanceUseCase.call(
-        state.instance!.copyWith(
-          completedAt: DateTime.now(),
-          status: SessionStatus.completed,
-        ),
+      final SessionInstanceModel updatedInstance = state.instance!.copyWith(
+        completedAt: DateTime.now(),
+        status: SessionStatus.completed,
       );
+      await _completeInstanceUseCase.call(updatedInstance);
+
+      state = state.copyWith(instance: updatedInstance);
+
+      return updatedInstance;
     } catch (e) {
       state = state.copyWith(error: e.toString());
       rethrow;

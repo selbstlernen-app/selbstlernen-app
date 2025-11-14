@@ -65,16 +65,16 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
             // User cancelled - resume timer
             viewModel.startTimer(),
         onConfirm: () async {
-          await viewModel.stopSession();
-          if (mounted) {
-            await Navigator.pushReplacement(
-              context,
-              MaterialPageRoute<dynamic>(
-                builder: (BuildContext context) =>
-                    ReflectionScreen(instance: state.instance!),
-              ),
-            );
-          }
+          final SessionInstanceModel updatedInstance = await viewModel
+              .completeSession();
+
+          if (!mounted) return;
+          await Navigator.pushReplacement(
+            context,
+            MaterialPageRoute<dynamic>(
+              builder: (_) => ReflectionScreen(instance: updatedInstance),
+            ),
+          );
         },
         cancelLabel: "Abbrechen",
       );

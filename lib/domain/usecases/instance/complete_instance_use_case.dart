@@ -12,15 +12,13 @@ class CompleteInstanceUseCase {
   final SessionInstanceRepository instanceRepo;
 
   Future<void> call(SessionInstanceModel updatedInstance) async {
-    // Complete it with date and status
-    final SessionInstanceModel instance = updatedInstance.copyWith(
-      completedAt: DateTime.now(),
-      status: SessionStatus.completed,
+    await instanceRepo.updateInstance(
+      int.parse(updatedInstance.id!),
+      updatedInstance,
     );
-    await instanceRepo.updateInstance(int.parse(instance.id!), instance);
 
     // Check if session should be archived
-    await _checkAndArchiveIfComplete(instance.sessionId);
+    await _checkAndArchiveIfComplete(updatedInstance.sessionId);
   }
 
   Future<void> _checkAndArchiveIfComplete(String sessionId) async {
