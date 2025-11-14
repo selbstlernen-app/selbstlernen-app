@@ -26,7 +26,7 @@ class GetCompletedSessionsForTodayUseCase {
       final List<SessionInstanceModel> completedOrSkipped = instances
           .where(
             (SessionInstanceModel instance) =>
-                instance.status == SessionStatus.inProgress ||
+                instance.status == SessionStatus.completed ||
                 instance.status == SessionStatus.skipped,
           )
           .toList();
