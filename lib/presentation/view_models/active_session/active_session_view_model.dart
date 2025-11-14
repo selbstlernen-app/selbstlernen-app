@@ -5,6 +5,7 @@ import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
+import 'package:srl_app/domain/usecases/instance/create_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 
@@ -12,43 +13,61 @@ part 'active_session_view_model.g.dart';
 
 @riverpod
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
+  late final FullSessionUseCase _fullSessionUseCase;
   late final UpdateInstanceUseCase _updateInstanceUseCase;
+  late final SessionInstanceUseCase _sessionInstanceUseCase;
   late final CompleteInstanceUseCase _completeInstanceUseCase;
+  late final int _instanceId;
+  late StreamSubscription? _sessionSubscription;
+
   Timer? _timer;
 
   @override
-  ActiveSessionState build(FullSessionModel fullSession) {
+  ActiveSessionState build(int instanceId) {
+    _instanceId = instanceId;
+    _fullSessionUseCase = ref.watch(fullSessionUseCaseProvider);
     _updateInstanceUseCase = ref.watch(updateInstanceUseCaseProvider);
     _completeInstanceUseCase = ref.watch(completeInstanceUseCaseProvider);
+    _sessionInstanceUseCase = ref.watch(sessionInstanceUseCaseProvider);
+
+    _loadData();
 
     ref.onDispose(() {
       _timer?.cancel();
+      _sessionSubscription?.cancel();
     });
 
-    _initializeSessionInstance();
-
-    return ActiveSessionState(
-      fullSession: fullSession,
-      remainingSeconds: (fullSession.session.focusTimeMin) * 60,
-    );
+    return const ActiveSessionState(isLoading: true);
   }
 
-  Future<void> _initializeSessionInstance() async {
-    final DateTime today = DateTime.now();
-    final SessionInstanceModel instance;
+  Future<void> _loadData() async {
+    try {
+      // 1. Load the instance (created either in detail screen or formula)
+      final instance = await _sessionInstanceUseCase.getInstanceById(
+        _instanceId,
+      );
 
-    // In case we have a non-repeating session; get its one and only instance
-    // if (!fullSession.session.isRepeating) {
-    //   instance = await _sessionInstanceUseCase.getInstanceBySessionId(
-    //     int.parse(fullSession.session.id!),
-    //   );
-    // } else {
-    //   instance = await _sessionInstanceUseCase.getInstanceBySessionIdAndDate(
-    //     int.parse(fullSession.session.id!),
-    //     today,
-    //   );
-    // }
-    // state = state.copyWith(instanceId: instance.id);
+      // 2. Get session ID from instance
+      final sessionId = int.parse(instance.sessionId);
+
+      // 3. Watch the full session (in case user adds goals/tasks)
+      _sessionSubscription = _fullSessionUseCase
+          .watchFullSession(sessionId)
+          .listen((FullSessionModel fullSession) {
+            state = state.copyWith(
+              fullSession: fullSession,
+              instance: instance,
+              totalFocusSecondsElapsed: instance.totalFocusSecondsElapsed,
+              totalBreakSecondsElapsed: instance.totalBreakSecondsElapsed,
+              totalFocusPhases: instance.totalFocusPhases,
+              completedBlocks: instance.totalCompletedBlocks,
+              remainingSeconds: fullSession.session.focusTimeMin * 60,
+              isLoading: false,
+            );
+          });
+    } catch (e) {
+      state = state.copyWith(error: e.toString(), isLoading: false);
+    }
   }
 
   void setCountUpwards(bool countUpwards) {
@@ -74,6 +93,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   void pauseTimer() {
     _timer?.cancel();
     state = state.copyWith(timerStatus: TimerStatus.paused);
+    _autoSave();
   }
 
   void _tick() {
@@ -105,7 +125,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   // Function to switch phase dependent on the current one (focus -> short/long break)
   void _handlePhaseComplete() {
-    final SessionModel session = state.fullSession.session;
+    final SessionModel session = state.fullSession!.session;
 
     switch (state.currentPhase) {
       case SessionPhase.focus:
@@ -164,10 +184,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       totalFocusPhases: totalFocusPhases ?? state.totalFocusPhases,
       completedBlocks: completedBlocks ?? state.completedBlocks,
     );
+
+    _autoSave();
   }
 
   // Complete a goal
-  void toggleGoalCompletion(String goalId) {
+  Future<void> toggleGoalCompletion(String goalId) async {
     final Set<String> completed = Set<String>.from(state.completedGoalIds);
     if (completed.contains(goalId)) {
       completed.remove(goalId);
@@ -175,10 +197,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       completed.add(goalId);
     }
     state = state.copyWith(completedGoalIds: completed);
+
+    await _autoSave();
   }
 
   // Complete a task
-  void toggleTaskCompletion(String taskId) {
+  Future<void> toggleTaskCompletion(String taskId) async {
     final Set<String> completed = Set<String>.from(state.completedTaskIds);
     if (completed.contains(taskId)) {
       completed.remove(taskId);
@@ -186,6 +210,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       completed.add(taskId);
     }
     state = state.copyWith(completedTaskIds: completed);
+
+    await _autoSave();
   }
 
   Future<void> stopSession() async {
@@ -193,27 +219,52 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     _timer?.cancel();
     state = state.copyWith(timerStatus: TimerStatus.completed);
 
-    // Save instance tracking data
-    await _saveSessionTracking();
+    // Final save before completion
+    await _autoSave();
   }
 
-  Future<void> _saveSessionTracking() async {
-    if (state.sessionStartTime == null) return;
+  /// Is called when:
+  /// The session is paused or stopped
+  /// A goal or task have be checked off
+  /// A break phase has been completed
+  /// Every min when a focus phase is ongoing
+  Future<void> _autoSave() async {
+    if (state.instance == null) return;
 
-    final SessionInstanceModel sessionInstance = SessionInstanceModel(
-      sessionId: state.fullSession.session.id!,
-      id: state.instanceId,
-      scheduledAt: state.scheduledAt ?? DateTime.now(),
+    try {
+      final updatedInstance = state.instance!.copyWith(
+        totalFocusSecondsElapsed: state.totalFocusSecondsElapsed,
+        totalBreakSecondsElapsed: state.totalBreakSecondsElapsed,
+        totalFocusPhases: state.totalFocusPhases,
+        totalCompletedBlocks: state.completedBlocks,
+        totalCompletedGoals: state.completedGoalIds.length,
+        totalCompletedTasks: state.completedTaskIds.length,
+        status: SessionStatus.inProgress,
+      );
 
-      totalCompletedGoals: state.completedGoalIds.length,
-      totalCompletedTasks: state.completedTaskIds.length,
+      await _updateInstanceUseCase.call(updatedInstance);
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
+  }
 
-      totalBreakSecondsElapsed: state.totalBreakSecondsElapsed,
-      totalCompletedBlocks: state.completedBlocks,
-      totalFocusPhases: state.totalFocusPhases,
-      totalFocusSecondsElapsed: state.totalFocusSecondsElapsed,
+  /// Final completion of the instance; is called
+  /// after the reflection screen
+  Future<void> completeSession({String? notes, int? mood}) async {
+    if (state.instance == null) return;
+
+    SessionInstanceModel finalInstance = state.instance!.copyWith(
+      completedAt: DateTime.now(),
+      status: SessionStatus.completed,
+      notes: notes,
+      mood: mood,
     );
 
-    await _completeInstanceUseCase.call(sessionInstance);
+    try {
+      await _completeInstanceUseCase.call(finalInstance);
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+      rethrow;
+    }
   }
 }

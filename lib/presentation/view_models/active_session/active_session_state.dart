@@ -13,32 +13,34 @@ abstract class ActiveSessionState with _$ActiveSessionState {
   const ActiveSessionState._();
 
   const factory ActiveSessionState({
-    required FullSessionModel fullSession,
+    FullSessionModel? fullSession,
     SessionInstanceModel? instance,
-    String? instanceId,
-    DateTime? scheduledAt,
     @Default(SessionPhase.focus) SessionPhase currentPhase,
     @Default(TimerStatus.initial) TimerStatus timerStatus,
     @Default(0) int remainingSeconds,
     @Default(0) int totalFocusSecondsElapsed,
     @Default(0) int totalBreakSecondsElapsed,
     @Default(0) int totalLongBreakSecondsElapsed,
-
     @Default(0) int totalFocusPhases,
     @Default(0) int completedBlocks,
     DateTime? sessionStartTime,
-
     @Default(<String>{}) Set<String> completedGoalIds,
     @Default(<String>{}) Set<String> completedTaskIds,
 
-    // Only for screen
     @Default(false) bool countUpwards,
+    @Default(true) bool isLoading,
+    String? error,
   }) = _ActiveSessionState;
 
   List<TaskModel> get ungroupedTasks =>
-      fullSession.tasks.where((TaskModel task) => task.goalId == null).toList();
+      fullSession?.tasks
+          .where((TaskModel task) => task.goalId == null)
+          .toList() ??
+      <TaskModel>[];
 
-  List<TaskModel> tasksForGoal(String goalId) => fullSession.tasks
-      .where((TaskModel task) => task.goalId == goalId)
-      .toList();
+  List<TaskModel> tasksForGoal(String goalId) =>
+      fullSession?.tasks
+          .where((TaskModel task) => task.goalId == goalId)
+          .toList() ??
+      <TaskModel>[];
 }

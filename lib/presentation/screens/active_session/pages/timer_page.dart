@@ -8,19 +8,24 @@ import 'package:srl_app/presentation/view_models/active_session/active_session_s
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
 class TimerPage extends ConsumerWidget {
-  const TimerPage({super.key, required this.fullSessionModel});
+  const TimerPage({
+    super.key,
+    required this.fullSessionModel,
+    required this.instanceId,
+  });
 
   final FullSessionModel fullSessionModel;
+  final int instanceId;
 
   // Get the total time to calculate progress percentage
   int _getPhaseDuration(ActiveSessionState state) {
     switch (state.currentPhase) {
       case SessionPhase.focus:
-        return (state.fullSession.session.focusTimeMin) * 60;
+        return (state.fullSession!.session.focusTimeMin) * 60;
       case SessionPhase.shortBreak:
-        return (state.fullSession.session.breakTimeMin) * 60;
+        return (state.fullSession!.session.breakTimeMin) * 60;
       case SessionPhase.longBreak:
-        return (state.fullSession.session.longBreakTimeMin) * 60;
+        return (state.fullSession!.session.longBreakTimeMin) * 60;
     }
   }
 
@@ -49,11 +54,11 @@ class TimerPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ActiveSessionState state = ref.watch(
-      activeSessionViewModelProvider(fullSessionModel),
+      activeSessionViewModelProvider(instanceId),
     );
 
     final ActiveSessionViewModel viewModel = ref.read(
-      activeSessionViewModelProvider(fullSessionModel).notifier,
+      activeSessionViewModelProvider(instanceId).notifier,
     );
 
     final int totalDuration = _getPhaseDuration(state);

@@ -12,6 +12,11 @@ class SessionInstanceUseCase {
     int sessionInstanceId,
   ) => repository.watchInstanceById(sessionInstanceId);
 
-  Future<SessionInstanceModel> getSessionInstanceById(int sessionInstanceId) =>
+  Future<SessionInstanceModel> getInstanceById(int sessionInstanceId) =>
       repository.getInstanceById(sessionInstanceId);
+
+  Future<SessionInstanceModel?> getInstanceBySessionIdAndDate(
+    int sessionId,
+    DateTime date,
+  ) => repository.getInstanceForDate(sessionId, date);
 }

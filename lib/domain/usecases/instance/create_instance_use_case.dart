@@ -10,11 +10,13 @@ class CreateInstanceUseCase {
   final SessionInstanceRepository repository;
   final SessionRepository sessionRepo;
 
-  Future<void> call(SessionInstanceModel instance) async {
-    await repository.createInstance(instance: instance);
+  Future<int> call(SessionInstanceModel instance) async {
+    int id = await repository.createInstance(instance: instance);
 
     // Check if session should be archived
     await _checkAndArchiveIfComplete(instance.sessionId);
+
+    return id;
   }
 
   Future<void> _checkAndArchiveIfComplete(String sessionId) async {

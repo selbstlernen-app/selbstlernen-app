@@ -98,7 +98,7 @@ class PendingSessionTile extends ConsumerWidget {
     if (!session.isRepeating) {
       return "Einmalig";
     } else {
-      final date = session.startDate;
+      final DateTime? date = session.startDate;
       return "${date?.day}.${date?.month}.${date?.year}";
     }
   }

@@ -31,10 +31,10 @@ LazyDatabase _openConnection() {
     final Directory dbFolder = await getApplicationDocumentsDirectory();
     final File file = File(path.join(dbFolder.path, "db.sqlite"));
 
-    if (await file.exists()) {
-      await file.delete();
-      print("Drift database deleted!");
-    }
+    // if (await file.exists()) {
+    //   await file.delete();
+    //   print("Drift database deleted!");
+    // }
 
     return NativeDatabase(file);
   });

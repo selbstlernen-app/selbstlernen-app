@@ -5,6 +5,7 @@ import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
+import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
@@ -112,18 +113,20 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
       } else {
         await ref.read(addSessionViewModelProvider.notifier).createSession();
       }
-      final AddSessionViewModel viewModel = ref.read(
-        addSessionViewModelProvider.notifier,
-      );
-      FullSessionModel fullSessionModel = await viewModel.getFullSession();
+
+      SessionInstanceModel instance = await ref
+          .read(addSessionViewModelProvider.notifier)
+          .startSession(DateTime.now());
 
       if (!mounted) return;
 
       await Navigator.push(
         context,
         MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) =>
-              ActiveSessionScreen(fullSessionModel: fullSessionModel),
+          builder: (BuildContext context) => ActiveSessionScreen(
+            instanceId: int.parse(instance.id!),
+            sessionId: int.parse(instance.sessionId),
+          ),
         ),
       );
     } catch (e) {

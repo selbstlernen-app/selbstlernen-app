@@ -11,7 +11,7 @@ class CompletedSessionTile extends StatelessWidget {
   final SessionWithInstanceModel sessionWithInstance;
 
   Icon _getIcon() {
-    final status = sessionWithInstance.instance!.status;
+    final SessionStatus status = sessionWithInstance.instance!.status;
     switch (status) {
       case SessionStatus.completed:
         return const Icon(Icons.check_circle);
@@ -23,7 +23,7 @@ class CompletedSessionTile extends StatelessWidget {
   }
 
   Color _getColor() {
-    final status = sessionWithInstance.instance!.status;
+    final SessionStatus status = sessionWithInstance.instance!.status;
     switch (status) {
       case SessionStatus.completed:
         return AppPalette.pastelEmerald;
@@ -36,8 +36,8 @@ class CompletedSessionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final session = sessionWithInstance.session;
-    final instance = sessionWithInstance.instance!;
+    final SessionModel session = sessionWithInstance.session;
+    final SessionInstanceModel instance = sessionWithInstance.instance!;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8.0),

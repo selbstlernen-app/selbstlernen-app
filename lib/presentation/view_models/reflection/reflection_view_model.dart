@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/usecases/instance/update_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 
@@ -24,7 +23,7 @@ class ReflectionViewModel extends _$ReflectionViewModel {
     _UpdateInstanceUseCase = ref.watch(updateInstanceUseCaseProvider);
 
     final SessionInstanceModel instance = await _sessionInstanceUseCase
-        .getSessionInstanceById(instanceId);
+        .getInstanceById(instanceId);
 
     return ReflectionState(sessionInstance: instance);
   }

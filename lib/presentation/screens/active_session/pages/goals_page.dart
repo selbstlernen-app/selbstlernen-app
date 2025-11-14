@@ -9,21 +9,26 @@ import 'package:srl_app/presentation/view_models/active_session/active_session_s
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
 class GoalsPage extends ConsumerWidget {
-  const GoalsPage({super.key, required this.fullSessionModel});
+  const GoalsPage({
+    super.key,
+    required this.fullSessionModel,
+    required this.instanceId,
+  });
 
   final FullSessionModel fullSessionModel;
+  final int instanceId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ActiveSessionState state = ref.watch(
-      activeSessionViewModelProvider(fullSessionModel),
+      activeSessionViewModelProvider(instanceId),
     );
     final ActiveSessionViewModel viewModel = ref.read(
-      activeSessionViewModelProvider(fullSessionModel).notifier,
+      activeSessionViewModelProvider(instanceId).notifier,
     );
 
     // Goals and (ungrouped) tasks
-    final List<GoalModel> goals = state.fullSession.goals;
+    final List<GoalModel> goals = state.fullSession!.goals;
     final List<TaskModel> ungroupedTasks = state.ungroupedTasks;
 
     return Card(

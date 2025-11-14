@@ -4,7 +4,6 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
@@ -18,7 +17,9 @@ class SessionDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(detailSessionViewModelProvider(sessionId));
+    final AsyncValue<DetailSessionState> state = ref.watch(
+      detailSessionViewModelProvider(sessionId),
+    );
 
     return state.when(
       loading: () => const LoadingIndicator(),
@@ -31,7 +32,7 @@ class SessionDetailScreen extends ConsumerWidget {
           );
         }
 
-        final session = detailState.fullSession!.session;
+        final SessionModel session = detailState.fullSession!.session;
 
         return MainLayout(
           navigateBack: () {
@@ -114,14 +115,29 @@ class SessionDetailScreen extends ConsumerWidget {
                 width: context.mediaQuery.size.width,
                 child: CustomButton(
                   onPressed: () async {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute<dynamic>(
-                        builder: (BuildContext context) => ActiveSessionScreen(
-                          fullSessionModel: detailState.fullSession!,
-                        ),
-                      ),
-                    );
+                    try {
+                      // Get or create instance
+                      SessionInstanceModel existingInstance = await ref
+                          .read(
+                            detailSessionViewModelProvider(sessionId).notifier,
+                          )
+                          .startSession(DateTime.now());
+
+                      if (context.mounted) {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute<dynamic>(
+                            builder: (BuildContext context) =>
+                                ActiveSessionScreen(
+                                  instanceId: int.parse(existingInstance.id!),
+                                  sessionId: int.parse(session.id!),
+                                ),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      throw ArgumentError(e);
+                    }
                   },
                   label: "Starten",
                 ),

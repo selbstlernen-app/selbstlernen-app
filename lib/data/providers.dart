@@ -16,6 +16,7 @@ import 'package:srl_app/domain/task_repository.dart';
 import 'package:srl_app/domain/usecases/get_completed_sessions_for_today_use_case.dart';
 import 'package:srl_app/domain/usecases/get_sessions_for_today_use_case.dart';
 import 'package:srl_app/domain/usecases/instance/create_instance_use_case.dart';
+import 'package:srl_app/domain/usecases/instance/get_or_create_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 
 part 'providers.g.dart';
@@ -135,6 +136,14 @@ CompleteInstanceUseCase completeInstanceUseCase(Ref ref) {
   return CompleteInstanceUseCase(
     ref.watch(sessionRepositoryProvider),
     ref.watch(sessionInstanceRepositoryProvider),
+  );
+}
+
+@riverpod
+GetOrCreateInstanceUseCase getOrCreateInstanceUseCase(Ref ref) {
+  return GetOrCreateInstanceUseCase(
+    ref.watch(sessionInstanceRepositoryProvider),
+    ref.watch(createInstanceUseCaseProvider),
   );
 }
 

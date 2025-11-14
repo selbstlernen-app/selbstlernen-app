@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/show_custom_dialog.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/active_session/pages/goals_page.dart';
 import 'package:srl_app/presentation/screens/active_session/pages/timer_page.dart';
@@ -14,9 +14,14 @@ import 'package:srl_app/presentation/view_models/active_session/active_session_s
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
 class ActiveSessionScreen extends ConsumerStatefulWidget {
-  const ActiveSessionScreen({super.key, required this.fullSessionModel});
+  const ActiveSessionScreen({
+    super.key,
+    required this.instanceId,
+    required this.sessionId,
+  });
 
-  final FullSessionModel fullSessionModel;
+  final int instanceId;
+  final int sessionId;
 
   @override
   ConsumerState<ActiveSessionScreen> createState() =>
@@ -26,53 +31,49 @@ class ActiveSessionScreen extends ConsumerStatefulWidget {
 class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   late SessionInstanceModel sessionInstance;
   final PageController controller = PageController(initialPage: 0);
-
-  final List<Widget> pages = <Widget>[];
+  late List<Widget> pages;
 
   @override
   void initState() {
     super.initState();
-    pages.addAll(<Widget>[
-      TimerPage(fullSessionModel: widget.fullSessionModel),
-      GoalsPage(fullSessionModel: widget.fullSessionModel),
-    ]);
+    pages = [];
   }
 
   Future<void> _startOrStopButton() async {
-    final ActiveSessionState state = ref.watch(
-      activeSessionViewModelProvider(widget.fullSessionModel),
-    );
-    final ActiveSessionViewModel viewModel = ref.read(
-      activeSessionViewModelProvider(widget.fullSessionModel).notifier,
+    final state = ref.read(activeSessionViewModelProvider(widget.instanceId));
+    final viewModel = ref.read(
+      activeSessionViewModelProvider(widget.instanceId).notifier,
     );
 
-    // Show start text; start the session
+    // Start the session
     if (state.timerStatus == TimerStatus.initial) {
       viewModel.startTimer();
+      return;
     }
-    // End the session
+
+    // Stop the session
     if (state.timerStatus != TimerStatus.initial) {
       viewModel.pauseTimer();
+
       await showCustomDialog(
         context: context,
         title: "Lerneinheit beenden",
+        confirmLabel: "Bestätigen",
+        onCancel: () =>
+            // User cancelled - resume timer
+            viewModel.startTimer(),
         onConfirm: () async {
           await viewModel.stopSession();
           if (context.mounted) {
             await Navigator.pushReplacement(
               context,
-              MaterialPageRoute<dynamic>(
-                builder: (BuildContext context) => ReflectionScreen(
-                  sessionInstanceId: int.parse(state.instanceId!),
-                ),
+              MaterialPageRoute(
+                builder: (context) =>
+                    ReflectionScreen(sessionInstanceId: widget.instanceId),
               ),
             );
           }
         },
-        onCancel: () {
-          viewModel.startTimer();
-        },
-        confirmLabel: "Bestätigen",
         cancelLabel: "Abbrechen",
       );
     }
@@ -81,9 +82,38 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   @override
   Widget build(BuildContext context) {
     final ActiveSessionState state = ref.watch(
-      activeSessionViewModelProvider(widget.fullSessionModel),
+      activeSessionViewModelProvider(widget.instanceId),
     );
 
+    if (state.isLoading) {
+      return const LoadingIndicator();
+    }
+
+    // Handle error
+    if (state.error != null) {
+      return Scaffold(body: Center(child: Text('Error: ${state.error}')));
+    }
+
+    // Handle no data
+    if (state.fullSession == null || state.instance == null) {
+      return const Scaffold(
+        body: Center(child: Text('Session nicht gefunden')),
+      );
+    }
+
+    // Initialize pages (only when data is loaded)
+    if (pages.isEmpty) {
+      pages = <Widget>[
+        TimerPage(
+          fullSessionModel: state.fullSession!,
+          instanceId: widget.instanceId,
+        ),
+        GoalsPage(
+          fullSessionModel: state.fullSession!,
+          instanceId: widget.instanceId,
+        ),
+      ];
+    }
     return Scaffold(
       backgroundColor: context.colorScheme.secondary,
       body: SafeArea(
@@ -100,7 +130,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                     children: <Widget>[
                       const VerticalSpace(size: SpaceSize.large),
                       Text(
-                        state.fullSession.session.title,
+                        state.fullSession!.session.title,
                         style: context.textTheme.headlineLarge,
                         textAlign: TextAlign.center,
                       ),

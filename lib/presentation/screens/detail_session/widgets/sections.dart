@@ -7,7 +7,7 @@ import 'package:srl_app/domain/models/task_model.dart';
 
 // 1. Session Info Card
 class SessionInfoCard extends StatelessWidget {
-  const SessionInfoCard({required this.session});
+  const SessionInfoCard({super.key, required this.session});
 
   final SessionModel session;
 
@@ -18,13 +18,13 @@ class SessionInfoCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(session.title, style: context.textTheme.headlineMedium),
             const SizedBox(height: 8),
 
             // Schedule info
             Row(
-              children: [
+              children: <Widget>[
                 const Icon(Icons.calendar_today, size: 20),
                 const SizedBox(width: 8),
                 Text(
@@ -36,7 +36,7 @@ class SessionInfoCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Row(
-              children: [
+              children: <Widget>[
                 const Icon(Icons.date_range, size: 20),
                 const SizedBox(width: 8),
                 Text(_formatDateRange(session)),
@@ -49,14 +49,22 @@ class SessionInfoCard extends StatelessWidget {
   }
 
   String _formatWeekdays(List<int> weekdays) {
-    final days = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
-    return weekdays.map((d) => days[d - 1]).join(', ');
+    final List<String> days = <String>[
+      'Mo',
+      'Di',
+      'Mi',
+      'Do',
+      'Fr',
+      'Sa',
+      'So',
+    ];
+    return weekdays.map((int d) => days[d - 1]).join(', ');
   }
 
   String _formatDateRange(SessionModel session) {
-    final start = (session.startDate!).day.toString();
+    final String start = (session.startDate!).day.toString();
     if (session.endDate != null) {
-      final end = (session.endDate!);
+      final DateTime end = (session.endDate!);
       return '$start - $end';
     }
     return start;
@@ -65,7 +73,7 @@ class SessionInfoCard extends StatelessWidget {
 
 // 3. Goals Section
 class GoalsSection extends StatelessWidget {
-  const GoalsSection({required this.goals});
+  const GoalsSection({super.key, required this.goals});
 
   final List<GoalModel> goals;
 
@@ -76,14 +84,14 @@ class GoalsSection extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(
               'Ziele (${goals.length})',
               style: context.textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
             ...goals.map(
-              (goal) => ListTile(
+              (GoalModel goal) => ListTile(
                 leading: const Icon(Icons.flag),
                 title: Text(goal.title),
                 dense: true,
@@ -99,7 +107,7 @@ class GoalsSection extends StatelessWidget {
 
 // 4. Tasks Section (similar to goals)
 class TasksSection extends StatelessWidget {
-  const TasksSection({required this.tasks});
+  const TasksSection({super.key, required this.tasks});
 
   final List<TaskModel> tasks;
 
@@ -110,14 +118,14 @@ class TasksSection extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text(
               'Aufgaben (${tasks.length})',
               style: context.textTheme.titleLarge,
             ),
             const SizedBox(height: 12),
             ...tasks.map(
-              (task) => ListTile(
+              (TaskModel task) => ListTile(
                 leading: const Icon(Icons.check_box_outline_blank),
                 title: Text(task.title),
                 dense: true,
@@ -133,28 +141,31 @@ class TasksSection extends StatelessWidget {
 
 // 5. History Section
 class HistorySection extends StatelessWidget {
-  const HistorySection({required this.instances});
+  const HistorySection({super.key, required this.instances});
 
   final List<SessionInstanceModel> instances;
 
   @override
   Widget build(BuildContext context) {
     // Sort by date, most recent first
-    final sorted = [...instances]
-      ..sort((a, b) => b.scheduledAt.compareTo(a.scheduledAt));
+    final List<SessionInstanceModel> sorted =
+        <SessionInstanceModel>[...instances]..sort(
+          (SessionInstanceModel a, SessionInstanceModel b) =>
+              b.scheduledAt.compareTo(a.scheduledAt),
+        );
 
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          children: <Widget>[
             Text('Verlauf', style: context.textTheme.titleLarge),
             const SizedBox(height: 12),
             ...sorted
                 .take(5)
                 .map(
-                  (instance) => ListTile(
+                  (SessionInstanceModel instance) => ListTile(
                     leading: Icon(
                       instance.status == SessionStatus.completed
                           ? Icons.check_circle
