@@ -36,8 +36,6 @@ class HomeViewModel extends _$HomeViewModel {
         .listen(
           (List<SessionWithInstanceModel> sessions) {
             state = state.copyWith(sessions: sessions, isLoading: false);
-
-            print(sessions);
           },
           onError: (dynamic error) {
             state = state.copyWith(error: error.toString(), isLoading: false);
@@ -51,8 +49,6 @@ class HomeViewModel extends _$HomeViewModel {
             state = state.copyWith(
               completedSessionsForToday: completedSessions,
             );
-
-            print(completedSessions);
           },
           onError: (dynamic error) {
             state = state.copyWith(error: error.toString());
@@ -67,7 +63,7 @@ class HomeViewModel extends _$HomeViewModel {
   Future<void> skipSession({required String sessionId}) async {
     try {
       // Create the instance in the database with skipped status
-      final newInstance = SessionInstanceModel(
+      final SessionInstanceModel newInstance = SessionInstanceModel(
         sessionId: sessionId,
         scheduledAt: DateTime.now(),
         status: SessionStatus.skipped,

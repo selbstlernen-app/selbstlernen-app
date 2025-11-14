@@ -15,51 +15,38 @@ class GetCompletedSessionsForTodayUseCase {
   final SessionInstanceRepository instanceRepo;
 
   Stream<List<SessionWithInstanceModel>> call(DateTime date) {
-    print('🎯 GetCompletedSessionsForTodayUseCase called for date: $date');
-
-    final instances$ = instanceRepo.watchAllInstancesForDate(date);
-    final sessions$ = sessionRepo.watchAllSessions();
+    final Stream<List<SessionInstanceModel>> instances$ = instanceRepo
+        .watchAllInstancesForDate(date);
+    final Stream<List<SessionModel>> sessions$ = sessionRepo.watchAllSessions();
 
     return Rx.combineLatest2(sessions$, instances$, (
       List<SessionModel> sessions,
       List<SessionInstanceModel> instances,
     ) {
-      print('📦 Total sessions: ${sessions.length}');
-      print('📦 Total instances for date: ${instances.length}');
-
-      final completedOrSkipped = instances
+      final List<SessionInstanceModel> completedOrSkipped = instances
           .where(
-            (instance) =>
+            (SessionInstanceModel instance) =>
                 instance.status == SessionStatus.inProgress ||
                 instance.status == SessionStatus.skipped,
           )
           .toList();
 
-      print('✅ Completed/Skipped instances: ${completedOrSkipped.length}');
-
       // Check if we have matching sessions
-      final result = completedOrSkipped.map((instance) {
-        print('🔍 Looking for session with ID: ${instance.sessionId}');
-
-        final session = sessions.firstWhere(
-          (s) {
-            print(
-              '  Comparing: session.id=${s.id} with instance.sessionId=${instance.sessionId}',
-            );
+      final List<SessionWithInstanceModel> result = completedOrSkipped.map((
+        SessionInstanceModel instance,
+      ) {
+        final SessionModel session = sessions.firstWhere(
+          (SessionModel s) {
             return s.id == instance.sessionId;
           },
           orElse: () {
-            print('  ⚠️ Session not found for instance ${instance.id}!');
             throw Exception('Session ${instance.sessionId} not found');
           },
         );
 
-        print('  ✅ Found session: ${session.title}');
-
         return SessionWithInstanceModel(session: session, instance: instance);
       }).toList();
 
-      print('🎉 Returning ${result.length} completed sessions');
       return result;
     });
   }

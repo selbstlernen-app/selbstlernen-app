@@ -66,7 +66,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
             viewModel.startTimer(),
         onConfirm: () async {
           await viewModel.stopSession();
-          if (context.mounted) {
+          if (mounted) {
             await Navigator.pushReplacement(
               context,
               MaterialPageRoute<dynamic>(

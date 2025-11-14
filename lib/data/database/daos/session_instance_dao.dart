@@ -44,16 +44,22 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
 
   /// Watch all session instances for a given date
   Stream<List<SessionInstance>> watchAllInstancesForDate(DateTime date) {
-    final startOfDay = DateTime(date.year, date.month, date.day);
-    final endOfDay = DateTime(date.year, date.month, date.day, 23, 59, 59);
+    final DateTime startOfDay = DateTime(date.year, date.month, date.day);
+    final DateTime endOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      23,
+      59,
+      59,
+    );
 
-    print('🔍 Watching instances between $startOfDay and $endOfDay');
-
-    return (select(sessionInstances)
-          ..where((t) => t.scheduledAt.isBetweenValues(startOfDay, endOfDay)))
+    return (select(sessionInstances)..where(
+          ($SessionInstancesTable t) =>
+              t.scheduledAt.isBetweenValues(startOfDay, endOfDay),
+        ))
         .watch()
-        .map((rows) {
-          print('📊 Found ${rows.length} instances for date');
+        .map((List<SessionInstance> rows) {
           return rows.toList();
         });
   }

@@ -12,7 +12,6 @@ part 'detail_session_view_model.g.dart';
 class DetailSessionViewModel extends _$DetailSessionViewModel {
   late final FullSessionUseCase _fullSessionUseCase;
   late final GetInstanceUseCase _getInstancesUseCase;
-  late final EditSessionUseCase _editSessionUseCase;
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
   // TODO: Add stats later on...
   late final int _sessionId;
@@ -21,7 +20,6 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   Stream<DetailSessionState> build(int sessionId) {
     _sessionId = sessionId;
     _fullSessionUseCase = ref.watch(fullSessionUseCaseProvider);
-    _editSessionUseCase = ref.watch(editSessionUseCaseProvider);
     _getInstancesUseCase = ref.watch(getInstanceUseCaseProvider);
     _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
 
@@ -42,7 +40,7 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
         // TODO: stats here
         isLoading: false,
       );
-    }).handleError((error) {
+    }).handleError((dynamic error) {
       return DetailSessionState(error: error.toString(), isLoading: false);
     });
   }

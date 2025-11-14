@@ -4,7 +4,6 @@ import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
@@ -97,6 +96,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         context,
       ).pushNamedAndRemoveUntil("/", (Route<dynamic> route) => false);
     } catch (e) {
+      if (!mounted) return;
       context.scaffoldMessenger.showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 2),

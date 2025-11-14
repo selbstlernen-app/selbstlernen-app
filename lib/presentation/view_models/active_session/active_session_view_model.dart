@@ -17,7 +17,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   late final GetInstanceUseCase _getInstanceUseCase;
   late final CompleteInstanceUseCase _completeInstanceUseCase;
   late final int _instanceId;
-  late StreamSubscription<dynamic> _sessionSubscription;
+  late StreamSubscription<dynamic>? _sessionSubscription;
 
   Timer? _timer;
 
@@ -42,9 +42,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> _loadData() async {
     try {
       // Load the instance (created either in detail screen or formula)
-      final instance = await _getInstanceUseCase.getInstanceById(_instanceId);
+      final SessionInstanceModel instance = await _getInstanceUseCase
+          .getInstanceById(_instanceId);
 
-      final sessionId = int.parse(instance.sessionId);
+      final int sessionId = int.parse(instance.sessionId);
 
       // Watch the full session (in case user adds goals/tasks)
       _sessionSubscription = _fullSessionUseCase
@@ -231,7 +232,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     if (state.instance == null) return;
 
     try {
-      final updatedInstance = state.instance!.copyWith(
+      final SessionInstanceModel updatedInstance = state.instance!.copyWith(
         totalFocusSecondsElapsed: state.totalFocusSecondsElapsed,
         totalBreakSecondsElapsed: state.totalBreakSecondsElapsed,
         totalFocusPhases: state.totalFocusPhases,

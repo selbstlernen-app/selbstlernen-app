@@ -8,6 +8,7 @@ import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/main_navigation.dart';
+import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_view_model.dart';
 
 class ReflectionScreen extends ConsumerStatefulWidget {
@@ -31,7 +32,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
   }
 
   Future<void> submitReflection() async {
-    final viewModel = ref.read(
+    final ReflectionViewModel viewModel = ref.read(
       reflectionViewModelProvider(widget.instance).notifier,
     );
 
@@ -60,10 +61,10 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final reflectionState = ref.watch(
+    final ReflectionState reflectionState = ref.watch(
       reflectionViewModelProvider(widget.instance),
     );
-    final viewModel = ref.read(
+    final ReflectionViewModel viewModel = ref.read(
       reflectionViewModelProvider(widget.instance).notifier,
     );
 
