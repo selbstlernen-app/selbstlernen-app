@@ -1,11 +1,10 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/data/providers.dart';
+import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
-import 'package:srl_app/domain/usecases/instance/create_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 
@@ -15,10 +14,10 @@ part 'active_session_view_model.g.dart';
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   late final FullSessionUseCase _fullSessionUseCase;
   late final UpdateInstanceUseCase _updateInstanceUseCase;
-  late final SessionInstanceUseCase _sessionInstanceUseCase;
+  late final GetInstanceUseCase _getInstanceUseCase;
   late final CompleteInstanceUseCase _completeInstanceUseCase;
   late final int _instanceId;
-  late StreamSubscription? _sessionSubscription;
+  late StreamSubscription<dynamic> _sessionSubscription;
 
   Timer? _timer;
 
@@ -28,7 +27,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     _fullSessionUseCase = ref.watch(fullSessionUseCaseProvider);
     _updateInstanceUseCase = ref.watch(updateInstanceUseCaseProvider);
     _completeInstanceUseCase = ref.watch(completeInstanceUseCaseProvider);
-    _sessionInstanceUseCase = ref.watch(sessionInstanceUseCaseProvider);
+    _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
 
     _loadData();
 
@@ -42,15 +41,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   Future<void> _loadData() async {
     try {
-      // 1. Load the instance (created either in detail screen or formula)
-      final instance = await _sessionInstanceUseCase.getInstanceById(
-        _instanceId,
-      );
+      // Load the instance (created either in detail screen or formula)
+      final instance = await _getInstanceUseCase.getInstanceById(_instanceId);
 
-      // 2. Get session ID from instance
       final sessionId = int.parse(instance.sessionId);
 
-      // 3. Watch the full session (in case user adds goals/tasks)
+      // Watch the full session (in case user adds goals/tasks)
       _sessionSubscription = _fullSessionUseCase
           .watchFullSession(sessionId)
           .listen((FullSessionModel fullSession) {
@@ -221,6 +217,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
     // Final save before completion
     await _autoSave();
+
+    // Then complete (w/o mood or notes)
+    await completeSession();
   }
 
   /// Is called when:
@@ -250,18 +249,16 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   /// Final completion of the instance; is called
   /// after the reflection screen
-  Future<void> completeSession({String? notes, int? mood}) async {
+  Future<void> completeSession() async {
     if (state.instance == null) return;
 
-    SessionInstanceModel finalInstance = state.instance!.copyWith(
-      completedAt: DateTime.now(),
-      status: SessionStatus.completed,
-      notes: notes,
-      mood: mood,
-    );
-
     try {
-      await _completeInstanceUseCase.call(finalInstance);
+      await _completeInstanceUseCase.call(
+        state.instance!.copyWith(
+          completedAt: DateTime.now(),
+          status: SessionStatus.completed,
+        ),
+      );
     } catch (e) {
       state = state.copyWith(error: e.toString());
       rethrow;

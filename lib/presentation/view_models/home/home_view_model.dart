@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/data/providers.dart';
+import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
-import 'package:srl_app/domain/usecases/get_completed_sessions_for_today_use_case.dart';
-import 'package:srl_app/domain/usecases/get_sessions_for_today_use_case.dart';
+import 'package:srl_app/domain/usecases/session/get_completed_sessions_for_today_use_case.dart';
+import 'package:srl_app/domain/usecases/session/get_sessions_for_today_use_case.dart';
 import 'package:srl_app/domain/usecases/instance/create_instance_use_case.dart';
 
 import 'package:srl_app/presentation/view_models/home/home_state.dart';
@@ -36,6 +36,8 @@ class HomeViewModel extends _$HomeViewModel {
         .listen(
           (List<SessionWithInstanceModel> sessions) {
             state = state.copyWith(sessions: sessions, isLoading: false);
+
+            print(sessions);
           },
           onError: (dynamic error) {
             state = state.copyWith(error: error.toString(), isLoading: false);
@@ -49,6 +51,8 @@ class HomeViewModel extends _$HomeViewModel {
             state = state.copyWith(
               completedSessionsForToday: completedSessions,
             );
+
+            print(completedSessions);
           },
           onError: (dynamic error) {
             state = state.copyWith(error: error.toString());

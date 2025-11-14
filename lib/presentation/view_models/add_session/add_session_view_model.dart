@@ -1,9 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/data/providers.dart';
+import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/services/add_session_service.dart';
-import 'package:srl_app/domain/usecases/full_session_use_case.dart';
 import 'package:srl_app/domain/usecases/instance/get_or_create_instance_use_case.dart';
 import 'package:srl_app/presentation/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';

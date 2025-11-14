@@ -1,8 +1,10 @@
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 
-class SessionInstanceUseCase {
-  const SessionInstanceUseCase(this.repository);
+/// Gets instances by different measures
+class GetInstanceUseCase {
+  const GetInstanceUseCase(this.repository);
+
   final SessionInstanceRepository repository;
 
   Stream<List<SessionInstanceModel>> watchInstancesBySessionId(int sessionId) =>

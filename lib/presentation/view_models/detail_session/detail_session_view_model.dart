@@ -1,9 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:srl_app/data/providers.dart';
+import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/domain/usecases/instance/get_or_create_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
 
@@ -12,7 +11,7 @@ part 'detail_session_view_model.g.dart';
 @riverpod
 class DetailSessionViewModel extends _$DetailSessionViewModel {
   late final FullSessionUseCase _fullSessionUseCase;
-  late final SessionInstanceUseCase _getInstancesUseCase;
+  late final GetInstanceUseCase _getInstancesUseCase;
   late final EditSessionUseCase _editSessionUseCase;
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
   // TODO: Add stats later on...
@@ -23,7 +22,7 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
     _sessionId = sessionId;
     _fullSessionUseCase = ref.watch(fullSessionUseCaseProvider);
     _editSessionUseCase = ref.watch(editSessionUseCaseProvider);
-    _getInstancesUseCase = ref.watch(sessionInstanceUseCaseProvider);
+    _getInstancesUseCase = ref.watch(getInstanceUseCaseProvider);
     _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
 
     final Stream<FullSessionModel> fullSession$ = _fullSessionUseCase

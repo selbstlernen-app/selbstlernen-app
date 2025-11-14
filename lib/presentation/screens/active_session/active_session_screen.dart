@@ -36,12 +36,14 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   @override
   void initState() {
     super.initState();
-    pages = [];
+    pages = <Widget>[];
   }
 
   Future<void> _startOrStopButton() async {
-    final state = ref.read(activeSessionViewModelProvider(widget.instanceId));
-    final viewModel = ref.read(
+    final ActiveSessionState state = ref.read(
+      activeSessionViewModelProvider(widget.instanceId),
+    );
+    final ActiveSessionViewModel viewModel = ref.read(
       activeSessionViewModelProvider(widget.instanceId).notifier,
     );
 
@@ -67,9 +69,9 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
           if (context.mounted) {
             await Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    ReflectionScreen(sessionInstanceId: widget.instanceId),
+              MaterialPageRoute<dynamic>(
+                builder: (BuildContext context) =>
+                    ReflectionScreen(instance: state.instance!),
               ),
             );
           }

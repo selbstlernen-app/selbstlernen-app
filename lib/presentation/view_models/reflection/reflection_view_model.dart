@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/data/providers.dart';
+import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
@@ -10,45 +10,29 @@ part 'reflection_view_model.g.dart';
 
 @riverpod
 class ReflectionViewModel extends _$ReflectionViewModel {
-  late final SessionInstanceUseCase _sessionInstanceUseCase;
-  late final UpdateInstanceUseCase _UpdateInstanceUseCase;
-
-  late int _instanceId;
+  late final UpdateInstanceUseCase _updateInstanceUseCase;
 
   @override
-  Future<ReflectionState> build(int instanceId) async {
-    _instanceId = instanceId;
+  ReflectionState build(SessionInstanceModel instance) {
+    _updateInstanceUseCase = ref.watch(updateInstanceUseCaseProvider);
 
-    _sessionInstanceUseCase = ref.watch(sessionInstanceUseCaseProvider);
-    _UpdateInstanceUseCase = ref.watch(updateInstanceUseCaseProvider);
-
-    final SessionInstanceModel instance = await _sessionInstanceUseCase
-        .getInstanceById(instanceId);
-
-    return ReflectionState(sessionInstance: instance);
+    return ReflectionState(instance: instance);
   }
 
   void selectMood(int mood) {
-    state.whenData((ReflectionState current) {
-      state = AsyncValue<ReflectionState>.data(current.copyWith(mood: mood));
-    });
+    state = state.copyWith(mood: mood);
   }
 
-  Future<void> submitReflection({required String notes}) async {
-    final ReflectionState? current = state.value;
-    if (current == null) return;
-    state = AsyncValue<ReflectionState>.data(current.copyWith(isLoading: true));
-    try {
-      final SessionInstanceModel updatedInstance = current.sessionInstance
-          .copyWith(mood: current.mood, notes: notes);
+  void setNotes(String notes) {
+    state = state.copyWith(notes: notes);
+  }
 
-      await _UpdateInstanceUseCase.call(updatedInstance);
+  Future<void> complete({required String notes, int? mood}) async {
+    final updated = state.instance.copyWith(
+      notes: state.notes,
+      mood: state.mood,
+    );
 
-      state = AsyncValue<ReflectionState>.data(
-        current.copyWith(sessionInstance: updatedInstance, isLoading: false),
-      );
-    } catch (e, st) {
-      state = AsyncValue<ReflectionState>.error(e, st);
-    }
+    await _updateInstanceUseCase(updated);
   }
 }
