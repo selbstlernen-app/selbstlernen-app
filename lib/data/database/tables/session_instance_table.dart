@@ -7,6 +7,7 @@ class SessionInstances extends Table with AutoIncrementingPrimaryKey {
   TextColumn get status => textEnum<SessionStatus>().withDefault(
     const Constant<String>('scheduled'),
   )();
+  DateTimeColumn get scheduledAt => dateTime()();
 
   IntColumn get totalFocusPhases =>
       integer().withDefault(const Constant<int>(0))();

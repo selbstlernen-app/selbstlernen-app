@@ -26,7 +26,14 @@ class SessionDetailScreen extends ConsumerWidget {
       error: (Object error, StackTrace stack) =>
           Center(child: Text('Error: $error')),
       data: (DetailSessionState detailState) {
-        final SessionModel session = detailState.fullSession.session;
+        if (detailState.fullSession == null) {
+          return const Scaffold(
+            body: Center(child: Text('Session nicht gefunden')),
+          );
+        }
+
+        final SessionModel session = detailState.fullSession!.session;
+
         return MainLayout(
           navigateBack: () {
             Navigator.of(context).pop();
@@ -48,11 +55,7 @@ class SessionDetailScreen extends ConsumerWidget {
             ),
             IconButton(
               onPressed: () async {
-                await deleteSessionDialog(
-                  context,
-                  detailState.fullSession.session.isRepeating,
-                  ref,
-                );
+                await deleteSessionDialog(context, session.isRepeating, ref);
               },
               icon: const Icon(Icons.delete_forever_rounded),
             ),
@@ -70,7 +73,7 @@ class SessionDetailScreen extends ConsumerWidget {
                         style: context.textTheme.headlineMedium,
                       ),
                       const VerticalSpace(size: SpaceSize.small),
-                      ...detailState.fullSession.goals.map((GoalModel goal) {
+                      ...detailState.fullSession!.goals.map((GoalModel goal) {
                         return Row(
                           children: <Widget>[
                             Text(
@@ -111,14 +114,31 @@ class SessionDetailScreen extends ConsumerWidget {
               SizedBox(
                 width: context.mediaQuery.size.width,
                 child: CustomButton(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute<dynamic>(
-                      builder: (BuildContext context) => ActiveSessionScreen(
-                        fullSessionModel: detailState.fullSession,
-                      ),
-                    ),
-                  ),
+                  onPressed: () async {
+                    try {
+                      // Get or create instance
+                      SessionInstanceModel existingInstance = await ref
+                          .read(
+                            detailSessionViewModelProvider(sessionId).notifier,
+                          )
+                          .startSession(DateTime.now());
+
+                      if (context.mounted) {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute<dynamic>(
+                            builder: (BuildContext context) =>
+                                ActiveSessionScreen(
+                                  instanceId: int.parse(existingInstance.id!),
+                                  sessionId: int.parse(session.id!),
+                                ),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      throw ArgumentError(e);
+                    }
+                  },
                   label: "Starten",
                 ),
               ),

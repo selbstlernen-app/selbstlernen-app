@@ -1,9 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/data/providers.dart';
+import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/services/add_session_service.dart';
-import 'package:srl_app/domain/usecases/full_session_use_case.dart';
+import 'package:srl_app/domain/usecases/instance/get_or_create_instance_use_case.dart';
 import 'package:srl_app/presentation/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
@@ -11,8 +11,11 @@ part 'add_session_view_model.g.dart';
 
 @riverpod
 class AddSessionViewModel extends _$AddSessionViewModel {
+  late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
+
   @override
   AddSessionState build() {
+    _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
     return const AddSessionState();
   }
 
@@ -267,6 +270,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       goalIdsToDelete: state.goalIdsToDelete,
       taskIdsToDelete: state.taskIdsToDelete,
     );
+
+    resetFields();
   }
 
   // Save all info
@@ -311,14 +316,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  // Get full model to start session directly
-  Future<FullSessionModel> getFullSession() async {
-    final FullSessionUseCase fullSessionUseCase = ref.read(
-      fullSessionUseCaseProvider,
+  Future<SessionInstanceModel> startSession(DateTime date) async {
+    return await _getOrCreateInstanceUseCase.call(
+      sessionId: int.parse(state.sessionId!),
+      date: date,
     );
-    FullSessionModel fullSession = await fullSessionUseCase.getFullModel(
-      int.parse(state.sessionId!),
-    );
-    return fullSession;
   }
 }

@@ -20,21 +20,21 @@ class TaskRepositoryImp implements TaskRepository {
   }
 
   @override
-  Future<void> deleteAllTasksFor(int sessionId) {
-    return taskDao.deleteAllTasksFor(sessionId);
+  Future<void> deleteTasksBySessionId(int sessionId) {
+    return taskDao.deleteTasksBySessionId(sessionId);
   }
 
   @override
-  Future<List<TaskModel>> getAllTasksFor(int sessionId) async {
-    List<Task> taskEntities = await taskDao.getAllTasksFor(sessionId);
+  Future<List<TaskModel>> getTasksBySessionId(int sessionId) async {
+    List<Task> taskEntities = await taskDao.getTasksBySessionId(sessionId);
     List<TaskModel> tasks = TaskToModelMapper.mapFromListOfEntity(taskEntities);
     return tasks;
   }
 
   @override
-  Stream<List<TaskModel>> watchAllTasksFor(int sessionId) {
+  Stream<List<TaskModel>> watchTasksBySessionId(int sessionId) {
     return taskDao
-        .watchAllTasksFor(sessionId)
+        .watchTasksBySessionId(sessionId)
         .map(
           (List<Task> taskList) =>
               TaskToModelMapper.mapFromListOfEntity(taskList),
@@ -43,6 +43,6 @@ class TaskRepositoryImp implements TaskRepository {
 
   @override
   Future<int> updateTask(int taskId, TaskModel updatedtask) {
-    return taskDao.updateTask(taskId, updatedtask.toCompanion());
+    return taskDao.updateTask(taskId, updatedtask.toUpdateCompanion());
   }
 }

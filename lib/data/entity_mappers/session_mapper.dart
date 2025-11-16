@@ -20,9 +20,8 @@ extension SessionToModelMapper on Session {
       focusPromptInterval: focusPromptInterval,
       showFocusPromptAlways: showFocusPromptAlways,
       hasFreetextPrompt: hasFreetextPrompt,
+      isArchived: isArchived,
       createdAt: createdAt,
-      completedInstances: completedInstances,
-      isCompleted: isCompleted,
     );
   }
 
@@ -52,9 +51,8 @@ extension SessionToCompanionMapper on SessionModel {
       focusPromptInterval: Value<int>(focusPromptInterval),
       showFocusPromptAlways: Value<bool>(showFocusPromptAlways),
       hasFreetextPrompt: Value<bool>(hasFreetextPrompt),
+      isArchived: Value<bool>(isArchived),
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
-      completedInstances: Value<int>(completedInstances),
-      isCompleted: Value<bool>(isCompleted),
     );
   }
 
@@ -79,9 +77,7 @@ extension SessionToCompanionMapper on SessionModel {
       focusPromptInterval: Value<int>(focusPromptInterval),
       showFocusPromptAlways: Value<bool>(showFocusPromptAlways),
       hasFreetextPrompt: Value<bool>(hasFreetextPrompt),
-
-      completedInstances: const Value<int>.absent(),
-      isCompleted: const Value<bool>.absent(),
+      isArchived: Value<bool>(isArchived),
       createdAt: const Value<DateTime>.absent(),
     );
   }

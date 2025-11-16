@@ -1,17 +1,25 @@
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
 /// Abstract repository class for the session instance repository
-/// Can be implemented for local/remote data access
 abstract class SessionInstanceRepository {
-  Stream<List<SessionInstanceModel>> watchAllSessionsInstancesFor(
-    int sessionId,
-  );
-  Stream<SessionInstanceModel> watchSessionInstanceById(int sessionInstanceId);
-  Future<int> addSessionInstance(SessionInstanceModel sessionInstance);
-  Future<void> deleteSessionInstance(int sessionId);
-  Future<SessionInstanceModel> getSessionInstanceById(int sessionId);
-  Future<int> updateSessionInstance(
+  // CRUD operations
+  Future<int> createInstance({required SessionInstanceModel instance});
+  Future<SessionInstanceModel> getInstanceById(int instanceId);
+  Future<SessionInstanceModel?> getInstanceBySessionId(int sessionId);
+  Stream<List<SessionInstanceModel>> watchInstancesBySessionId(int sessionId);
+  Stream<SessionInstanceModel> watchInstanceById(int sessionInstanceId);
+  Stream<List<SessionInstanceModel>> watchAllInstancesForDate(DateTime date);
+  Future<int> updateInstance(
     int sessionInstanceId,
     SessionInstanceModel updatedSessionInstance,
   );
+  Future<void> deleteInstanceBySessionId(int sessionId);
+
+  // Date-related queries
+  Future<SessionInstanceModel?> getInstanceForDate(
+    int sessionId,
+    DateTime date,
+  );
+
+  Future<int> countTotalInstancesBySessionId(int sessionId);
 }

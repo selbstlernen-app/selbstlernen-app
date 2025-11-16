@@ -137,7 +137,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           children: <Widget>[
             Expanded(
               child: TimeInputField(
-                label: "Fokusphasen bis lange Pause",
+                label: "Fokusphasen bis zur langen Pause",
                 controller: _focusPhaseController,
                 onChanged: (int value) {
                   ref
@@ -161,7 +161,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           ],
         ),
 
-        const VerticalSpace(size: SpaceSize.medium),
+        const VerticalSpace(size: SpaceSize.small),
 
         _buildTimerPreview(),
 
@@ -172,7 +172,6 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           thickness: 4,
           radius: const BorderRadius.all(Radius.circular(10)),
         ),
-        const VerticalSpace(size: SpaceSize.xsmall),
 
         _calculateTotalTime(),
       ],
@@ -187,7 +186,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text("Zyklus Vorschau", style: context.textTheme.headlineSmall),
+        Text("Block Vorschau", style: context.textTheme.headlineSmall),
         const VerticalSpace(size: SpaceSize.small),
         Wrap(
           spacing: 4,

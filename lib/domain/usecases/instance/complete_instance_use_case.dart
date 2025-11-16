@@ -1,0 +1,53 @@
+import 'package:srl_app/core/utils/date_time_utils.dart';
+import 'package:srl_app/domain/models/models.dart';
+import 'package:srl_app/domain/session_instance_repository.dart';
+import 'package:srl_app/domain/session_repository.dart';
+
+/// "Completes" a session instance this can be either because a session has been conducted
+/// or a session has been skipped/missed
+class CompleteInstanceUseCase {
+  const CompleteInstanceUseCase(this.sessionRepo, this.instanceRepo);
+
+  final SessionRepository sessionRepo;
+  final SessionInstanceRepository instanceRepo;
+
+  Future<void> call(SessionInstanceModel updatedInstance) async {
+    await instanceRepo.updateInstance(
+      int.parse(updatedInstance.id!),
+      updatedInstance,
+    );
+
+    // Check if session should be archived
+    await _checkAndArchiveIfComplete(updatedInstance.sessionId);
+  }
+
+  Future<void> _checkAndArchiveIfComplete(String sessionId) async {
+    final SessionModel session = await sessionRepo.getSessionById(
+      int.parse(sessionId),
+    );
+
+    if (!session.isRepeating) {
+      await sessionRepo.updateSession(
+        int.parse(session.id!),
+        session.copyWith(isArchived: true),
+      );
+      return;
+    }
+
+    final int totalInstances = await instanceRepo
+        .countTotalInstancesBySessionId(int.parse(session.id!));
+
+    final int expectedCount = DateTimeUtils.countDaysBetweenDates(
+      session.startDate!,
+      session.endDate!,
+      session.selectedDays,
+    );
+
+    if (totalInstances >= expectedCount) {
+      await sessionRepo.updateSession(
+        int.parse(session.id!),
+        session.copyWith(isArchived: true),
+      );
+    }
+  }
+}

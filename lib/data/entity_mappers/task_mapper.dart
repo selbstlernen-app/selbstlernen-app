@@ -37,4 +37,21 @@ extension TaskToCompanionMapper on TaskModel {
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
     );
   }
+
+  TasksCompanion toUpdateCompanion() {
+    return TasksCompanion(
+      title: Value<String>(title),
+      sessionId: sessionId != null
+          ? Value<int>(int.parse(sessionId!))
+          : const Value<int>.absent(),
+      isCompleted: Value<bool>(isCompleted),
+      goalId: goalId != null
+          ? Value<int>(int.parse(goalId!))
+          : const Value<int>.absent(),
+      completedAt: completedAt != null
+          ? Value<DateTime>(completedAt!)
+          : const Value<DateTime>.absent(),
+      createdAt: const Value<DateTime>.absent(),
+    );
+  }
 }

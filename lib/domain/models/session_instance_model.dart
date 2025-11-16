@@ -11,6 +11,7 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
     required String sessionId,
 
     @Default(SessionStatus.scheduled) SessionStatus status,
+    required DateTime scheduledAt,
 
     // Time Measures
     @Default(0) int totalFocusPhases,
@@ -31,4 +32,16 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
   }) = _SessionInstanceModel;
 }
 
-enum SessionStatus { inProgress, scheduled, completed, paused, cancelled }
+enum SessionStatus {
+  /// Session instance created but not started yet
+  scheduled,
+
+  /// User is currently doing the session
+  inProgress,
+
+  /// Finished session successfully
+  completed,
+
+  /// User explicitly skipped it; or past date and was never completed
+  skipped,
+}

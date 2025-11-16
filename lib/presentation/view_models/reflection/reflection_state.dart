@@ -9,15 +9,14 @@ abstract class ReflectionState with _$ReflectionState {
   const ReflectionState._();
 
   const factory ReflectionState({
-    required SessionInstanceModel sessionInstance,
+    required SessionInstanceModel instance,
     String? notes,
     int? mood,
-    @Default(false) bool isLoading,
   }) = _ReflectionState;
 
   String get totalTimeFocused =>
-      TimeUtils.formatTime(sessionInstance.totalFocusSecondsElapsed);
+      TimeUtils.formatTime(instance.totalFocusSecondsElapsed);
 
   String get totalTimeInBreak =>
-      TimeUtils.formatTime(sessionInstance.totalBreakSecondsElapsed);
+      TimeUtils.formatTime(instance.totalBreakSecondsElapsed);
 }

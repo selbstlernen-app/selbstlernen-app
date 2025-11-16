@@ -10,15 +10,22 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   SessionInstanceDao(super.db);
 
   // Insert new session instance
-  Future<int> createSessionInstance(SessionInstancesCompanion companion) {
+  Future<int> createInstance(SessionInstancesCompanion companion) {
     return into(sessionInstances).insert(companion);
   }
 
-  // Get a single session instance by id
-  Future<SessionInstance?> getSessionInstanceById(int id) {
+  // Get an instance by its id
+  Future<SessionInstance?> getInstanceById(int id) {
     return (select(
       sessionInstances,
     )..where(($SessionInstancesTable s) => s.id.equals(id))).getSingleOrNull();
+  }
+
+  // Get an instance by its session id
+  Future<SessionInstance?> getInstanceBySessionId(int sessionId) {
+    return (select(sessionInstances)
+          ..where(($SessionInstancesTable s) => s.sessionId.equals(sessionId)))
+        .getSingleOrNull();
   }
 
   // Watch session instance by ID
@@ -29,21 +36,43 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Watch all session instances for a specific session
-  Stream<List<SessionInstance>> watchAllSessionsInstancesFor(int sessionId) {
+  Stream<List<SessionInstance>> watchInstancesBySessionId(int sessionId) {
     return (select(sessionInstances)
           ..where(($SessionInstancesTable t) => t.sessionId.equals(sessionId)))
         .watch();
   }
 
+  /// Watch all session instances for a given date
+  Stream<List<SessionInstance>> watchAllInstancesForDate(DateTime date) {
+    final DateTime startOfDay = DateTime(date.year, date.month, date.day);
+    final DateTime endOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      23,
+      59,
+      59,
+    );
+
+    return (select(sessionInstances)..where(
+          ($SessionInstancesTable t) =>
+              t.scheduledAt.isBetweenValues(startOfDay, endOfDay),
+        ))
+        .watch()
+        .map((List<SessionInstance> rows) {
+          return rows.toList();
+        });
+  }
+
   // Get all instances for a specific session
-  Future<List<SessionInstance>> getAllSessionInstancesFor(int sessionId) {
+  Future<List<SessionInstance>> getInstancesBySessionId(int sessionId) {
     return (select(sessionInstances)
           ..where(($SessionInstancesTable t) => t.sessionId.equals(sessionId)))
         .get();
   }
 
   // Update session instance
-  Future<int> updateSessionInstance(
+  Future<int> updateInstance(
     int id,
     SessionInstancesCompanion companion,
   ) async {
@@ -53,16 +82,48 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Delete a session instance
-  Future<int> deleteSessionInstance(int id) {
+  Future<int> deleteInstance(int id) {
     return (delete(
       sessionInstances,
     )..where(($SessionInstancesTable t) => t.id.equals(id))).go();
   }
 
   // Delete all instances for a session
-  Future<int> deleteSessionInstances(int sessionId) {
+  Future<int> deleteInstances(int sessionId) {
     return (delete(
       sessionInstances,
     )..where(($SessionInstancesTable t) => t.sessionId.equals(sessionId))).go();
+  }
+
+  // Get scheduled instance if it exists
+  Future<SessionInstance?> getInstancesBySessionIdAndDate(
+    int sessionId,
+    DateTime date,
+  ) {
+    final DateTime startOfDay = DateTime(date.year, date.month, date.day);
+    final DateTime endOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      23,
+      59,
+      59,
+    );
+
+    return (select(sessionInstances)..where(
+          ($SessionInstancesTable s) =>
+              s.sessionId.equals(sessionId) &
+              s.scheduledAt.isBetweenValues(startOfDay, endOfDay),
+        ))
+        .getSingleOrNull();
+  }
+
+  Future<int> countTotalInstancesBySessionId(int sessionId) async {
+    List<SessionInstance> instances =
+        await (select(sessionInstances)..where(
+              ($SessionInstancesTable tbl) => tbl.sessionId.equals(sessionId),
+            ))
+            .get();
+    return instances.length;
   }
 }

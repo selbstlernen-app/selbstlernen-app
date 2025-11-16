@@ -20,21 +20,21 @@ class GoalRepositoryImp implements GoalRepository {
   }
 
   @override
-  Future<void> deleteAllGoalsFor(int sessionId) {
-    return goalDao.deleteAllGoalsFor(sessionId);
+  Future<void> deleteGoalsBySessionId(int sessionId) {
+    return goalDao.deleteGoalsBySessionId(sessionId);
   }
 
   @override
-  Future<List<GoalModel>> getAllGoalsFor(int sessionId) async {
-    List<Goal> goalEntities = await goalDao.getAllGoalsFor(sessionId);
+  Future<List<GoalModel>> getGoalsBySessionId(int sessionId) async {
+    List<Goal> goalEntities = await goalDao.getGoalsBySessionId(sessionId);
     List<GoalModel> goals = GoalToModelMapper.mapFromListOfEntity(goalEntities);
     return goals;
   }
 
   @override
-  Stream<List<GoalModel>> watchAllGoalsFor(int sessionId) {
+  Stream<List<GoalModel>> watchGoalsBySessionId(int sessionId) {
     return goalDao
-        .watchAllGoalsFor(sessionId)
+        .watchGoalsBySessionId(sessionId)
         .map(
           (List<Goal> goalList) =>
               GoalToModelMapper.mapFromListOfEntity(goalList),
@@ -43,6 +43,6 @@ class GoalRepositoryImp implements GoalRepository {
 
   @override
   Future<int> updateGoal(int goalId, GoalModel updatedGoal) {
-    return goalDao.updateGoal(goalId, updatedGoal.toCompanion());
+    return goalDao.updateGoal(goalId, updatedGoal.toUpdateCompanion());
   }
 }

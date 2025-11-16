@@ -7,6 +7,7 @@ extension SessionInstanceToModelMapper on SessionInstance {
     return SessionInstanceModel(
       id: id.toString(),
       sessionId: sessionId.toString(),
+      scheduledAt: scheduledAt,
       status: status,
       totalFocusPhases: (totalFocusPhases),
       totalCompletedBlocks: (totalCompletedBlocks),
@@ -36,6 +37,7 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
           ? Value<DateTime>(completedAt!)
           : const Value<DateTime>.absent(),
       status: Value<SessionStatus>(status),
+      scheduledAt: Value<DateTime>(scheduledAt),
       totalFocusPhases: Value<int>(totalFocusPhases),
       totalCompletedBlocks: Value<int>(totalCompletedBlocks),
       totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),
@@ -47,6 +49,28 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
           : const Value<String>.absent(),
       totalCompletedTasks: Value<int>(totalCompletedTasks),
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
+    );
+  }
+
+  SessionInstancesCompanion tUpdateCompanion() {
+    return SessionInstancesCompanion(
+      sessionId: const Value<int>.absent(),
+      completedAt: completedAt != null
+          ? Value<DateTime>(completedAt!)
+          : const Value<DateTime>.absent(),
+      status: Value<SessionStatus>(status),
+      scheduledAt: const Value<DateTime>.absent(),
+      totalFocusPhases: Value<int>(totalFocusPhases),
+      totalCompletedBlocks: Value<int>(totalCompletedBlocks),
+      totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),
+      totalBreakSecondsElapsed: Value<int>(totalBreakSecondsElapsed),
+      totalCompletedGoals: Value<int>(totalCompletedGoals),
+      mood: mood != null ? Value<int>(mood!) : const Value<int>.absent(),
+      notes: notes != null
+          ? Value<String>(notes!)
+          : const Value<String>.absent(),
+      totalCompletedTasks: Value<int>(totalCompletedTasks),
+      createdAt: const Value<DateTime>.absent(),
     );
   }
 }

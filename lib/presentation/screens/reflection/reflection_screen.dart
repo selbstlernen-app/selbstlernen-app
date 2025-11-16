@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/custom_text_field.dart';
-import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_view_model.dart';
 
 class ReflectionScreen extends ConsumerStatefulWidget {
-  const ReflectionScreen({super.key, required this.sessionInstanceId});
+  const ReflectionScreen({super.key, required this.instance});
 
-  final int sessionInstanceId;
+  final SessionInstanceModel instance;
 
   @override
   ConsumerState<ReflectionScreen> createState() => _ReflectionScreenState();
@@ -33,10 +33,13 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
   Future<void> submitReflection() async {
     final ReflectionViewModel viewModel = ref.read(
-      reflectionViewModelProvider(widget.sessionInstanceId).notifier,
+      reflectionViewModelProvider(widget.instance).notifier,
     );
 
-    await viewModel.submitReflection(notes: notesController.text);
+    await viewModel.complete(
+      notes: notesController.text,
+      mood: ref.read(reflectionViewModelProvider(widget.instance)).mood,
+    );
 
     if (!mounted) return;
 
@@ -58,122 +61,111 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AsyncValue<ReflectionState> state = ref.watch(
-      reflectionViewModelProvider(widget.sessionInstanceId),
+    final ReflectionState reflectionState = ref.watch(
+      reflectionViewModelProvider(widget.instance),
     );
     final ReflectionViewModel viewModel = ref.read(
-      reflectionViewModelProvider(widget.sessionInstanceId).notifier,
+      reflectionViewModelProvider(widget.instance).notifier,
     );
 
-    return state.when(
-      loading: () => const LoadingIndicator(),
-      error: (Object error, StackTrace stack) =>
-          Center(child: Text('Error: $error')),
-      data: (ReflectionState reflectionState) {
-        return MainLayout(
-          appBarTitle: "Reflexion",
-          content: Column(
-            children: <Widget>[
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
+    return MainLayout(
+      appBarTitle: "Reflexion",
+      content: Column(
+        children: <Widget>[
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    'Lerneinheit abgeschlossen!',
+                    style: context.textTheme.headlineMedium,
+                    textAlign: TextAlign.center,
+                  ),
+
+                  const VerticalSpace(size: SpaceSize.medium),
+
+                  // Small overview (TODO: maybe include checked off goals/tasks?)
+                  Column(
                     children: <Widget>[
-                      Text(
-                        'Lerneinheit abgeschlossen!',
-                        style: context.textTheme.headlineMedium,
-                        textAlign: TextAlign.center,
+                      _StatRow(
+                        label: 'Gesamte Fokuszeit:',
+                        value: reflectionState.totalTimeFocused,
                       ),
-
-                      const VerticalSpace(size: SpaceSize.medium),
-
-                      // Small overview (TODO: maybe include checked off goals/tasks?)
-                      Column(
-                        children: <Widget>[
-                          _StatRow(
-                            label: 'Gesamte Fokuszeit:',
-                            value: reflectionState.totalTimeFocused,
-                          ),
-                          _StatRow(
-                            label: 'Gesamte Pausenzeit:',
-                            value: reflectionState.totalTimeInBreak,
-                          ),
-                        ],
-                      ),
-
-                      const VerticalSpace(size: SpaceSize.large),
-
-                      // Mood Selection
-                      Text(
-                        'Wie fühlst du dich?',
-                        style: context.textTheme.headlineSmall,
-                      ),
-                      const VerticalSpace(size: SpaceSize.small),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: emojiMoods.asMap().entries.map((
-                          MapEntry<int, String> entry,
-                        ) {
-                          final int emojiIndex = entry.key;
-                          final String emoji = entry.value;
-
-                          final bool isSelected =
-                              reflectionState.mood == emojiIndex;
-
-                          return InkWell(
-                            onTap: () => viewModel.selectMood(emojiIndex),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? context.colorScheme.secondary
-                                    : context.colorScheme.tertiary,
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 10.0,
-                                  horizontal: 16.0,
-                                ),
-                                child: Text(
-                                  emoji,
-                                  style: const TextStyle(fontSize: 28.0),
-                                ),
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-
-                      const VerticalSpace(size: SpaceSize.large),
-
-                      // Notes Field
-                      Text('Notizen', style: context.textTheme.headlineSmall),
-                      const VerticalSpace(size: SpaceSize.small),
-                      CustomTextField(
-                        controller: notesController,
-                        maxLines: 5,
-                        hintText: "Was hast du gelernt? Wie lief die Einheit?",
+                      _StatRow(
+                        label: 'Gesamte Pausenzeit:',
+                        value: reflectionState.totalTimeInBreak,
                       ),
                     ],
                   ),
-                ),
-              ),
 
-              SizedBox(
-                width: context.mediaQuery.size.width,
-                child: CustomButton(
-                  label: 'Abschließen',
-                  // TODO: instead of home navigate to LAD later
-                  onPressed: submitReflection,
-                ),
+                  const VerticalSpace(size: SpaceSize.large),
+
+                  // Mood Selection
+                  Text(
+                    'Wie fühlst du dich?',
+                    style: context.textTheme.headlineSmall,
+                  ),
+                  const VerticalSpace(size: SpaceSize.small),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: emojiMoods.asMap().entries.map((
+                      MapEntry<int, String> entry,
+                    ) {
+                      final int emojiIndex = entry.key;
+                      final String emoji = entry.value;
+
+                      final bool isSelected =
+                          reflectionState.mood == emojiIndex;
+
+                      return InkWell(
+                        onTap: () => viewModel.selectMood(emojiIndex),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? context.colorScheme.secondary
+                                : context.colorScheme.tertiary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10.0,
+                            horizontal: 16.0,
+                          ),
+                          child: Text(
+                            emoji,
+                            style: const TextStyle(fontSize: 28),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+                  const VerticalSpace(size: SpaceSize.large),
+
+                  // Notes Field
+                  Text('Notizen', style: context.textTheme.headlineSmall),
+                  const VerticalSpace(size: SpaceSize.small),
+                  CustomTextField(
+                    controller: notesController,
+                    maxLines: 5,
+                    hintText: "Was hast du gelernt? Wie lief die Einheit?",
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
-        );
-      },
+
+          SizedBox(
+            width: context.mediaQuery.size.width,
+            child: CustomButton(
+              label: 'Abschließen',
+              // TODO: instead of home navigate to LAD later
+              onPressed: submitReflection,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

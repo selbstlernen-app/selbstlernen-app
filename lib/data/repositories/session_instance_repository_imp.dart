@@ -10,23 +10,19 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   final SessionInstanceDao sessionInstanceDao;
 
   @override
-  Future<int> addSessionInstance(SessionInstanceModel sessionInstance) {
-    return sessionInstanceDao.createSessionInstance(
-      sessionInstance.toCompanion(),
-    );
+  Future<int> createInstance({required SessionInstanceModel instance}) async {
+    return await sessionInstanceDao.createInstance(instance.toCompanion());
   }
 
   @override
-  Future<void> deleteSessionInstance(int sessionId) {
-    return sessionInstanceDao.deleteSessionInstance(sessionId);
+  Future<void> deleteInstanceBySessionId(int sessionId) {
+    return sessionInstanceDao.deleteInstance(sessionId);
   }
 
   @override
-  Stream<List<SessionInstanceModel>> watchAllSessionsInstancesFor(
-    int sessionId,
-  ) {
+  Stream<List<SessionInstanceModel>> watchInstancesBySessionId(int sessionId) {
     return sessionInstanceDao
-        .watchAllSessionsInstancesFor(sessionId)
+        .watchInstancesBySessionId(sessionId)
         .map(
           (List<SessionInstance> sessionList) =>
               SessionInstanceToModelMapper.mapFromListOfEntity(sessionList),
@@ -34,7 +30,17 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   }
 
   @override
-  Stream<SessionInstanceModel> watchSessionInstanceById(int sessionInstanceId) {
+  Stream<List<SessionInstanceModel>> watchAllInstancesForDate(DateTime date) {
+    return sessionInstanceDao
+        .watchAllInstancesForDate(date)
+        .map(
+          (List<SessionInstance> sessionList) =>
+              SessionInstanceToModelMapper.mapFromListOfEntity(sessionList),
+        );
+  }
+
+  @override
+  Stream<SessionInstanceModel> watchInstanceById(int sessionInstanceId) {
     return sessionInstanceDao.watchSessionInstanceById(sessionInstanceId).map((
       SessionInstance? sessionInstance,
     ) {
@@ -46,26 +52,51 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   }
 
   @override
-  Future<SessionInstanceModel> getSessionInstanceById(int sessionId) async {
-    SessionInstance? instance = await sessionInstanceDao.getSessionInstanceById(
+  Future<SessionInstanceModel?> getInstanceBySessionId(int sessionId) async {
+    SessionInstance? instance = await sessionInstanceDao.getInstanceBySessionId(
       sessionId,
     );
-
     if (instance == null) {
-      throw Exception('Session instance with ID $sessionId not found.');
+      throw Exception('Session instance with session ID $sessionId not found.');
     }
-
     return instance.toDomain();
   }
 
   @override
-  Future<int> updateSessionInstance(
+  Future<SessionInstanceModel> getInstanceById(int instanceId) async {
+    SessionInstance? instance = await sessionInstanceDao.getInstanceById(
+      instanceId,
+    );
+    if (instance == null) {
+      throw Exception('Session instance with ID $instanceId not found.');
+    }
+    return instance.toDomain();
+  }
+
+  @override
+  Future<int> updateInstance(
     int sessionInstanceId,
     SessionInstanceModel updatedSession,
   ) {
-    return sessionInstanceDao.updateSessionInstance(
+    return sessionInstanceDao.updateInstance(
       sessionInstanceId,
-      updatedSession.toCompanion(),
+      updatedSession.tUpdateCompanion(),
     );
+  }
+
+  @override
+  Future<SessionInstanceModel?> getInstanceForDate(
+    int sessionId,
+    DateTime date,
+  ) async {
+    SessionInstance? instance = await sessionInstanceDao
+        .getInstancesBySessionIdAndDate(sessionId, date);
+
+    return instance?.toDomain();
+  }
+
+  @override
+  Future<int> countTotalInstancesBySessionId(int sessionId) {
+    return sessionInstanceDao.countTotalInstancesBySessionId(sessionId);
   }
 }
