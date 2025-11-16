@@ -90,6 +90,23 @@ class SessionDetailScreen extends ConsumerWidget {
                         );
                       }),
 
+                      ...detailState.fullSession!.tasks.map((TaskModel task) {
+                        return Row(
+                          children: <Widget>[
+                            Text(
+                              "//",
+                              style: context.textTheme.bodyLarge!.copyWith(
+                                fontSize: 25,
+                              ),
+                            ),
+                            Text(
+                              task.title,
+                              style: context.textTheme.bodyLarge,
+                            ),
+                          ],
+                        );
+                      }),
+
                       const VerticalSpace(size: SpaceSize.large),
 
                       Text(
