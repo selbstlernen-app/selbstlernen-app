@@ -64,6 +64,7 @@ class CompletedSessionTile extends StatelessWidget {
             context,
             MaterialPageRoute<dynamic>(
               builder: (BuildContext context) =>
+                  // TODO: if instance id is not equal to null; navigate to statistics instead...
                   SessionDetailScreen(sessionId: int.parse(session.id!)),
             ),
           ),

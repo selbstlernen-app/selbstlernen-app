@@ -18,6 +18,9 @@ class HomeViewModel extends _$HomeViewModel {
   late final GetCompletedSessionsForTodayUseCase _getCompletedUseCase;
   late final CreateInstanceUseCase _createInstanceUseCase;
 
+  StreamSubscription<dynamic>? _sessionsSubscription;
+  StreamSubscription<dynamic>? _completedSubscription;
+
   @override
   HomeState build() {
     _getSessionsUseCase = ref.watch(getSessionsForTodayUseCaseProvider);
@@ -26,12 +29,17 @@ class HomeViewModel extends _$HomeViewModel {
     );
     _createInstanceUseCase = ref.watch(createInstanceUseCaseProvider);
 
+    ref.onDispose(() {
+      _sessionsSubscription?.cancel();
+      _completedSubscription?.cancel();
+    });
+
     _subscribe();
     return const HomeState();
   }
 
   void _subscribe() {
-    _getSessionsUseCase
+    _sessionsSubscription = _getSessionsUseCase
         .call(DateTime.now())
         .listen(
           (List<SessionWithInstanceModel> sessions) {
@@ -42,7 +50,7 @@ class HomeViewModel extends _$HomeViewModel {
           },
         );
 
-    _getCompletedUseCase
+    _completedSubscription = _getCompletedUseCase
         .call(DateTime.now())
         .listen(
           (List<SessionWithInstanceModel> completedSessions) {
