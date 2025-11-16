@@ -53,7 +53,9 @@ class CompletedSessionTile extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          "${instance.scheduledAt.day}.${instance.scheduledAt.month}.${instance.scheduledAt.year}",
+          instance.status == SessionStatus.skipped
+              ? "Übersprungen"
+              : "Erledigt",
         ),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(10)),
