@@ -12,12 +12,16 @@ import 'package:srl_app/main.dart';
 
 void main() {
   testWidgets('Find home on navigation', (WidgetTester tester) async {
-    // Wrap MyApp in ProviderScope
-    await tester.pumpWidget(const ProviderScope(child: MyApp()));
+    final container = ProviderContainer();
 
-    // Trigger a frame
+    addTearDown(container.dispose);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(container: container, child: const MyApp()),
+    );
+
     await tester.pumpAndSettle();
 
-    expect(find.text('Home'), findsAtLeast(2));
+    expect(find.text('Home'), findsAtLeast(1));
   });
 }

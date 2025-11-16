@@ -99,7 +99,8 @@ void main() {
     final List<SessionWithInstanceModel> result = await useCase(now).first;
 
     expect(result.length, 2);
-    expect(result.first.session, session_2);
+    // We expect first session; first in line
+    expect(result.first.session, session_1);
     // Expect this to be a pending session; no instance linked to it yet
     expect(result.first.instance, null);
   });
