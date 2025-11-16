@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/custom_add_item_field.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
@@ -109,32 +110,11 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
 
                 if (_showInput) ...<Widget>[
                   const VerticalSpace(size: SpaceSize.small),
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Expanded(
-                          child: CustomTextField(
-                            onSubmitted: (_) => _addCustomStrategy(),
-                            controller: _strategyController,
-                            hintText: "z.B. Notizen auf Papier machen",
-                          ),
-                        ),
-                        const HorizontalSpace(size: SpaceSize.small),
-                        IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: _addCustomStrategy,
-                          style: IconButton.styleFrom(
-                            padding: const EdgeInsets.all(16.0),
-                            foregroundColor: context.colorScheme.onPrimary,
-                            backgroundColor: context.colorScheme.primary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(10),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                  CustomAddItemField(
+                    onSubmitted: () => _addCustomStrategy(),
+                    onPressed: _addCustomStrategy,
+                    controller: _strategyController,
+                    hintText: "z.B. Notizen auf Papier machen",
                   ),
                 ],
               ],

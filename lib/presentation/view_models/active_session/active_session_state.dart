@@ -26,7 +26,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     DateTime? sessionStartTime,
     @Default(<String>{}) Set<String> completedGoalIds,
     @Default(<String>{}) Set<String> completedTaskIds,
-
+    @Default(false) bool isEditMode,
     @Default(false) bool countUpwards,
     @Default(true) bool isLoading,
     String? error,
