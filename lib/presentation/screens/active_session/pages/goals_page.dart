@@ -25,10 +25,13 @@ class GoalsPage extends ConsumerStatefulWidget {
 
 class _GoalsPageState extends ConsumerState<GoalsPage> {
   final TextEditingController _taskController = TextEditingController();
+  final ScrollController _goalsScrollController = ScrollController();
+  String? _expandedGoalId;
 
   @override
   void dispose() {
     _taskController.dispose();
+    _goalsScrollController.dispose();
     super.dispose();
   }
 
@@ -43,6 +46,15 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         );
 
     _taskController.clear();
+
+    // Scroll down when general task
+    if (goalId == null) {
+      await _goalsScrollController.animateTo(
+        _goalsScrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
@@ -87,6 +99,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
 
             Expanded(
               child: ListView(
+                controller: _goalsScrollController,
                 children: <Widget>[
                   // Existing goals with tasks
                   ...goals.map((GoalModel goal) {
@@ -97,6 +110,12 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                     return _GoalWithTasksItem(
                       goal: goal,
                       tasks: relatedTasks,
+                      isExpanded: _expandedGoalId == goal.id,
+                      onExpandChanged: (bool expanded) {
+                        setState(() {
+                          _expandedGoalId = expanded ? goal.id : null;
+                        });
+                      },
                       completedGoalIds: state.completedGoalIds,
                       completedTaskIds: state.completedTaskIds,
                       onGoalToggle: (String goalId) =>
@@ -129,7 +148,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
               ),
             ),
 
-            if (state.isEditMode) ...<Widget>[
+            if (state.isEditMode && _expandedGoalId == null) ...<Widget>[
               const VerticalSpace(size: SpaceSize.small),
               CustomAddItemField(
                 controller: _taskController,
@@ -157,6 +176,8 @@ class _GoalWithTasksItem extends StatelessWidget {
     required this.onAddTask,
     required this.controller,
     required this.isEditMode,
+    required this.isExpanded,
+    required this.onExpandChanged,
   });
 
   final GoalModel goal;
@@ -168,6 +189,8 @@ class _GoalWithTasksItem extends StatelessWidget {
   final VoidCallback onAddTask;
   final bool isEditMode;
   final TextEditingController controller;
+  final bool isExpanded;
+  final ValueChanged<bool> onExpandChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +199,8 @@ class _GoalWithTasksItem extends StatelessWidget {
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
+        initiallyExpanded: isExpanded,
+        onExpansionChanged: onExpandChanged,
         tilePadding: const EdgeInsets.symmetric(vertical: 4.0),
         childrenPadding: const EdgeInsets.only(bottom: 8),
         leading: Checkbox(
@@ -206,7 +231,7 @@ class _GoalWithTasksItem extends StatelessWidget {
             );
           }),
 
-          if (!isEditMode) // if general isEditMode is off, be able to add according to the
+          if (isEditMode) // if general isEditMode is off, be able to add according to the
           ...<Widget>[
             const VerticalSpace(size: SpaceSize.small),
             CustomAddItemField(

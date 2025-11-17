@@ -12,7 +12,7 @@ import 'package:srl_app/main.dart';
 
 void main() {
   testWidgets('Find home on navigation', (WidgetTester tester) async {
-    final container = ProviderContainer();
+    final ProviderContainer container = ProviderContainer();
 
     addTearDown(container.dispose);
 

@@ -4,8 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
-import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 

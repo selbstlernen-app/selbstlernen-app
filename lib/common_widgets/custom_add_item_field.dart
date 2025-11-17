@@ -31,33 +31,31 @@ class CustomAddItemField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: CustomTextField(
-              onSubmitted: (_) => onSubmitted(),
-              controller: controller,
-              hintText: hintText,
-              hasError: hasError ?? false,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Expanded(
+          child: CustomTextField(
+            onSubmitted: (_) => onSubmitted(),
+            controller: controller,
+            hintText: hintText,
+            hasError: hasError ?? false,
+          ),
+        ),
+        const HorizontalSpace(size: SpaceSize.small),
+        IconButton(
+          icon: const Icon(Icons.add),
+          onPressed: onPressed,
+          style: IconButton.styleFrom(
+            padding: const EdgeInsets.all(16.0),
+            foregroundColor: context.colorScheme.onPrimary,
+            backgroundColor: context.colorScheme.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadiusGeometry.circular(10),
             ),
           ),
-          const HorizontalSpace(size: SpaceSize.small),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: onPressed,
-            style: IconButton.styleFrom(
-              padding: const EdgeInsets.all(16.0),
-              foregroundColor: context.colorScheme.onPrimary,
-              backgroundColor: context.colorScheme.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadiusGeometry.circular(10),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
