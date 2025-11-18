@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
-import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 
@@ -16,6 +15,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   late final UpdateInstanceUseCase _updateInstanceUseCase;
   late final GetInstanceUseCase _getInstanceUseCase;
   late final CompleteInstanceUseCase _completeInstanceUseCase;
+  late final CreateTasksUseCase _createTaskUseCase;
   late final int _instanceId;
   late StreamSubscription<dynamic>? _sessionSubscription;
 
@@ -28,6 +28,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     _updateInstanceUseCase = ref.watch(updateInstanceUseCaseProvider);
     _completeInstanceUseCase = ref.watch(completeInstanceUseCaseProvider);
     _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
+
+    _createTaskUseCase = ref.watch(createTasksUseCaseProvider);
 
     _loadData();
 
@@ -69,6 +71,27 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   void setCountUpwards(bool countUpwards) {
     state = state.copyWith(countUpwards: countUpwards);
+  }
+
+  void toggleEditMode() {
+    state = state.copyWith(isEditMode: !state.isEditMode);
+  }
+
+  Future<void> addTask(String title, {String? goalId}) async {
+    if (state.fullSession == null) return;
+
+    try {
+      await _createTaskUseCase.call(
+        TaskModel(
+          sessionId: state.fullSession!.session.id,
+          title: title,
+          isCompleted: false,
+          goalId: goalId,
+        ),
+      );
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
   }
 
   void startTimer() {

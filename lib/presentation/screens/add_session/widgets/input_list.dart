@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/custom_add_item_field.dart';
 import 'package:srl_app/common_widgets/custom_error_text.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -30,7 +31,13 @@ class InputList<T> extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _buildInputRow(context),
+        CustomAddItemField(
+          onSubmitted: () => onEnter(),
+          onPressed: onEnter,
+          controller: controller,
+          hintText: "Ich will...",
+          hasError: errorText != null,
+        ),
         if ((toolTip?.isNotEmpty ?? false) && errorText == null)
           _buildTooltip(context),
         if (errorText != null) CustomErrorText(errorText: errorText!),
@@ -39,39 +46,6 @@ class InputList<T> extends StatelessWidget {
         const VerticalSpace(size: SpaceSize.small),
         ..._buildItemsList(),
       ],
-    );
-  }
-
-  Widget _buildInputRow(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: CustomTextField(
-              onSubmitted: (_) => onEnter(),
-              controller: controller,
-              hintText: "Ich will...",
-              hasError: errorText != null,
-            ),
-          ),
-          const HorizontalSpace(size: SpaceSize.small),
-          SizedBox(
-            child: IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: onEnter,
-              style: IconButton.styleFrom(
-                padding: const EdgeInsets.all(16),
-                foregroundColor: context.colorScheme.onPrimary,
-                backgroundColor: context.colorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 

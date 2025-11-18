@@ -37,11 +37,14 @@ class GetSessionsForTodayUseCase {
             (SessionInstanceModel i) => i.sessionId == session.id,
           );
 
-          // If it should occur and cannot be found in the db yet;
-          // then show the session w/o instance (for pending list)
-          if (instance == null) {
+          // Adds an instance if
+          // 1. it should occur on the day, but cannot be found yet in the db
+          // 2. it was created once, but not completed yet for the given date
+          if (instance == null ||
+              instance.status == SessionStatus.inProgress ||
+              instance.status == SessionStatus.scheduled) {
             occurrences.add(
-              SessionWithInstanceModel(session: session, instance: null),
+              SessionWithInstanceModel(session: session, instance: instance),
             );
           }
         }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/common_widgets/custom_add_item_field.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -8,7 +9,7 @@ import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
-class GoalsPage extends ConsumerWidget {
+class GoalsPage extends ConsumerStatefulWidget {
   const GoalsPage({
     super.key,
     required this.fullSessionModel,
@@ -19,15 +20,52 @@ class GoalsPage extends ConsumerWidget {
   final int instanceId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<GoalsPage> createState() => _GoalsPageState();
+}
+
+class _GoalsPageState extends ConsumerState<GoalsPage> {
+  final TextEditingController _taskController = TextEditingController();
+  final ScrollController _goalsScrollController = ScrollController();
+  String? _expandedGoalId;
+
+  @override
+  void dispose() {
+    _taskController.dispose();
+    _goalsScrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _addTask(String? goalId) async {
+    if (_taskController.text.trim().isEmpty) return;
+
+    await ref
+        .read(activeSessionViewModelProvider(widget.instanceId).notifier)
+        .addTask(
+          _taskController.text.trim(),
+          goalId: goalId, // if task should belong to some goal; else null
+        );
+
+    _taskController.clear();
+
+    // Scroll down when general task
+    if (goalId == null) {
+      await _goalsScrollController.animateTo(
+        _goalsScrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final ActiveSessionState state = ref.watch(
-      activeSessionViewModelProvider(instanceId),
+      activeSessionViewModelProvider(widget.instanceId),
     );
     final ActiveSessionViewModel viewModel = ref.read(
-      activeSessionViewModelProvider(instanceId).notifier,
+      activeSessionViewModelProvider(widget.instanceId).notifier,
     );
 
-    // Goals and (ungrouped) tasks
     final List<GoalModel> goals = state.fullSession!.goals;
     final List<TaskModel> ungroupedTasks = state.ungroupedTasks;
 
@@ -38,39 +76,63 @@ class GoalsPage extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Ziele & Aufgaben', style: context.textTheme.headlineMedium),
-
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  'Ziele & Aufgaben',
+                  style: context.textTheme.headlineMedium,
+                ),
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: context.colorScheme.primary,
+                  child: IconButton(
+                    onPressed: () => viewModel.toggleEditMode(),
+                    icon: state.isEditMode
+                        ? const Icon(Icons.edit_off_outlined)
+                        : const Icon(Icons.edit_outlined),
+                  ),
+                ),
+              ],
+            ),
             const VerticalSpace(size: SpaceSize.small),
 
             Expanded(
               child: ListView(
+                controller: _goalsScrollController,
                 children: <Widget>[
-                  // Map goals and their tasks (if any are linked to it)
+                  // Existing goals with tasks
                   ...goals.map((GoalModel goal) {
                     final List<TaskModel> relatedTasks = state.tasksForGoal(
                       goal.id!,
                     );
+
                     return _GoalWithTasksItem(
                       goal: goal,
                       tasks: relatedTasks,
+                      isExpanded: _expandedGoalId == goal.id,
+                      onExpandChanged: (bool expanded) {
+                        setState(() {
+                          _expandedGoalId = expanded ? goal.id : null;
+                        });
+                      },
                       completedGoalIds: state.completedGoalIds,
                       completedTaskIds: state.completedTaskIds,
                       onGoalToggle: (String goalId) =>
                           viewModel.toggleGoalCompletion(goalId),
                       onTaskToggle: (String taskId) =>
                           viewModel.toggleTaskCompletion(taskId),
+                      onAddTask: () => _addTask(goal.id!),
+                      isEditMode: state.isEditMode,
+                      controller: _taskController,
                     );
                   }),
 
-                  // Divider if there are both grouped and ungrouped tasks
+                  // Divider
                   if (goals.isNotEmpty &&
                       ungroupedTasks.isNotEmpty) ...<Widget>[
                     const VerticalSpace(size: SpaceSize.xsmall),
-                    Divider(
-                      color: context.colorScheme.tertiary,
-                      thickness: 4,
-                      radius: const BorderRadius.all(Radius.circular(10)),
-                    ),
+                    Divider(color: context.colorScheme.tertiary, thickness: 4),
                     const VerticalSpace(size: SpaceSize.xsmall),
                   ],
 
@@ -85,6 +147,16 @@ class GoalsPage extends ConsumerWidget {
                 ],
               ),
             ),
+
+            if (state.isEditMode && _expandedGoalId == null) ...<Widget>[
+              const VerticalSpace(size: SpaceSize.small),
+              CustomAddItemField(
+                controller: _taskController,
+                hintText: "Neue Aufgabe...",
+                onSubmitted: () => _addTask(null), // No goal ID = general task
+                onPressed: () => _addTask(null),
+              ),
+            ],
           ],
         ),
       ),
@@ -101,6 +173,11 @@ class _GoalWithTasksItem extends StatelessWidget {
     required this.completedTaskIds,
     required this.onGoalToggle,
     required this.onTaskToggle,
+    required this.onAddTask,
+    required this.controller,
+    required this.isEditMode,
+    required this.isExpanded,
+    required this.onExpandChanged,
   });
 
   final GoalModel goal;
@@ -109,6 +186,11 @@ class _GoalWithTasksItem extends StatelessWidget {
   final Set<String> completedTaskIds;
   final Function(String) onGoalToggle;
   final Function(String) onTaskToggle;
+  final VoidCallback onAddTask;
+  final bool isEditMode;
+  final TextEditingController controller;
+  final bool isExpanded;
+  final ValueChanged<bool> onExpandChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -117,13 +199,15 @@ class _GoalWithTasksItem extends StatelessWidget {
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
+        initiallyExpanded: isExpanded,
+        onExpansionChanged: onExpandChanged,
         tilePadding: const EdgeInsets.symmetric(vertical: 4.0),
         childrenPadding: const EdgeInsets.only(bottom: 8),
         leading: Checkbox(
           value: isGoalCompleted,
           onChanged: (_) => onGoalToggle(goal.id!),
         ),
-        showTrailingIcon: tasks.isNotEmpty,
+        showTrailingIcon: true,
         title: Text(
           goal.title,
           style: context.textTheme.titleLarge!.copyWith(
@@ -146,6 +230,17 @@ class _GoalWithTasksItem extends StatelessWidget {
               isSubtask: true,
             );
           }),
+
+          if (isEditMode) // if general isEditMode is off, be able to add according to the
+          ...<Widget>[
+            const VerticalSpace(size: SpaceSize.small),
+            CustomAddItemField(
+              controller: controller,
+              hintText: "Aufgabe für ${goal.title}...",
+              onSubmitted: () => onAddTask(),
+              onPressed: onAddTask,
+            ),
+          ],
         ],
       ),
     );
