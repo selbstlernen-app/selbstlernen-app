@@ -21,6 +21,7 @@ class AppRoutes {
       case home:
         return MaterialPageRoute<dynamic>(
           builder: (_) => const MainNavigation(),
+          settings: const RouteSettings(name: AppRoutes.home),
         );
 
       case detail:
@@ -30,6 +31,7 @@ class AppRoutes {
             sessionId: args.sessionId,
             instanceId: args.instanceId,
           ),
+          settings: const RouteSettings(name: AppRoutes.detail),
         );
 
       case active:
@@ -39,6 +41,7 @@ class AppRoutes {
             instanceId: args.instanceId,
             sessionId: args.sessionId,
           ),
+          settings: const RouteSettings(name: AppRoutes.active),
         );
 
       case reflection:
@@ -46,18 +49,22 @@ class AppRoutes {
             settings.arguments as SessionInstanceModel;
         return MaterialPageRoute<dynamic>(
           builder: (_) => ReflectionScreen(instance: instance),
+          settings: const RouteSettings(name: AppRoutes.reflection),
         );
 
       case stats:
         final int sessionId = settings.arguments as int;
         return MaterialPageRoute<dynamic>(
           builder: (_) => SessionStatisticsScreen(sessionId: sessionId),
+          settings: const RouteSettings(name: AppRoutes.stats),
         );
 
       case addSession:
-        final fullSession = settings.arguments as FullSessionModel?;
+        final FullSessionModel? fullSession =
+            settings.arguments as FullSessionModel?;
         return MaterialPageRoute<dynamic>(
           builder: (_) => AddSessionScreen(fullSessionModel: fullSession),
+          settings: const RouteSettings(name: AppRoutes.addSession),
         );
 
       default:

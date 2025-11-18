@@ -6,7 +6,6 @@ import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
@@ -117,19 +116,21 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         await ref.read(addSessionViewModelProvider.notifier).createSession();
       }
 
+      // Create or get instance for today
       SessionInstanceModel instance = await ref
           .read(addSessionViewModelProvider.notifier)
           .startSession(DateTime.now());
 
       if (!mounted) return;
 
-      await Navigator.pushNamed(
+      await Navigator.pushNamedAndRemoveUntil(
         context,
         AppRoutes.active,
         arguments: ActiveSessionArgs(
           instanceId: int.parse(instance.id!),
           sessionId: int.parse(instance.sessionId),
         ),
+        (Route<dynamic> route) => false,
       );
     } catch (e) {
       if (!mounted) return;
