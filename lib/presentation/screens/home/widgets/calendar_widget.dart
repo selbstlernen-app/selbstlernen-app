@@ -15,14 +15,14 @@ class CalendarWidget extends ConsumerWidget {
     if (today.weekday < 3) {
       // If we did not have Wednesday yet; generate five days starting from Monday
       daysToDisplay = List<DateTime>.generate(
-        5,
+        6,
         (int i) => startOfTheWeek.add(Duration(days: i)),
       );
     } else {
       // Shift start of the week to Wednesday; show rest of the week
       startOfTheWeek = startOfTheWeek.add(const Duration(days: 2));
       daysToDisplay = List<DateTime>.generate(
-        5,
+        6,
         (int i) => startOfTheWeek.add(Duration(days: i)),
       );
     }
@@ -32,7 +32,7 @@ class CalendarWidget extends ConsumerWidget {
         ...daysToDisplay.map(
           (DateTime date) => Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
+              padding: const EdgeInsets.only(right: 12.0),
               child: Container(
                 decoration: BoxDecoration(
                   color: date.day == today.day

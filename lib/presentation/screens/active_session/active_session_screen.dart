@@ -5,11 +5,11 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/show_custom_dialog.dart';
 import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/active_session/pages/goals_page.dart';
 import 'package:srl_app/presentation/screens/active_session/pages/timer_page.dart';
-import 'package:srl_app/presentation/screens/reflection/reflection_screen.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
@@ -69,11 +69,10 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
               .completeSession();
 
           if (!mounted) return;
-          await Navigator.pushReplacement(
+          await Navigator.pushReplacementNamed(
             context,
-            MaterialPageRoute<dynamic>(
-              builder: (_) => ReflectionScreen(instance: updatedInstance),
-            ),
+            AppRoutes.reflection,
+            arguments: updatedInstance,
           );
         },
         cancelLabel: "Abbrechen",

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_model.dart';
-import 'package:srl_app/presentation/screens/detail_session/session_detail_screen.dart';
 import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 
 class PendingSessionTile extends ConsumerWidget {
@@ -46,12 +46,10 @@ class PendingSessionTile extends ConsumerWidget {
                 ],
               ),
               child: InkWell(
-                onTap: () => Navigator.push(
+                onTap: () => Navigator.pushNamed(
                   context,
-                  MaterialPageRoute<dynamic>(
-                    builder: (BuildContext context) =>
-                        SessionDetailScreen(sessionId: int.parse(session.id!)),
-                  ),
+                  AppRoutes.detail,
+                  arguments: int.parse(session.id!),
                 ),
                 child: Container(
                   decoration: BoxDecoration(
@@ -71,13 +69,11 @@ class PendingSessionTile extends ConsumerWidget {
                     ),
                     leading: const Icon(Icons.circle_outlined),
                     trailing: IconButton(
-                      onPressed: () => Navigator.push(
+                      onPressed: () => Navigator.pushNamed(
                         context,
-                        MaterialPageRoute<dynamic>(
-                          builder: (BuildContext context) =>
-                              SessionDetailScreen(
-                                sessionId: int.parse(session.id!),
-                              ),
+                        AppRoutes.detail,
+                        arguments: DetailSessionArgs(
+                          sessionId: int.parse(session.id!),
                         ),
                       ),
                       icon: const Icon(Icons.arrow_forward_ios_rounded),

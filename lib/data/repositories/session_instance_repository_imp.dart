@@ -74,6 +74,16 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   }
 
   @override
+  Future<List<SessionInstanceModel>> getAllInstancesBySessionId(
+    int sessionId,
+  ) async {
+    List<SessionInstance> instances = await sessionInstanceDao
+        .getInstancesBySessionId(sessionId);
+
+    return SessionInstanceToModelMapper.mapFromListOfEntity(instances);
+  }
+
+  @override
   Future<int> updateInstance(
     int sessionInstanceId,
     SessionInstanceModel updatedSession,

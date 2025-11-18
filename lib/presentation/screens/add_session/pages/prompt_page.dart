@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
@@ -67,9 +68,10 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         ),
       );
 
-      await Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil("/", (Route<dynamic> route) => false);
+      await Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRoutes.home,
+        (Route<dynamic> route) => false,
+      );
     } catch (e) {
       if (!mounted) return;
       context.scaffoldMessenger.showSnackBar(
@@ -92,9 +94,10 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         ),
       );
 
-      await Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil("/", (Route<dynamic> route) => false);
+      await Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRoutes.home,
+        (Route<dynamic> route) => false,
+      );
     } catch (e) {
       if (!mounted) return;
       context.scaffoldMessenger.showSnackBar(
@@ -120,13 +123,12 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
 
       if (!mounted) return;
 
-      await Navigator.push(
+      await Navigator.pushNamed(
         context,
-        MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) => ActiveSessionScreen(
-            instanceId: int.parse(instance.id!),
-            sessionId: int.parse(instance.sessionId),
-          ),
+        AppRoutes.active,
+        arguments: ActiveSessionArgs(
+          instanceId: int.parse(instance.id!),
+          sessionId: int.parse(instance.sessionId),
         ),
       );
     } catch (e) {

@@ -5,9 +5,9 @@ import 'package:srl_app/common_widgets/custom_text_field.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_view_model.dart';
 
@@ -50,11 +50,10 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
       ),
     );
 
-    await Navigator.pushAndRemoveUntil(
+    await Navigator.pushNamedAndRemoveUntil(
       context,
-      MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => const MainNavigation(),
-      ),
+      AppRoutes.stats,
+      arguments: int.parse(widget.instance.sessionId),
       (Route<dynamic> route) => false,
     );
   }

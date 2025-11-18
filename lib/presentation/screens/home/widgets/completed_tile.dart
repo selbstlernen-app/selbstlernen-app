@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
-import 'package:srl_app/presentation/screens/detail_session/session_detail_screen.dart';
 
 class CompletedSessionTile extends StatelessWidget {
   const CompletedSessionTile({super.key, required this.sessionWithInstance});
@@ -62,12 +62,12 @@ class CompletedSessionTile extends StatelessWidget {
         ),
         leading: _getIcon(),
         trailing: IconButton(
-          onPressed: () => Navigator.push(
+          onPressed: () => Navigator.pushNamed(
             context,
-            MaterialPageRoute<dynamic>(
-              builder: (BuildContext context) =>
-                  // TODO: if instance id is not equal to null; navigate to statistics instead...
-                  SessionDetailScreen(sessionId: int.parse(session.id!)),
+            AppRoutes.detail,
+            arguments: DetailSessionArgs(
+              sessionId: int.parse(session.id!),
+              instanceId: int.parse(instance.id!),
             ),
           ),
           icon: const Icon(Icons.arrow_forward_ios_rounded),

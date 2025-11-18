@@ -33,7 +33,7 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
 }
 
 enum SessionStatus {
-  /// Session instance created but not started yet
+  /// Session instance created but not started yet; on creation always in this state
   scheduled,
 
   /// User is currently doing the session
