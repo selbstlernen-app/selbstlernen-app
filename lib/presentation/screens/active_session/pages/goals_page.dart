@@ -94,7 +94,7 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Header row
+            // Header
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -109,108 +109,139 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                       : context.colorScheme.primary,
                   child: IconButton(
                     onPressed: viewModel.toggleEditMode,
-                    icon: Icon(
-                      state.isEditMode
-                          ? Icons.edit_off_outlined
-                          : Icons.edit_outlined,
-                    ),
+                    icon: state.isEditMode
+                        ? const Icon(Icons.edit_off_outlined)
+                        : const Icon(Icons.edit_outlined),
                   ),
                 ),
               ],
             ),
-            const VerticalSpace(size: SpaceSize.small),
+            const SizedBox(height: 12),
 
+            // Goals list
             Expanded(
-              child: SingleChildScrollView(
+              child: ListView.builder(
                 controller: _goalsScrollController,
-                child: ExpansionPanelList.radio(
-                  expansionCallback: (int index, bool isExpanded) {
-                    setState(() {
-                      _expandedGoalId = isExpanded ? null : goals[index].id;
-                    });
-                  },
-                  elevation: 0,
-                  materialGapSize: 4.0,
-                  dividerColor: context.colorScheme.tertiary,
-                  children: goals.map<ExpansionPanelRadio>((GoalModel goal) {
-                    final List<TaskModel> relatedTasks = state.tasksForGoal(
-                      goal.id!,
-                    );
-                    final bool isGoalCompleted = state.completedGoalIds
-                        .contains(goal.id);
+                itemCount: goals.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final GoalModel goal = goals[index];
+                  final List<TaskModel> relatedTasks = state.tasksForGoal(
+                    goal.id!,
+                  );
+                  final bool isGoalCompleted = state.completedGoalIds.contains(
+                    goal.id,
+                  );
+                  final bool isExpanded = _expandedGoalId == goal.id;
 
-                    return ExpansionPanelRadio(
-                      canTapOnHeader: true,
-                      value: goal.id!, // unique ID per goal
-                      headerBuilder: (BuildContext context, bool isExpanded) {
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 0.0,
-                          ),
-                          leading: Checkbox(
+                  return Column(
+                    children: <Widget>[
+                      // Goal header row
+                      Row(
+                        children: <Widget>[
+                          // Checkbox
+                          Checkbox(
                             value: isGoalCompleted,
                             onChanged: (_) =>
                                 viewModel.toggleGoalCompletion(goal.id!),
                           ),
-                          title: Text(
-                            goal.title,
-                            style: context.textTheme.titleLarge!.copyWith(
-                              fontWeight: FontWeight.w600,
-                              decoration: isGoalCompleted
-                                  ? TextDecoration.lineThrough
-                                  : null,
-                            ),
-                          ),
-                          subtitle: relatedTasks.isNotEmpty
-                              ? Text(
-                                  '${relatedTasks.where((TaskModel t) => state.completedTaskIds.contains(t.id)).length}/${relatedTasks.length} Aufgaben erledigt',
-                                  style: context.textTheme.bodyMedium,
-                                )
-                              : null,
-                        );
-                      },
 
-                      body: Column(
-                        children: <Widget>[
-                          // Tasks list
-                          ...relatedTasks.map(
-                            (TaskModel task) => _TaskItem(
-                              task: task,
-                              isCompleted: state.completedTaskIds.contains(
-                                task.id,
-                              ),
-                              onToggle: () =>
-                                  viewModel.toggleTaskCompletion(task.id!),
-                              isEditMode: state.isEditMode,
-                              onDelete: () =>
-                                  viewModel.deleteTask(taskId: task.id!),
+                          // Title + subtitle
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  goal.title,
+                                  style: context.textTheme.titleLarge!.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    decoration: isGoalCompleted
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
+                                ),
+                                if (relatedTasks.isNotEmpty)
+                                  Text(
+                                    '${relatedTasks.where((TaskModel t) => state.completedTaskIds.contains(t.id)).length}/${relatedTasks.length} Aufgaben erledigt',
+                                    style: context.textTheme.bodyMedium,
+                                  ),
+                              ],
                             ),
                           ),
-                          if (state.isEditMode)
-                            CustomAddItemField(
-                              controller: _taskGoalController,
-                              hintText: "Neue Aufgabe für ${goal.title}...",
-                              onSubmitted: () => _addTask(goal.id!),
-                              onPressed: () => _addTask(goal.id!),
+
+                          // Delete button if no tasks
+                          if (relatedTasks.isEmpty && state.isEditMode)
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete,
+                                color: context.colorScheme.error,
+                              ),
+                              onPressed: () =>
+                                  viewModel.deleteGoal(goalId: goal.id!),
                             ),
+
+                          // Expand/Collapse arrow
+                          IconButton(
+                            icon: Icon(
+                              isExpanded
+                                  ? Icons.expand_less
+                                  : Icons.expand_more,
+                              size: 24,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _expandedGoalId = isExpanded ? null : goal.id;
+                              });
+                            },
+                          ),
                         ],
                       ),
-                    );
-                  }).toList(),
-                ),
+
+                      // Expanded body with tasks
+                      if (isExpanded)
+                        Column(
+                          children: <Widget>[
+                            ...relatedTasks.map(
+                              (TaskModel task) => _TaskItem(
+                                task: task,
+                                isCompleted: state.completedTaskIds.contains(
+                                  task.id,
+                                ),
+                                onToggle: () =>
+                                    viewModel.toggleTaskCompletion(task.id!),
+                                isEditMode: state.isEditMode,
+                                onDelete: () =>
+                                    viewModel.deleteTask(taskId: task.id!),
+                              ),
+                            ),
+                            if (state.isEditMode)
+                              CustomAddItemField(
+                                controller: _taskGoalController,
+                                hintText: "Neue Aufgabe für ${goal.title}...",
+                                onSubmitted: () => _addTask(goal.id!),
+                                onPressed: () => _addTask(goal.id!),
+                              ),
+                          ],
+                        ),
+                      const SizedBox(height: 8),
+                    ],
+                  );
+                },
               ),
             ),
 
-            // Add new goal field at bottom, if no current goal is expanded
-            if (_expandedGoalId != null && state.isEditMode) ...<Widget>[
-              const VerticalSpace(size: SpaceSize.small),
-              CustomAddItemField(
-                controller: _taskGoalController,
-                hintText: "Neues Ziel...",
-                onSubmitted: () => _addGoal(null),
-                onPressed: () => _addGoal(null),
+            // Add new goal field at bottom (only if no goal is expanded)
+            if (_expandedGoalId == null && state.isEditMode)
+              Column(
+                children: <Widget>[
+                  const SizedBox(height: 12),
+                  CustomAddItemField(
+                    controller: _taskGoalController,
+                    hintText: "Neues Ziel...",
+                    onSubmitted: () => _addGoal(null),
+                    onPressed: () => _addGoal(null),
+                  ),
+                ],
               ),
-            ],
           ],
         ),
       ),
@@ -237,7 +268,10 @@ class _TaskItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: const EdgeInsets.only(left: 8.0),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 4.0,
+        vertical: 8.0,
+      ),
       leading: Checkbox(value: isCompleted, onChanged: (_) => onToggle()),
       title: Text(
         task.title,
@@ -251,7 +285,7 @@ class _TaskItem extends StatelessWidget {
               onPressed: () {
                 onDelete();
               },
-              icon: const Icon(Icons.delete_outline_rounded),
+              icon: Icon(Icons.delete, color: context.colorScheme.error),
             )
           : null,
     );
