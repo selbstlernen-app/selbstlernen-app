@@ -84,7 +84,11 @@ class GoalWithTasksCard extends ConsumerWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.delete, size: 25),
+              icon: Icon(
+                Icons.delete,
+                color: context.colorScheme.error,
+                size: 25,
+              ),
               onPressed: () {
                 final AddSessionViewModel notifier = ref.read(
                   addSessionViewModelProvider.notifier,

@@ -4,11 +4,15 @@ import 'package:srl_app/domain/models/session_instance_model.dart';
 abstract class SessionInstanceRepository {
   // CRUD operations
   Future<int> createInstance({required SessionInstanceModel instance});
+
   Future<SessionInstanceModel> getInstanceById(int instanceId);
   Future<SessionInstanceModel?> getInstanceBySessionId(int sessionId);
+  Future<List<SessionInstanceModel>> getAllInstancesBySessionId(int sessionId);
+
   Stream<List<SessionInstanceModel>> watchInstancesBySessionId(int sessionId);
   Stream<SessionInstanceModel> watchInstanceById(int sessionInstanceId);
   Stream<List<SessionInstanceModel>> watchAllInstancesForDate(DateTime date);
+
   Future<int> updateInstance(
     int sessionInstanceId,
     SessionInstanceModel updatedSessionInstance,

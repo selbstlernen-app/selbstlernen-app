@@ -16,6 +16,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   late final GetInstanceUseCase _getInstanceUseCase;
   late final CompleteInstanceUseCase _completeInstanceUseCase;
   late final CreateTasksUseCase _createTaskUseCase;
+  late final EditTasksUseCase _editTasksUseCase;
+  late final CreateGoalsUseCase _createGoalsUseCase;
+  late final EditGoalsUseCase _editGoalsUseCase;
   late final int _instanceId;
   late StreamSubscription<dynamic>? _sessionSubscription;
 
@@ -30,6 +33,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
 
     _createTaskUseCase = ref.watch(createTasksUseCaseProvider);
+    _editTasksUseCase = ref.watch(editTasksUseCaseProvider);
+    _createGoalsUseCase = ref.watch(createGoalsUseCaseProvider);
+    _editGoalsUseCase = ref.watch(editGoalsUseCaseProvider);
 
     _loadData();
 
@@ -89,6 +95,38 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           goalId: goalId,
         ),
       );
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
+  Future<void> deleteTask({required String taskId}) async {
+    try {
+      await _editTasksUseCase.deleteTask(int.parse(taskId));
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
+  Future<void> addGoal(String title) async {
+    if (state.fullSession == null) return;
+
+    try {
+      await _createGoalsUseCase.call(
+        GoalModel(
+          sessionId: state.fullSession!.session.id,
+          title: title,
+          isCompleted: false,
+        ),
+      );
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
+  Future<void> deleteGoal({required String goalId}) async {
+    try {
+      await _editGoalsUseCase.deleteGoal(int.parse(goalId));
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

@@ -4,10 +4,11 @@ import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/custom_text_field.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_view_model.dart';
 
@@ -22,8 +23,6 @@ class ReflectionScreen extends ConsumerStatefulWidget {
 
 class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
   final TextEditingController notesController = TextEditingController();
-
-  List<String> emojiMoods = <String>["😥", '😡', '😐', "🙂", '🥳'];
 
   @override
   void dispose() {
@@ -44,17 +43,16 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
     if (!mounted) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        duration: Duration(seconds: 2),
-        content: Text("Einheit erfolgreich abgeschlossen!"),
+      SnackBar(
+        duration: const Duration(seconds: 2),
+        content: Text(Constants.successCompleted),
       ),
     );
 
-    await Navigator.pushAndRemoveUntil(
+    await Navigator.pushNamedAndRemoveUntil(
       context,
-      MaterialPageRoute<dynamic>(
-        builder: (BuildContext context) => const MainNavigation(),
-      ),
+      AppRoutes.stats,
+      arguments: int.parse(widget.instance.sessionId),
       (Route<dynamic> route) => false,
     );
   }
@@ -110,7 +108,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                   const VerticalSpace(size: SpaceSize.small),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: emojiMoods.asMap().entries.map((
+                    children: Constants.emojiMoods.asMap().entries.map((
                       MapEntry<int, String> entry,
                     ) {
                       final int emojiIndex = entry.key;

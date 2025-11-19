@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
+import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/main_navigation.dart';
-import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
-import 'package:srl_app/presentation/screens/add_session/add_session_screen.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_view_model.dart';
 
 class SessionDetailScreen extends ConsumerWidget {
-  const SessionDetailScreen({super.key, required this.sessionId});
+  const SessionDetailScreen({
+    super.key,
+    required this.sessionId,
+    this.instanceId,
+  });
   final int sessionId;
+  final int? instanceId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,13 +46,10 @@ class SessionDetailScreen extends ConsumerWidget {
           actions: <Widget>[
             IconButton(
               onPressed: () {
-                Navigator.push(
+                Navigator.pushNamed(
                   context,
-                  MaterialPageRoute<dynamic>(
-                    builder: (BuildContext context) => AddSessionScreen(
-                      fullSessionModel: detailState.fullSession,
-                    ),
-                  ),
+                  AppRoutes.addSession,
+                  arguments: detailState.fullSession,
                 );
               },
               icon: const Icon(Icons.mode_edit_outline_rounded),
@@ -61,7 +62,7 @@ class SessionDetailScreen extends ConsumerWidget {
             ),
           ],
           content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Expanded(
                 child: SingleChildScrollView(
@@ -128,37 +129,57 @@ class SessionDetailScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-              SizedBox(
-                width: context.mediaQuery.size.width,
-                child: CustomButton(
-                  onPressed: () async {
-                    try {
-                      // Get or create instance
-                      SessionInstanceModel existingInstance = await ref
-                          .read(
-                            detailSessionViewModelProvider(sessionId).notifier,
-                          )
-                          .startSession(DateTime.now());
-
-                      if (context.mounted) {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute<dynamic>(
-                            builder: (BuildContext context) =>
-                                ActiveSessionScreen(
-                                  instanceId: int.parse(existingInstance.id!),
-                                  sessionId: int.parse(session.id!),
-                                ),
-                          ),
-                        );
-                      }
-                    } catch (e) {
-                      throw ArgumentError(e);
-                    }
-                  },
-                  label: "Starten",
+              if (instanceId != null) ...<Widget>[
+                Text(
+                  "Einheit für heute erledigt!",
+                  style: context.textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
                 ),
-              ),
+                const VerticalSpace(size: SpaceSize.large),
+                SizedBox(
+                  width: context.mediaQuery.size.width,
+                  child: CustomButton(
+                    onPressed: () {
+                      Navigator.of(
+                        context,
+                      ).pushNamed(AppRoutes.stats, arguments: sessionId);
+                    },
+                    label: "Zur statistischen Auswertung",
+                  ),
+                ),
+              ],
+              if (instanceId == null)
+                SizedBox(
+                  width: context.mediaQuery.size.width,
+                  child: CustomButton(
+                    onPressed: () async {
+                      try {
+                        // Get or create instance
+                        SessionInstanceModel existingInstance = await ref
+                            .read(
+                              detailSessionViewModelProvider(
+                                sessionId,
+                              ).notifier,
+                            )
+                            .startSession(DateTime.now());
+
+                        if (context.mounted) {
+                          await Navigator.pushNamed(
+                            context,
+                            AppRoutes.active,
+                            arguments: ActiveSessionArgs(
+                              instanceId: int.parse(existingInstance.id!),
+                              sessionId: int.parse(session.id!),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        throw ArgumentError(e);
+                      }
+                    },
+                    label: "Starten",
+                  ),
+                ),
             ],
           ),
         );
@@ -176,16 +197,14 @@ class SessionDetailScreen extends ConsumerWidget {
           .read(detailSessionViewModelProvider(sessionId).notifier)
           .deleteSession();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 2),
-          content: Text("Lerneinheit erfolgreich gelöscht!"),
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          content: Text(Constants.successDeleted),
         ),
       );
-      Navigator.pushAndRemoveUntil(
+      Navigator.pushNamedAndRemoveUntil(
         context,
-        MaterialPageRoute<dynamic>(
-          builder: (BuildContext context) => const MainNavigation(),
-        ),
+        AppRoutes.home,
         (Route<dynamic> route) => false,
       );
     }

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/theme.dart';
-import 'package:srl_app/main_navigation.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
@@ -28,7 +28,8 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       theme: CustomTheme.lightTheme,
       darkTheme: CustomTheme.darkTheme,
-      home: const MainNavigation(),
+      initialRoute: AppRoutes.home,
+      onGenerateRoute: AppRoutes.onGenerateRoute,
     );
   }
 }
