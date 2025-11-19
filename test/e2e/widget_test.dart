@@ -20,7 +20,7 @@ void main() {
       UncontrolledProviderScope(container: container, child: const MyApp()),
     );
 
-    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('Home'), findsAtLeast(1));
   });
