@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/domain/providers.dart';
@@ -55,6 +57,11 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
                     // Instance History
                     // _InstanceHistorySection(sessionId: sessionId),
+                    CustomButton(
+                      onPressed: () =>
+                          Navigator.of(context).pushNamed(AppRoutes.home),
+                      label: "Zurück zum Startbildschirm",
+                    ),
                   ],
                 ),
               );

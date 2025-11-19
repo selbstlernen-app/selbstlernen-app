@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
+import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -196,9 +197,9 @@ class SessionDetailScreen extends ConsumerWidget {
           .read(detailSessionViewModelProvider(sessionId).notifier)
           .deleteSession();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 2),
-          content: Text("Lerneinheit erfolgreich gelöscht!"),
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          content: Text(Constants.successDeleted),
         ),
       );
       Navigator.pushNamedAndRemoveUntil(

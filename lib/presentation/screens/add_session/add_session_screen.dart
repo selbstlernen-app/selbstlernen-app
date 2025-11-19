@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
+import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/bottom_up_page.dart';
@@ -90,9 +91,9 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
       onPressedFAB: () {
         ref.read(addSessionViewModelProvider.notifier).updateSession();
         context.scaffoldMessenger.showSnackBar(
-          const SnackBar(
-            duration: Duration(seconds: 2),
-            content: Text("Änderungen erfolgreich gespeichert!"),
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            content: Text(Constants.successModified),
           ),
         );
         Navigator.pop(context);
