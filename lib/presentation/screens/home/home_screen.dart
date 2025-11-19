@@ -38,6 +38,13 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
             children: <Widget>[
               _buildHeading(context),
 
+              // ONLY RUN ONCE AFTER DELETION:
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     await ref.read(testDataProvider.notifier).insertTestData();
+              //   },
+              //   child: Text("Insert Test Data"),
+              // ),
               const VerticalSpace(size: SpaceSize.medium),
 
               const CalendarWidget(),

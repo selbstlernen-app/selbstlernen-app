@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/custom_text_field.dart';
+import 'package:srl_app/common_widgets/horizontal_space.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_view_model.dart';
@@ -85,15 +88,37 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                   const VerticalSpace(size: SpaceSize.medium),
 
                   // Small overview (TODO: maybe include checked off goals/tasks?)
+
+                  // Focus vs Break breakdown
                   Column(
                     children: <Widget>[
-                      _StatRow(
-                        label: 'Gesamte Fokuszeit:',
-                        value: reflectionState.totalTimeFocused,
+                      _TimeBreakdownItem(
+                        icon: Icons.psychology,
+                        label: 'Fokuszeit',
+                        value: '${reflectionState.totalTimeFocused} Min',
+                        color: AppPalette.pink,
                       ),
-                      _StatRow(
-                        label: 'Gesamte Pausenzeit:',
-                        value: reflectionState.totalTimeInBreak,
+
+                      _TimeBreakdownItem(
+                        icon: Icons.coffee,
+                        label: 'Pausenzeit',
+                        value: '${reflectionState.totalTimeInBreak} Min',
+                        color: AppPalette.orange,
+                      ),
+
+                      const VerticalSpace(size: SpaceSize.small),
+                      Divider(
+                        color: context.colorScheme.tertiary,
+                        thickness: 4,
+                        radius: const BorderRadius.all(Radius.circular(10)),
+                      ),
+                      const VerticalSpace(size: SpaceSize.small),
+
+                      _TimeBreakdownItem(
+                        icon: Icons.timelapse_rounded,
+                        label: 'Gesamte Zeit',
+                        value: '${reflectionState.totalTimeSpent} Min',
+                        color: AppPalette.darkPurple,
                       ),
                     ],
                   ),
@@ -168,11 +193,45 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
   }
 }
 
+class _TimeBreakdownItem extends StatelessWidget {
+  const _TimeBreakdownItem({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Icon(icon, color: color, size: 32),
+            const HorizontalSpace(size: SpaceSize.small),
+            Text(label, style: context.textTheme.bodyLarge),
+          ],
+        ),
+        Text(
+          value,
+          style: context.textTheme.titleMedium?.copyWith(color: color),
+        ),
+      ],
+    );
+  }
+}
+
 class _StatRow extends StatelessWidget {
   const _StatRow({required this.label, required this.value});
 
   final String label;
-  final String value;
+  final int value;
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +241,10 @@ class _StatRow extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Text(label, style: context.textTheme.bodyLarge),
-          Text(value, style: context.textTheme.titleMedium),
+          Text(
+            TimeUtils.formatTime(value),
+            style: context.textTheme.titleMedium,
+          ),
         ],
       ),
     );
