@@ -87,8 +87,7 @@ class ActiveSessionArgs {
 
 class DetailSessionArgs {
   final int sessionId;
-
-  int? instanceId;
+  final int? instanceId;
 
   DetailSessionArgs({required this.sessionId, this.instanceId});
 }

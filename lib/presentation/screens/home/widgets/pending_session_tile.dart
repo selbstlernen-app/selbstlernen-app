@@ -49,7 +49,9 @@ class PendingSessionTile extends ConsumerWidget {
                 onTap: () => Navigator.pushNamed(
                   context,
                   AppRoutes.detail,
-                  arguments: int.parse(session.id!),
+                  arguments: DetailSessionArgs(
+                    sessionId: int.parse(session.id!),
+                  ),
                 ),
                 child: Container(
                   decoration: BoxDecoration(
