@@ -87,9 +87,9 @@ class _StatsBarChartState extends State<StatsBarChart> {
         });
       },
       touchTooltipData: BarTouchTooltipData(
-        getTooltipColor: (_) => Colors.transparent,
-        tooltipPadding: EdgeInsets.zero,
-        tooltipMargin: 0,
+        getTooltipColor: (_) => Colors.blue,
+        tooltipPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+        tooltipMargin: 2,
         getTooltipItem:
             (
               BarChartGroupData group,
@@ -98,7 +98,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
               int rodIndex,
             ) {
               return BarTooltipItem(
-                TimeUtils.formatBarChartTime(rod.toY),
+                TimeUtils.formatToolTipTime(rod.toY),
                 const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
               );
             },

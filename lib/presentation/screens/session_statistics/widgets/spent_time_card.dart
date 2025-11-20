@@ -35,6 +35,7 @@ class SpentTimeCard extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text("Fokuszeit", style: context.textTheme.headlineMedium),
+
             const VerticalSpace(size: SpaceSize.xsmall),
             Divider(
               color: context.colorScheme.tertiary,
@@ -43,6 +44,7 @@ class SpentTimeCard extends ConsumerWidget {
             ),
             const VerticalSpace(size: SpaceSize.xsmall),
 
+            // Some info in three columns
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
@@ -70,7 +72,7 @@ class SpentTimeCard extends ConsumerWidget {
               ],
             ),
 
-            const SizedBox(height: 24),
+            const VerticalSpace(size: SpaceSize.xlarge),
 
             // Bar chart
             SizedBox(
