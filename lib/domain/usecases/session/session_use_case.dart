@@ -12,4 +12,8 @@ class SessionUseCase {
   Stream<List<SessionModel>> watchAllActiveSessions() {
     return repository.watchAllActiveSessions();
   }
+
+  Future<SessionModel> getSessionById(int sessionId) {
+    return repository.getSessionById(sessionId);
+  }
 }

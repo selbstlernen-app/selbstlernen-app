@@ -21,4 +21,7 @@ class GetInstanceUseCase {
     int sessionId,
     DateTime date,
   ) => repository.getInstanceForDate(sessionId, date);
+
+  Future<List<SessionInstanceModel>> getInstancesBySessionId(int sessionId) =>
+      repository.getAllInstancesBySessionId(sessionId);
 }

@@ -18,7 +18,7 @@ class _MainNavigationState extends State<MainNavigation> {
   final List<Widget> _screens = const <Widget>[
     HomeScreen(),
     AddSessionScreen(),
-    SessionStatisticsScreen(sessionId: 39),
+    SessionStatisticsScreen(sessionId: 43),
     Placeholder(),
   ];
 

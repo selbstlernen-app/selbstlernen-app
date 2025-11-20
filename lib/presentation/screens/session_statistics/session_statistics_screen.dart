@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
+import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/heatmap_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/spent_time_card.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
@@ -21,7 +24,9 @@ class SessionStatisticsScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Session Statistiken')),
+      appBar: AppBar(
+        title: Text('Session Statistiken für\n${state.session!.title}'),
+      ),
       body: _buildBody(context, ref, state),
     );
   }
@@ -31,7 +36,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
     WidgetRef ref,
     SessionStatisticsState state,
   ) {
-    if (state.isLoading && state.stats == null) {
+    if (state.isLoading && state.stats == null && state.instances == null) {
       return const LoadingIndicator();
     }
 
@@ -55,6 +60,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
     }
 
     final SessionStatistics stats = state.stats!;
+    final List<SessionInstanceModel> instances = state.instances!;
 
     // Empty state
     if (stats.totalInstances == 0) {
@@ -92,13 +98,15 @@ class SessionStatisticsScreen extends ConsumerWidget {
           // Stats cards
           SpentTimeCard(stats: stats, weekdayMinutes: state.weekdayMinutes!),
 
-          const SizedBox(height: 16),
+          const VerticalSpace(size: SpaceSize.medium),
 
           // TODO: Heatmap for repeating sessions
-          // if (state.session?.isRepeating == true) ...<Widget>[
-          // HeatmapCard(instances: state.instances!),
-          // const SizedBox(height: 16),
-          // ],
+          if (state.session?.isRepeating == true) ...<Widget>[
+            HeatmapCard(instances: instances),
+            const VerticalSpace(size: SpaceSize.medium),
+          ],
+
+          //
 
           // Instance history
           // InstanceHistory(

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
@@ -55,7 +57,13 @@ class TestData extends _$TestData {
           totalCompletedTasks: 4,
           mood: (3 + (i % 3)),
           notes: "Completed successfully",
-          completedAt: DateTime(2024, 12, 1).add(Duration(days: i, hours: 2)),
+          completedAt: DateTime(
+            2025,
+            11,
+            1,
+            6 + Random().nextInt(12),
+            0 + Random().nextInt(60),
+          ).add(Duration(days: i, hours: 2)),
           createdAt: DateTime(2024, 11, 20),
         );
       }),
