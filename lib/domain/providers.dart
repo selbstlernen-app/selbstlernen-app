@@ -45,6 +45,7 @@ GetCompletedSessionsForTodayUseCase getCompletedSessionsForTodayUseCase(
 GetSessionStatisticsUseCase getSessionStatisticsUseCase(Ref ref) {
   return GetSessionStatisticsUseCase(
     ref.watch(sessionInstanceRepositoryProvider),
+    ref.watch(sessionRepositoryProvider),
   );
 }
 

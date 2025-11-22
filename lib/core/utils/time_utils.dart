@@ -6,12 +6,20 @@ class TimeUtils {
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
-  static String formatBarChartTime(double time) {
-    final int seconds = time.floor();
-    final int hours = seconds ~/ 60;
-    final int minutes = seconds % 60;
+  static String formatBarChartTime(double minutes) {
+    if (minutes < 60) {
+      if (minutes.toStringAsFixed(1).contains(RegExp(".0"))) {
+        return "${minutes.floor()} min";
+      }
+      return "${minutes.toStringAsFixed(1)} min";
+    } else {
+      final double hours = minutes / 60;
 
-    return hours > 0 ? "$hours h" : "$minutes min";
+      if (hours.toStringAsFixed(1).contains(RegExp(".0"))) {
+        return "${hours.floor()} h";
+      }
+      return "${hours.toStringAsFixed(1)} h";
+    }
   }
 
   static String formatToolTipTime(double time) {

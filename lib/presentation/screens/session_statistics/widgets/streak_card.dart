@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/card_layout.dart';
 
 class StreakCard extends StatelessWidget {
   const StreakCard({super.key, required this.stats});
@@ -10,72 +13,31 @@ class StreakCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
+    return CardLayout(
+      content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          Text('Aktive Tage', style: context.textTheme.headlineSmall),
+          const VerticalSpace(size: SpaceSize.small),
           Row(
             children: <Widget>[
-              Icon(
-                Icons.local_fire_department,
+              _StreakMetric(
+                label: 'Aktuelle Serie',
+                value: stats.currentStreak,
+                icon: Icons.whatshot,
                 color: AppPalette.orange,
-                size: 28,
+                isActive: true,
               ),
-              const SizedBox(width: 8),
-              Text('Streak', style: context.textTheme.titleLarge),
-            ],
-          ),
-          const SizedBox(height: 16),
 
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: _StreakMetric(
-                  label: 'Aktuelle Serie',
-                  value: stats.currentStreak,
-                  icon: Icons.whatshot,
-                  color: AppPalette.orange,
-                  isActive: true,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: _StreakMetric(
-                  label: 'Längste Serie',
-                  value: stats.longestStreak,
-                  icon: Icons.military_tech,
-                  color: AppPalette.orange,
-                  isActive: false,
-                ),
+              _StreakMetric(
+                label: 'Längste Serie',
+                value: stats.longestStreak,
+                icon: Icons.military_tech,
+                color: AppPalette.orange,
+                isActive: false,
               ),
             ],
           ),
-
-          if (stats.currentStreak > 0) ...<Widget>[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppPalette.orange.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Text('🔥', style: TextStyle(fontSize: 24)),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Du bist ${stats.currentStreak} Tage am Ball!',
-                    style: context.textTheme.titleMedium?.copyWith(
-                      color: AppPalette.orange,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -100,7 +62,7 @@ class _StreakMetric extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),

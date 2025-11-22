@@ -8,6 +8,7 @@ abstract class SessionInstanceRepository {
   Future<SessionInstanceModel> getInstanceById(int instanceId);
   Future<SessionInstanceModel?> getInstanceBySessionId(int sessionId);
   Future<List<SessionInstanceModel>> getAllInstancesBySessionId(int sessionId);
+  Future<List<SessionInstanceModel>> getAllInstances();
 
   Stream<List<SessionInstanceModel>> watchInstancesBySessionId(int sessionId);
   Stream<SessionInstanceModel> watchInstanceById(int sessionInstanceId);

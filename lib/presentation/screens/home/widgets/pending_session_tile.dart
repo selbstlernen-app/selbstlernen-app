@@ -66,8 +66,8 @@ class PendingSessionTile extends ConsumerWidget {
                       ),
                     ),
                     subtitle: Text(_getDisplayDate()),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     leading: const Icon(Icons.circle_outlined),
                     trailing: IconButton(

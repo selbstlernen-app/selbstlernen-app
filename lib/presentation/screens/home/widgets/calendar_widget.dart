@@ -38,7 +38,7 @@ class CalendarWidget extends ConsumerWidget {
                   color: date.day == today.day
                       ? context.colorScheme.primary
                       : context.colorScheme.tertiary,
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4.0),

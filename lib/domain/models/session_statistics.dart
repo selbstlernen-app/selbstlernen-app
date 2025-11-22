@@ -35,6 +35,9 @@ abstract class SessionStatistics with _$SessionStatistics {
   double get averageFocusMinutesPerSession =>
       completedInstances > 0 ? totalFocusMinutes / completedInstances : 0.0;
 
+  double get averageBreakMinutesPerSession =>
+      completedInstances > 0 ? totalBreakMinutes / completedInstances : 0.0;
+
   double get averageGoalsPerSession =>
       completedInstances > 0 ? totalGoalsCompleted / completedInstances : 0.0;
 

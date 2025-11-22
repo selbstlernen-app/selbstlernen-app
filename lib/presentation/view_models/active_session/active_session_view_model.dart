@@ -315,6 +315,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       final SessionInstanceModel updatedInstance = state.instance!.copyWith(
         completedAt: DateTime.now(),
         status: SessionStatus.completed,
+        totalFocusSecondsElapsed: state.totalFocusSecondsElapsed,
+        totalBreakSecondsElapsed: state.totalBreakSecondsElapsed,
+        totalFocusPhases: state.totalFocusPhases,
+        totalCompletedBlocks: state.completedBlocks,
+        totalCompletedGoals: state.completedGoalIds.length,
+        totalCompletedTasks: state.completedTaskIds.length,
       );
       await _completeInstanceUseCase.call(updatedInstance);
 

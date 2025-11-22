@@ -5,27 +5,35 @@ import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/stats_bar_chart.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/stats_bar_chart.dart';
 
 class SpentTimeCard extends ConsumerWidget {
   const SpentTimeCard({
     super.key,
     required this.stats,
     required this.weekdayMinutes,
+    required this.plannedFocusMinutesPerWeekday,
   });
 
   final SessionStatistics stats;
   final List<double> weekdayMinutes;
+  final List<int> plannedFocusMinutesPerWeekday;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    print(stats);
     final int totalMinutes = stats.totalFocusMinutes + stats.totalBreakMinutes;
+
     final int hours = totalMinutes ~/ 60;
     final int minutes = totalMinutes % 60;
 
-    final int averageFocusMins = stats.averageFocusMinutesPerSession.floor();
-    final int averageHours = averageFocusMins ~/ 60;
-    final int averageMinutes = averageFocusMins % 60;
+    final int averageFocus = stats.averageFocusMinutesPerSession.floor();
+    final int averageHours = averageFocus ~/ 60;
+    final int averageMinutes = averageFocus % 60;
+
+    final int averageBreak = stats.averageBreakMinutesPerSession.floor();
+    final int averageBreakHours = averageBreak ~/ 60;
+    final int averageBreakMinutes = averageBreak % 60;
 
     return Card(
       elevation: 0,
@@ -40,7 +48,7 @@ class SpentTimeCard extends ConsumerWidget {
             Divider(
               color: context.colorScheme.tertiary,
               thickness: 4,
-              radius: const BorderRadius.all(Radius.circular(10)),
+              radius: BorderRadius.circular(10),
             ),
             const VerticalSpace(size: SpaceSize.xsmall),
 
@@ -55,7 +63,7 @@ class SpentTimeCard extends ConsumerWidget {
 
                 _StatDivider(),
 
-                if (stats.averageFocusMinutesPerSession > 0) ...[
+                if (stats.averageFocusMinutesPerSession > 0) ...<Widget>[
                   _StatColumn(
                     label: 'Ø Fokuszeit',
                     value: averageHours > 0
@@ -65,10 +73,14 @@ class SpentTimeCard extends ConsumerWidget {
                   _StatDivider(),
                 ],
 
-                _StatColumn(
-                  label: 'Gesamtanzahl',
-                  value: stats.totalInstances.toString(),
-                ),
+                if (stats.averageBreakMinutesPerSession > 0) ...<Widget>[
+                  _StatColumn(
+                    label: 'Ø Pausenzeit',
+                    value: averageBreakHours > 0
+                        ? '$averageBreakHours h $averageBreakMinutes min'
+                        : '$averageBreakMinutes min',
+                  ),
+                ],
               ],
             ),
 
@@ -77,7 +89,12 @@ class SpentTimeCard extends ConsumerWidget {
             // Bar chart
             SizedBox(
               height: 200,
-              child: StatsBarChart(weekdayMinutes: weekdayMinutes),
+              child: StatsBarChart(
+                weekdayMinutes: weekdayMinutes,
+                plannedFocusMinutesPerWeekday: plannedFocusMinutesPerWeekday,
+                averageFocusMinutesPerSession:
+                    stats.averageFocusMinutesPerSession,
+              ),
             ),
           ],
         ),
@@ -94,7 +111,7 @@ class _StatDivider extends StatelessWidget {
       child: VerticalDivider(
         thickness: 2,
         color: context.colorScheme.tertiary,
-        radius: const BorderRadius.all(Radius.circular(10)),
+        radius: BorderRadius.circular(10),
       ),
     );
   }

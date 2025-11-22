@@ -110,7 +110,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                       Divider(
                         color: context.colorScheme.tertiary,
                         thickness: 4,
-                        radius: const BorderRadius.all(Radius.circular(10)),
+                        radius: BorderRadius.circular(10),
                       ),
                       const VerticalSpace(size: SpaceSize.small),
 

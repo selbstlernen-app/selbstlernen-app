@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/theme/text_theme.dart';
 
 class CustomTheme {

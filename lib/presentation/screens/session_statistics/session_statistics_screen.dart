@@ -7,8 +7,9 @@ import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/heatmap_card.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/spent_time_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/completion_rate_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/spent_time_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/time_learned_card.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
 
@@ -95,16 +96,36 @@ class SessionStatisticsScreen extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          // Stats cards
-          SpentTimeCard(stats: stats, weekdayMinutes: state.weekdayMinutes!),
+          /// Productivity
+          /// Time spent; per weekday visualizing focus time
+          /// Shows total sessions, avg focus time and bar chart
+          SpentTimeCard(
+            stats: stats,
+            weekdayMinutes: state.weekdayMinutes!,
+            plannedFocusMinutesPerWeekday: plannedFocusMinutesPerWeekday(
+              state.session!,
+            ),
+          ),
+
+          /// Consistency & Habit Formation;
+          ///   Completion rate (completed/skipped)
+          CompletionRateCard(stats: stats),
 
           const VerticalSpace(size: SpaceSize.medium),
 
-          // TODO: Heatmap for repeating sessions
+          /// Shows the time sessions were completed (Tendency evening/morning/etc.)
           if (state.session?.isRepeating == true) ...<Widget>[
-            HeatmapCard(instances: instances),
+            TimeLearnedCard(instances: instances),
             const VerticalSpace(size: SpaceSize.medium),
           ],
+
+          /// Goals and Task Progress
+          ///   Goals/Tasks completed per session
+          ///   Goal completion trend (weekly/monthly)
+
+          /// Reflection/Well-being
+          ///   Mood trend over time
+          const VerticalSpace(size: SpaceSize.xlarge),
 
           //
 
@@ -113,20 +134,28 @@ class SessionStatisticsScreen extends ConsumerWidget {
           //   sessionId: sessionId,
           //   instances: state.instances ?? [],
           // ),
-
-          // TODO: Average mood
-          // if (stats.averageMood != null)
-          //   AverageMoodCard(
-          //     mood: ref
-          //         .read(sessionStatisticsViewModelProvider(sessionId).notifier)
-          //         .getAverageMoodForLastMonth(),
-          //   ),
           CustomButton(
             onPressed: () => Navigator.of(context).pushNamed(AppRoutes.home),
             label: "Zurück zum Startbildschirm",
           ),
         ],
       ),
+    );
+  }
+
+  List<int> plannedFocusMinutesPerWeekday(SessionModel session) {
+    // Total of one block focus time
+    final int plannedMinutes = session.focusTimeMin * session.focusPhases;
+
+    // If non-repeating session, fill with 0
+    if (!session.isRepeating) {
+      return List<int>.generate(7, (int i) => plannedMinutes);
+    }
+
+    // If repeating, fill for each selected day
+    return List<int>.generate(
+      7,
+      (int i) => session.selectedDays.contains(i) ? plannedMinutes : 0,
     );
   }
 }

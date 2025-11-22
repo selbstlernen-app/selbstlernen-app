@@ -148,38 +148,36 @@ class SessionDetailScreen extends ConsumerWidget {
                   ),
                 ),
               ],
-              if (instanceId == null)
-                SizedBox(
-                  width: context.mediaQuery.size.width,
-                  child: CustomButton(
-                    onPressed: () async {
-                      try {
-                        // Get or create instance
-                        SessionInstanceModel existingInstance = await ref
-                            .read(
-                              detailSessionViewModelProvider(
-                                sessionId,
-                              ).notifier,
-                            )
-                            .startSession(DateTime.now());
 
-                        if (context.mounted) {
-                          await Navigator.pushNamed(
-                            context,
-                            AppRoutes.active,
-                            arguments: ActiveSessionArgs(
-                              instanceId: int.parse(existingInstance.id!),
-                              sessionId: int.parse(session.id!),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        throw ArgumentError(e);
+              SizedBox(
+                width: context.mediaQuery.size.width,
+                child: CustomButton(
+                  onPressed: () async {
+                    try {
+                      // Get or create instance
+                      SessionInstanceModel existingInstance = await ref
+                          .read(
+                            detailSessionViewModelProvider(sessionId).notifier,
+                          )
+                          .startSession(DateTime.now());
+
+                      if (context.mounted) {
+                        await Navigator.pushNamed(
+                          context,
+                          AppRoutes.active,
+                          arguments: ActiveSessionArgs(
+                            instanceId: int.parse(existingInstance.id!),
+                            sessionId: int.parse(session.id!),
+                          ),
+                        );
                       }
-                    },
-                    label: "Starten",
-                  ),
+                    } catch (e) {
+                      throw ArgumentError(e);
+                    }
+                  },
+                  label: "Starten",
                 ),
+              ),
             ],
           ),
         );

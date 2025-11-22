@@ -1,15 +1,21 @@
 import 'dart:math';
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
+import 'package:srl_app/core/utils/chart_utils.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
 
 class StatsBarChart extends StatefulWidget {
-  const StatsBarChart({super.key, required this.weekdayMinutes});
+  const StatsBarChart({
+    super.key,
+    required this.weekdayMinutes,
+    required this.plannedFocusMinutesPerWeekday,
+    required this.averageFocusMinutesPerSession,
+  });
 
   final List<double> weekdayMinutes;
+  final List<int> plannedFocusMinutesPerWeekday;
+  final double averageFocusMinutesPerSession;
 
   @override
   State<StatsBarChart> createState() => _StatsBarChartState();
@@ -19,19 +25,15 @@ class _StatsBarChartState extends State<StatsBarChart> {
   int? touchedGroupIndex;
 
   double get _maxY {
-    final double maxValue = widget.weekdayMinutes.isEmpty
-        ? 0.0
-        : widget.weekdayMinutes.reduce(max);
-    return maxValue;
+    final int maxPlanned = widget.plannedFocusMinutesPerWeekday.reduce(max);
+    final int maxActual = widget.weekdayMinutes.reduce(max).toInt();
+
+    final int computedMax = max(maxPlanned, maxActual);
+
+    return computedMax.ceilToDouble();
   }
 
   double get _interval => _calculateNiceInterval(_maxY);
-
-  double get _average {
-    if (widget.weekdayMinutes.isEmpty) return 0.0;
-    return widget.weekdayMinutes.reduce((double a, double b) => a + b) /
-        widget.weekdayMinutes.length;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
         extraLinesData: ExtraLinesData(
           horizontalLines: <HorizontalLine>[
             HorizontalLine(
-              y: _average,
+              y: widget.averageFocusMinutesPerSession,
               strokeWidth: 2,
               color: AppPalette.darkPurple,
               dashArray: <int>[10, 16],
@@ -111,18 +113,14 @@ class _StatsBarChartState extends State<StatsBarChart> {
       leftTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
-          reservedSize: 40,
+          reservedSize: 48,
           interval: interval,
           getTitlesWidget: (double value, TitleMeta meta) =>
               getLeftTitles(value, meta, maxY),
         ),
       ),
       bottomTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 30,
-          getTitlesWidget: getTitles,
-        ),
+        sideTitles: SideTitles(showTitles: true, getTitlesWidget: getTitles),
       ),
       topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
       rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -143,27 +141,23 @@ class _StatsBarChartState extends State<StatsBarChart> {
     return SideTitleWidget(
       meta: meta,
       space: 4,
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-      ),
+      child: Text(text, style: ChartUtils.styleBottomBar),
     );
   }
 
   Widget getLeftTitles(double value, TitleMeta meta, double maxY) {
+    if (value > maxY) return const SizedBox.shrink();
+
     if (value == 0) {
       return SideTitleWidget(
         meta: meta,
         child: Text(
-          "0 h",
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppPalette.darkGrey,
-          ),
+          maxY <= 60 ? "0 min" : "0 h",
+          style: ChartUtils.styleLeftBar,
         ),
       );
     }
+
     if (value == maxY) {
       return const SizedBox.shrink();
     }
@@ -171,11 +165,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
       meta: meta,
       child: Text(
         TimeUtils.formatBarChartTime(value),
-        style: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: AppPalette.darkGrey,
-        ),
+        style: ChartUtils.styleLeftBar,
       ),
     );
   }
@@ -183,11 +173,17 @@ class _StatsBarChartState extends State<StatsBarChart> {
   List<BarChartGroupData> _buildBarGroups() {
     return List<BarChartGroupData>.generate(7, (int index) {
       final double minutes = widget.weekdayMinutes[index];
+      final int plannedMinutes = widget.plannedFocusMinutesPerWeekday[index];
 
       return BarChartGroupData(
         x: index,
         barRods: <BarChartRodData>[
           BarChartRodData(
+            backDrawRodData: BackgroundBarChartRodData(
+              show: true,
+              toY: plannedMinutes.toDouble(),
+              color: Colors.grey.shade300,
+            ),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(30),
               topRight: Radius.circular(30),
@@ -197,11 +193,11 @@ class _StatsBarChartState extends State<StatsBarChart> {
                 ? AppPalette.pastelEmerald
                 : AppPalette.pastelViolet,
 
-            width: 24,
+            width: 20,
           ),
         ],
         showingTooltipIndicators: touchedGroupIndex == index
-            ? const <int>[0]
+            ? const <int>[1]
             : const <int>[],
       );
     });

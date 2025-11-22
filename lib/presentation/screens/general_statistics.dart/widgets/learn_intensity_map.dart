@@ -1,17 +1,37 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
+import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
 /// TODO: IMPLEMENT ON HOME PAGE?
 /// Widget to show on which days one has learned;
 /// How many sessions were conducted on that particular day
-class LearnIntensityMap extends StatelessWidget {
+class LearnIntensityMap extends StatefulWidget {
   const LearnIntensityMap({super.key, required this.instances});
 
   final List<SessionInstanceModel> instances;
+
+  @override
+  State<LearnIntensityMap> createState() => _LearnIntensityMapState();
+}
+
+class _LearnIntensityMapState extends State<LearnIntensityMap> {
+  int? _selectedSessions;
+  DateTime? _selectedDate;
+  final GlobalKey _calendarKey = GlobalKey();
+  Timer? _tooltipTimer;
+
+  @override
+  void dispose() {
+    _tooltipTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,16 +42,19 @@ class LearnIntensityMap extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Aktivität', style: context.textTheme.titleLarge),
-            const VerticalSpace(size: SpaceSize.small),
+            Text('Aktivität', style: context.textTheme.headlineMedium),
+            const VerticalSpace(size: SpaceSize.xsmall),
             Text(
-              'Zeigt an welchen Tagen du gelernt hast',
+              'Markiert die Tage, an denen du gelernt hast.',
               style: context.textTheme.bodySmall?.copyWith(
-                color: Colors.grey[600],
+                color: AppPalette.grey,
               ),
             ),
 
+            const VerticalSpace(size: SpaceSize.small),
+
             HeatMapCalendar(
+              key: _calendarKey,
               showColorTip: false,
               colorsets: const <int, Color>{
                 1: Color(0xFFE8F5E9),
@@ -40,15 +63,56 @@ class LearnIntensityMap extends StatelessWidget {
                 4: Color(0xFF43A047),
               },
               datasets: _buildCalendarDataset(),
-              initDate: _getStartDate(),
+              weekTextColor: AppPalette.grey,
+              monthFontSize: 16,
+              initDate: DateTime.now(),
               flexible: true,
               colorMode: ColorMode.color,
+              onClick: (DateTime date) {
+                final Map<DateTime, int> dataset = _buildCalendarDataset();
+                setState(() {
+                  _selectedDate = date;
+                  _selectedSessions = dataset[date] ?? 0;
+                });
+
+                _tooltipTimer?.cancel();
+
+                // Auto-dismiss after 3 seconds
+                _tooltipTimer = Timer(const Duration(seconds: 3), () {
+                  setState(() {
+                    _selectedDate = null;
+                    _selectedSessions = null;
+                  });
+                });
+              },
               size: 30,
               fontSize: 12,
             ),
+
             const VerticalSpace(size: SpaceSize.small),
 
             _buildLegend(context),
+
+            if (_selectedDate != null)
+              Container(
+                margin: const EdgeInsets.only(top: 8.0),
+                decoration: BoxDecoration(
+                  color: AppPalette.darkGrey.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                child: Text(
+                  "Einheiten am ${DateFormat('dd.MM.', 'de_DE').format(_selectedDate!)}: ${_selectedSessions ?? 0}",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
           ],
         ),
       ),
@@ -59,43 +123,24 @@ class LearnIntensityMap extends StatelessWidget {
     final Map<DateTime, int> dataset = <DateTime, int>{};
 
     // Group instances by date
-    for (final SessionInstanceModel instance in instances) {
+    for (final SessionInstanceModel instance in widget.instances) {
       if (instance.status == SessionStatus.completed) {
-        // Normalize to start of day for calendar
+        // Normalize to start of day
         final DateTime date = DateTime(
           instance.scheduledAt.year,
           instance.scheduledAt.month,
           instance.scheduledAt.day,
         );
-
-        // Increment count for this day (intensity)
+        // Increment count for this day
         dataset[date] = (dataset[date] ?? 0) + 1;
       }
     }
-
     return dataset;
-  }
-
-  DateTime _getStartDate() {
-    if (instances.isEmpty) return DateTime.now();
-
-    // Start from first instance or 3 months ago, whichever is more recent
-    final SessionInstanceModel firstInstance = instances.reduce(
-      (SessionInstanceModel a, SessionInstanceModel b) =>
-          a.scheduledAt.isBefore(b.scheduledAt) ? a : b,
-    );
-    final DateTime threeMonthsAgo = DateTime.now().subtract(
-      const Duration(days: 90),
-    );
-
-    return firstInstance.scheduledAt.isAfter(threeMonthsAgo)
-        ? firstInstance.scheduledAt
-        : threeMonthsAgo;
   }
 
   Widget _buildLegend(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         Text('Weniger', style: context.textTheme.bodySmall),
         const SizedBox(width: 8),

@@ -120,7 +120,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
       // Create or get instance for today
       SessionInstanceModel instance = await ref
           .read(addSessionViewModelProvider.notifier)
-          .startSession(DateTime.now());
+          .startSession();
 
       if (!mounted) return;
 

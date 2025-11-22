@@ -13,7 +13,7 @@ class AppPalette {
   static Color pink = Colors.pinkAccent[100]!;
   static Color darkPink = Colors.pinkAccent[200]!;
 
-  static Color grey = Colors.grey[500]!;
+  static Color grey = Colors.grey[600]!;
   static Color darkGrey = Colors.grey[800]!;
 
   static const Color pastelAmber = Color(0xfffee685);

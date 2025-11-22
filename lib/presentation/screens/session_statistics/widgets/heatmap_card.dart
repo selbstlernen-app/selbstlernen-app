@@ -91,7 +91,7 @@ class HeatmapCard extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: <Widget>[
         Row(
-          children: [
+          children: <Widget>[
             const Icon(Icons.wb_sunny, size: 16, color: Colors.orange),
             const HorizontalSpace(size: SpaceSize.small),
             Text('Morgens', style: context.textTheme.bodySmall),
@@ -99,7 +99,7 @@ class HeatmapCard extends StatelessWidget {
         ),
 
         Row(
-          children: [
+          children: <Widget>[
             const Icon(Icons.wb_twilight, size: 16, color: Colors.blue),
             const HorizontalSpace(size: SpaceSize.small),
             Text('Nachmittags', style: context.textTheme.bodySmall),
@@ -107,7 +107,7 @@ class HeatmapCard extends StatelessWidget {
         ),
 
         Row(
-          children: [
+          children: <Widget>[
             const Icon(Icons.nights_stay, size: 16, color: Colors.indigo),
             const HorizontalSpace(size: SpaceSize.small),
             Text('Abends', style: context.textTheme.bodySmall),

@@ -1,15 +1,25 @@
-import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/core/utils/date_time_utils.dart';
+import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
+import 'package:srl_app/domain/session_repository.dart';
 
 /// Use case when wanting to get statistics for a specific session;
 /// Shown after a session has been conducted
 class GetSessionStatisticsUseCase {
-  const GetSessionStatisticsUseCase(this.instanceRepository);
+  const GetSessionStatisticsUseCase(
+    this.instanceRepository,
+    this.sessionRepository,
+  );
 
   final SessionInstanceRepository instanceRepository;
+  final SessionRepository sessionRepository;
 
   Future<SessionStatistics> call(int sessionId) async {
+    final SessionModel session = await sessionRepository.getSessionById(
+      sessionId,
+    );
+
     final List<SessionInstanceModel> instances = await instanceRepository
         .getAllInstancesBySessionId(sessionId);
 
@@ -30,10 +40,13 @@ class GetSessionStatisticsUseCase {
       );
     }
 
-    return _calculateStats(instances);
+    return _calculateStats(instances, session);
   }
 
-  SessionStatistics _calculateStats(List<SessionInstanceModel> instances) {
+  SessionStatistics _calculateStats(
+    List<SessionInstanceModel> instances,
+    SessionModel session,
+  ) {
     // Sort instances by date
     final List<SessionInstanceModel> sortedInstances =
         <SessionInstanceModel>[...instances]..sort(
@@ -94,8 +107,19 @@ class GetSessionStatisticsUseCase {
       sortedInstances,
     );
 
+    int totalInstances;
+    if (session.isRepeating) {
+      totalInstances = DateTimeUtils.countDaysBetweenDates(
+        session.startDate!,
+        session.endDate!,
+        session.selectedDays,
+      );
+    } else {
+      totalInstances = 1;
+    }
+
     return SessionStatistics(
-      totalInstances: instances.length,
+      totalInstances: totalInstances,
       completedInstances: completed.length,
       skippedInstances: skipped.length,
       inProgressInstances: inProgress.length,
