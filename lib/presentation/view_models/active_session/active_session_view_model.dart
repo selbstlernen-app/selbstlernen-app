@@ -162,14 +162,17 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       if (state.currentPhase == SessionPhase.focus) {
         state = state.copyWith(
           totalFocusSecondsElapsed: state.totalFocusSecondsElapsed + 1,
+          currentPhaseElapsed: state.currentPhaseElapsed + 1,
         );
       } else if (state.currentPhase == SessionPhase.shortBreak) {
         state = state.copyWith(
           totalBreakSecondsElapsed: state.totalBreakSecondsElapsed + 1,
+          currentPhaseElapsed: state.currentPhaseElapsed + 1,
         );
       } else {
         state = state.copyWith(
           totalLongBreakSecondsElapsed: state.totalLongBreakSecondsElapsed + 1,
+          currentPhaseElapsed: state.currentPhaseElapsed + 1,
         );
       }
     } else {
@@ -241,6 +244,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       remainingSeconds: durationSeconds,
       totalFocusPhases: totalFocusPhases ?? state.totalFocusPhases,
       completedBlocks: completedBlocks ?? state.completedBlocks,
+      currentPhaseElapsed: 0,
     );
 
     _autoSave();

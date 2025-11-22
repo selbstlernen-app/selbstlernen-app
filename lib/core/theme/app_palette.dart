@@ -6,6 +6,12 @@ class AppPalette {
 
   static Color complementary = const Color(0xFFff4502);
 
+  static Color analogous = const Color(0xFF02ffc4);
+  static Color analogousSecond = const Color(0xFF023dff);
+
+  static Color triadic = const Color(0xFF4502ff);
+  static Color triadicSecond = const Color(0xFFff02bc);
+
   static Color orange = Colors.amber[400]!;
   static Color darkOrange = Colors.amber[600]!;
 

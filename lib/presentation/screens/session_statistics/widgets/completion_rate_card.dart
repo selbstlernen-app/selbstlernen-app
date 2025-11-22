@@ -18,42 +18,45 @@ class CompletionRateCard extends StatelessWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            'Abgeschlossene Einheiten',
-            style: context.textTheme.headlineSmall,
-          ),
-          const VerticalSpace(size: SpaceSize.medium),
-          Column(
+          Text('Abschlussrate', style: context.textTheme.headlineSmall),
+          const VerticalSpace(size: SpaceSize.small),
+          Row(
             children: <Widget>[
               Stack(
                 alignment: AlignmentDirectional.center,
                 children: <Widget>[
                   SizedBox(
-                    height: 72,
-                    width: 72,
+                    height: 55,
+                    width: 55,
                     child: CircularProgressIndicator(
                       value: stats.completionRate,
-                      backgroundColor: AppPalette.grey.withValues(alpha: 0.4),
+                      backgroundColor: AppPalette.grey.withValues(alpha: 0.2),
                       strokeWidth: 5,
                     ),
                   ),
-                  Text("\n${(stats.completionRate * 100).toStringAsFixed(0)}%"),
+                  Text(
+                    "${(stats.completionRate * 100).toStringAsFixed(0)}%",
+                    style: context.textTheme.headlineSmall,
+                  ),
                 ],
               ),
+
               const HorizontalSpace(size: SpaceSize.medium),
-              Text(
-                '${stats.completedInstances} von ${stats.totalInstances} Einheiten abgeschlossen.',
-                style: context.textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
+
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text('\nabgeschlossen', style: context.textTheme.bodySmall),
+                  Text(
+                    stats.totalInstances == 1
+                        ? 'Abgeschlossen'
+                        : "${stats.completedInstances} von ${stats.totalInstances} Einheiten abgeschlossen.",
+                    style: context.textTheme.bodyMedium,
+                  ),
+
                   if (stats.skippedInstances > 0) ...<Widget>[
-                    const VerticalSpace(size: SpaceSize.xsmall),
+                    const VerticalSpace(size: SpaceSize.small),
                     Text(
-                      '${stats.skippedInstances} übersprungen',
+                      '${stats.skippedInstances} übersprungen.',
                       style: context.textTheme.bodySmall,
                     ),
                   ],

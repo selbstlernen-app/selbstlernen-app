@@ -23,6 +23,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(0) int totalLongBreakSecondsElapsed,
     @Default(0) int totalFocusPhases,
     @Default(0) int completedBlocks,
+    @Default(0) int currentPhaseElapsed, // used for counting upwards
     DateTime? sessionStartTime,
     @Default(<String>{}) Set<String> completedGoalIds,
     @Default(<String>{}) Set<String> completedTaskIds,

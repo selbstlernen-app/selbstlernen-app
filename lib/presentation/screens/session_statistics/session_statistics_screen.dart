@@ -9,6 +9,7 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/completion_rate_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/spent_time_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/time_learned_card.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
@@ -123,21 +124,21 @@ class SessionStatisticsScreen extends ConsumerWidget {
                 ),
               ),
 
-              /// Consistency & Habit Formation;
-              ///   Completion rate (completed/skipped)
+              const VerticalSpace(size: SpaceSize.medium),
+
+              /// Shows the time sessions were completed (Tendency evening/morning/etc.)
+              // if (state.session?.isRepeating == true) ...<Widget>[
+              //   TimeLearnedCard(instances: instances),
+              //   const VerticalSpace(size: SpaceSize.medium),
+              // ],
+
+              /// Completion rate (completed/skipped)
               CompletionRateCard(stats: stats),
 
               const VerticalSpace(size: SpaceSize.medium),
 
-              /// Shows the time sessions were completed (Tendency evening/morning/etc.)
-              if (state.session?.isRepeating == true) ...<Widget>[
-                TimeLearnedCard(instances: instances),
-                const VerticalSpace(size: SpaceSize.medium),
-              ],
-
               /// Goals and Task Progress
-              ///   Goals/Tasks completed per session
-              ///   Goal completion trend (weekly/monthly)
+              GoalTaskCompletionCard(stats: stats),
 
               /// Reflection/Well-being
               ///   Mood trend over time

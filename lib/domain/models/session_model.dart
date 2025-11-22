@@ -42,6 +42,10 @@ abstract class SessionModel with _$SessionModel {
       selectedDays,
     );
   }
+
+  int get totalTimeForOneBlock {
+    return (focusTimeMin + breakTimeMin) * focusPhases + longBreakTimeMin;
+  }
 }
 
 extension SessionExtensions on SessionModel {
