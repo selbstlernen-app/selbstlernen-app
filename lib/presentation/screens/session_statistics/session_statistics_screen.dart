@@ -11,7 +11,6 @@ import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/completion_rate_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/spent_time_card.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/time_learned_card.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
 
@@ -107,57 +106,60 @@ class SessionStatisticsScreen extends ConsumerWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              /// Productivity
-              /// Shows how much time spent on which weekday
-              /// vs. how much was expected (Focus-time only)
-              SpentTimeCard(
-                stats: stats,
-                weekdayMinutes: state.weekdayMinutes!,
-                plannedFocusMinutesPerWeekday: plannedFocusMinutesPerWeekday(
-                  state.session!,
-                  !state.session!.isRepeating ? state.instances!.first : null,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    /// Productivity
+                    /// Shows how much time spent on which weekday
+                    /// vs. how much was expected (Focus-time only)
+                    SpentTimeCard(
+                      stats: stats,
+                      weekdayMinutes: state.weekdayMinutes!,
+                      plannedFocusMinutesPerWeekday:
+                          plannedFocusMinutesPerWeekday(
+                            state.session!,
+                            !state.session!.isRepeating
+                                ? instances.first
+                                : null,
+                          ),
+                    ),
+
+                    const VerticalSpace(size: SpaceSize.medium),
+
+                    /// Shows the time sessions were completed (Tendency evening/morning/etc.)
+                    // if (state.session?.isRepeating == true) ...<Widget>[
+                    //   TimeLearnedCard(instances: instances),
+                    //   const VerticalSpace(size: SpaceSize.medium),
+                    // ],
+
+                    /// Completion rate (completed/skipped)
+                    CompletionRateCard(stats: stats),
+
+                    const VerticalSpace(size: SpaceSize.medium),
+
+                    /// Goals and Task Progress
+                    GoalTaskCompletionCard(stats: stats),
+
+                    /// TODO: add mood trend/general mood
+                  ],
                 ),
               ),
+            ),
 
-              const VerticalSpace(size: SpaceSize.medium),
-
-              /// Shows the time sessions were completed (Tendency evening/morning/etc.)
-              // if (state.session?.isRepeating == true) ...<Widget>[
-              //   TimeLearnedCard(instances: instances),
-              //   const VerticalSpace(size: SpaceSize.medium),
-              // ],
-
-              /// Completion rate (completed/skipped)
-              CompletionRateCard(stats: stats),
-
-              const VerticalSpace(size: SpaceSize.medium),
-
-              /// Goals and Task Progress
-              GoalTaskCompletionCard(stats: stats),
-
-              /// Reflection/Well-being
-              ///   Mood trend over time
-              const VerticalSpace(size: SpaceSize.xlarge),
-
-              //
-
-              // Instance history
-              // InstanceHistory(
-              //   sessionId: sessionId,
-              //   instances: state.instances ?? [],
-              // ),
-              CustomButton(
+            SizedBox(
+              width: context.mediaQuery.size.width,
+              child: CustomButton(
                 onPressed: () =>
                     Navigator.of(context).pushNamed(AppRoutes.home),
                 label: "Zurück zum Startbildschirm",
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

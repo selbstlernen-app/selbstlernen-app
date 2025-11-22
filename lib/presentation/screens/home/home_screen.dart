@@ -5,6 +5,7 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/data/test_data.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
 import 'package:srl_app/presentation/screens/home/widgets/calendar_widget.dart';
 import 'package:srl_app/presentation/screens/home/widgets/completed_tile.dart';
@@ -38,7 +39,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
             children: <Widget>[
               _buildHeading(context),
 
-              // ONLY RUN ONCE AFTER DELETION:
+              // TODO: remove for production
               // ElevatedButton(
               //   onPressed: () async {
               //     await ref.read(testDataProvider.notifier).insertTestData();
@@ -91,7 +92,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
 
               const VerticalSpace(size: SpaceSize.medium),
 
-              // Yet to do sessions
+              // Todo-Sessions
               ...homeState.sessions.map(
                 (SessionWithInstanceModel sessionWithInstance) =>
                     PendingSessionTile(session: sessionWithInstance.session),
@@ -126,7 +127,6 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
 
   String _getSubHeading() {
     final DateTime now = DateTime.now();
-    // Format: "Montag, 16. November"
     return DateFormat('EEEE, d. MMMM', 'de_DE').format(now);
   }
 

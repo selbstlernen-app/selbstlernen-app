@@ -25,9 +25,9 @@ class TestData extends _$TestData {
     final SessionModel testSession = SessionModel(
       title: "Deep Learning / Fokus Block",
       isRepeating: true,
-      startDate: DateTime(2024, 12, 1),
-      endDate: DateTime(2025, 1, 15),
-      selectedDays: <int>[0, 2, 4], // Monday, Wednesday, Friday
+      startDate: DateTime(2025, 11, 1),
+      endDate: DateTime(2026, 1, 15),
+      selectedDays: <int>[0, 1, 2, 3, 4, 5, 6],
       learningStrategies: <String>["Pomodoro", "Active Recall", "Feynman"],
       focusTimeMin: 50,
       breakTimeMin: 10,
@@ -35,7 +35,7 @@ class TestData extends _$TestData {
       focusPhases: 4,
       hasFocusPrompt: true,
       hasFreetextPrompt: true,
-      createdAt: DateTime(2024, 11, 20),
+      createdAt: DateTime(2025, 11, 20),
     );
 
     int sessionId = await sessionRepo.addSession(testSession);
@@ -70,7 +70,7 @@ class TestData extends _$TestData {
             6 + Random().nextInt(12),
             0 + Random().nextInt(60),
           ).add(Duration(days: i)),
-          createdAt: DateTime(2024, 11, 20),
+          createdAt: DateTime(2025, 11, 20),
         );
       }),
 
@@ -79,9 +79,9 @@ class TestData extends _$TestData {
         return SessionInstanceModel(
           sessionId: sessionId.toString(),
           status: SessionStatus.skipped,
-          scheduledAt: DateTime(2024, 12, 5).add(Duration(days: i * 3)),
+          scheduledAt: DateTime(2025, 10, 5).add(Duration(days: i * 3)),
           notes: "Skipped due to lack of time",
-          createdAt: DateTime(2024, 11, 20),
+          createdAt: DateTime(2025, 11, 20),
         );
       }),
     ];

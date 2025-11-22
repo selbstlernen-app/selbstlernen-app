@@ -32,7 +32,7 @@ class GoalTaskCompletionCard extends StatelessWidget {
                     average: stats.averageGoalsPerSession,
                   ),
                 ),
-                const HorizontalSpace(size: SpaceSize.medium),
+                const HorizontalSpace(size: SpaceSize.small),
                 Expanded(
                   child: _ProductivitySquare(
                     icon: Icons.task_alt,
@@ -90,7 +90,7 @@ class _ProductivitySquare extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: iconColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),

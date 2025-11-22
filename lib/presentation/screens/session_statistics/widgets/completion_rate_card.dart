@@ -49,7 +49,7 @@ class CompletionRateCard extends StatelessWidget {
                   Text(
                     stats.totalInstances == 1
                         ? 'Abgeschlossen'
-                        : "${stats.completedInstances} von ${stats.totalInstances} Einheiten abgeschlossen.",
+                        : "${stats.completedInstances} von ${stats.totalInstances} Einheiten\nabgeschlossen.",
                     style: context.textTheme.bodyMedium,
                   ),
 
