@@ -32,6 +32,11 @@ abstract class SessionStatistics with _$SessionStatistics {
   double get completionRate =>
       totalInstances > 0 ? completedInstances / totalInstances : 0.0;
 
+  double get skipRate =>
+      totalInstances > 0 ? skippedInstances / totalInstances : 0.0;
+
+  double get combinedRate => completionRate + skipRate;
+
   double get averageFocusMinutesPerSession =>
       completedInstances > 0 ? totalFocusMinutes / completedInstances : 0.0;
 

@@ -25,17 +25,52 @@ class CompletionRateCard extends StatelessWidget {
               Stack(
                 alignment: AlignmentDirectional.center,
                 children: <Widget>[
+                  // Background (total)
+                  SizedBox(
+                    height: 55,
+                    width: 55,
+                    child: CircularProgressIndicator(
+                      value: 1.0,
+                      backgroundColor: AppPalette.grey.withValues(alpha: 0.2),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                        Colors.transparent,
+                      ),
+                      strokeWidth: 5,
+                    ),
+                  ),
+
+                  // Skipped sessions (will be covered by completion)
+                  SizedBox(
+                    height: 55,
+                    width: 55,
+                    child: CircularProgressIndicator(
+                      value:
+                          stats.completionRate +
+                          stats.skipRate, // Completed + Skipped
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        AppPalette.triadicSecond,
+                      ),
+                      strokeWidth: 5,
+                    ),
+                  ),
+
+                  // Completed sessions, goes on top
                   SizedBox(
                     height: 55,
                     width: 55,
                     child: CircularProgressIndicator(
                       value: stats.completionRate,
-                      backgroundColor: AppPalette.grey.withValues(alpha: 0.2),
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.blue.shade400,
+                      ),
                       strokeWidth: 5,
                     ),
                   ),
+
                   Text(
-                    "${(stats.completionRate * 100).toStringAsFixed(0)}%",
+                    "${(stats.combinedRate * 100).toStringAsFixed(0)}%",
                     style: context.textTheme.headlineSmall,
                   ),
                 ],
@@ -49,15 +84,50 @@ class CompletionRateCard extends StatelessWidget {
                   Text(
                     stats.totalInstances == 1
                         ? 'Abgeschlossen'
-                        : "${stats.completedInstances} von ${stats.totalInstances} Einheiten\nabgeschlossen.",
+                        : "${stats.completedInstances + stats.skippedInstances} von ${stats.totalInstances} Einheiten\nabgeschlossen.",
                     style: context.textTheme.bodyMedium,
                   ),
 
+                  const VerticalSpace(size: SpaceSize.small),
+
+                  Row(
+                    children: <Widget>[
+                      Container(
+                        height: 5,
+                        width: 5,
+                        decoration: BoxDecoration(
+                          color: AppPalette.primary,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      const HorizontalSpace(size: SpaceSize.xsmall),
+                      Text(
+                        '${stats.completedInstances} durchgeführt',
+                        style: context.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+
                   if (stats.skippedInstances > 0) ...<Widget>[
-                    const VerticalSpace(size: SpaceSize.small),
-                    Text(
-                      '${stats.skippedInstances} übersprungen.',
-                      style: context.textTheme.bodySmall,
+                    const VerticalSpace(size: SpaceSize.xsmall),
+
+                    Row(
+                      children: <Widget>[
+                        Container(
+                          height: 5,
+                          width: 5,
+
+                          decoration: BoxDecoration(
+                            color: AppPalette.triadicSecond,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        const HorizontalSpace(size: SpaceSize.xsmall),
+                        Text(
+                          '${stats.skippedInstances} übersprungen',
+                          style: context.textTheme.bodySmall,
+                        ),
+                      ],
                     ),
                   ],
                 ],
