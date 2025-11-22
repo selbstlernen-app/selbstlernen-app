@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
@@ -21,7 +22,6 @@ class SpentTimeCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    print(stats);
     final int totalMinutes = stats.totalFocusMinutes + stats.totalBreakMinutes;
 
     final int hours = totalMinutes ~/ 60;
@@ -31,9 +31,9 @@ class SpentTimeCard extends ConsumerWidget {
     final int averageHours = averageFocus ~/ 60;
     final int averageMinutes = averageFocus % 60;
 
-    final int averageBreak = stats.averageBreakMinutesPerSession.floor();
-    final int averageBreakHours = averageBreak ~/ 60;
-    final int averageBreakMinutes = averageBreak % 60;
+    final int expectedTime = plannedFocusMinutesPerWeekday.max;
+    final int expectedHours = expectedTime ~/ 60;
+    final int expectedMinutes = expectedTime % 60;
 
     return Card(
       elevation: 0,
@@ -73,12 +73,12 @@ class SpentTimeCard extends ConsumerWidget {
                   _StatDivider(),
                 ],
 
-                if (stats.averageBreakMinutesPerSession > 0) ...<Widget>[
+                if (expectedTime > 0) ...<Widget>[
                   _StatColumn(
-                    label: 'Ø Pausenzeit',
-                    value: averageBreakHours > 0
-                        ? '$averageBreakHours h $averageBreakMinutes min'
-                        : '$averageBreakMinutes min',
+                    label: 'Erwartet',
+                    value: expectedHours > 0
+                        ? '$expectedHours h $expectedMinutes min'
+                        : '$expectedMinutes min',
                   ),
                 ],
               ],

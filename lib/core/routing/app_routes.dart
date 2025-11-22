@@ -5,7 +5,7 @@ import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/active_session/active_session_screen.dart';
 import 'package:srl_app/presentation/screens/add_session/add_session_screen.dart';
 import 'package:srl_app/presentation/screens/detail_session/session_detail_screen.dart';
-import 'package:srl_app/presentation/screens/general_statistics.dart/statistics_screen.dart';
+import 'package:srl_app/presentation/screens/general_statistics/statistics_screen.dart';
 import 'package:srl_app/presentation/screens/reflection/reflection_screen.dart';
 import 'package:srl_app/presentation/screens/session_statistics/session_statistics_screen.dart';
 

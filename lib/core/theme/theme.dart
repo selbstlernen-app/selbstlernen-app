@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/theme/text_theme.dart';
 
 class CustomTheme {
@@ -9,9 +10,9 @@ class CustomTheme {
     fontFamily: "Urbanist",
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
-      primary: Colors.lightBlueAccent, //Color(0xff00BCFF)
+      primary: AppPalette.primary, //Color(0xff00BCFF)
       onPrimary: Colors.white,
-      secondary: Colors.lightBlue[100]!, //Color(0xff74d4ff),
+      secondary: AppPalette.primaryVariant, //Color(0xff74d4ff),
       onSecondary: Colors.white, // Texts/Icons on secondary
       tertiary: const Color(0xffF5F5F5), // grey used for inputs etc
       onTertiary: const Color(0xffA1A1A1),

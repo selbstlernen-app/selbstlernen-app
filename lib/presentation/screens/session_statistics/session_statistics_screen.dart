@@ -4,6 +4,7 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
@@ -24,12 +25,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
       sessionStatisticsViewModelProvider(sessionId),
     );
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Session Statistiken für\n${state.session!.title}'),
-      ),
-      body: _buildBody(context, ref, state),
-    );
+    return _buildBody(context, ref, state);
   }
 
   Widget _buildBody(
@@ -37,10 +33,12 @@ class SessionStatisticsScreen extends ConsumerWidget {
     WidgetRef ref,
     SessionStatisticsState state,
   ) {
+    // Loading
     if (state.isLoading && state.stats == null && state.instances == null) {
       return const LoadingIndicator();
     }
 
+    // Error
     if (state.error != null && state.stats == null) {
       return Center(
         child: Column(
@@ -69,17 +67,20 @@ class SessionStatisticsScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Icon(Icons.bar_chart, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text('Noch keine Statistiken', style: context.textTheme.titleLarge),
-            const SizedBox(height: 8),
+            Icon(Icons.bar_chart, size: 64, color: AppPalette.grey),
+            const VerticalSpace(size: SpaceSize.medium),
+            Text(
+              'Noch keine Statistiken',
+              style: context.textTheme.headlineMedium,
+            ),
+            const VerticalSpace(size: SpaceSize.small),
             Text(
               'Starte deine erste Session!',
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
+              style: context.textTheme.bodySmall!.copyWith(
+                color: AppPalette.grey,
               ),
             ),
-            const SizedBox(height: 24),
+            const VerticalSpace(size: SpaceSize.medium),
             CustomButton(
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.home),
               label: "Zurück zum Startbildschirm",
@@ -90,66 +91,93 @@ class SessionStatisticsScreen extends ConsumerWidget {
     }
 
     // Data available
-    return SingleChildScrollView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          /// Productivity
-          /// Time spent; per weekday visualizing focus time
-          /// Shows total sessions, avg focus time and bar chart
-          SpentTimeCard(
-            stats: stats,
-            weekdayMinutes: state.weekdayMinutes!,
-            plannedFocusMinutesPerWeekday: plannedFocusMinutesPerWeekday(
-              state.session!,
-            ),
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        toolbarHeight: 70,
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            'Statistik für\n${state.session!.title}',
+            style: context.textTheme.headlineLarge,
+            textAlign: TextAlign.center,
           ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              /// Productivity
+              /// Shows how much time spent on which weekday
+              /// vs. how much was expected (Focus-time only)
+              SpentTimeCard(
+                stats: stats,
+                weekdayMinutes: state.weekdayMinutes!,
+                plannedFocusMinutesPerWeekday: plannedFocusMinutesPerWeekday(
+                  state.session!,
+                  !state.session!.isRepeating ? state.instances!.first : null,
+                ),
+              ),
 
-          /// Consistency & Habit Formation;
-          ///   Completion rate (completed/skipped)
-          CompletionRateCard(stats: stats),
+              /// Consistency & Habit Formation;
+              ///   Completion rate (completed/skipped)
+              CompletionRateCard(stats: stats),
 
-          const VerticalSpace(size: SpaceSize.medium),
+              const VerticalSpace(size: SpaceSize.medium),
 
-          /// Shows the time sessions were completed (Tendency evening/morning/etc.)
-          if (state.session?.isRepeating == true) ...<Widget>[
-            TimeLearnedCard(instances: instances),
-            const VerticalSpace(size: SpaceSize.medium),
-          ],
+              /// Shows the time sessions were completed (Tendency evening/morning/etc.)
+              if (state.session?.isRepeating == true) ...<Widget>[
+                TimeLearnedCard(instances: instances),
+                const VerticalSpace(size: SpaceSize.medium),
+              ],
 
-          /// Goals and Task Progress
-          ///   Goals/Tasks completed per session
-          ///   Goal completion trend (weekly/monthly)
+              /// Goals and Task Progress
+              ///   Goals/Tasks completed per session
+              ///   Goal completion trend (weekly/monthly)
 
-          /// Reflection/Well-being
-          ///   Mood trend over time
-          const VerticalSpace(size: SpaceSize.xlarge),
+              /// Reflection/Well-being
+              ///   Mood trend over time
+              const VerticalSpace(size: SpaceSize.xlarge),
 
-          //
+              //
 
-          // Instance history
-          // InstanceHistory(
-          //   sessionId: sessionId,
-          //   instances: state.instances ?? [],
-          // ),
-          CustomButton(
-            onPressed: () => Navigator.of(context).pushNamed(AppRoutes.home),
-            label: "Zurück zum Startbildschirm",
+              // Instance history
+              // InstanceHistory(
+              //   sessionId: sessionId,
+              //   instances: state.instances ?? [],
+              // ),
+              CustomButton(
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(AppRoutes.home),
+                label: "Zurück zum Startbildschirm",
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  List<int> plannedFocusMinutesPerWeekday(SessionModel session) {
+  /// Returns an array for each day with the planned minutes
+  /// For a repeating session this means the selected days
+  /// For a non-repeating session, this solely means the date on which the session was conducted on
+  List<int> plannedFocusMinutesPerWeekday(
+    SessionModel session,
+    SessionInstanceModel? instance,
+  ) {
     // Total of one block focus time
     final int plannedMinutes = session.focusTimeMin * session.focusPhases;
 
-    // If non-repeating session, fill with 0
-    if (!session.isRepeating) {
-      return List<int>.generate(7, (int i) => plannedMinutes);
+    // If non-repeating session, fill all with zero unless the scheduled day
+    if (!session.isRepeating && instance != null) {
+      return List<int>.generate(
+        7,
+        (int i) => (instance.scheduledAt.weekday - 1 == i) ? plannedMinutes : 0,
+      );
     }
 
     // If repeating, fill for each selected day

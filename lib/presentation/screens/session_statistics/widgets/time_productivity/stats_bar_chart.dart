@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class StatsBarChart extends StatefulWidget {
 
 class _StatsBarChartState extends State<StatsBarChart> {
   int? touchedGroupIndex;
+  Timer? _tooltipTimer;
 
   double get _maxY {
     final int maxPlanned = widget.plannedFocusMinutesPerWeekday.reduce(max);
@@ -33,7 +35,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
     return computedMax.ceilToDouble();
   }
 
-  double get _interval => _calculateNiceInterval(_maxY);
+  double get _interval => _calculateInterval(_maxY);
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
             HorizontalLine(
               y: widget.averageFocusMinutesPerSession,
               strokeWidth: 2,
-              color: AppPalette.darkPurple,
+              color: AppPalette.complementary,
               dashArray: <int>[10, 16],
             ),
           ],
@@ -60,7 +62,8 @@ class _StatsBarChartState extends State<StatsBarChart> {
     );
   }
 
-  double _calculateNiceInterval(double maxY) {
+  /// Returns visually fitting interval depending on the max y value
+  double _calculateInterval(double maxY) {
     if (maxY <= 60) return 10;
     if (maxY <= 120) return 20;
     if (maxY <= 300) return 60;
@@ -73,25 +76,32 @@ class _StatsBarChartState extends State<StatsBarChart> {
       enabled: true,
       allowTouchBarBackDraw: true,
       touchCallback: (FlTouchEvent event, BarTouchResponse? response) {
-        if (response == null || response.spot == null) {
+        if (event is FlTapUpEvent) {
+          final int? index = response?.spot?.touchedBarGroupIndex;
+
           setState(() {
-            touchedGroupIndex = null;
-          });
-          return;
-        }
-        final int index = response.spot!.touchedBarGroupIndex;
-        setState(() {
-          if (event is FlTapUpEvent || event is FlTapDownEvent) {
             touchedGroupIndex = index;
-          } else {
-            touchedGroupIndex = null;
+          });
+
+          _tooltipTimer?.cancel();
+
+          // Auto-dismiss after 2 seconds
+          if (index != null) {
+            _tooltipTimer = Timer(const Duration(milliseconds: 2000), () {
+              if (mounted) {
+                setState(() {
+                  touchedGroupIndex = null;
+                });
+              }
+            });
           }
-        });
+        }
       },
+
       touchTooltipData: BarTouchTooltipData(
-        getTooltipColor: (_) => Colors.blue,
-        tooltipPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-        tooltipMargin: 2,
+        getTooltipColor: (_) => AppPalette.primary,
+        tooltipPadding: const EdgeInsets.all(4),
+        tooltipMargin: 12,
         getTooltipItem:
             (
               BarChartGroupData group,
@@ -101,7 +111,11 @@ class _StatsBarChartState extends State<StatsBarChart> {
             ) {
               return BarTooltipItem(
                 TimeUtils.formatToolTipTime(rod.toY),
-                const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
               );
             },
       ),
@@ -182,7 +196,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
             backDrawRodData: BackgroundBarChartRodData(
               show: true,
               toY: plannedMinutes.toDouble(),
-              color: Colors.grey.shade300,
+              color: AppPalette.grey.withValues(alpha: 0.2),
             ),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(30),
@@ -190,14 +204,13 @@ class _StatsBarChartState extends State<StatsBarChart> {
             ),
             toY: minutes,
             color: touchedGroupIndex == index
-                ? AppPalette.pastelEmerald
-                : AppPalette.pastelViolet,
-
+                ? AppPalette.complementary
+                : AppPalette.primary,
             width: 20,
           ),
         ],
         showingTooltipIndicators: touchedGroupIndex == index
-            ? const <int>[1]
+            ? const <int>[0]
             : const <int>[],
       );
     });

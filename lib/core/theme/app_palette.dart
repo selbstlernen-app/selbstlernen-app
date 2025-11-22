@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AppPalette {
-  static Color orange = Colors.amber[600]!;
-  static Color darkOrange = Colors.amber[800]!;
+  static Color primary = const Color(0xFF02bbff);
+  static Color primaryVariant = const Color(0xFFb2e7ff);
+
+  static Color complementary = const Color(0xFFff4502);
+
+  static Color orange = Colors.amber[400]!;
+  static Color darkOrange = Colors.amber[600]!;
 
   static Color green = Colors.lightGreenAccent[100]!;
   static Color darkGreen = Colors.lightGreenAccent[200]!;

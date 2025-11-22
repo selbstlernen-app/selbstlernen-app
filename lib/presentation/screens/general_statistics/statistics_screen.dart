@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
-import 'package:srl_app/presentation/screens/general_statistics.dart/widgets/learn_intensity_map.dart';
+import 'package:srl_app/presentation/screens/general_statistics/widgets/learn_intensity_map.dart';
 import 'package:srl_app/presentation/view_models/statistics/statistics_state.dart';
 import 'package:srl_app/presentation/view_models/statistics/statistics_view_model.dart';
 
