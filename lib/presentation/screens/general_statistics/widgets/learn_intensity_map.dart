@@ -64,6 +64,7 @@ class _LearnIntensityMapState extends State<LearnIntensityMap> {
               },
               datasets: _buildCalendarDataset(),
               weekTextColor: AppPalette.grey,
+              textColor: Colors.black,
               monthFontSize: 16,
               initDate: DateTime.now(),
               flexible: true,

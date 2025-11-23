@@ -57,12 +57,14 @@ class GoalTaskCompletionCard extends StatelessWidget {
             _ProductivityProgressBar(
               label: 'Ziele',
               value: stats.totalGoalsCompleted,
+              totalValue: stats.totalOpenGoals,
               color: AppPalette.triadic,
             ),
             const SizedBox(height: 12),
             _ProductivityProgressBar(
               label: 'Aufgaben',
               value: stats.totalTasksCompleted,
+              totalValue: stats.totalOpenTasks,
               color: AppPalette.triadicSecond,
             ),
           ],
@@ -131,11 +133,13 @@ class _ProductivityProgressBar extends StatelessWidget {
   const _ProductivityProgressBar({
     required this.label,
     required this.value,
+    required this.totalValue,
     required this.color,
   });
 
   final String label;
   final int value;
+  final int totalValue;
   final Color color;
 
   @override
@@ -148,7 +152,7 @@ class _ProductivityProgressBar extends StatelessWidget {
           children: <Widget>[
             Text(label, style: context.textTheme.bodyMedium),
             Text(
-              '$value',
+              '$totalValue',
               style: context.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -157,7 +161,7 @@ class _ProductivityProgressBar extends StatelessWidget {
         ),
         const VerticalSpace(size: SpaceSize.xsmall),
         LinearProgressIndicator(
-          value: value / (value + 10), // Normalize for UI
+          value: totalValue == 0 ? 0 : value / totalValue,
           backgroundColor: context.colorScheme.tertiary,
           valueColor: AlwaysStoppedAnimation<Color>(color),
           minHeight: 10,

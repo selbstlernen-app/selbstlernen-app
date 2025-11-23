@@ -19,6 +19,9 @@ abstract class SessionStatistics with _$SessionStatistics {
     // Goal/Task Productivity
     required int totalGoalsCompleted,
     required int totalTasksCompleted,
+    required int totalOpenGoals,
+    required int totalOpenTasks,
+
     // TODO: rework streak logic//maybe instead of streak have sth like days learned in a row (depending on days)
     required int currentStreak,
     required int longestStreak,

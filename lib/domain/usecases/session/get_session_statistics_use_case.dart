@@ -1,8 +1,10 @@
 import 'package:srl_app/core/utils/date_time_utils.dart';
+import 'package:srl_app/domain/goal_repository.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
+import 'package:srl_app/domain/task_repository.dart';
 
 /// Use case when wanting to get statistics for a specific session;
 /// Shown after a session has been conducted
@@ -10,10 +12,14 @@ class GetSessionStatisticsUseCase {
   const GetSessionStatisticsUseCase(
     this.instanceRepository,
     this.sessionRepository,
+    this.goalRepository,
+    this.taskRepository,
   );
 
   final SessionInstanceRepository instanceRepository;
   final SessionRepository sessionRepository;
+  final GoalRepository goalRepository;
+  final TaskRepository taskRepository;
 
   Future<SessionStatistics> call(int sessionId) async {
     final SessionModel session = await sessionRepository.getSessionById(
@@ -22,6 +28,13 @@ class GetSessionStatisticsUseCase {
 
     final List<SessionInstanceModel> instances = await instanceRepository
         .getAllInstancesBySessionId(sessionId);
+
+    final List<GoalModel> goals = await goalRepository.getGoalsBySessionId(
+      sessionId,
+    );
+    final List<TaskModel> tasks = await taskRepository.getTasksBySessionId(
+      sessionId,
+    );
 
     if (instances.isEmpty) {
       return const SessionStatistics(
@@ -35,17 +48,21 @@ class GetSessionStatisticsUseCase {
         totalCompletedBlocks: 0,
         totalGoalsCompleted: 0,
         totalTasksCompleted: 0,
+        totalOpenGoals: 0,
+        totalOpenTasks: 0,
         currentStreak: 0,
         longestStreak: 0,
       );
     }
 
-    return _calculateStats(instances, session);
+    return _calculateStats(instances, session, goals, tasks);
   }
 
   SessionStatistics _calculateStats(
     List<SessionInstanceModel> instances,
     SessionModel session,
+    List<GoalModel> goals,
+    List<TaskModel> tasks,
   ) {
     // Sort instances by date
     final List<SessionInstanceModel> sortedInstances =
@@ -129,6 +146,8 @@ class GetSessionStatisticsUseCase {
       totalCompletedBlocks: totalBlocks,
       totalGoalsCompleted: totalGoals,
       totalTasksCompleted: totalTasks,
+      totalOpenGoals: goals.length,
+      totalOpenTasks: tasks.length,
       currentStreak: streaks.current,
       longestStreak: streaks.longest,
       averageMood: averageMood,

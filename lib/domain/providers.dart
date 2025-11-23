@@ -46,6 +46,8 @@ GetSessionStatisticsUseCase getSessionStatisticsUseCase(Ref ref) {
   return GetSessionStatisticsUseCase(
     ref.watch(sessionInstanceRepositoryProvider),
     ref.watch(sessionRepositoryProvider),
+    ref.watch(goalRepositoryProvider),
+    ref.watch(taskRepositoryProvider),
   );
 }
 

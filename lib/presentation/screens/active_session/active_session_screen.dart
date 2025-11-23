@@ -11,6 +11,7 @@ import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
 import 'package:srl_app/presentation/screens/active_session/pages/goals_page.dart';
 import 'package:srl_app/presentation/screens/active_session/pages/timer_page.dart';
+import 'package:srl_app/presentation/screens/active_session/pages/ungrouped_tasks_page.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
@@ -106,14 +107,9 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
     // Initialize pages (only when data is loaded)
     if (pages.isEmpty) {
       pages = <Widget>[
-        TimerPage(
-          fullSessionModel: state.fullSession!,
-          instanceId: widget.instanceId,
-        ),
-        GoalsPage(
-          fullSessionModel: state.fullSession!,
-          instanceId: widget.instanceId,
-        ),
+        TimerPage(instanceId: widget.instanceId),
+        GoalsPage(instanceId: widget.instanceId),
+        UngroupedTasksPage(instanceId: widget.instanceId),
       ];
     }
     return Scaffold(
@@ -198,7 +194,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                     onPressed: () {
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(
+                        MaterialPageRoute<dynamic>(
                           builder: (BuildContext context) =>
                               const MainNavigation(),
                         ),
