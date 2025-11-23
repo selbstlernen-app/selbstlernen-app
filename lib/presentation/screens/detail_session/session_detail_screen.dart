@@ -135,7 +135,7 @@ class SessionDetailScreen extends ConsumerWidget {
                   style: context.textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
-                const VerticalSpace(size: SpaceSize.large),
+                const VerticalSpace(size: SpaceSize.medium),
                 SizedBox(
                   width: context.mediaQuery.size.width,
                   child: CustomButton(
@@ -148,6 +148,7 @@ class SessionDetailScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+
               if (instanceId == null)
                 SizedBox(
                   width: context.mediaQuery.size.width,

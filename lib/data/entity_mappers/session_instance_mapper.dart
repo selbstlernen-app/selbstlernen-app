@@ -52,14 +52,16 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
     );
   }
 
-  SessionInstancesCompanion tUpdateCompanion() {
+  SessionInstancesCompanion toUpdateCompanion() {
     return SessionInstancesCompanion(
-      sessionId: const Value<int>.absent(),
+      sessionId: const Value<int>.absent(), // should not update
       completedAt: completedAt != null
           ? Value<DateTime>(completedAt!)
-          : const Value<DateTime>.absent(),
+          : const Value<
+              DateTime
+            >.absent(), // should not update; only when passed
       status: Value<SessionStatus>(status),
-      scheduledAt: const Value<DateTime>.absent(),
+      scheduledAt: const Value<DateTime>.absent(), // should not update
       totalFocusPhases: Value<int>(totalFocusPhases),
       totalCompletedBlocks: Value<int>(totalCompletedBlocks),
       totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),
@@ -70,7 +72,7 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
           ? Value<String>(notes!)
           : const Value<String>.absent(),
       totalCompletedTasks: Value<int>(totalCompletedTasks),
-      createdAt: const Value<DateTime>.absent(),
+      createdAt: const Value<DateTime>.absent(), // should not update
     );
   }
 }

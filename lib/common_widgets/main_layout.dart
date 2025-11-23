@@ -39,7 +39,15 @@ class MainLayout extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: Text(appBarTitle, style: context.textTheme.headlineLarge),
+        toolbarHeight: 80,
+        title: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            appBarTitle,
+            style: context.textTheme.headlineLarge,
+            textAlign: TextAlign.center,
+          ),
+        ),
         backgroundColor: context.colorScheme.secondary,
         actions: actions,
         leading: navigateBack != null

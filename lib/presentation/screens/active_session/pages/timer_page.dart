@@ -66,7 +66,7 @@ class TimerPage extends ConsumerWidget {
     /// If we count upwards, get the total seconds passed per phase,
     /// else get the seconds remaining of a phase
     final double progress = state.countUpwards
-        ? (_getElapsedSecondsForPhase(state) / totalDuration)
+        ? (state.currentPhaseElapsed / totalDuration)
         : (state.remainingSeconds / totalDuration);
 
     return Column(

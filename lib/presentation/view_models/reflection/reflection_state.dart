@@ -19,4 +19,8 @@ abstract class ReflectionState with _$ReflectionState {
 
   String get totalTimeInBreak =>
       TimeUtils.formatTime(instance.totalBreakSecondsElapsed);
+
+  String get totalTimeSpent => TimeUtils.formatTime(
+    instance.totalBreakSecondsElapsed + instance.totalFocusSecondsElapsed,
+  );
 }

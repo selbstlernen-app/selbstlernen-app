@@ -199,7 +199,8 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MainNavigation(),
+                          builder: (BuildContext context) =>
+                              const MainNavigation(),
                         ),
                         (Route<dynamic> route) => false,
                       );

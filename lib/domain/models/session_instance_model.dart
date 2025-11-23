@@ -17,6 +17,8 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
     @Default(0) int totalFocusPhases,
     @Default(0) int totalCompletedBlocks,
     @Default(0) int totalFocusSecondsElapsed,
+
+    /// small and long break both count towards break seconds elapsed
     @Default(0) int totalBreakSecondsElapsed,
 
     // Checked off goals/tasks

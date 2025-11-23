@@ -316,10 +316,11 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  Future<SessionInstanceModel> startSession(DateTime date) async {
+  Future<SessionInstanceModel> startSession() async {
+    DateTime now = DateTime.now();
     return await _getOrCreateInstanceUseCase.call(
       sessionId: int.parse(state.sessionId!),
-      date: date,
+      date: now,
     );
   }
 }

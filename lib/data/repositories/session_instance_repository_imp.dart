@@ -90,7 +90,7 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   ) {
     return sessionInstanceDao.updateInstance(
       sessionInstanceId,
-      updatedSession.tUpdateCompanion(),
+      updatedSession.toUpdateCompanion(),
     );
   }
 
@@ -103,6 +103,13 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
         .getInstancesBySessionIdAndDate(sessionId, date);
 
     return instance?.toDomain();
+  }
+
+  @override
+  Future<List<SessionInstanceModel>> getAllInstances() async {
+    return SessionInstanceToModelMapper.mapFromListOfEntity(
+      await sessionInstanceDao.getAllInstances(),
+    );
   }
 
   @override

@@ -170,7 +170,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
         Divider(
           color: context.colorScheme.tertiary,
           thickness: 4,
-          radius: const BorderRadius.all(Radius.circular(10)),
+          radius: BorderRadius.circular(10),
         ),
 
         _calculateTotalTime(),

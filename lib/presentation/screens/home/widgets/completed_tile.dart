@@ -57,9 +57,7 @@ class CompletedSessionTile extends StatelessWidget {
               ? "Übersprungen"
               : "Erledigt",
         ),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         leading: _getIcon(),
         trailing: IconButton(
           onPressed: () => Navigator.pushNamed(
