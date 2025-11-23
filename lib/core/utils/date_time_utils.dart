@@ -12,17 +12,12 @@ class DateTimeUtils {
   ) {
     if (end.isBefore(start)) return 0;
 
-    int totalDays = end.difference(start).inDays + 1; // +1 to include end date
-    int fullWeeks = totalDays ~/ 7;
-    int remainingDays = totalDays % 7;
+    int count = 0;
+    DateTime current = start;
 
-    // Count occurrences in full weeks
-    int count = fullWeeks * weekdays.length;
-
-    // Count occurrences in remaining days
-    DateTime current = start.add(Duration(days: fullWeeks * 7));
-    for (int i = 0; i < remainingDays; i++) {
-      if (weekdays.contains(current.weekday)) {
+    // Iterate through each day from start to end (both are inclusive)
+    while (current.isBefore(end) || current.isAtSameMomentAs(end)) {
+      if (weekdays.contains(current.weekday - 1)) {
         count++;
       }
       current = current.add(const Duration(days: 1));
