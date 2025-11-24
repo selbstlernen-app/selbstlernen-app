@@ -6,6 +6,7 @@ import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
+import 'package:vibration/vibration.dart';
 
 part 'active_session_view_model.g.dart';
 
@@ -186,6 +187,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   // Function to switch phase dependent on the current one (focus -> short/long break)
   void _handlePhaseComplete() {
+    // Vibrate when allowed
+    _vibrateForPhaseChange();
+
     final SessionModel session = state.fullSession!.session;
 
     switch (state.currentPhase) {
@@ -248,6 +252,19 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     );
 
     _autoSave();
+  }
+
+  Future<void> _vibrateForPhaseChange() async {
+    try {
+      if (await Vibration.hasCustomVibrationsSupport()) {
+        await Vibration.vibrate(duration: 1000);
+      } else if (await Vibration.hasVibrator()) {
+        // Fallback: short vibration
+        await Vibration.vibrate(duration: 300);
+      }
+    } catch (e) {
+      // ignore errors silently (e.g., when in simulator / unsupported)
+    }
   }
 
   // Complete a goal

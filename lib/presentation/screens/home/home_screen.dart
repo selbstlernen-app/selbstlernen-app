@@ -11,6 +11,7 @@ import 'package:srl_app/presentation/screens/home/widgets/completed_tile.dart';
 import 'package:srl_app/presentation/screens/home/widgets/pending_session_tile.dart';
 import 'package:srl_app/presentation/view_models/home/home_state.dart';
 import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
+import 'package:vibration/vibration.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -134,6 +135,15 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
+        TextButton(
+          onPressed: () async {
+            if (await Vibration.hasVibrator()) {
+              Vibration.vibrate();
+            }
+          },
+          child: Text("vibrate?"),
+        ),
+
         Row(
           children: <Widget>[
             Text("Guten ", style: context.textTheme.headlineMedium),
