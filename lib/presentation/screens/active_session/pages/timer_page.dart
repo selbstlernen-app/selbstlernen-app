@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
@@ -31,17 +32,6 @@ class TimerPage extends ConsumerWidget {
         return 'Kurze Pause';
       case SessionPhase.longBreak:
         return 'Lange Pause';
-    }
-  }
-
-  int _getElapsedSecondsForPhase(ActiveSessionState state) {
-    switch (state.currentPhase) {
-      case SessionPhase.focus:
-        return state.totalFocusSecondsElapsed;
-      case SessionPhase.shortBreak:
-        return state.totalBreakSecondsElapsed;
-      case SessionPhase.longBreak:
-        return state.totalLongBreakSecondsElapsed;
     }
   }
 
@@ -88,9 +78,7 @@ class TimerPage extends ConsumerWidget {
                   children: <Widget>[
                     Text(
                       state.countUpwards
-                          ? TimeUtils.formatTime(
-                              _getElapsedSecondsForPhase(state),
-                            )
+                          ? TimeUtils.formatTime(state.currentPhaseElapsed)
                           : TimeUtils.formatTime(state.remainingSeconds),
                       style: context.textTheme.headlineLarge?.copyWith(
                         fontSize: 48,
@@ -117,51 +105,41 @@ class TimerPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             // Switch timer view
-            CircleAvatar(
+            CustomIconButton(
               radius: 25,
-              backgroundColor: context.colorScheme.primary,
-              child: IconButton(
-                icon: const Icon(Icons.sync_alt_rounded, size: 35),
-                color: Colors.white,
-                onPressed: () {
-                  viewModel.setCountUpwards(!state.countUpwards);
-                },
-              ),
+              icon: const Icon(Icons.sync_alt_rounded, size: 35),
+              isActive: true,
+              onPressed: () {
+                viewModel.setCountUpwards(!state.countUpwards);
+              },
             ),
 
             // Pause and continue
-            CircleAvatar(
+            CustomIconButton(
               radius: 25,
-              backgroundColor: context.colorScheme.primary,
-              child: IconButton(
-                icon:
-                    (state.timerStatus == TimerStatus.paused ||
-                        state.timerStatus == TimerStatus.initial)
-                    ? const Icon(Icons.play_arrow_rounded, size: 35)
-                    : const Icon(Icons.pause_rounded, size: 35),
-                color: Colors.white,
-
-                onPressed: () {
-                  if (state.timerStatus == TimerStatus.running) {
-                    viewModel.pauseTimer();
-                  } else {
-                    viewModel.startTimer();
-                  }
-                },
-              ),
+              icon:
+                  (state.timerStatus == TimerStatus.paused ||
+                      state.timerStatus == TimerStatus.initial)
+                  ? const Icon(Icons.play_arrow_rounded, size: 35)
+                  : const Icon(Icons.pause_rounded, size: 35),
+              isActive: true,
+              onPressed: () {
+                if (state.timerStatus == TimerStatus.running) {
+                  viewModel.pauseTimer();
+                } else {
+                  viewModel.startTimer();
+                }
+              },
             ),
 
             // Skip phase
-            CircleAvatar(
+            CustomIconButton(
               radius: 25,
-              backgroundColor: context.colorScheme.primary,
-              child: IconButton(
-                icon: const Icon(Icons.skip_next_rounded, size: 35),
-                color: Colors.white,
-                onPressed: () {
-                  viewModel.skipPhase();
-                },
-              ),
+              icon: const Icon(Icons.skip_next_rounded, size: 35),
+              isActive: true,
+              onPressed: () {
+                viewModel.skipPhase();
+              },
             ),
           ],
         ),

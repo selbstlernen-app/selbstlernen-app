@@ -113,13 +113,12 @@ class _ProductivitySquare extends StatelessWidget {
             style: context.textTheme.bodySmall!.copyWith(color: iconColor),
             textAlign: TextAlign.center,
           ),
-          if (average > 0) ...[
+          if (average > 0) ...<Widget>[
             const VerticalSpace(size: SpaceSize.xsmall),
             Text(
               'Ø ${average.toStringAsFixed(1)}/Einheit',
               style: context.textTheme.bodySmall?.copyWith(
                 color: AppPalette.grey,
-                fontStyle: FontStyle.italic,
               ),
             ),
           ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_add_item_field.dart';
+import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -96,17 +97,13 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
                   'Ziele & Aufgaben',
                   style: context.textTheme.headlineMedium,
                 ),
-                CircleAvatar(
+                CustomIconButton(
                   radius: 20,
-                  backgroundColor: state.isEditMode
-                      ? context.colorScheme.onTertiary
-                      : context.colorScheme.primary,
-                  child: IconButton(
-                    onPressed: viewModel.toggleEditMode,
-                    icon: state.isEditMode
-                        ? const Icon(Icons.edit_off_outlined)
-                        : const Icon(Icons.edit_outlined),
-                  ),
+                  icon: state.isEditMode
+                      ? const Icon(Icons.edit_off_outlined)
+                      : const Icon(Icons.edit_outlined),
+                  isActive: !state.isEditMode,
+                  onPressed: viewModel.toggleEditMode,
                 ),
               ],
             ),
