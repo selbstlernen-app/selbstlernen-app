@@ -1,9 +1,33 @@
+class TimeString {
+  const TimeString({
+    required this.hours,
+    required this.minutes,
+    required this.seconds,
+  });
+
+  final String? hours;
+  final String minutes;
+  final String seconds;
+}
+
 class TimeUtils {
   // Function to format time to 00:00 (mm:SS)
   static String formatTime(int seconds) {
     final int minutes = seconds ~/ 60;
     final int secs = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+  }
+
+  static TimeString formatTimeString({required int totalSeconds}) {
+    final int hours = totalSeconds ~/ 3600;
+    final int minutes = (totalSeconds % 3600) ~/ 60;
+    final int seconds = totalSeconds % 60;
+
+    return TimeString(
+      hours: hours > 0 ? hours.toString().padLeft(2, '0') : null,
+      minutes: minutes.toString().padLeft(2, '0'),
+      seconds: seconds.toString().padLeft(2, '0'),
+    );
   }
 
   static String formatBarChartTime(double minutes) {

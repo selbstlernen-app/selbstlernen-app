@@ -204,12 +204,14 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           _startPhase(
             phase: SessionPhase.longBreak,
             durationSeconds: (session.longBreakTimeMin) * 60,
+            currentPhaseIndex: state.currentPhaseIndex + 1,
           );
         } else {
           // Completed a regular focus phase
           _startPhase(
             phase: SessionPhase.shortBreak,
             durationSeconds: (session.breakTimeMin) * 60,
+            currentPhaseIndex: state.currentPhaseIndex + 1,
           );
         }
         break;
@@ -221,6 +223,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           phase: SessionPhase.focus,
           durationSeconds: (session.focusTimeMin) * 60,
           totalFocusPhases: newTotalFocusPhases,
+          currentPhaseIndex: state.currentPhaseIndex + 1,
         );
         break;
 
@@ -232,6 +235,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           durationSeconds: (session.focusTimeMin) * 60,
           totalFocusPhases: newTotalFocusPhases,
           completedBlocks: state.completedBlocks + 1,
+          currentPhaseIndex: 0,
         );
         break;
     }
@@ -242,15 +246,16 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     required int durationSeconds,
     int? totalFocusPhases,
     int? completedBlocks,
+    int? currentPhaseIndex,
   }) {
     state = state.copyWith(
       currentPhase: phase,
       remainingSeconds: durationSeconds,
       totalFocusPhases: totalFocusPhases ?? state.totalFocusPhases,
       completedBlocks: completedBlocks ?? state.completedBlocks,
+      currentPhaseIndex: currentPhaseIndex ?? state.currentPhaseIndex,
       currentPhaseElapsed: 0,
     );
-
     _autoSave();
   }
 

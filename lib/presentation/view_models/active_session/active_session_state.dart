@@ -30,6 +30,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(false) bool isEditMode,
     @Default(false) bool countUpwards,
     @Default(true) bool isLoading,
+    @Default(0) int currentPhaseIndex,
     String? error,
   }) = _ActiveSessionState;
 
