@@ -125,13 +125,13 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
         SizedBox(
           width: MediaQuery.sizeOf(context).width,
           child: CustomButton(
-            label: state.learningStrategies.length > 1
+            label: state.learningStrategies.isNotEmpty
                 ? "Weiter"
-                : "Wähle mind. 2 Strategien aus",
-            onPressed: () => state.learningStrategies.length > 1
+                : "Wähle mind. 1 Strategien aus",
+            onPressed: () => state.learningStrategies.isNotEmpty
                 ? widget.navigateForward()
                 : null,
-            isActive: state.learningStrategies.length > 1,
+            isActive: state.learningStrategies.isNotEmpty,
           ),
         ),
       ],

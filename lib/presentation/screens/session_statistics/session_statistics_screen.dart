@@ -104,62 +104,64 @@ class SessionStatisticsScreen extends ConsumerWidget {
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    /// Productivity
-                    /// Shows how much time spent on which weekday
-                    /// vs. how much was expected (Focus-time only)
-                    SpentTimeCard(
-                      stats: stats,
-                      weekdayMinutes: state.weekdayMinutes!,
-                      plannedFocusMinutesPerWeekday:
-                          plannedFocusMinutesPerWeekday(
-                            state.session!,
-                            !state.session!.isRepeating
-                                ? instances.first
-                                : null,
-                          ),
-                    ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      /// Productivity
+                      /// Shows how much time spent on which weekday
+                      /// vs. how much was expected (Focus-time only)
+                      SpentTimeCard(
+                        stats: stats,
+                        weekdayMinutes: state.weekdayMinutes!,
+                        plannedFocusMinutesPerWeekday:
+                            plannedFocusMinutesPerWeekday(
+                              state.session!,
+                              !state.session!.isRepeating
+                                  ? instances.first
+                                  : null,
+                            ),
+                      ),
 
-                    const VerticalSpace(size: SpaceSize.medium),
+                      const VerticalSpace(size: SpaceSize.medium),
 
-                    /// Shows the time sessions were completed (Tendency evening/morning/etc.)
-                    // if (state.session?.isRepeating == true) ...<Widget>[
-                    //   TimeLearnedCard(instances: instances),
-                    //   const VerticalSpace(size: SpaceSize.medium),
-                    // ],
+                      /// Shows the time sessions were completed (Tendency evening/morning/etc.)
+                      // if (state.session?.isRepeating == true) ...<Widget>[
+                      //   TimeLearnedCard(instances: instances),
+                      //   const VerticalSpace(size: SpaceSize.medium),
+                      // ],
 
-                    /// Completion rate (completed/skipped)
-                    CompletionRateCard(stats: stats),
+                      /// Completion rate (completed/skipped)
+                      CompletionRateCard(stats: stats),
 
-                    const VerticalSpace(size: SpaceSize.medium),
+                      const VerticalSpace(size: SpaceSize.medium),
 
-                    /// Goals and Task Progress
-                    GoalTaskCompletionCard(stats: stats),
+                      /// Goals and Task Progress
+                      GoalTaskCompletionCard(stats: stats),
 
-                    /// TODO: add mood trend/general mood
-                  ],
+                      /// TODO: add mood trend/general mood
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            SizedBox(
-              width: context.mediaQuery.size.width,
-              child: CustomButton(
-                onPressed: () =>
-                    Navigator.of(context).pushNamed(AppRoutes.home),
-                label: "Zurück zum Startbildschirm",
+              SizedBox(
+                width: context.mediaQuery.size.width,
+                child: CustomButton(
+                  onPressed: () =>
+                      Navigator.of(context).pushNamed(AppRoutes.home),
+                  label: "Zurück zum Startbildschirm",
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

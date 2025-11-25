@@ -31,7 +31,11 @@ class StatisticsScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Session Statistik')),
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text('Session Statistik'),
+        automaticallyImplyLeading: false,
+      ),
       body: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),

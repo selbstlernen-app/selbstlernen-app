@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
+import 'package:srl_app/common_widgets/horizontal_space.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/constants/spacing.dart';
@@ -156,19 +157,21 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  "Abfragen während einer Lerneinheit",
+                  "Abfragen während der Lerneinheit",
                   style: context.textTheme.headlineMedium,
                 ),
 
                 const VerticalSpace(size: SpaceSize.medium),
 
                 Text("Fokusabfrage", style: context.textTheme.headlineSmall),
-                const VerticalSpace(size: SpaceSize.small),
+                const VerticalSpace(size: SpaceSize.xsmall),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Expanded(
                       child: Text(
-                        "Konfiguriere eine Abfrage, die während einer Lerneinheit deine Aufmerksamkeit testet.",
+                        "Konfiguriere eine Abfrage, die während der Lerneinheit deine Aufmerksamkeit testet.",
                         style: context.textTheme.bodyMedium!.copyWith(
                           color: state.hasFocusPrompt
                               ? context.colorScheme.onSurface
@@ -239,31 +242,36 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
                         : "Bekomme die Abfrage immer, unabhängig von Bildschirm-Aktivität.",
                     style: context.textTheme.bodyMedium,
                   ),
+                  const VerticalSpace(size: SpaceSize.small),
                 ],
               ],
             ),
           ),
         ),
         // Navigation buttons
-        SizedBox(
-          width: MediaQuery.sizeOf(context).width,
-          child: CustomButton(
-            label: state.isEditingMode
-                ? "Lerneinheit mit Änderungen starten"
-                : "Lerneinheit sofort starten",
-            onPressed: () => _startSession(state.isEditingMode),
-          ),
-        ),
-        const VerticalSpace(size: SpaceSize.small),
-        SizedBox(
-          width: MediaQuery.sizeOf(context).width,
-          child: CustomButton(
-            label: state.isEditingMode
-                ? "Änderungen speichern"
-                : "Lerneinheit erstellen",
-            onPressed: () =>
-                state.isEditingMode ? _updateSession() : _saveSession(),
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: CustomButton(
+                verticalPadding: 8.0,
+                label: state.isEditingMode
+                    ? "Lerneinheit mit Änderungen starten"
+                    : "Lerneinheit sofort starten",
+                onPressed: () => _startSession(state.isEditingMode),
+              ),
+            ),
+            const HorizontalSpace(size: SpaceSize.small),
+            Expanded(
+              child: CustomButton(
+                verticalPadding: 8.0,
+                label: state.isEditingMode
+                    ? "Änderungen speichern"
+                    : "Lerneinheit erstellen",
+                onPressed: () =>
+                    state.isEditingMode ? _updateSession() : _saveSession(),
+              ),
+            ),
+          ],
         ),
       ],
     );
