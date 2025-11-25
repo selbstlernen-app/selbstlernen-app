@@ -53,7 +53,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
             HorizontalLine(
               y: widget.averageFocusMinutesPerSession,
               strokeWidth: 2,
-              color: AppPalette.triadicSecond,
+              color: AppPalette.purple,
               dashArray: <int>[10, 16],
             ),
           ],
@@ -204,7 +204,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
             ),
             toY: minutes,
             color: touchedGroupIndex == index
-                ? AppPalette.triadicSecond
+                ? AppPalette.orangeLight
                 : AppPalette.primary,
             width: 20,
           ),

@@ -11,15 +11,15 @@ import 'package:srl_app/presentation/screens/active_session/widgets/circular_tim
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
-class TimerPage extends ConsumerStatefulWidget {
-  const TimerPage({super.key, required this.instanceId});
+class TimerWidget extends ConsumerStatefulWidget {
+  const TimerWidget({super.key, required this.instanceId});
   final int instanceId;
 
   @override
-  ConsumerState<TimerPage> createState() => _$TimerPageState();
+  ConsumerState<TimerWidget> createState() => _$TimerWidgetState();
 }
 
-class _$TimerPageState extends ConsumerState<TimerPage> {
+class _$TimerWidgetState extends ConsumerState<TimerWidget> {
   // Get the total time to calculate progress percentage
   int _getPhaseDuration(ActiveSessionState state) {
     switch (state.currentPhase) {

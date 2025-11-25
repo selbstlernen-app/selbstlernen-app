@@ -10,18 +10,17 @@ import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
-class GoalsPage extends ConsumerStatefulWidget {
-  const GoalsPage({super.key, required this.instanceId});
+class GoalsListWidget extends ConsumerStatefulWidget {
+  const GoalsListWidget({super.key, required this.instanceId});
 
   final int instanceId;
 
   @override
-  ConsumerState<GoalsPage> createState() => _GoalsPageState();
+  ConsumerState<GoalsListWidget> createState() => _GoalsListWidgetState();
 }
 
-class _GoalsPageState extends ConsumerState<GoalsPage> {
+class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
   final TextEditingController _taskGoalController = TextEditingController();
-
   String? _expandedGoalId;
 
   @override
@@ -38,13 +37,15 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
         .read(activeSessionViewModelProvider(widget.instanceId).notifier)
         .addTask(
           _taskGoalController.text.trim(),
-          goalId: goalId, // if task should belong to some goal; else null
+          goalId: goalId != "0"
+              ? goalId
+              : null, // for "Sonstige Aufgaben"; has a temp goal model with id 0
         );
 
     _taskGoalController.clear();
   }
 
-  Future<void> _addGoal(String? goalId) async {
+  Future<void> _addGoal() async {
     if (_taskGoalController.text.trim().isEmpty) return;
 
     await ref
@@ -67,8 +68,8 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
     List<TaskModel> allTasks = List<TaskModel>.from(state.fullSession!.tasks);
 
     final List<TaskModel> ungroupedTasks = allTasks
-        .where((t) => t.goalId == null || t.goalId!.isEmpty)
-        .map((t) => t.copyWith(goalId: '0'))
+        .where((TaskModel t) => t.goalId == null || t.goalId!.isEmpty)
+        .map((TaskModel t) => t.copyWith(goalId: '0'))
         .toList();
 
     if (ungroupedTasks.isNotEmpty) {
@@ -223,14 +224,20 @@ class _GoalsPageState extends ConsumerState<GoalsPage> {
             },
           ),
 
-        // // Add new goal field at bottom (only if no goal is expanded)
-        // if (_expandedGoalId == null && state.isEditMode)
-        //   CustomAddItemField(
-        //     controller: _taskGoalController,
-        //     hintText: "Neues Ziel...",
-        //     onSubmitted: () => _addGoal(null),
-        //     onPressed: () => _addGoal(null),
-        //   ),
+        // Add new goal field at bottom (only if no goal is expanded)
+        if (_expandedGoalId == null && state.isEditMode)
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 12.0,
+              horizontal: 4.0,
+            ),
+            child: CustomAddItemField(
+              controller: _taskGoalController,
+              hintText: "Neues Ziel...",
+              onSubmitted: () => _addGoal(),
+              onPressed: () => _addGoal(),
+            ),
+          ),
       ],
     );
   }

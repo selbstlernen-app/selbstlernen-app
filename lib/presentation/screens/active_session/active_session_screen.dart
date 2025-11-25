@@ -8,9 +8,8 @@ import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
-import 'package:srl_app/presentation/screens/active_session/pages/goals_page.dart';
-import 'package:srl_app/presentation/screens/active_session/pages/timer_page.dart';
-import 'package:srl_app/presentation/screens/active_session/pages/ungrouped_tasks_page.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/goals_list_widget.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/timer_widget.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
@@ -31,14 +30,6 @@ class ActiveSessionScreen extends ConsumerStatefulWidget {
 
 class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   late SessionInstanceModel sessionInstance;
-  final PageController controller = PageController(initialPage: 0);
-  late List<Widget> pages;
-
-  @override
-  void initState() {
-    super.initState();
-    pages = <Widget>[];
-  }
 
   Future<void> _stopSession() async {
     final ActiveSessionState state = ref.read(
@@ -97,13 +88,6 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
       );
     }
 
-    // Initialize pages (only when data is loaded)
-    if (pages.isEmpty) {
-      pages = <Widget>[
-        GoalsPage(instanceId: widget.instanceId),
-        UngroupedTasksPage(instanceId: widget.instanceId),
-      ];
-    }
     return Scaffold(
       backgroundColor: context.colorScheme.secondary,
       body: SafeArea(
@@ -118,11 +102,9 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      // TimerWatch(instanceId: widget.instanceId),
-                      TimerPage(instanceId: widget.instanceId),
+                      TimerWidget(instanceId: widget.instanceId),
                       const VerticalSpace(size: SpaceSize.small),
-
-                      GoalsPage(instanceId: widget.instanceId),
+                      GoalsListWidget(instanceId: widget.instanceId),
                     ],
                   ),
                 ),
@@ -133,7 +115,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                 SizedBox(
                   width: context.mediaQuery.size.width,
                   child: CustomButton(
-                    verticalPadding: 8.0,
+                    verticalPadding: 10.0,
                     onPressed: _stopSession,
                     label: 'Lerneinheit beenden',
                   ),
