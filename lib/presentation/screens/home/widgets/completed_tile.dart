@@ -26,9 +26,9 @@ class CompletedSessionTile extends StatelessWidget {
     final SessionStatus status = sessionWithInstance.instance!.status;
     switch (status) {
       case SessionStatus.completed:
-        return AppPalette.pastelEmerald;
+        return AppPalette.green;
       case SessionStatus.skipped:
-        return AppPalette.pastelViolet;
+        return AppPalette.rose;
       default:
         return AppPalette.zinc;
     }

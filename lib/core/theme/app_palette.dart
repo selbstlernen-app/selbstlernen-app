@@ -7,7 +7,7 @@ class AppPalette {
   static Color green = const Color(0xFF05df72);
   static Color greenLight = const Color(0xFF7bf1a8);
 
-  static Color emerald = const Color(0xFF00bc7d);
+  static Color emerald = const Color(0xFF00bc7d); // Emerald 400
   static Color emeraldLight = const Color(0xFF5ee9b5); // Emerald 300
 
   static const Color success = Color(0xFF16A34A);
