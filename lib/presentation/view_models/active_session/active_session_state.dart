@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 
 part 'active_session_state.freezed.dart';
@@ -13,8 +12,10 @@ abstract class ActiveSessionState with _$ActiveSessionState {
   const ActiveSessionState._();
 
   const factory ActiveSessionState({
-    FullSessionModel? fullSession,
+    SessionModel? session,
     SessionInstanceModel? instance,
+    @Default(<GoalModel>[]) List<GoalModel> goals,
+    @Default(<TaskModel>[]) List<TaskModel> tasks,
     @Default(SessionPhase.focus) SessionPhase currentPhase,
     @Default(TimerStatus.initial) TimerStatus timerStatus,
     @Default(0) int remainingSeconds,
@@ -30,18 +31,13 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(false) bool isEditMode,
     @Default(false) bool countUpwards,
     @Default(true) bool isLoading,
+    @Default(0) int currentPhaseIndex,
     String? error,
   }) = _ActiveSessionState;
 
   List<TaskModel> get ungroupedTasks =>
-      fullSession?.tasks
-          .where((TaskModel task) => task.goalId == null)
-          .toList() ??
-      <TaskModel>[];
+      tasks.where((TaskModel task) => task.goalId == null).toList();
 
   List<TaskModel> tasksForGoal(String goalId) =>
-      fullSession?.tasks
-          .where((TaskModel task) => task.goalId == goalId)
-          .toList() ??
-      <TaskModel>[];
+      tasks.where((TaskModel task) => task.goalId == goalId).toList();
 }

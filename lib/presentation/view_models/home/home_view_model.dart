@@ -4,9 +4,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
-import 'package:srl_app/domain/usecases/session/get_completed_sessions_for_today_use_case.dart';
-import 'package:srl_app/domain/usecases/session/get_sessions_for_today_use_case.dart';
-import 'package:srl_app/domain/usecases/instance/create_instance_use_case.dart';
+import 'package:srl_app/domain/usecases/use_cases.dart';
 
 import 'package:srl_app/presentation/view_models/home/home_state.dart';
 
@@ -16,7 +14,7 @@ part 'home_view_model.g.dart';
 class HomeViewModel extends _$HomeViewModel {
   late final GetSessionsForTodayUseCase _getSessionsUseCase;
   late final GetCompletedSessionsForTodayUseCase _getCompletedUseCase;
-  late final CreateInstanceUseCase _createInstanceUseCase;
+  late final ManangeInstanceUseCase _manangeInstanceUseCase;
 
   StreamSubscription<dynamic>? _sessionsSubscription;
   StreamSubscription<dynamic>? _completedSubscription;
@@ -27,7 +25,7 @@ class HomeViewModel extends _$HomeViewModel {
     _getCompletedUseCase = ref.watch(
       getCompletedSessionsForTodayUseCaseProvider,
     );
-    _createInstanceUseCase = ref.watch(createInstanceUseCaseProvider);
+    _manangeInstanceUseCase = ref.watch(manangeInstanceUseCaseProvider);
 
     ref.onDispose(() {
       _sessionsSubscription?.cancel();
@@ -78,7 +76,7 @@ class HomeViewModel extends _$HomeViewModel {
         completedAt: DateTime.now(),
       );
 
-      await _createInstanceUseCase.call(newInstance);
+      await _manangeInstanceUseCase.createInstance(newInstance);
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

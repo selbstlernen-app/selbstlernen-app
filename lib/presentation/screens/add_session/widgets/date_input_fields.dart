@@ -96,32 +96,39 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
               onTap: () => ref
                   .read(addSessionViewModelProvider.notifier)
                   .toggleDay(dayIndex),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Text(
-                    day,
-                    style: context.textTheme.bodyLarge?.copyWith(
-                      color: isSelected
-                          ? context.colorScheme.primary
-                          : context.colorScheme.onSurface,
-                      fontWeight: isSelected
-                          ? FontWeight.w700
-                          : FontWeight.w500,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10.0,
+                  horizontal: 8.0,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      day,
+                      style: context.textTheme.bodyLarge?.copyWith(
+                        color: isSelected
+                            ? context.colorScheme.primary
+                            : context.colorScheme.onTertiary,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 2),
-                    height: 2,
-                    width: 20,
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? context.colorScheme.primary
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(2),
+                    // Line underneath weekday
+                    Container(
+                      margin: const EdgeInsets.only(top: 2),
+                      height: 2,
+                      width: 20,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? context.colorScheme.primary
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           }).toList(),

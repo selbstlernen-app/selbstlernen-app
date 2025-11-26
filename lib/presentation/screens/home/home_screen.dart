@@ -135,15 +135,6 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        TextButton(
-          onPressed: () async {
-            if (await Vibration.hasVibrator()) {
-              Vibration.vibrate();
-            }
-          },
-          child: Text("vibrate?"),
-        ),
-
         Row(
           children: <Widget>[
             Text("Guten ", style: context.textTheme.headlineMedium),

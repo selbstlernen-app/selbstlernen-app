@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/show_custom_dialog.dart';
@@ -9,9 +8,8 @@ import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
-import 'package:srl_app/presentation/screens/active_session/pages/goals_page.dart';
-import 'package:srl_app/presentation/screens/active_session/pages/timer_page.dart';
-import 'package:srl_app/presentation/screens/active_session/pages/ungrouped_tasks_page.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/goals_list_widget.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/timer_widget.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
@@ -32,28 +30,14 @@ class ActiveSessionScreen extends ConsumerStatefulWidget {
 
 class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   late SessionInstanceModel sessionInstance;
-  final PageController controller = PageController(initialPage: 0);
-  late List<Widget> pages;
 
-  @override
-  void initState() {
-    super.initState();
-    pages = <Widget>[];
-  }
-
-  Future<void> _startOrStopButton() async {
+  Future<void> _stopSession() async {
     final ActiveSessionState state = ref.read(
       activeSessionViewModelProvider(widget.instanceId),
     );
     final ActiveSessionViewModel viewModel = ref.read(
       activeSessionViewModelProvider(widget.instanceId).notifier,
     );
-
-    // Start the session
-    if (state.timerStatus == TimerStatus.initial) {
-      viewModel.startTimer();
-      return;
-    }
 
     // Stop the session
     if (state.timerStatus != TimerStatus.initial) {
@@ -98,20 +82,12 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
     }
 
     // Handle no data
-    if (state.fullSession == null || state.instance == null) {
+    if (state.session == null || state.instance == null) {
       return const Scaffold(
         body: Center(child: Text('Session nicht gefunden')),
       );
     }
 
-    // Initialize pages (only when data is loaded)
-    if (pages.isEmpty) {
-      pages = <Widget>[
-        TimerPage(instanceId: widget.instanceId),
-        GoalsPage(instanceId: widget.instanceId),
-        UngroupedTasksPage(instanceId: widget.instanceId),
-      ];
-    }
     return Scaffold(
       backgroundColor: context.colorScheme.secondary,
       body: SafeArea(
@@ -126,65 +102,26 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      const VerticalSpace(size: SpaceSize.large),
-                      Text(
-                        state.fullSession!.session.title,
-                        style: context.textTheme.headlineLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                      const VerticalSpace(size: SpaceSize.medium),
-                      Text(
-                        'Fokusphase ${state.totalFocusPhases + 1} | Block ${state.completedBlocks + 1}',
-                        style: context.textTheme.titleMedium,
-                      ),
-
-                      // Horizontally scrollable pages
-                      SizedBox(
-                        height: context.mediaQuery.size.height / 2,
-                        child: PageView.builder(
-                          controller: controller,
-                          itemCount: pages.length,
-                          itemBuilder: (_, int index) {
-                            return Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: pages[index % pages.length],
-                            );
-                          },
-                        ),
-                      ),
-
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: SmoothPageIndicator(
-                          controller: controller,
-                          count: pages.length,
-                          effect: WormEffect(
-                            dotHeight: 16,
-                            dotWidth: 16,
-                            type: WormType.thinUnderground,
-                            dotColor: context.colorScheme.tertiary,
-                            activeDotColor: context.colorScheme.primary,
-                          ),
-                        ),
-                      ),
-                      const VerticalSpace(size: SpaceSize.medium),
+                      TimerWidget(instanceId: widget.instanceId),
+                      const VerticalSpace(size: SpaceSize.small),
+                      GoalsListWidget(instanceId: widget.instanceId),
                     ],
                   ),
                 ),
               ),
 
-              // Start and stop button
-              SizedBox(
-                width: context.mediaQuery.size.width,
-                child: CustomButton(
-                  verticalPadding: 8.0,
-                  onPressed: _startOrStopButton,
-                  label: state.timerStatus == TimerStatus.initial
-                      ? "Lerneinheit beginnen"
-                      : 'Lerneinheit beenden',
+              // Stop session button
+              if (state.timerStatus != TimerStatus.initial)
+                SizedBox(
+                  width: context.mediaQuery.size.width,
+                  child: CustomButton(
+                    verticalPadding: 10.0,
+                    onPressed: _stopSession,
+                    label: 'Lerneinheit beenden',
+                  ),
                 ),
-              ),
 
+              // Leave session button
               if (state.timerStatus == TimerStatus.initial) ...<Widget>[
                 const VerticalSpace(size: SpaceSize.small),
                 SizedBox(
@@ -200,8 +137,6 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                         ),
                         (Route<dynamic> route) => false,
                       );
-
-                      // Navigator.of(context).pop();
                     },
                     label: "Lerneinheit verlassen",
                   ),

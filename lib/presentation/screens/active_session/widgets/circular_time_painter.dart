@@ -31,7 +31,7 @@ class CircularTimePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final Offset center = Offset(size.width / 2, size.height / 2);
     final double radius = math.min(size.width, size.height) / 2;
-    final double strokeWidth = 20.0;
+    final double strokeWidth = 10.0;
 
     // Background circle
     final Paint backgroundPaint = Paint()

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:vibration/vibration.dart';
@@ -12,37 +11,37 @@ part 'active_session_view_model.g.dart';
 
 @riverpod
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
-  late final FullSessionUseCase _fullSessionUseCase;
-  late final UpdateInstanceUseCase _updateInstanceUseCase;
+  late final ManageGoalUseCase _manageGoalUseCase;
+  late final ManageTasksUseCase _manageTasksUseCase;
+  late final ManageSessionUseCase _manageSessionUseCase;
+  late final ManangeInstanceUseCase _manangeInstanceUseCase;
+
   late final GetInstanceUseCase _getInstanceUseCase;
   late final CompleteInstanceUseCase _completeInstanceUseCase;
-  late final CreateTasksUseCase _createTaskUseCase;
-  late final EditTasksUseCase _editTasksUseCase;
-  late final CreateGoalsUseCase _createGoalsUseCase;
-  late final EditGoalsUseCase _editGoalsUseCase;
   late final int _instanceId;
-  late StreamSubscription<dynamic>? _sessionSubscription;
+
+  late StreamSubscription<dynamic>? _goalsSubscription;
+  late StreamSubscription<dynamic>? _tasksSubscription;
 
   Timer? _timer;
 
   @override
   ActiveSessionState build(int instanceId) {
     _instanceId = instanceId;
-    _fullSessionUseCase = ref.watch(fullSessionUseCaseProvider);
-    _updateInstanceUseCase = ref.watch(updateInstanceUseCaseProvider);
+    _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
+    _manageGoalUseCase = ref.watch(manageGoalUseCaseProvider);
+    _manageTasksUseCase = ref.watch(manageTasksUseCaseProvider);
+
+    _manangeInstanceUseCase = ref.watch(manangeInstanceUseCaseProvider);
     _completeInstanceUseCase = ref.watch(completeInstanceUseCaseProvider);
     _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
-
-    _createTaskUseCase = ref.watch(createTasksUseCaseProvider);
-    _editTasksUseCase = ref.watch(editTasksUseCaseProvider);
-    _createGoalsUseCase = ref.watch(createGoalsUseCaseProvider);
-    _editGoalsUseCase = ref.watch(editGoalsUseCaseProvider);
 
     _loadData();
 
     ref.onDispose(() {
       _timer?.cancel();
-      _sessionSubscription?.cancel();
+      _goalsSubscription?.cancel();
+      _tasksSubscription?.cancel();
     });
 
     return const ActiveSessionState(isLoading: true);
@@ -56,20 +55,31 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
       final int sessionId = int.parse(instance.sessionId);
 
-      // Watch the full session (in case user adds goals/tasks)
-      _sessionSubscription = _fullSessionUseCase
-          .watchFullSession(sessionId)
-          .listen((FullSessionModel fullSession) {
-            state = state.copyWith(
-              fullSession: fullSession,
-              instance: instance,
-              totalFocusSecondsElapsed: instance.totalFocusSecondsElapsed,
-              totalBreakSecondsElapsed: instance.totalBreakSecondsElapsed,
-              totalFocusPhases: instance.totalFocusPhases,
-              completedBlocks: instance.totalCompletedBlocks,
-              remainingSeconds: fullSession.session.focusTimeMin * 60,
-              isLoading: false,
-            );
+      final SessionModel session = await _manageSessionUseCase.getSessionById(
+        sessionId,
+      );
+
+      state = state.copyWith(
+        session: session,
+        instance: instance,
+        totalFocusSecondsElapsed: instance.totalFocusSecondsElapsed,
+        totalBreakSecondsElapsed: instance.totalBreakSecondsElapsed,
+        totalFocusPhases: instance.totalFocusPhases,
+        completedBlocks: instance.totalCompletedBlocks,
+        remainingSeconds: session.focusTimeMin * 60,
+        isLoading: false,
+      );
+
+      _goalsSubscription = _manageGoalUseCase
+          .watchGoalsBySessionId(sessionId)
+          .listen((List<GoalModel> goals) {
+            state = state.copyWith(goals: goals);
+          });
+
+      _tasksSubscription = _manageTasksUseCase
+          .watchTasksBySessionId(sessionId)
+          .listen((List<TaskModel> tasks) {
+            state = state.copyWith(tasks: tasks);
           });
     } catch (e) {
       state = state.copyWith(error: e.toString(), isLoading: false);
@@ -85,12 +95,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   Future<void> addTask(String title, {String? goalId}) async {
-    if (state.fullSession == null) return;
+    if (state.session == null) return;
 
     try {
-      await _createTaskUseCase.call(
+      await _manageTasksUseCase.createTask(
         TaskModel(
-          sessionId: state.fullSession!.session.id,
+          sessionId: state.session!.id,
           title: title,
           isCompleted: false,
           goalId: goalId,
@@ -103,19 +113,19 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   Future<void> deleteTask({required String taskId}) async {
     try {
-      await _editTasksUseCase.deleteTask(int.parse(taskId));
+      await _manageTasksUseCase.deleteTask(int.parse(taskId));
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
   }
 
   Future<void> addGoal(String title) async {
-    if (state.fullSession == null) return;
+    if (state.session == null) return;
 
     try {
-      await _createGoalsUseCase.call(
+      await _manageGoalUseCase.createGoal(
         GoalModel(
-          sessionId: state.fullSession!.session.id,
+          sessionId: state.session!.id,
           title: title,
           isCompleted: false,
         ),
@@ -127,7 +137,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   Future<void> deleteGoal({required String goalId}) async {
     try {
-      await _editGoalsUseCase.deleteGoal(int.parse(goalId));
+      await _manageGoalUseCase.deleteGoal(int.parse(goalId));
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -190,7 +200,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     // Vibrate when allowed
     _vibrateForPhaseChange();
 
-    final SessionModel session = state.fullSession!.session;
+    final SessionModel session = state.session!;
 
     switch (state.currentPhase) {
       case SessionPhase.focus:
@@ -204,12 +214,14 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           _startPhase(
             phase: SessionPhase.longBreak,
             durationSeconds: (session.longBreakTimeMin) * 60,
+            currentPhaseIndex: state.currentPhaseIndex + 1,
           );
         } else {
           // Completed a regular focus phase
           _startPhase(
             phase: SessionPhase.shortBreak,
             durationSeconds: (session.breakTimeMin) * 60,
+            currentPhaseIndex: state.currentPhaseIndex + 1,
           );
         }
         break;
@@ -221,6 +233,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           phase: SessionPhase.focus,
           durationSeconds: (session.focusTimeMin) * 60,
           totalFocusPhases: newTotalFocusPhases,
+          currentPhaseIndex: state.currentPhaseIndex + 1,
         );
         break;
 
@@ -232,6 +245,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           durationSeconds: (session.focusTimeMin) * 60,
           totalFocusPhases: newTotalFocusPhases,
           completedBlocks: state.completedBlocks + 1,
+          currentPhaseIndex: 0,
         );
         break;
     }
@@ -242,15 +256,16 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     required int durationSeconds,
     int? totalFocusPhases,
     int? completedBlocks,
+    int? currentPhaseIndex,
   }) {
     state = state.copyWith(
       currentPhase: phase,
       remainingSeconds: durationSeconds,
       totalFocusPhases: totalFocusPhases ?? state.totalFocusPhases,
       completedBlocks: completedBlocks ?? state.completedBlocks,
+      currentPhaseIndex: currentPhaseIndex ?? state.currentPhaseIndex,
       currentPhaseElapsed: 0,
     );
-
     _autoSave();
   }
 
@@ -308,7 +323,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   /// A break phase has been completed
   /// Every min when a focus phase is ongoing
   Future<void> _autoSave() async {
-    if (state.instance == null) return;
+    if (state.instance == null || state.instance!.id == null) return;
 
     try {
       final SessionInstanceModel updatedInstance = state.instance!.copyWith(
@@ -321,7 +336,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         status: SessionStatus.inProgress,
       );
 
-      await _updateInstanceUseCase.call(updatedInstance);
+      await _manangeInstanceUseCase.updateInstance(updatedInstance);
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }

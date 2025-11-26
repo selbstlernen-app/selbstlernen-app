@@ -14,7 +14,7 @@ part 'session_statistics_view_model.g.dart';
 class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
   late final GetSessionStatisticsUseCase _getSessionStatisticsUseCase;
   late final GetFocusMinutesByWeekdayUseCase _getFocusMinutesByWeekdayUseCase;
-  late final SessionUseCase _getSessionUseCase;
+  late final ManageSessionUseCase _manageSessionUseCase;
   late final GetInstanceUseCase _getInstanceUseCase;
   late final int _sessionId;
 
@@ -27,7 +27,7 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
     _getFocusMinutesByWeekdayUseCase = ref.watch(
       getFocusMinutesByWeekdayUseCaseProvider,
     );
-    _getSessionUseCase = ref.watch(sessionUseCaseProvider);
+    _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
     _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
 
     _loadData();
@@ -42,7 +42,7 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
       final List<double> weekdayMinutes = await _getFocusMinutesByWeekdayUseCase
           .call(_sessionId);
 
-      final SessionModel session = await _getSessionUseCase.getSessionById(
+      final SessionModel session = await _manageSessionUseCase.getSessionById(
         _sessionId,
       );
 

@@ -5,7 +5,9 @@ import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_view_model.dart';
@@ -70,61 +72,76 @@ class SessionDetailScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "Deine Ziele für diese Einheit",
+                        "Einzelheiten zu dieser Lerneinheit",
                         style: context.textTheme.headlineMedium,
                       ),
-                      const VerticalSpace(size: SpaceSize.small),
-                      ...detailState.fullSession!.goals.map((GoalModel goal) {
-                        return Row(
-                          children: <Widget>[
-                            Text(
-                              "🏁",
-                              style: context.textTheme.bodyLarge!.copyWith(
-                                fontSize: 25,
-                              ),
-                            ),
-                            Text(
-                              goal.title,
-                              style: context.textTheme.bodyLarge,
-                            ),
-                          ],
-                        );
-                      }),
+                      const VerticalSpace(size: SpaceSize.medium),
 
-                      ...detailState.fullSession!.tasks.map((TaskModel task) {
-                        return Row(
-                          children: <Widget>[
-                            Text(
-                              "//",
-                              style: context.textTheme.bodyLarge!.copyWith(
-                                fontSize: 25,
-                              ),
-                            ),
-                            Text(
-                              task.title,
-                              style: context.textTheme.bodyLarge,
-                            ),
-                          ],
+                      Text("Ziele", style: context.textTheme.headlineSmall),
+                      const VerticalSpace(size: SpaceSize.xsmall),
+                      ...detailState.fullSession!.goals.map((GoalModel goal) {
+                        return CustomItemTile(
+                          text: goal.title,
+                          isLargeGoal: true,
                         );
                       }),
+                      if (detailState
+                          .fullSession!
+                          .tasks
+                          .isNotEmpty) ...<Widget>[
+                        Text(
+                          "Aufgaben",
+                          style: context.textTheme.headlineSmall,
+                        ),
+                        const VerticalSpace(size: SpaceSize.xsmall),
+                        ...detailState.fullSession!.tasks.map((TaskModel task) {
+                          return CustomItemTile(
+                            text: task.title,
+                            isLargeGoal: false,
+                          );
+                        }),
+                      ],
 
                       const VerticalSpace(size: SpaceSize.large),
 
                       Text(
                         "Deine Strategien",
-                        style: context.textTheme.headlineMedium,
+                        style: context.textTheme.headlineSmall,
                       ),
-                      const VerticalSpace(size: SpaceSize.small),
+                      const VerticalSpace(size: SpaceSize.xsmall),
                       Text(session.learningStrategies.toString()),
 
                       const VerticalSpace(size: SpaceSize.large),
 
                       Text(
                         "Geplante Zeit",
-                        style: context.textTheme.headlineMedium,
+                        style: context.textTheme.headlineSmall,
                       ),
-                      const VerticalSpace(size: SpaceSize.small),
-                      Text(session.focusTimeMin.toString()),
+                      const VerticalSpace(size: SpaceSize.xsmall),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              const Icon(
+                                Icons.psychology,
+                                color: AppPalette.pink,
+                                size: 32,
+                              ),
+                              const HorizontalSpace(size: SpaceSize.small),
+                              Text(
+                                'Fokuszeit',
+                                style: context.textTheme.bodyLarge!.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          Text(TimeUtils.formatTime(session.focusTimeMin * 60)),
+                        ],
+                      ),
                     ],
                   ),
                 ),

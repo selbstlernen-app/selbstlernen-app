@@ -48,32 +48,45 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   }
 
   void _navigateBack() {
+    FocusScope.of(context).unfocus();
+
     if (currentPage > 0) {
-      setState(() {
-        currentPage -= 1;
-        _progress = (currentPage + 1) / 5;
-      });
-      _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInBack,
-      );
+      final int targetPage = currentPage - 1;
+
+      _pageController
+          .animateToPage(
+            targetPage,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          )
+          .then((_) {
+            setState(() {
+              currentPage = targetPage;
+              _progress = (currentPage + 1) / 5;
+            });
+          });
     } else {
       if (widget.fullSessionModel != null) {
-        // Go back to details page
         Navigator.pop(context);
       }
     }
   }
 
   void _navigateForward() {
-    setState(() {
-      currentPage += 1;
-      _progress = (currentPage + 1) / 5;
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInCubic,
-      );
-    });
+    final int targetPage = currentPage + 1;
+
+    _pageController
+        .animateToPage(
+          targetPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        )
+        .then((_) {
+          setState(() {
+            currentPage = targetPage;
+            _progress = (currentPage + 1) / 5;
+          });
+        });
   }
 
   @override

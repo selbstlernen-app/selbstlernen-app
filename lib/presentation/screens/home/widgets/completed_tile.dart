@@ -26,9 +26,9 @@ class CompletedSessionTile extends StatelessWidget {
     final SessionStatus status = sessionWithInstance.instance!.status;
     switch (status) {
       case SessionStatus.completed:
-        return AppPalette.pastelEmerald;
+        return AppPalette.green;
       case SessionStatus.skipped:
-        return AppPalette.pastelViolet;
+        return AppPalette.rose;
       default:
         return AppPalette.zinc;
     }
@@ -39,39 +39,51 @@ class CompletedSessionTile extends StatelessWidget {
     final SessionModel session = sessionWithInstance.session;
     final SessionInstanceModel instance = sessionWithInstance.instance!;
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8.0),
-      decoration: BoxDecoration(
-        color: _getColor(),
-        borderRadius: BorderRadius.circular(10),
+    return InkWell(
+      onTap: () => Navigator.pushNamed(
+        context,
+        AppRoutes.detail,
+        arguments: DetailSessionArgs(
+          sessionId: int.parse(session.id!),
+          instanceId: int.parse(instance.id!),
+        ),
       ),
-      child: ListTile(
-        title: Text(
-          session.title,
-          style: context.textTheme.headlineSmall!.copyWith(
-            color: context.colorScheme.onSecondary,
-          ),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8.0),
+        decoration: BoxDecoration(
+          color: _getColor(),
+          borderRadius: BorderRadius.circular(10),
         ),
-        subtitle: Text(
-          instance.status == SessionStatus.skipped
-              ? "Übersprungen"
-              : "Erledigt",
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        leading: _getIcon(),
-        trailing: IconButton(
-          onPressed: () => Navigator.pushNamed(
-            context,
-            AppRoutes.detail,
-            arguments: DetailSessionArgs(
-              sessionId: int.parse(session.id!),
-              instanceId: int.parse(instance.id!),
+        child: ListTile(
+          title: Text(
+            session.title,
+            style: context.textTheme.headlineSmall!.copyWith(
+              color: context.colorScheme.onSecondary,
             ),
           ),
-          icon: const Icon(Icons.arrow_forward_ios_rounded),
+          subtitle: Text(
+            instance.status == SessionStatus.skipped
+                ? "Übersprungen"
+                : "Erledigt",
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          leading: _getIcon(),
+          trailing: IconButton(
+            onPressed: () => Navigator.pushNamed(
+              context,
+              AppRoutes.detail,
+              arguments: DetailSessionArgs(
+                sessionId: int.parse(session.id!),
+                instanceId: int.parse(instance.id!),
+              ),
+            ),
+            icon: const Icon(Icons.arrow_forward_ios_rounded),
+          ),
+          textColor: context.colorScheme.onSecondary,
+          iconColor: context.colorScheme.onSecondary,
         ),
-        textColor: context.colorScheme.onSecondary,
-        iconColor: context.colorScheme.onSecondary,
       ),
     );
   }
