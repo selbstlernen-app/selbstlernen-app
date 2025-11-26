@@ -82,7 +82,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
     }
 
     // Handle no data
-    if (state.fullSession == null || state.instance == null) {
+    if (state.session == null || state.instance == null) {
       return const Scaffold(
         body: Center(child: Text('Session nicht gefunden')),
       );

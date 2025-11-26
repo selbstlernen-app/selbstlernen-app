@@ -64,8 +64,8 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
       activeSessionViewModelProvider(widget.instanceId).notifier,
     );
 
-    List<GoalModel> goals = List<GoalModel>.from(state.fullSession!.goals);
-    List<TaskModel> allTasks = List<TaskModel>.from(state.fullSession!.tasks);
+    List<GoalModel> goals = List<GoalModel>.from(state.goals);
+    List<TaskModel> allTasks = List<TaskModel>.from(state.tasks);
 
     final List<TaskModel> ungroupedTasks = allTasks
         .where((TaskModel t) => t.goalId == null || t.goalId!.isEmpty)

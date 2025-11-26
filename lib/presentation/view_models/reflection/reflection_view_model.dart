@@ -10,11 +10,11 @@ part 'reflection_view_model.g.dart';
 
 @riverpod
 class ReflectionViewModel extends _$ReflectionViewModel {
-  late final UpdateInstanceUseCase _updateInstanceUseCase;
+  late final ManangeInstanceUseCase _updateInstanceUseCase;
 
   @override
   ReflectionState build(SessionInstanceModel instance) {
-    _updateInstanceUseCase = ref.watch(updateInstanceUseCaseProvider);
+    _updateInstanceUseCase = ref.watch(manangeInstanceUseCaseProvider);
 
     return ReflectionState(instance: instance);
   }
@@ -33,6 +33,6 @@ class ReflectionViewModel extends _$ReflectionViewModel {
       mood: state.mood,
     );
 
-    await _updateInstanceUseCase(updated);
+    await _updateInstanceUseCase.updateInstance(updated);
   }
 }

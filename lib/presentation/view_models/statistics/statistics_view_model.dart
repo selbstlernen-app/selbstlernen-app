@@ -10,7 +10,8 @@ part 'statistics_view_model.g.dart';
 @riverpod
 class StatisticsViewModel extends _$StatisticsViewModel {
   late final GetSessionStatisticsUseCase _getSessionStatisticsUseCase;
-  late final SessionUseCase _getSessionUseCase;
+  late final ManageSessionUseCase
+  _manageSessionUseCase; // TODO CHECK If necessary
   late final GetInstanceUseCase _getInstanceUseCase;
 
   @override
@@ -19,7 +20,7 @@ class StatisticsViewModel extends _$StatisticsViewModel {
       getSessionStatisticsUseCaseProvider,
     );
 
-    _getSessionUseCase = ref.watch(sessionUseCaseProvider);
+    _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
     _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
 
     _loadData();

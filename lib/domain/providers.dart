@@ -9,18 +9,8 @@ part 'providers.g.dart';
 
 /// --- Session ---
 @riverpod
-CreateSessionUseCase createSessionUseCase(Ref ref) {
-  return CreateSessionUseCase(ref.watch(sessionRepositoryProvider));
-}
-
-@riverpod
-EditSessionUseCase editSessionUseCase(Ref ref) {
-  return EditSessionUseCase(ref.watch(sessionRepositoryProvider));
-}
-
-@riverpod
-SessionUseCase sessionUseCase(Ref ref) {
-  return SessionUseCase(ref.watch(sessionRepositoryProvider));
+ManageSessionUseCase manageSessionUseCase(Ref ref) {
+  return ManageSessionUseCase(ref.watch(sessionRepositoryProvider));
 }
 
 @riverpod
@@ -60,24 +50,14 @@ GetFocusMinutesByWeekdayUseCase getFocusMinutesByWeekdayUseCase(Ref ref) {
 
 /// --- Goals ---
 @riverpod
-CreateGoalsUseCase createGoalsUseCase(Ref ref) {
-  return CreateGoalsUseCase(ref.watch(goalRepositoryProvider));
-}
-
-@riverpod
-EditGoalsUseCase editGoalsUseCase(Ref ref) {
-  return EditGoalsUseCase(ref.watch(goalRepositoryProvider));
+ManageGoalUseCase manageGoalUseCase(Ref ref) {
+  return ManageGoalUseCase(ref.watch(goalRepositoryProvider));
 }
 
 /// --- Tasks ---
 @riverpod
-CreateTasksUseCase createTasksUseCase(Ref ref) {
-  return CreateTasksUseCase(ref.watch(taskRepositoryProvider));
-}
-
-@riverpod
-EditTasksUseCase editTasksUseCase(Ref ref) {
-  return EditTasksUseCase(ref.watch(taskRepositoryProvider));
+ManageTasksUseCase manageTasksUseCase(Ref ref) {
+  return ManageTasksUseCase(ref.watch(taskRepositoryProvider));
 }
 
 /// --- FullSession ---
@@ -97,8 +77,8 @@ GetInstanceUseCase getInstanceUseCase(Ref ref) {
 }
 
 @riverpod
-UpdateInstanceUseCase updateInstanceUseCase(Ref ref) {
-  return UpdateInstanceUseCase(ref.watch(sessionInstanceRepositoryProvider));
+ManangeInstanceUseCase manangeInstanceUseCase(Ref ref) {
+  return ManangeInstanceUseCase(ref.watch(sessionInstanceRepositoryProvider));
 }
 
 @riverpod
@@ -110,18 +90,10 @@ CompleteInstanceUseCase completeInstanceUseCase(Ref ref) {
 }
 
 @riverpod
-CreateInstanceUseCase createInstanceUseCase(Ref ref) {
-  return CreateInstanceUseCase(
-    ref.watch(sessionInstanceRepositoryProvider),
-    ref.watch(sessionRepositoryProvider),
-  );
-}
-
-@riverpod
 GetOrCreateInstanceUseCase getOrCreateInstanceUseCase(Ref ref) {
   return GetOrCreateInstanceUseCase(
     ref.watch(sessionInstanceRepositoryProvider),
-    ref.watch(createInstanceUseCaseProvider),
+    ref.watch(manangeInstanceUseCaseProvider),
   );
 }
 
@@ -129,11 +101,8 @@ GetOrCreateInstanceUseCase getOrCreateInstanceUseCase(Ref ref) {
 @riverpod
 AddSessionService addSessionService(Ref ref) {
   return AddSessionService(
-    createSessionUseCase: ref.read(createSessionUseCaseProvider),
-    createGoalsUseCase: ref.read(createGoalsUseCaseProvider),
-    createTasksUseCase: ref.read(createTasksUseCaseProvider),
-    editSessionUseCase: ref.read(editSessionUseCaseProvider),
-    editGoalsUseCase: ref.read(editGoalsUseCaseProvider),
-    editTasksUseCase: ref.read(editTasksUseCaseProvider),
+    manageSessionUseCase: ref.read(manageSessionUseCaseProvider),
+    manageGoalUseCase: ref.read(manageGoalUseCaseProvider),
+    manageTasksUseCase: ref.read(manageTasksUseCaseProvider),
   );
 }

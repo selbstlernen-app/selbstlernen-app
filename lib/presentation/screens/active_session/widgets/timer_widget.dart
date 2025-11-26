@@ -24,11 +24,11 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
   int _getPhaseDuration(ActiveSessionState state) {
     switch (state.currentPhase) {
       case SessionPhase.focus:
-        return (state.fullSession!.session.focusTimeMin) * 60;
+        return (state.session!.focusTimeMin) * 60;
       case SessionPhase.shortBreak:
-        return (state.fullSession!.session.breakTimeMin) * 60;
+        return (state.session!.breakTimeMin) * 60;
       case SessionPhase.longBreak:
-        return (state.fullSession!.session.longBreakTimeMin) * 60;
+        return (state.session!.longBreakTimeMin) * 60;
     }
   }
 
@@ -69,7 +69,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
         child: Column(
           children: <Widget>[
             Text(
-              state.fullSession!.session.title,
+              state.session!.title,
               style: context.textTheme.headlineLarge,
               textAlign: TextAlign.center,
             ),
@@ -180,7 +180,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
   }
 
   Widget _buildPhaseIndicator(ActiveSessionState state) {
-    final int focusPhases = state.fullSession!.session.focusPhases;
+    final int focusPhases = state.session!.focusPhases;
     final int currentBlock = state.currentPhaseIndex;
 
     return Wrap(

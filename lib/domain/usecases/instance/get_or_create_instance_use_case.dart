@@ -1,15 +1,15 @@
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
-import 'package:srl_app/domain/usecases/instance/create_instance_use_case.dart';
+import 'package:srl_app/domain/usecases/instance/manange_instance_use_case.dart';
 
 class GetOrCreateInstanceUseCase {
   const GetOrCreateInstanceUseCase(
     this.instanceRepo,
-    this.createInstanceUseCase,
+    this.manangeInstanceUseCase,
   );
 
   final SessionInstanceRepository instanceRepo;
-  final CreateInstanceUseCase createInstanceUseCase;
+  final ManangeInstanceUseCase manangeInstanceUseCase;
 
   Future<SessionInstanceModel> call({
     required int sessionId,
@@ -30,7 +30,7 @@ class GetOrCreateInstanceUseCase {
       sessionId: sessionId.toString(),
       status: SessionStatus.inProgress,
     );
-    int id = await createInstanceUseCase.call(newInstance);
+    int id = await manangeInstanceUseCase.createInstance(newInstance);
     newInstance = newInstance.copyWith(id: id.toString());
 
     return newInstance;
