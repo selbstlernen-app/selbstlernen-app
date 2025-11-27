@@ -37,6 +37,7 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
       title: goalTitle,
       isCompleted: false,
       id: uuid.v4(),
+      keptForFutureSessions: true,
     );
 
     ref.read(addSessionViewModelProvider.notifier).addGoal(newGoal);

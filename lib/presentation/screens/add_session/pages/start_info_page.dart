@@ -73,7 +73,14 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
     ref
         .read(addSessionViewModelProvider.notifier)
         // Temporary goalId
-        .addGoal(GoalModel(title: text, isCompleted: false, id: uuid.v4()));
+        .addGoal(
+          GoalModel(
+            title: text,
+            isCompleted: false,
+            id: uuid.v4(),
+            keptForFutureSessions: true,
+          ),
+        );
 
     _bigGoalController.clear();
 
@@ -94,7 +101,14 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
     ref
         .read(addSessionViewModelProvider.notifier)
         // Temporary taskId
-        .addTask(TaskModel(title: text, isCompleted: false, id: uuid.v4()));
+        .addTask(
+          TaskModel(
+            title: text,
+            isCompleted: false,
+            id: uuid.v4(),
+            keptForFutureSessions: true,
+          ),
+        );
 
     _smallGoalController.clear();
     ref.read(addSessionViewModelProvider.notifier).validateAll();

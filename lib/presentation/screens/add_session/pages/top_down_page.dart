@@ -57,6 +57,7 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
             title: taskText,
             isCompleted: false,
             goalId: goal.id,
+            keptForFutureSessions: true,
           ),
           goal.id!,
         );

@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
-import 'package:srl_app/common_widgets/show_custom_dialog.dart';
 import 'package:srl_app/core/constants/spacing.dart';
-import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/exit_button.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/goals_list_widget.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/timer_widget.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
@@ -30,41 +29,6 @@ class ActiveSessionScreen extends ConsumerStatefulWidget {
 
 class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   late SessionInstanceModel sessionInstance;
-
-  Future<void> _stopSession() async {
-    final ActiveSessionState state = ref.read(
-      activeSessionViewModelProvider(widget.instanceId),
-    );
-    final ActiveSessionViewModel viewModel = ref.read(
-      activeSessionViewModelProvider(widget.instanceId).notifier,
-    );
-
-    // Stop the session
-    if (state.timerStatus != TimerStatus.initial) {
-      viewModel.pauseTimer();
-
-      await showCustomDialog(
-        context: context,
-        title: "Lerneinheit beenden",
-        confirmLabel: "Bestätigen",
-        onCancel: () =>
-            // User cancelled - resume timer
-            viewModel.startTimer(),
-        onConfirm: () async {
-          final SessionInstanceModel updatedInstance = await viewModel
-              .completeSession();
-
-          if (!mounted) return;
-          await Navigator.pushReplacementNamed(
-            context,
-            AppRoutes.reflection,
-            arguments: updatedInstance,
-          );
-        },
-        cancelLabel: "Abbrechen",
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,15 +75,10 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
               ),
 
               // Stop session button
-              if (state.timerStatus != TimerStatus.initial)
-                SizedBox(
-                  width: context.mediaQuery.size.width,
-                  child: CustomButton(
-                    verticalPadding: 10.0,
-                    onPressed: _stopSession,
-                    label: 'Lerneinheit beenden',
-                  ),
-                ),
+              if (state.timerStatus != TimerStatus.initial) ...<Widget>[
+                const VerticalSpace(size: SpaceSize.small),
+                ExitButton(instanceId: widget.instanceId),
+              ],
 
               // Leave session button
               if (state.timerStatus == TimerStatus.initial) ...<Widget>[

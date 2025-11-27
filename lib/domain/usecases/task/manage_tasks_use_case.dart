@@ -14,6 +14,11 @@ class ManageTasksUseCase {
   Stream<List<TaskModel>> watchTasksBySessionId(int sessionId) =>
       repository.watchTasksBySessionId(sessionId);
 
+  Stream<List<TaskModel>> watchTasksBySessionIdAndDate(
+    int sessionId,
+    DateTime date,
+  ) => repository.watchTasksBySessionIdAndDate(sessionId, date);
+
   // Update
   Future<int> updateTask(TaskModel task) =>
       repository.updateTask(int.parse(task.id!), task);

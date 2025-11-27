@@ -26,8 +26,13 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(0) int completedBlocks,
     @Default(0) int currentPhaseElapsed, // used for counting upwards
     DateTime? sessionStartTime,
+    // check which goal is currently expanded if any
+    @Default(null) String? expandedGoalId,
     @Default(<String>{}) Set<String> completedGoalIds,
     @Default(<String>{}) Set<String> completedTaskIds,
+    // Keep track of newly added items and let user decide on what to keep
+    // @Default(<String>{}) Set<String> newlyAddedGoalIds,
+    // @Default(<String>{}) Set<String> newlyAddedTaskIds,
     @Default(false) bool isEditMode,
     @Default(false) bool countUpwards,
     @Default(true) bool isLoading,
@@ -40,4 +45,12 @@ abstract class ActiveSessionState with _$ActiveSessionState {
 
   List<TaskModel> tasksForGoal(String goalId) =>
       tasks.where((TaskModel task) => task.goalId == goalId).toList();
+
+  List<TaskModel> get newlyAddedTasks => tasks
+      .where((TaskModel task) => task.keptForFutureSessions == false)
+      .toList();
+
+  List<GoalModel> get newlyAddedGoals => goals
+      .where((GoalModel goal) => goal.keptForFutureSessions == false)
+      .toList();
 }

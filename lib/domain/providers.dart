@@ -86,8 +86,6 @@ CompleteInstanceUseCase completeInstanceUseCase(Ref ref) {
   return CompleteInstanceUseCase(
     ref.watch(sessionRepositoryProvider),
     ref.watch(sessionInstanceRepositoryProvider),
-    ref.watch(taskRepositoryProvider),
-    ref.watch(goalRepositoryProvider),
   );
 }
 

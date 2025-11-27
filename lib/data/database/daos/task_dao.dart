@@ -27,11 +27,35 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     )..where(($TasksTable s) => s.id.equals(id))).watchSingleOrNull();
   }
 
-  // Watch all tasks of a session that are still active, i.e. not completed
   Stream<List<Task>> watchTasksBySessionId(int sessionId) {
     return (select(tasks)..where(
           ($TasksTable task) =>
-              task.sessionId.equals(sessionId) & task.isCompleted.equals(false),
+              task.sessionId.equals(sessionId) &
+              task.keptForFutureSessions.equals(true),
+        ))
+        .watch();
+  }
+
+  // Watch all tasks of a session that are active,
+  //i.e. kept for future sessions and scheduled for a session specific date
+  Stream<List<Task>> watchTasksBySessionIdAndDate(
+    int sessionId,
+    DateTime date,
+  ) {
+    final DateTime startOfDay = DateTime(date.year, date.month, date.day);
+    final DateTime endOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      23,
+      59,
+      59,
+    );
+    return (select(tasks)..where(
+          ($TasksTable task) =>
+              task.sessionId.equals(sessionId) &
+              (task.keptForFutureSessions.equals(true) |
+                  task.createdAt.isBetweenValues(startOfDay, endOfDay)),
         ))
         .watch();
   }
@@ -41,12 +65,6 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     return (update(
       tasks,
     )..where(($TasksTable tbl) => tbl.id.equals(id))).write(companion);
-  }
-
-  Future<int> updateTaskCompleted(int id, bool completed) async {
-    return (update(tasks)..where(($TasksTable tbl) => tbl.id.equals(id))).write(
-      TasksCompanion(isCompleted: Value<bool>(completed)),
-    );
   }
 
   // Delete task

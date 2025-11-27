@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 Future<void> showCustomDialog({
   required BuildContext context,
   required String title,
-  String? subtitle,
+  required Widget content,
   required Function() onConfirm,
   required Function() onCancel,
   required String confirmLabel,
@@ -14,9 +14,7 @@ Future<void> showCustomDialog({
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text(title, style: Theme.of(context).textTheme.titleLarge),
-        content: subtitle != null
-            ? Text(subtitle, style: Theme.of(context).textTheme.bodyMedium)
-            : null,
+        content: content,
         actions: <Widget>[
           TextButton(
             onPressed: () async {

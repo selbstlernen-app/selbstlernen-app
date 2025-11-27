@@ -20,11 +20,36 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     )..where(($GoalsTable goal) => goal.sessionId.equals(sessionId))).get();
   }
 
-  /// Watch all goals of a session that are still active, i.e. not completed
+  /// Watch all goals of a session that are active,
+  ///  i.e. such that are kept for future sessions or on the scheduled day of the session
   Stream<List<Goal>> watchGoalsBySessionId(int sessionId) {
     return (select(goals)..where(
           ($GoalsTable goal) =>
-              goal.sessionId.equals(sessionId) & goal.isCompleted.equals(false),
+              goal.sessionId.equals(sessionId) &
+              (goal.keptForFutureSessions.equals(true)),
+        ))
+        .watch();
+  }
+
+  Stream<List<Goal>> watchGoalsBySessionIdAndDate(
+    int sessionId,
+    DateTime date,
+  ) {
+    final DateTime startOfDay = DateTime(date.year, date.month, date.day);
+    final DateTime endOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      23,
+      59,
+      59,
+    );
+
+    return (select(goals)..where(
+          ($GoalsTable goal) =>
+              goal.sessionId.equals(sessionId) &
+              (goal.keptForFutureSessions.equals(true) |
+                  goal.createdAt.isBetweenValues(startOfDay, endOfDay)),
         ))
         .watch();
   }
@@ -41,12 +66,6 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     return (update(
       goals,
     )..where(($GoalsTable tbl) => tbl.id.equals(id))).write(companion);
-  }
-
-  Future<int> updateGoalCompleted(int id, bool completed) async {
-    return (update(goals)..where(($GoalsTable tbl) => tbl.id.equals(id))).write(
-      GoalsCompanion(isCompleted: Value<bool>(completed)),
-    );
   }
 
   // Delete goal

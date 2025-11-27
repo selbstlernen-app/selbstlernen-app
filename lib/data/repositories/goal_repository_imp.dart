@@ -42,12 +42,20 @@ class GoalRepositoryImp implements GoalRepository {
   }
 
   @override
-  Future<int> updateGoal(int goalId, GoalModel updatedGoal) {
-    return goalDao.updateGoal(goalId, updatedGoal.toUpdateCompanion());
+  Stream<List<GoalModel>> watchGoalsBySessionIdAndDate(
+    int sessionId,
+    DateTime sessionScheduledDate,
+  ) {
+    return goalDao
+        .watchGoalsBySessionIdAndDate(sessionId, sessionScheduledDate)
+        .map(
+          (List<Goal> goalList) =>
+              GoalToModelMapper.mapFromListOfEntity(goalList),
+        );
   }
 
   @override
-  Future<int> updateGoalCompleted(int goalId, bool isCompleted) {
-    return goalDao.updateGoalCompleted(goalId, isCompleted);
+  Future<int> updateGoal(int goalId, GoalModel updatedGoal) {
+    return goalDao.updateGoal(goalId, updatedGoal.toUpdateCompanion());
   }
 }

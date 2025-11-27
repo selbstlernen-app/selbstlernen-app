@@ -21,7 +21,6 @@ class GoalsListWidget extends ConsumerStatefulWidget {
 
 class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
   final TextEditingController _taskGoalController = TextEditingController();
-  String? _expandedGoalId;
 
   @override
   void dispose() {
@@ -77,6 +76,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
         id: "0",
         title: "Sonstige Aufgaben",
         isCompleted: false,
+        keptForFutureSessions: false,
       );
       goals = <GoalModel>[...goals, ungroupedGoal];
       allTasks = <TaskModel>[...allTasks, ...ungroupedTasks];
@@ -118,7 +118,8 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
               final bool isGoalCompleted = state.completedGoalIds.contains(
                 goal.id,
               );
-              final bool isExpanded = _expandedGoalId == goal.id;
+
+              final bool isExpanded = state.expandedGoalId == goal.id;
 
               return Card(
                 elevation: 0.5,
@@ -180,9 +181,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                                     : Icons.expand_more,
                               ),
                               onPressed: () {
-                                setState(() {
-                                  _expandedGoalId = isExpanded ? null : goal.id;
-                                });
+                                viewModel.toggleExpandedGoal(goal.id!);
                               },
                             ),
                         ],
@@ -225,7 +224,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
           ),
 
         // Add new goal field at bottom (only if no goal is expanded)
-        if (_expandedGoalId == null && state.isEditMode)
+        if (state.expandedGoalId == null && state.isEditMode)
           Padding(
             padding: const EdgeInsets.symmetric(
               vertical: 12.0,

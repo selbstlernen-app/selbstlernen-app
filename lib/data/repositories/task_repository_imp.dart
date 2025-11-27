@@ -42,12 +42,20 @@ class TaskRepositoryImp implements TaskRepository {
   }
 
   @override
-  Future<int> updateTask(int taskId, TaskModel updatedtask) {
-    return taskDao.updateTask(taskId, updatedtask.toUpdateCompanion());
+  Stream<List<TaskModel>> watchTasksBySessionIdAndDate(
+    int sessionId,
+    DateTime sessionScheduledDate,
+  ) {
+    return taskDao
+        .watchTasksBySessionIdAndDate(sessionId, sessionScheduledDate)
+        .map(
+          (List<Task> taskList) =>
+              TaskToModelMapper.mapFromListOfEntity(taskList),
+        );
   }
 
   @override
-  Future<int> updateTaskCompleted(int taskId, bool isCompleted) {
-    return taskDao.updateTaskCompleted(taskId, isCompleted);
+  Future<int> updateTask(int taskId, TaskModel updatedtask) {
+    return taskDao.updateTask(taskId, updatedtask.toUpdateCompanion());
   }
 }

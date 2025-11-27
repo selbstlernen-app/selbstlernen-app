@@ -71,13 +71,13 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       );
 
       _goalsSubscription = _manageGoalUseCase
-          .watchGoalsBySessionId(sessionId)
+          .watchGoalsBySessionIdAndDate(sessionId, DateTime.now())
           .listen((List<GoalModel> goals) {
             state = state.copyWith(goals: goals);
           });
 
       _tasksSubscription = _manageTasksUseCase
-          .watchTasksBySessionId(sessionId)
+          .watchTasksBySessionIdAndDate(sessionId, DateTime.now())
           .listen((List<TaskModel> tasks) {
             state = state.copyWith(tasks: tasks);
           });
@@ -104,6 +104,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           title: title,
           isCompleted: false,
           goalId: goalId,
+          keptForFutureSessions: false,
         ),
       );
     } catch (e) {
@@ -128,6 +129,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           sessionId: state.session!.id,
           title: title,
           isCompleted: false,
+          keptForFutureSessions: false,
         ),
       );
     } catch (e) {
@@ -138,6 +140,11 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> deleteGoal({required String goalId}) async {
     try {
       await _manageGoalUseCase.deleteGoal(int.parse(goalId));
+      state = state.copyWith(
+        expandedGoalId: state.expandedGoalId == goalId
+            ? null
+            : state.expandedGoalId,
+      );
     } catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -193,6 +200,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   void skipPhase() {
     _handlePhaseComplete();
+  }
+
+  void toggleExpandedGoal(String id) {
+    state = state.copyWith(
+      expandedGoalId: state.expandedGoalId == id ? null : id,
+    );
   }
 
   // Function to switch phase dependent on the current one (focus -> short/long break)
@@ -308,14 +321,14 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     await _autoSave();
   }
 
-  Future<void> stopSession() async {
-    if (state.timerStatus == TimerStatus.completed) return;
-    _timer?.cancel();
-    state = state.copyWith(timerStatus: TimerStatus.completed);
+  // Future<void> stopSession() async {
+  //   if (state.timerStatus == TimerStatus.completed) return;
+  //   _timer?.cancel();
+  //   state = state.copyWith(timerStatus: TimerStatus.completed);
 
-    // Then complete (w/o mood or notes)
-    await completeSession();
-  }
+  //   // Then complete (w/o mood or notes)
+  //   await completeSession();
+  // }
 
   /// Is called when:
   /// The session is paused or stopped
@@ -344,7 +357,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   /// Final completion of the instance; is called
   /// after the reflection screen
-  Future<SessionInstanceModel> completeSession() async {
+  /// keepNewlyAddedItems - flag indicating whether or not to keep newly set goals/tasks for repeating sessions
+  Future<SessionInstanceModel> completeSession({
+    required bool keepNewlyAddedItems,
+  }) async {
     if (state.instance == null) return state.instance!;
 
     try {
@@ -358,11 +374,23 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         totalCompletedGoals: state.completedGoalIds.length,
         totalCompletedTasks: state.completedTaskIds.length,
       );
-      await _completeInstanceUseCase.call(
-        updatedInstance,
-        state.completedGoalIds,
-        state.completedTaskIds,
-      );
+
+      await _completeInstanceUseCase.call(updatedInstance);
+
+      // If user decides to keep the newly added items, then
+      // set attribute to true
+      if (keepNewlyAddedItems) {
+        for (GoalModel goal in state.newlyAddedGoals) {
+          await _manageGoalUseCase.updateGoal(
+            goal.copyWith(keptForFutureSessions: true),
+          );
+        }
+        for (TaskModel task in state.newlyAddedTasks) {
+          await _manageTasksUseCase.updateTask(
+            task.copyWith(keptForFutureSessions: true),
+          );
+        }
+      }
 
       state = state.copyWith(instance: updatedInstance);
 

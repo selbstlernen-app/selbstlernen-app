@@ -11,6 +11,7 @@ abstract class GoalModel with _$GoalModel {
     required String title,
     String? sessionId,
     required bool isCompleted,
+    required bool keptForFutureSessions,
     DateTime? completedAt,
     DateTime? createdAt,
   }) = _GoalModel;
