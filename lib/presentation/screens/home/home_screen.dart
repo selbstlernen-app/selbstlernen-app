@@ -11,7 +11,6 @@ import 'package:srl_app/presentation/screens/home/widgets/completed_tile.dart';
 import 'package:srl_app/presentation/screens/home/widgets/pending_session_tile.dart';
 import 'package:srl_app/presentation/view_models/home/home_state.dart';
 import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
-import 'package:vibration/vibration.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});

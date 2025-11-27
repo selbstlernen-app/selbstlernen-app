@@ -358,7 +358,11 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         totalCompletedGoals: state.completedGoalIds.length,
         totalCompletedTasks: state.completedTaskIds.length,
       );
-      await _completeInstanceUseCase.call(updatedInstance);
+      await _completeInstanceUseCase.call(
+        updatedInstance,
+        state.completedGoalIds,
+        state.completedTaskIds,
+      );
 
       state = state.copyWith(instance: updatedInstance);
 

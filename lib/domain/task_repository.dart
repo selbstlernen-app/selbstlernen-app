@@ -7,4 +7,7 @@ abstract class TaskRepository {
   Future<void> deleteTask(int taskId);
   Future<int> updateTask(int taskId, TaskModel updatedTask);
   Future<void> deleteTasksBySessionId(int sessionId);
+
+  // Extra operations
+  Future<int> updateTaskCompleted(int taskId, bool isCompleted);
 }

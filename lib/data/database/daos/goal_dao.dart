@@ -20,11 +20,13 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     )..where(($GoalsTable goal) => goal.sessionId.equals(sessionId))).get();
   }
 
-  // Watch all goals of a session
+  /// Watch all goals of a session that are still active, i.e. not completed
   Stream<List<Goal>> watchGoalsBySessionId(int sessionId) {
-    return (select(
-      goals,
-    )..where(($GoalsTable goal) => goal.sessionId.equals(sessionId))).watch();
+    return (select(goals)..where(
+          ($GoalsTable goal) =>
+              goal.sessionId.equals(sessionId) & goal.isCompleted.equals(false),
+        ))
+        .watch();
   }
 
   // Get goal by ID
@@ -39,6 +41,12 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     return (update(
       goals,
     )..where(($GoalsTable tbl) => tbl.id.equals(id))).write(companion);
+  }
+
+  Future<int> updateGoalCompleted(int id, bool completed) async {
+    return (update(goals)..where(($GoalsTable tbl) => tbl.id.equals(id))).write(
+      GoalsCompanion(isCompleted: Value<bool>(completed)),
+    );
   }
 
   // Delete goal

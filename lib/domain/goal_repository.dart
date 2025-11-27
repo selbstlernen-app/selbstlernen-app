@@ -8,4 +8,7 @@ abstract class GoalRepository {
   Future<void> deleteGoal(int goalId);
   Future<int> updateGoal(int goalId, GoalModel updatedGoal);
   Future<void> deleteGoalsBySessionId(int sessionId);
+
+  // Extra operations
+  Future<int> updateGoalCompleted(int goalId, bool isCompleted);
 }

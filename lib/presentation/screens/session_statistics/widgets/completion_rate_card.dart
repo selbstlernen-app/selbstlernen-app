@@ -48,7 +48,7 @@ class CompletionRateCard extends StatelessWidget {
                           stats.completionRate +
                           stats.skipRate, // Completed + Skipped
                       backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation<Color>(
+                      valueColor: const AlwaysStoppedAnimation<Color>(
                         AppPalette.successLight,
                       ),
                       strokeWidth: 5,

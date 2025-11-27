@@ -250,7 +250,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         ),
         // Navigation buttons
         Row(
-          children: [
+          children: <Widget>[
             Expanded(
               child: CustomButton(
                 verticalPadding: 8.0,

@@ -27,11 +27,13 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     )..where(($TasksTable s) => s.id.equals(id))).watchSingleOrNull();
   }
 
-  // Watch all tasks of a session
+  // Watch all tasks of a session that are still active, i.e. not completed
   Stream<List<Task>> watchTasksBySessionId(int sessionId) {
-    return (select(
-      tasks,
-    )..where(($TasksTable task) => task.sessionId.equals(sessionId))).watch();
+    return (select(tasks)..where(
+          ($TasksTable task) =>
+              task.sessionId.equals(sessionId) & task.isCompleted.equals(false),
+        ))
+        .watch();
   }
 
   // Update task
@@ -39,6 +41,12 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     return (update(
       tasks,
     )..where(($TasksTable tbl) => tbl.id.equals(id))).write(companion);
+  }
+
+  Future<int> updateTaskCompleted(int id, bool completed) async {
+    return (update(tasks)..where(($TasksTable tbl) => tbl.id.equals(id))).write(
+      TasksCompanion(isCompleted: Value<bool>(completed)),
+    );
   }
 
   // Delete task
