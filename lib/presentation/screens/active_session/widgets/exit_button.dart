@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_item_tile.dart';
+import 'package:srl_app/common_widgets/horizontal_space.dart';
 import 'package:srl_app/common_widgets/show_custom_dialog.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/spacing.dart';
@@ -65,6 +66,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
     if (state.timerStatus != TimerStatus.initial) {
       viewModel.pauseTimer();
 
+      // Filter to only show items that are NEW to this session
       final List<GoalModel> newGoals = state.newlyAddedGoals;
       final List<TaskModel> newTasks = state.newlyAddedTasks;
 
@@ -77,24 +79,28 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
         }
       }
 
+      // Get all existing goals that have new tasks
+      final List<GoalModel> existingGoalsWithNewTasks = state
+          .getExistingGoalsWithNewTasks();
+
+      // Combine: new goals + existing goals with new tasks
+      final List<GoalModel> allDisplayedGoals = <GoalModel>[
+        ...newGoals,
+        ...existingGoalsWithNewTasks,
+      ];
+
       // Separate ungrouped tasks
       final List<TaskModel> ungroupedTasks = newTasks
           .where((TaskModel t) => t.goalId == null)
           .toList();
 
-      // Track selection
+      // Track selection - only for items to decide
       final Map<String, bool> goalSelection = <String, bool>{
         for (GoalModel g in newGoals) g.id!: false,
       };
       final Map<String, bool> taskSelection = <String, bool>{
-        for (TaskModel t in ungroupedTasks) t.id!: false,
+        for (TaskModel t in newTasks) t.id!: false,
       };
-      // Also include tasks under goals
-      for (final GoalModel goal in newGoals) {
-        for (final task in tasksByGoal[goal.id!] ?? <dynamic>[]) {
-          taskSelection[task.id!] = false;
-        }
-      }
 
       await showCustomDialog(
         context: context,
@@ -112,12 +118,12 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                   ),
                   if (state.session!.isRepeating &&
                       (newGoals.isNotEmpty || newTasks.isNotEmpty)) ...<Widget>[
-                    const SizedBox(height: 16),
+                    const VerticalSpace(size: SpaceSize.medium),
                     Text(
                       "Neue Elemente für diese Einheit:",
-                      style: context.textTheme.labelLarge,
+                      style: context.textTheme.labelMedium,
                     ),
-                    const SizedBox(height: 8),
+                    const VerticalSpace(size: SpaceSize.xsmall),
                     Text(
                       "Wähle die Elemente aus, die du für zukünftige Sitzungen behalten möchtest:",
                       style: TextStyle(
@@ -126,14 +132,14 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                         color: AppPalette.grey,
                       ),
                     ),
-                    const SizedBox(height: 8),
+
+                    const VerticalSpace(size: SpaceSize.small),
 
                     // Goals with their tasks
-                    ...newGoals.map((GoalModel goal) {
+                    ...allDisplayedGoals.map((GoalModel goal) {
                       final List<TaskModel> goalTasks =
                           tasksByGoal[goal.id!] ?? <TaskModel>[];
-                      final bool isGoalSelected =
-                          goalSelection[goal.id!] ?? false;
+                      final bool isNewGoal = !goal.keptForFutureSessions;
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -141,32 +147,79 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                           // Goal row
                           Row(
                             children: <Widget>[
-                              Checkbox(
-                                value: isGoalSelected,
-                                onChanged: (bool? value) {
-                                  setState(() {
-                                    goalSelection[goal.id!] = value ?? false;
-                                    // Toggle all tasks under this goal
-                                    for (final TaskModel task in goalTasks) {
-                                      taskSelection[task.id!] = value ?? false;
-                                    }
-                                  });
-                                },
-                              ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
+                              // Show checkbox only for NEW goals
+                              if (isNewGoal) ...<Widget>[
+                                Icon(
+                                  Icons.flag_outlined,
+                                  size: 16,
+                                  color: AppPalette.grey,
+                                ),
+                                Checkbox(
+                                  value: goalSelection[goal.id!] ?? false,
+                                  onChanged: (bool? value) {
                                     setState(() {
-                                      final bool newValue = !isGoalSelected;
-                                      goalSelection[goal.id!] = newValue;
+                                      goalSelection[goal.id!] = value ?? false;
+                                      // Toggle all tasks under this goal
                                       for (final TaskModel task in goalTasks) {
-                                        taskSelection[task.id!] = newValue;
+                                        taskSelection[task.id!] =
+                                            value ?? false;
                                       }
                                     });
                                   },
-                                  child: Text(goal.title),
                                 ),
-                              ),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        final bool newValue =
+                                            !(goalSelection[goal.id!] ?? false);
+                                        goalSelection[goal.id!] = newValue;
+                                        for (final TaskModel task
+                                            in goalTasks) {
+                                          taskSelection[task.id!] = newValue;
+                                        }
+                                      });
+                                    },
+                                    child: Text(
+                                      goal.title,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                              // Show plain text for EXISTING goals (context only)
+                              if (!isNewGoal)
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8.0,
+                                      horizontal: 12.0,
+                                    ),
+                                    child: Row(
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.flag_outlined,
+                                          size: 16,
+                                          color: AppPalette.grey,
+                                        ),
+                                        const HorizontalSpace(
+                                          size: SpaceSize.small,
+                                        ),
+                                        Expanded(
+                                          child: Text(
+                                            goal.title,
+                                            style: TextStyle(
+                                              color: AppPalette.grey,
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
 
@@ -241,10 +294,10 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                             ),
                           ],
                         );
-                      }).toList(),
+                      }),
                     ],
 
-                    const SizedBox(height: 12),
+                    const VerticalSpace(size: SpaceSize.medium),
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -278,6 +331,17 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
               .where((MapEntry<String, bool> e) => e.value)
               .map((MapEntry<String, bool> e) => e.key)
               .toList();
+
+          for (final String taskId in taskIdsToKeep) {
+            final TaskModel task = state.newlyAddedTasks.firstWhere(
+              (TaskModel t) => t.id == taskId,
+            );
+            // If task has a goalId and that goal is NOT being kept,
+            // set its goalId to null and "orphan" it
+            if (task.goalId != null && !goalIdsToKeep.contains(task.goalId)) {
+              await viewModel.orphanTask(task);
+            }
+          }
 
           final SessionInstanceModel updatedInstance = await viewModel
               .completeSession(

@@ -161,7 +161,9 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                           ),
 
                           // Delete button if no tasks
-                          if (relatedTasks.isEmpty && state.isEditMode)
+                          if (relatedTasks.isEmpty &&
+                              state.isEditMode &&
+                              goal.id != "0")
                             IconButton(
                               icon: Icon(
                                 Icons.delete,
@@ -193,6 +195,12 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: <Widget>[
+                            Divider(
+                              color: context.colorScheme.tertiary,
+                              thickness: 4,
+                              radius: BorderRadius.circular(10),
+                            ),
+
                             ...relatedTasks.map(
                               (TaskModel task) => _TaskItem(
                                 task: task,

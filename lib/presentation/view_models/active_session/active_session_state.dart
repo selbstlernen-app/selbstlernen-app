@@ -53,4 +53,19 @@ abstract class ActiveSessionState with _$ActiveSessionState {
   List<GoalModel> get newlyAddedGoals => goals
       .where((GoalModel goal) => goal.keptForFutureSessions == false)
       .toList();
+
+  List<GoalModel> getExistingGoalsWithNewTasks() {
+    Set<String> goalIds = tasks
+        .where((t) => t.goalId != null)
+        .map((TaskModel t) => t.goalId!)
+        .toSet();
+    List<GoalModel> existingGoalsWithNewTasks = goals
+        .where(
+          (GoalModel goal) =>
+              goal.keptForFutureSessions == true & goalIds.contains(goal.id),
+        )
+        .toList();
+
+    return existingGoalsWithNewTasks;
+  }
 }

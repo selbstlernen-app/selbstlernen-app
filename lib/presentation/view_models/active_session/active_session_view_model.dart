@@ -112,6 +112,14 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
   }
 
+  Future<void> orphanTask(TaskModel task) async {
+    try {
+      await _manageTasksUseCase.updateTask(task.copyWith(goalId: null));
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
   Future<void> deleteTask({required String taskId}) async {
     try {
       await _manageTasksUseCase.deleteTask(int.parse(taskId));
