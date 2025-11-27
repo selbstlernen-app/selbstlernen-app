@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_error_text.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/core/utils/date_time_utils.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
@@ -40,10 +40,10 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
       final AddSessionState state = ref.read(addSessionViewModelProvider);
       if (state.isEditingMode) {
         _startDateController.text = state.startDate != null
-            ? DateTimeUtils.dateTimeToString(date: state.startDate!)
+            ? DateFormat('dd.MM.yyyy').format(state.startDate!)
             : "";
         _endDateController.text = state.endDate != null
-            ? DateTimeUtils.dateTimeToString(date: state.endDate!)
+            ? DateFormat('dd.MM.yyyy').format(state.endDate!)
             : "";
       }
     });
@@ -66,10 +66,15 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null) {
-      controller.text = DateTimeUtils.dateTimeToString(date: picked);
+      controller.text = DateFormat('dd.MM.yyyy').format(picked);
 
       if (isStartDate) {
         ref.read(addSessionViewModelProvider.notifier).setStartDate(picked);
+
+        // After having picked a start date, automatically open end date calendar
+        await Future<Null>.delayed(const Duration(milliseconds: 200), () {
+          _pickDate(_endDateController, false);
+        });
       } else {
         ref.read(addSessionViewModelProvider.notifier).setEndDate(picked);
       }

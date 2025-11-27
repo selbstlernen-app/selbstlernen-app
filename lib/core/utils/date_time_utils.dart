@@ -1,8 +1,4 @@
 class DateTimeUtils {
-  static String dateTimeToString({required DateTime date}) {
-    return "${date.day}.${date.month}.${date.year}";
-  }
-
   /// Counts the total number of days between given start and end date
   ///  and a list of weekdays
   static int countDaysBetweenDates(
