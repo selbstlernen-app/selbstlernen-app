@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
+import 'package:srl_app/common_widgets/time_break_down_item.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
@@ -87,14 +88,17 @@ class SessionDetailScreen extends ConsumerWidget {
                       }),
                       if (detailState
                           .fullSession!
-                          .tasks
+                          .ungroupedTasks
                           .isNotEmpty) ...<Widget>[
+                        const VerticalSpace(size: SpaceSize.medium),
                         Text(
-                          "Aufgaben",
+                          "Sonstige Aufgaben",
                           style: context.textTheme.headlineSmall,
                         ),
                         const VerticalSpace(size: SpaceSize.xsmall),
-                        ...detailState.fullSession!.tasks.map((TaskModel task) {
+                        ...detailState.fullSession!.ungroupedTasks.map((
+                          TaskModel task,
+                        ) {
                           return CustomItemTile(
                             text: task.title,
                             isLargeGoal: false,
@@ -119,27 +123,23 @@ class SessionDetailScreen extends ConsumerWidget {
                       ),
                       const VerticalSpace(size: SpaceSize.xsmall),
 
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      Column(
                         children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              const Icon(
-                                Icons.psychology,
-                                color: AppPalette.pink,
-                                size: 32,
-                              ),
-                              const HorizontalSpace(size: SpaceSize.small),
-                              Text(
-                                'Fokuszeit',
-                                style: context.textTheme.bodyLarge!.copyWith(
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
+                          TimeBreakdownItem(
+                            icon: Icons.psychology,
+                            label: 'Fokuszeit',
+                            value:
+                                '${TimeUtils.formatTime(session.focusTimeMin * 60)} Min',
+                            color: AppPalette.pink,
                           ),
 
-                          Text(TimeUtils.formatTime(session.focusTimeMin * 60)),
+                          TimeBreakdownItem(
+                            icon: Icons.coffee,
+                            label: 'Pausenzeit',
+                            value:
+                                '${TimeUtils.formatTime(session.breakTimeMin * 60)} Min',
+                            color: AppPalette.orange,
+                          ),
                         ],
                       ),
                     ],

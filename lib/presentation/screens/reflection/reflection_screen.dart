@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/custom_text_field.dart';
-import 'package:srl_app/common_widgets/horizontal_space.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
+import 'package:srl_app/common_widgets/time_break_down_item.dart';
 import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/constants/spacing.dart';
@@ -88,14 +88,14 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                   // Focus vs Break breakdown
                   Column(
                     children: <Widget>[
-                      _TimeBreakdownItem(
+                      TimeBreakdownItem(
                         icon: Icons.psychology,
                         label: 'Fokuszeit',
                         value: '${reflectionState.totalTimeFocused} Min',
                         color: AppPalette.pink,
                       ),
 
-                      _TimeBreakdownItem(
+                      TimeBreakdownItem(
                         icon: Icons.coffee,
                         label: 'Pausenzeit',
                         value: '${reflectionState.totalTimeInBreak} Min',
@@ -110,7 +110,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                       ),
                       const VerticalSpace(size: SpaceSize.small),
 
-                      _TimeBreakdownItem(
+                      TimeBreakdownItem(
                         icon: Icons.timelapse_outlined,
                         label: 'Gesamte Zeit',
                         value: '${reflectionState.totalTimeSpent} Min',
@@ -148,12 +148,12 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           padding: const EdgeInsets.symmetric(
-                            vertical: 10.0,
-                            horizontal: 12.0,
+                            vertical: 8.0,
+                            horizontal: 14.0,
                           ),
                           child: Text(
                             emoji,
-                            style: const TextStyle(fontSize: 28),
+                            style: const TextStyle(fontSize: 32),
                           ),
                         ),
                       );
@@ -184,42 +184,6 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _TimeBreakdownItem extends StatelessWidget {
-  const _TimeBreakdownItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Icon(icon, color: color, size: 32),
-            const HorizontalSpace(size: SpaceSize.small),
-            Text(
-              label,
-              style: context.textTheme.bodyLarge!.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        Text(value, style: context.textTheme.bodyLarge?.copyWith(color: color)),
-      ],
     );
   }
 }
