@@ -58,4 +58,9 @@ class TaskRepositoryImp implements TaskRepository {
   Future<int> updateTask(int taskId, TaskModel updatedtask) {
     return taskDao.updateTask(taskId, updatedtask.toUpdateCompanion());
   }
+
+  @override
+  Future<int> updateTaskFutureStatus(int goalId, bool status) {
+    return taskDao.updateTaskFutureStatus(goalId, status);
+  }
 }

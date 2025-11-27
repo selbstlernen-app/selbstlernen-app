@@ -76,53 +76,15 @@ class SessionDetailScreen extends ConsumerWidget {
                         "Einzelheiten zu dieser Lerneinheit",
                         style: context.textTheme.headlineMedium,
                       ),
+
                       const VerticalSpace(size: SpaceSize.medium),
 
-                      Text("Ziele", style: context.textTheme.headlineSmall),
-                      const VerticalSpace(size: SpaceSize.xsmall),
-                      ...detailState.fullSession!.goals.map((GoalModel goal) {
-                        return CustomItemTile(
-                          text: goal.title,
-                          isLargeGoal: true,
-                        );
-                      }),
-                      if (detailState
-                          .fullSession!
-                          .ungroupedTasks
-                          .isNotEmpty) ...<Widget>[
-                        const VerticalSpace(size: SpaceSize.medium),
-                        Text(
-                          "Sonstige Aufgaben",
-                          style: context.textTheme.headlineSmall,
-                        ),
-                        const VerticalSpace(size: SpaceSize.xsmall),
-                        ...detailState.fullSession!.ungroupedTasks.map((
-                          TaskModel task,
-                        ) {
-                          return CustomItemTile(
-                            text: task.title,
-                            isLargeGoal: false,
-                          );
-                        }),
-                      ],
-
-                      const VerticalSpace(size: SpaceSize.large),
-
-                      Text(
-                        "Deine Strategien",
-                        style: context.textTheme.headlineSmall,
-                      ),
-                      const VerticalSpace(size: SpaceSize.xsmall),
-                      Text(session.learningStrategies.toString()),
-
-                      const VerticalSpace(size: SpaceSize.large),
-
+                      // Planned work and break time
                       Text(
                         "Geplante Zeit",
                         style: context.textTheme.headlineSmall,
                       ),
-                      const VerticalSpace(size: SpaceSize.xsmall),
-
+                      const VerticalSpace(size: SpaceSize.small),
                       Column(
                         children: <Widget>[
                           TimeBreakdownItem(
@@ -139,6 +101,76 @@ class SessionDetailScreen extends ConsumerWidget {
                             value:
                                 '${TimeUtils.formatTime(session.breakTimeMin * 60)} Min',
                             color: AppPalette.orange,
+                          ),
+                        ],
+                      ),
+
+                      const VerticalSpace(size: SpaceSize.large),
+
+                      // Planned strategies
+                      Text(
+                        "Deine Strategien",
+                        style: context.textTheme.headlineSmall,
+                      ),
+                      const VerticalSpace(size: SpaceSize.small),
+                      ...session.learningStrategies.map(
+                        (String strategy) => Text(strategy),
+                      ),
+
+                      const VerticalSpace(size: SpaceSize.large),
+
+                      // Goals and tasks column
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                if (detailState
+                                    .fullSession!
+                                    .goals
+                                    .isNotEmpty) ...<Widget>[
+                                  Text(
+                                    "Ziele",
+                                    style: context.textTheme.headlineSmall,
+                                  ),
+                                  const VerticalSpace(size: SpaceSize.small),
+                                  ...detailState.fullSession!.goals.map((
+                                    GoalModel goal,
+                                  ) {
+                                    return CustomItemTile(
+                                      text: goal.title,
+                                      isLargeGoal: true,
+                                    );
+                                  }),
+                                ],
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              children: <Widget>[
+                                if (detailState
+                                    .fullSession!
+                                    .ungroupedTasks
+                                    .isNotEmpty) ...<Widget>[
+                                  Text(
+                                    "Sonstige Aufgaben",
+                                    style: context.textTheme.headlineSmall,
+                                  ),
+                                  const VerticalSpace(size: SpaceSize.small),
+                                  ...detailState.fullSession!.ungroupedTasks
+                                      .map((TaskModel task) {
+                                        return CustomItemTile(
+                                          text: task.title,
+                                          isLargeGoal: false,
+                                        );
+                                      }),
+                                ],
+                              ],
+                            ),
                           ),
                         ],
                       ),

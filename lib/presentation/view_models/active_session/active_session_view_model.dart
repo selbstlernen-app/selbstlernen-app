@@ -357,9 +357,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   /// Final completion of the instance; is called
   /// after the reflection screen
-  /// keepNewlyAddedItems - flag indicating whether or not to keep newly set goals/tasks for repeating sessions
   Future<SessionInstanceModel> completeSession({
-    required bool keepNewlyAddedItems,
+    required List<String> goalIdsToKeep,
+    required List<String> taskIdsToKeep,
   }) async {
     if (state.instance == null) return state.instance!;
 
@@ -377,19 +377,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
       await _completeInstanceUseCase.call(updatedInstance);
 
-      // If user decides to keep the newly added items, then
-      // set attribute to true
-      if (keepNewlyAddedItems) {
-        for (GoalModel goal in state.newlyAddedGoals) {
-          await _manageGoalUseCase.updateGoal(
-            goal.copyWith(keptForFutureSessions: true),
-          );
-        }
-        for (TaskModel task in state.newlyAddedTasks) {
-          await _manageTasksUseCase.updateTask(
-            task.copyWith(keptForFutureSessions: true),
-          );
-        }
+      // If user decides to keep the newly added items, then set keepForFutureSessions to true
+      for (String goalId in goalIdsToKeep) {
+        await _manageGoalUseCase.updateGoalFutureStatus(goalId, true);
+      }
+      for (String taskId in goalIdsToKeep) {
+        await _manageTasksUseCase.updateTaskFutureStatus(taskId, true);
       }
 
       state = state.copyWith(instance: updatedInstance);

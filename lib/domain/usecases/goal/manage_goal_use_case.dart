@@ -23,6 +23,9 @@ class ManageGoalUseCase {
   Future<int> updateGoal(GoalModel goal) =>
       repository.updateGoal(int.parse(goal.id!), goal);
 
+  Future<int> updateGoalFutureStatus(String goalId, bool status) =>
+      repository.updateGoalFutureStatus(int.parse(goalId), status);
+
   // Delete
   Future<void> deleteGoal(int goalId) => repository.deleteGoal(goalId);
 }

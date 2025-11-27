@@ -66,21 +66,20 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
     List<GoalModel> goals = List<GoalModel>.from(state.goals);
     List<TaskModel> allTasks = List<TaskModel>.from(state.tasks);
 
+    // Add a temporary goal; with invalid goal id, to add ungrouped tasks
+    final GoalModel ungroupedGoal = const GoalModel(
+      id: "0",
+      title: "Sonstige Aufgaben",
+      isCompleted: false,
+      keptForFutureSessions: false,
+    );
     final List<TaskModel> ungroupedTasks = allTasks
         .where((TaskModel t) => t.goalId == null || t.goalId!.isEmpty)
         .map((TaskModel t) => t.copyWith(goalId: '0'))
         .toList();
 
-    if (ungroupedTasks.isNotEmpty) {
-      final GoalModel ungroupedGoal = const GoalModel(
-        id: "0",
-        title: "Sonstige Aufgaben",
-        isCompleted: false,
-        keptForFutureSessions: false,
-      );
-      goals = <GoalModel>[...goals, ungroupedGoal];
-      allTasks = <TaskModel>[...allTasks, ...ungroupedTasks];
-    }
+    goals = <GoalModel>[...goals, ungroupedGoal];
+    allTasks = <TaskModel>[...allTasks, ...ungroupedTasks];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

@@ -85,7 +85,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
                   const VerticalSpace(size: SpaceSize.medium),
 
-                  // Focus vs Break breakdown
+                  // Focus and break time
                   Column(
                     children: <Widget>[
                       TimeBreakdownItem(

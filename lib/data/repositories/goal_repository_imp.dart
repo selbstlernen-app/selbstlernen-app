@@ -58,4 +58,9 @@ class GoalRepositoryImp implements GoalRepository {
   Future<int> updateGoal(int goalId, GoalModel updatedGoal) {
     return goalDao.updateGoal(goalId, updatedGoal.toUpdateCompanion());
   }
+
+  @override
+  Future<int> updateGoalFutureStatus(int goalId, bool status) {
+    return goalDao.updateGoalFutureStatus(goalId, status);
+  }
 }

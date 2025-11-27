@@ -65,97 +65,225 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
     if (state.timerStatus != TimerStatus.initial) {
       viewModel.pauseTimer();
 
-      // Get newly added items
       final List<GoalModel> newGoals = state.newlyAddedGoals;
       final List<TaskModel> newTasks = state.newlyAddedTasks;
 
-      // Default for repeating sessions is to keep; for one-time sessions this is always false (no switch)
-      bool keepNewItems = state.session?.isRepeating == true;
+      // Group tasks by goalId
+      final Map<String, List<TaskModel>> tasksByGoal =
+          <String, List<TaskModel>>{};
+      for (final TaskModel task in newTasks) {
+        if (task.goalId != null) {
+          tasksByGoal.putIfAbsent(task.goalId!, () => <TaskModel>[]).add(task);
+        }
+      }
+
+      // Separate ungrouped tasks
+      final List<TaskModel> ungroupedTasks = newTasks
+          .where((TaskModel t) => t.goalId == null)
+          .toList();
+
+      // Track selection
+      final Map<String, bool> goalSelection = <String, bool>{
+        for (GoalModel g in newGoals) g.id!: false,
+      };
+      final Map<String, bool> taskSelection = <String, bool>{
+        for (TaskModel t in ungroupedTasks) t.id!: false,
+      };
+      // Also include tasks under goals
+      for (final GoalModel goal in newGoals) {
+        for (final task in tasksByGoal[goal.id!] ?? <dynamic>[]) {
+          taskSelection[task.id!] = false;
+        }
+      }
 
       await showCustomDialog(
         context: context,
         title: "Lerneinheit beenden",
         content: StatefulBuilder(
-          builder: (BuildContext context, Function setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  "Willst du diese Lerneinheit wirklich beenden?",
-                  style: context.textTheme.bodyMedium,
-                ),
-
-                // Show newly added items if any; only for repeating sessions
-                if (state.session!.isRepeating &&
-                    (newGoals.isNotEmpty || newTasks.isNotEmpty)) ...<Widget>[
-                  const VerticalSpace(size: SpaceSize.medium),
+          builder: (BuildContext context, setState) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
                   Text(
-                    "Neue Elemente für diese Einheit:",
-                    style: context.textTheme.labelLarge,
+                    "Willst du diese Lerneinheit wirklich beenden?",
+                    style: context.textTheme.bodyMedium,
                   ),
-
-                  const VerticalSpace(size: SpaceSize.small),
-
-                  if (newGoals.isNotEmpty)
-                    ...newGoals.map(
-                      (GoalModel g) =>
-                          CustomItemTile(text: g.title, isLargeGoal: true),
+                  if (state.session!.isRepeating &&
+                      (newGoals.isNotEmpty || newTasks.isNotEmpty)) ...<Widget>[
+                    const SizedBox(height: 16),
+                    Text(
+                      "Neue Elemente für diese Einheit:",
+                      style: context.textTheme.labelLarge,
                     ),
-
-                  if (newTasks.isNotEmpty)
-                    ...newTasks.map(
-                      (TaskModel t) =>
-                          CustomItemTile(text: t.title, isLargeGoal: false),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Wähle die Elemente aus, die du für zukünftige Sitzungen behalten möchtest:",
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        color: AppPalette.grey,
+                      ),
                     ),
+                    const SizedBox(height: 8),
 
-                  const VerticalSpace(size: SpaceSize.small),
+                    // Goals with their tasks
+                    ...newGoals.map((GoalModel goal) {
+                      final List<TaskModel> goalTasks =
+                          tasksByGoal[goal.id!] ?? <TaskModel>[];
+                      final bool isGoalSelected =
+                          goalSelection[goal.id!] ?? false;
 
-                  Row(
-                    children: <Widget>[
-                      const Expanded(
-                        child: Text(
-                          "Neue Elemente für zukünftige Sitzungen behalten",
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          // Goal row
+                          Row(
+                            children: <Widget>[
+                              Checkbox(
+                                value: isGoalSelected,
+                                onChanged: (bool? value) {
+                                  setState(() {
+                                    goalSelection[goal.id!] = value ?? false;
+                                    // Toggle all tasks under this goal
+                                    for (final TaskModel task in goalTasks) {
+                                      taskSelection[task.id!] = value ?? false;
+                                    }
+                                  });
+                                },
+                              ),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      final bool newValue = !isGoalSelected;
+                                      goalSelection[goal.id!] = newValue;
+                                      for (final TaskModel task in goalTasks) {
+                                        taskSelection[task.id!] = newValue;
+                                      }
+                                    });
+                                  },
+                                  child: Text(goal.title),
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // Tasks under this goal
+                          if (goalTasks.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 32),
+                              child: Column(
+                                children: goalTasks.map((TaskModel task) {
+                                  return Row(
+                                    children: <Widget>[
+                                      Checkbox(
+                                        value: taskSelection[task.id!] ?? false,
+                                        onChanged: (bool? value) {
+                                          setState(() {
+                                            taskSelection[task.id!] =
+                                                value ?? false;
+                                          });
+                                        },
+                                      ),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              taskSelection[task.id!] =
+                                                  !(taskSelection[task.id!] ??
+                                                      false);
+                                            });
+                                          },
+                                          child: Text(task.title),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                        ],
+                      );
+                    }),
+
+                    // Ungrouped tasks
+                    if (ungroupedTasks.isNotEmpty) ...<Widget>[
+                      const SizedBox(height: 12),
+                      Text(
+                        "Sonstige Aufgaben:",
+                        style: context.textTheme.labelMedium?.copyWith(
+                          color: AppPalette.grey,
                         ),
                       ),
-                      Switch(
-                        value: keepNewItems,
-                        onChanged: (bool value) {
-                          setState(() {
-                            keepNewItems = value;
-                          });
-                        },
-                      ),
+                      ...ungroupedTasks.map((TaskModel task) {
+                        return Row(
+                          children: <Widget>[
+                            Checkbox(
+                              value: taskSelection[task.id!] ?? false,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  taskSelection[task.id!] = value ?? false;
+                                });
+                              },
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    taskSelection[task.id!] =
+                                        !(taskSelection[task.id!] ?? false);
+                                  });
+                                },
+                                child: Text(task.title),
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
                     ],
-                  ),
 
-                  const VerticalSpace(size: SpaceSize.small),
-
-                  Text(
-                    keepNewItems
-                        ? "Neue Ziele und Aufgaben werden in der nächsten Einheit übertragen"
-                        : "Neue Ziele und Aufgaben werden als abgeschlossen markiert",
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                      color: AppPalette.grey,
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: context.colorScheme.tertiary,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        "Nicht markierte Elemente werden als abgeschlossen markiert",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                          color: AppPalette.grey,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ],
-              ],
+              ),
             );
           },
         ),
         confirmLabel: "Bestätigen",
-        onCancel: () {
-          // User cancelled - resume timer
-          viewModel.startTimer();
-          // Reset exit button
-          setState(() => _tappedOnce = false);
-        },
+        cancelLabel: "Abbrechen",
+        onCancel: () => viewModel.startTimer(),
         onConfirm: () async {
+          final List<String> goalIdsToKeep = goalSelection.entries
+              .where((MapEntry<String, bool> e) => e.value)
+              .map((MapEntry<String, bool> e) => e.key)
+              .toList();
+          final List<String> taskIdsToKeep = taskSelection.entries
+              .where((MapEntry<String, bool> e) => e.value)
+              .map((MapEntry<String, bool> e) => e.key)
+              .toList();
+
           final SessionInstanceModel updatedInstance = await viewModel
-              .completeSession(keepNewlyAddedItems: keepNewItems);
+              .completeSession(
+                goalIdsToKeep: goalIdsToKeep,
+                taskIdsToKeep: taskIdsToKeep,
+              );
 
           if (!mounted) return;
           await Navigator.pushReplacementNamed(
@@ -164,7 +292,6 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
             arguments: updatedInstance,
           );
         },
-        cancelLabel: "Abbrechen",
       );
     }
   }

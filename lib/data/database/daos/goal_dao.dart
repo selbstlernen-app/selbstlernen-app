@@ -68,6 +68,12 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     )..where(($GoalsTable tbl) => tbl.id.equals(id))).write(companion);
   }
 
+  Future<int> updateGoalFutureStatus(int id, bool status) async {
+    return (update(goals)..where(($GoalsTable tbl) => tbl.id.equals(id))).write(
+      GoalsCompanion(keptForFutureSessions: Value<bool>(status)),
+    );
+  }
+
   // Delete goal
   Future<int> deleteGoal(int id) async {
     return await (delete(
