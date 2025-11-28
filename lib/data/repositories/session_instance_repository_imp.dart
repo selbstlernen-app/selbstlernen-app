@@ -11,7 +11,7 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
 
   @override
   Future<int> createInstance({required SessionInstanceModel instance}) async {
-    return await sessionInstanceDao.createInstance(instance.toCompanion());
+    return sessionInstanceDao.createInstance(instance.toCompanion());
   }
 
   @override
@@ -24,8 +24,7 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
     return sessionInstanceDao
         .watchInstancesBySessionId(sessionId)
         .map(
-          (List<SessionInstance> sessionList) =>
-              SessionInstanceToModelMapper.mapFromListOfEntity(sessionList),
+          SessionInstanceToModelMapper.mapFromListOfEntity,
         );
   }
 
@@ -34,8 +33,7 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
     return sessionInstanceDao
         .watchAllInstancesForDate(date)
         .map(
-          (List<SessionInstance> sessionList) =>
-              SessionInstanceToModelMapper.mapFromListOfEntity(sessionList),
+          SessionInstanceToModelMapper.mapFromListOfEntity,
         );
   }
 
@@ -53,7 +51,7 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
 
   @override
   Future<SessionInstanceModel?> getInstanceBySessionId(int sessionId) async {
-    SessionInstance? instance = await sessionInstanceDao.getInstanceBySessionId(
+    final instance = await sessionInstanceDao.getInstanceBySessionId(
       sessionId,
     );
     if (instance == null) {
@@ -64,7 +62,7 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
 
   @override
   Future<SessionInstanceModel> getInstanceById(int instanceId) async {
-    SessionInstance? instance = await sessionInstanceDao.getInstanceById(
+    final instance = await sessionInstanceDao.getInstanceById(
       instanceId,
     );
     if (instance == null) {
@@ -77,8 +75,9 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   Future<List<SessionInstanceModel>> getAllInstancesBySessionId(
     int sessionId,
   ) async {
-    List<SessionInstance> instances = await sessionInstanceDao
-        .getInstancesBySessionId(sessionId);
+    final instances = await sessionInstanceDao.getInstancesBySessionId(
+      sessionId,
+    );
 
     return SessionInstanceToModelMapper.mapFromListOfEntity(instances);
   }
@@ -99,8 +98,10 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
     int sessionId,
     DateTime date,
   ) async {
-    SessionInstance? instance = await sessionInstanceDao
-        .getInstancesBySessionIdAndDate(sessionId, date);
+    final instance = await sessionInstanceDao.getInstancesBySessionIdAndDate(
+      sessionId,
+      date,
+    );
 
     return instance?.toDomain();
   }

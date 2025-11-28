@@ -15,15 +15,14 @@ class GetCompletedSessionsForTodayUseCase {
   final SessionInstanceRepository instanceRepo;
 
   Stream<List<SessionWithInstanceModel>> call(DateTime date) {
-    final Stream<List<SessionInstanceModel>> instances$ = instanceRepo
-        .watchAllInstancesForDate(date);
-    final Stream<List<SessionModel>> sessions$ = sessionRepo.watchAllSessions();
+    final instances$ = instanceRepo.watchAllInstancesForDate(date);
+    final sessions$ = sessionRepo.watchAllSessions();
 
     return Rx.combineLatest2(sessions$, instances$, (
       List<SessionModel> sessions,
       List<SessionInstanceModel> instances,
     ) {
-      final List<SessionInstanceModel> completedOrSkipped = instances
+      final completedOrSkipped = instances
           .where(
             (SessionInstanceModel instance) =>
                 instance.status == SessionStatus.completed ||
@@ -32,10 +31,10 @@ class GetCompletedSessionsForTodayUseCase {
           .toList();
 
       // Check if we have matching sessions
-      final List<SessionWithInstanceModel> result = completedOrSkipped.map((
+      final result = completedOrSkipped.map((
         SessionInstanceModel instance,
       ) {
-        final SessionModel session = sessions.firstWhere(
+        final session = sessions.firstWhere(
           (SessionModel s) {
             return s.id == instance.sessionId;
           },

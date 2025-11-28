@@ -10,6 +10,12 @@ class Tasks extends Table with AutoIncrementingPrimaryKey {
   BoolColumn get isCompleted =>
       boolean().withDefault(const Constant<bool>(false))();
 
+  /// Attribute with which newly added tasks can be tracked
+  /// independent of session status (e.g. made before the session was completed;
+  /// inProgress)
+  BoolColumn get keptForFutureSessions =>
+      boolean().withDefault(const Constant<bool>(false))();
+
   DateTimeColumn get completedAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

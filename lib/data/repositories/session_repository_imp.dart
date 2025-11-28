@@ -22,36 +22,33 @@ class SessionRepositoryImp implements SessionRepository {
   @override
   Stream<List<SessionModel>> getAllSessions() {
     return sessionDao.watchAllSessions().map(
-      (List<Session> sessionList) =>
-          SessionToModelMapper.mapFromListOfEntity(sessionList),
+      SessionToModelMapper.mapFromListOfEntity,
     );
   }
 
   @override
   Future<List<SessionModel>> getAllActiveSessions() async {
-    List<Session> sessions = await sessionDao.getAllActiveSessions();
+    final sessions = await sessionDao.getAllActiveSessions();
     return SessionToModelMapper.mapFromListOfEntity(sessions);
   }
 
   @override
   Stream<List<SessionModel>> watchAllActiveSessions() {
     return sessionDao.watchAllActiveSessions().map(
-      (List<Session> sessionList) =>
-          SessionToModelMapper.mapFromListOfEntity(sessionList),
+      SessionToModelMapper.mapFromListOfEntity,
     );
   }
 
   @override
   Stream<List<SessionModel>> watchAllSessions() {
     return sessionDao.watchAllSessions().map(
-      (List<Session> sessionList) =>
-          SessionToModelMapper.mapFromListOfEntity(sessionList),
+      SessionToModelMapper.mapFromListOfEntity,
     );
   }
 
   @override
   Future<SessionModel> getSessionById(int sessionId) async {
-    final Session? sessionEntity = await sessionDao.getSessionById(sessionId);
+    final sessionEntity = await sessionDao.getSessionById(sessionId);
 
     if (sessionEntity == null) {
       throw Exception('Session with ID $sessionId not found.');

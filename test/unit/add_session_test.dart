@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/services/add_session_service.dart';
-import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class MockAddSessionService extends Mock implements AddSessionService {}
@@ -16,23 +15,24 @@ void main() {
   });
 
   test('setPrompts updates state fields correctly', () {
-    final AddSessionViewModel vm = container.read(
-      addSessionViewModelProvider.notifier,
-    );
+    container
+        .read(
+          addSessionViewModelProvider.notifier,
+        )
+        .setPrompts(focus: true, focusPromptInterval: 10);
 
-    vm.setPrompts(focus: true, focusPromptInterval: 10);
-
-    final AddSessionState state = container.read(addSessionViewModelProvider);
+    final state = container.read(addSessionViewModelProvider);
 
     expect(state.hasFocusPrompt, true);
     expect(state.focusPromptInterval, 10);
   });
 
-  test('validateAll returns false and sets error messages', () {
-    final AddSessionViewModel vm = container.read(
+  test('validateAll returns false and sets date error messages', () {
+    final vm = container.read(
       addSessionViewModelProvider.notifier,
     );
 
+    // 1) Initial invalid state
     vm.state = vm.state.copyWith(
       title: '',
       isRepeating: true,
@@ -44,25 +44,83 @@ void main() {
       goals: <GoalModel>[],
     );
 
-    final bool isValid = vm.validateAll();
+    var isValid = vm.validateAll();
+
+    expect(isValid, false);
+    expect(vm.state.titleError, 'Titel kann nicht leer sein.');
+    expect(vm.state.dateError, 'Startdatum muss gegeben sein.');
+    expect(vm.state.selectedDaysError, isNotNull);
+    expect(vm.state.goalsError, 'Es muss mind. 1 Aufgabe festgelegt werden.');
+
+    // 2) Enddate missing
+    vm.state = vm.state.copyWith(
+      title: 'Titel',
+      startDate: DateTime(2025, 11),
+      endDate: null,
+      selectedDays: <int>[1, 2, 3],
+    );
+
+    isValid = vm.validateAll();
+
+    expect(isValid, false);
+    expect(vm.state.dateError, 'Enddatum muss gegeben sein.');
+    expect(vm.state.selectedDaysError, isNull);
+
+    // 3) Same date (invalid)
+    vm.state = vm.state.copyWith(endDate: DateTime(2025, 11));
+
+    isValid = vm.validateAll();
+
+    expect(isValid, false);
+    expect(
+      vm.state.dateError,
+      'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.',
+    );
+
+    // 4) End before start (invalid)
+    vm.state = vm.state.copyWith(endDate: DateTime(2025, 10));
+
+    isValid = vm.validateAll();
+
+    expect(isValid, false);
+    expect(vm.state.dateError, 'Startdatum muss vor dem Enddatum liegen.');
+  });
+
+  test('validateAll returns false and sets error messages', () {
+    final vm = container.read(
+      addSessionViewModelProvider.notifier,
+    );
+
+    vm.state = vm.state.copyWith(
+      title: '12',
+      isRepeating: false,
+      setGoals: false,
+      tasks: <TaskModel>[],
+      goals: <GoalModel>[],
+    );
+
+    final isValid = vm.validateAll();
 
     expect(isValid, false);
 
     expect(vm.state.titleError, isNotNull);
-    expect(vm.state.dateError, "Startdatum muss gegeben sein.");
-    expect(vm.state.selectedDaysError, isNotNull);
-    expect(vm.state.goalsError, "Es muss mind. 1 Aufgabe festgelegt werden.");
+    expect(vm.state.titleError, 'Titel muss mind. 3 Charaktere lang sein.');
+    expect(vm.state.goalsError, 'Es muss mind. 1 Aufgabe festgelegt werden.');
   });
 
   test('isFormValid returns true when all fields valid', () {
-    final AddSessionViewModel vm = container.read(
+    final vm = container.read(
       addSessionViewModelProvider.notifier,
     );
 
     vm.state = vm.state.copyWith(
       title: 'My session',
       goals: <GoalModel>[
-        const GoalModel(title: 'Test Goal', isCompleted: false),
+        const GoalModel(
+          title: 'Test Goal',
+          isCompleted: false,
+          keptForFutureSessions: true,
+        ),
       ],
       setGoals: true,
     );
@@ -71,16 +129,24 @@ void main() {
   });
 
   test('createSession calls service and sets sessionId', () async {
-    final MockAddSessionService mockService = MockAddSessionService();
+    final mockService = MockAddSessionService();
 
     when(
       () => mockService.createSessionWithGoalsAndTasks(
-        session: const SessionModel(title: "Session"),
+        session: const SessionModel(title: 'Session'),
         goals: <GoalModel>[
-          const GoalModel(title: 'Test Goal', isCompleted: false),
+          const GoalModel(
+            title: 'Test Goal',
+            isCompleted: false,
+            keptForFutureSessions: true,
+          ),
         ],
         tasks: <TaskModel>[
-          const TaskModel(title: 'Test Task', isCompleted: false),
+          const TaskModel(
+            title: 'Test Task',
+            isCompleted: false,
+            keptForFutureSessions: true,
+          ),
         ],
       ),
     ).thenAnswer((_) async => 123);
@@ -88,12 +154,20 @@ void main() {
     when(
       () => mockService.updateSessionWithChanges(
         sessionId: 123,
-        session: const SessionModel(title: "Session2"),
+        session: const SessionModel(title: 'Session2'),
         goalsToUpdate: <GoalModel>[
-          const GoalModel(title: 'Test Goal', isCompleted: false),
+          const GoalModel(
+            title: 'Test Goal',
+            isCompleted: false,
+            keptForFutureSessions: true,
+          ),
         ],
         tasksToUpdate: <TaskModel>[
-          const TaskModel(title: 'Test Task', isCompleted: true),
+          const TaskModel(
+            title: 'Test Task',
+            isCompleted: true,
+            keptForFutureSessions: true,
+          ),
         ],
         goalIdsToDelete: <String>[],
         taskIdsToDelete: <String>[],

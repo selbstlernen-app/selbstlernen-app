@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
-import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/completion_rate_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/spent_time_card.dart';
@@ -15,13 +14,13 @@ import 'package:srl_app/presentation/view_models/session_statistics/session_stat
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
 
 class SessionStatisticsScreen extends ConsumerWidget {
-  const SessionStatisticsScreen({super.key, required this.sessionId});
+  const SessionStatisticsScreen({required this.sessionId, super.key});
 
   final int sessionId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final SessionStatisticsState state = ref.watch(
+    final state = ref.watch(
       sessionStatisticsViewModelProvider(sessionId),
     );
 
@@ -58,8 +57,8 @@ class SessionStatisticsScreen extends ConsumerWidget {
       return const Center(child: Text('Keine Statistiken verfügbar'));
     }
 
-    final SessionStatistics stats = state.stats!;
-    final List<SessionInstanceModel> instances = state.instances!;
+    final stats = state.stats!;
+    final instances = state.instances!;
 
     // Empty state
     if (stats.totalInstances == 0) {
@@ -68,7 +67,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Icon(Icons.bar_chart, size: 64, color: AppPalette.grey),
-            const VerticalSpace(size: SpaceSize.medium),
+            const VerticalSpace(),
             Text(
               'Noch keine Statistiken',
               style: context.textTheme.headlineMedium,
@@ -80,10 +79,10 @@ class SessionStatisticsScreen extends ConsumerWidget {
                 color: AppPalette.grey,
               ),
             ),
-            const VerticalSpace(size: SpaceSize.medium),
+            const VerticalSpace(),
             CustomButton(
               onPressed: () => Navigator.of(context).pushNamed(AppRoutes.home),
-              label: "Zurück zum Startbildschirm",
+              label: 'Zurück zum Startbildschirm',
             ),
           ],
         ),
@@ -106,9 +105,8 @@ class SessionStatisticsScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Expanded(
                 child: SingleChildScrollView(
@@ -130,7 +128,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
                             ),
                       ),
 
-                      const VerticalSpace(size: SpaceSize.medium),
+                      const VerticalSpace(),
 
                       /// Shows the time sessions were completed (Tendency evening/morning/etc.)
                       // if (state.session?.isRepeating == true) ...<Widget>[
@@ -141,7 +139,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       /// Completion rate (completed/skipped)
                       CompletionRateCard(stats: stats),
 
-                      const VerticalSpace(size: SpaceSize.medium),
+                      const VerticalSpace(),
 
                       /// Goals and Task Progress
                       GoalTaskCompletionCard(stats: stats),
@@ -157,7 +155,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
                 child: CustomButton(
                   onPressed: () =>
                       Navigator.of(context).pushNamed(AppRoutes.home),
-                  label: "Zurück zum Startbildschirm",
+                  label: 'Zurück zum Startbildschirm',
                 ),
               ),
             ],
@@ -169,13 +167,14 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
   /// Returns an array for each day with the planned minutes
   /// For a repeating session this means the selected days
-  /// For a non-repeating session, this solely means the date on which the session was conducted on
+  /// For a non-repeating session, this solely means the date on which
+  /// the session was conducted on
   List<int> plannedFocusMinutesPerWeekday(
     SessionModel session,
     SessionInstanceModel? instance,
   ) {
     // Total of one block focus time
-    final int plannedMinutes = session.focusTimeMin * session.focusPhases;
+    final plannedMinutes = session.focusTimeMin * session.focusPhases;
 
     // If non-repeating session, fill all with zero unless the scheduled day
     if (!session.isRepeating && instance != null) {

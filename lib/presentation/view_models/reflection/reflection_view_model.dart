@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
+import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 
@@ -28,7 +28,7 @@ class ReflectionViewModel extends _$ReflectionViewModel {
   }
 
   Future<void> complete({required String notes, int? mood}) async {
-    final SessionInstanceModel updated = state.instance.copyWith(
+    final updated = state.instance.copyWith(
       notes: state.notes,
       mood: state.mood,
     );

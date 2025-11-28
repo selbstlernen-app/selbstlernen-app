@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:srl_app/common_widgets/horizontal_space.dart';
-import 'package:srl_app/common_widgets/vertical_space.dart';
-import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/card_layout.dart';
 
 class GoalTaskCompletionCard extends StatelessWidget {
-  const GoalTaskCompletionCard({super.key, required this.stats});
+  const GoalTaskCompletionCard({required this.stats, super.key});
 
   final SessionStatistics stats;
 
@@ -18,7 +16,7 @@ class GoalTaskCompletionCard extends StatelessWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text("Ziele & Aufgaben", style: context.textTheme.headlineMedium),
+          Text('Ziele & Aufgaben', style: context.textTheme.headlineMedium),
           const VerticalSpace(size: SpaceSize.small),
           IntrinsicHeight(
             child: Row(
@@ -48,7 +46,7 @@ class GoalTaskCompletionCard extends StatelessWidget {
 
           if (stats.totalGoalsCompleted > 0 ||
               stats.totalTasksCompleted > 0) ...<Widget>[
-            const VerticalSpace(size: SpaceSize.medium),
+            const VerticalSpace(),
             Divider(
               color: context.colorScheme.tertiary,
               thickness: 4,

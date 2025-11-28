@@ -16,8 +16,10 @@ class GetOrCreateInstanceUseCase {
     required DateTime date,
   }) async {
     // Check if instance exists for this session + date
-    final SessionInstanceModel? existingInstance = await instanceRepo
-        .getInstanceForDate(sessionId, date);
+    final existingInstance = await instanceRepo.getInstanceForDate(
+      sessionId,
+      date,
+    );
 
     if (existingInstance != null) {
       // Resume existing instance
@@ -25,14 +27,13 @@ class GetOrCreateInstanceUseCase {
     }
 
     // Create new instance
-    SessionInstanceModel newInstance = SessionInstanceModel(
+    var newInstance = SessionInstanceModel(
       scheduledAt: DateTime.now(),
       sessionId: sessionId.toString(),
       status: SessionStatus.inProgress,
     );
-    int id = await manangeInstanceUseCase.createInstance(newInstance);
-    newInstance = newInstance.copyWith(id: id.toString());
+    final id = await manangeInstanceUseCase.createInstance(newInstance);
 
-    return newInstance;
+    return newInstance = newInstance.copyWith(id: id.toString());
   }
 }

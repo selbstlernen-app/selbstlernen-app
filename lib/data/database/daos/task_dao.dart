@@ -6,11 +6,11 @@ part 'task_dao.g.dart';
 
 @DriftAccessor(tables: <Type>[Tasks])
 class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
-  TaskDao(super.db);
+  TaskDao(super.attachedDatabase);
 
   // Insert task
   Future<int> addTask(TasksCompanion task) async {
-    return await into(tasks).insert(task);
+    return into(tasks).insert(task);
   }
 
   // Get all tasks of a session
@@ -27,11 +27,37 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     )..where(($TasksTable s) => s.id.equals(id))).watchSingleOrNull();
   }
 
-  // Watch all tasks of a session
   Stream<List<Task>> watchTasksBySessionId(int sessionId) {
-    return (select(
-      tasks,
-    )..where(($TasksTable task) => task.sessionId.equals(sessionId))).watch();
+    return (select(tasks)..where(
+          ($TasksTable task) =>
+              task.sessionId.equals(sessionId) &
+              task.keptForFutureSessions.equals(true),
+        ))
+        .watch();
+  }
+
+  // Watch all tasks of a session that are active,
+  //i.e. kept for future sessions and scheduled for a session specific date
+  Stream<List<Task>> watchTasksBySessionIdAndDate(
+    int sessionId,
+    DateTime date,
+  ) {
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = DateTime(
+      date.year,
+      date.month,
+      date.day,
+      23,
+      59,
+      59,
+    );
+    return (select(tasks)..where(
+          ($TasksTable task) =>
+              task.sessionId.equals(sessionId) &
+              (task.keptForFutureSessions.equals(true) |
+                  task.createdAt.isBetweenValues(startOfDay, endOfDay)),
+        ))
+        .watch();
   }
 
   // Update task
@@ -41,16 +67,25 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     )..where(($TasksTable tbl) => tbl.id.equals(id))).write(companion);
   }
 
+  Future<int> updateTaskFutureStatus(
+    int id, {
+    required bool keptForFutureSessions,
+  }) async {
+    return (update(tasks)..where(($TasksTable tbl) => tbl.id.equals(id))).write(
+      TasksCompanion(keptForFutureSessions: Value<bool>(keptForFutureSessions)),
+    );
+  }
+
   // Delete task
   Future<int> deleteTask(int id) async {
-    return await (delete(
+    return (delete(
       tasks,
     )..where(($TasksTable s) => s.id.equals(id))).go();
   }
 
   // Delete all tasks of a session
   Future<int> deleteTasksBySessionId(int sessionId) async {
-    return await (delete(
+    return (delete(
       tasks,
     )..where(($TasksTable s) => s.sessionId.equals(sessionId))).go();
   }

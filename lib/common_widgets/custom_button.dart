@@ -4,9 +4,9 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 /// Main button used on all pages customized to fit different stylings
 class CustomButton extends StatelessWidget {
   const CustomButton({
-    super.key,
     required this.onPressed,
     required this.label,
+    super.key,
     this.isActive = true,
     this.verticalPadding,
     this.borderRadius,
@@ -23,16 +23,16 @@ class CustomButton extends StatelessWidget {
   final bool? borderRight;
 
   BorderRadius _switchRadius() {
-    if (borderLeft == true) {
+    if (borderLeft ?? false) {
       return const BorderRadius.only(
-        bottomLeft: Radius.circular(10.0),
-        topLeft: Radius.circular(10.0),
+        bottomLeft: Radius.circular(10),
+        topLeft: Radius.circular(10),
       );
     }
-    if (borderRight == true) {
+    if (borderRight ?? false) {
       return const BorderRadius.only(
-        topRight: Radius.circular(10.0),
-        bottomRight: Radius.circular(10.0),
+        topRight: Radius.circular(10),
+        bottomRight: Radius.circular(10),
       );
     }
     return BorderRadius.circular(borderRadius ?? 30.0);
@@ -40,10 +40,10 @@ class CustomButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color activeColor = context.colorScheme.primary;
-    Color activeAccentColor = context.colorScheme.onPrimary;
-    Color inactiveColor = context.colorScheme.tertiaryContainer;
-    Color inactiveAccentColor = context.colorScheme.onTertiary;
+    final activeColor = context.colorScheme.primary;
+    final activeAccentColor = context.colorScheme.onPrimary;
+    final inactiveColor = context.colorScheme.tertiaryContainer;
+    final inactiveAccentColor = context.colorScheme.onTertiary;
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(

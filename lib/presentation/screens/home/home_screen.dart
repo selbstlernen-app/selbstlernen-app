@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
-import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
 import 'package:srl_app/presentation/screens/home/widgets/calendar_widget.dart';
@@ -11,7 +11,6 @@ import 'package:srl_app/presentation/screens/home/widgets/completed_tile.dart';
 import 'package:srl_app/presentation/screens/home/widgets/pending_session_tile.dart';
 import 'package:srl_app/presentation/view_models/home/home_state.dart';
 import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
-import 'package:vibration/vibration.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +21,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _$HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    final HomeState homeState = ref.watch(homeViewModelProvider);
+    final homeState = ref.watch(homeViewModelProvider);
 
     if (homeState.isLoading) return const LoadingIndicator();
 
@@ -33,7 +32,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
@@ -46,61 +45,61 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
               //   },
               //   child: Text("Insert Test Data"),
               // ),
-              const VerticalSpace(size: SpaceSize.medium),
+              const VerticalSpace(),
 
               const CalendarWidget(),
 
-              const VerticalSpace(size: SpaceSize.medium),
+              const VerticalSpace(),
 
               Text(
-                "Anstehende Lerneinheiten",
+                'Anstehende Lerneinheiten',
                 style: context.textTheme.headlineSmall,
               ),
               const VerticalSpace(size: SpaceSize.small),
               Wrap(
-                spacing: 8.0,
+                spacing: 8,
                 children: <Widget>[
                   CustomButton(
-                    verticalPadding: 8.0,
-                    borderRadius: 10.0,
+                    verticalPadding: 8,
+                    borderRadius: 10,
                     isActive: homeState.filter == SessionFilter.today,
                     onPressed: () => ref
                         .read(homeViewModelProvider.notifier)
                         .setFilter(SessionFilter.today),
-                    label: "Für heute",
+                    label: 'Für heute',
                   ),
                   CustomButton(
-                    verticalPadding: 8.0,
-                    borderRadius: 10.0,
+                    verticalPadding: 8,
+                    borderRadius: 10,
                     isActive: homeState.filter == SessionFilter.thisWeek,
                     onPressed: () => ref
                         .read(homeViewModelProvider.notifier)
                         .setFilter(SessionFilter.thisWeek),
-                    label: "Diese Woche",
+                    label: 'Diese Woche',
                   ),
                   CustomButton(
-                    verticalPadding: 8.0,
-                    borderRadius: 10.0,
+                    verticalPadding: 8,
+                    borderRadius: 10,
                     isActive: homeState.filter == SessionFilter.all,
                     onPressed: () => ref
                         .read(homeViewModelProvider.notifier)
                         .setFilter(SessionFilter.all),
-                    label: "Alle",
+                    label: 'Alle',
                   ),
                 ],
               ),
 
-              const VerticalSpace(size: SpaceSize.medium),
+              const VerticalSpace(),
 
-              // Todo-Sessions
+              // Sessions that have yet to be completed
               ...homeState.sessions.map(
                 (SessionWithInstanceModel sessionWithInstance) =>
                     PendingSessionTile(session: sessionWithInstance.session),
               ),
-              const VerticalSpace(size: SpaceSize.medium),
+              const VerticalSpace(),
 
-              Text("Erledigt", style: context.textTheme.headlineSmall),
-              const VerticalSpace(size: SpaceSize.medium),
+              Text('Erledigt', style: context.textTheme.headlineSmall),
+              const VerticalSpace(),
 
               // Completed/Skipped sessions
               ...homeState.completedSessionsForToday.map(
@@ -117,16 +116,16 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   String _getGreeting() {
-    final int hour = DateTime.now().hour;
+    final hour = DateTime.now().hour;
 
-    if (hour < 12) return "Morgen ☀️";
-    if (hour < 15) return "Tag ⛅️";
-    if (hour < 18) return "Nachmittag ⛅️";
-    return "Abend 🌙";
+    if (hour < 12) return 'Morgen ☀️';
+    if (hour < 15) return 'Tag ⛅️';
+    if (hour < 18) return 'Nachmittag ⛅️';
+    return 'Abend 🌙';
   }
 
   String _getSubHeading() {
-    final DateTime now = DateTime.now();
+    final now = DateTime.now();
     return DateFormat('EEEE, d. MMMM', 'de_DE').format(now);
   }
 
@@ -137,7 +136,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
       children: <Widget>[
         Row(
           children: <Widget>[
-            Text("Guten ", style: context.textTheme.headlineMedium),
+            Text('Guten ', style: context.textTheme.headlineMedium),
             Text(
               _getGreeting(),
               style: context.textTheme.headlineMedium!.copyWith(

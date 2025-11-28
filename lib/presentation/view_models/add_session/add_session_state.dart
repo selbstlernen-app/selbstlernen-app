@@ -5,10 +5,8 @@ part 'add_session_state.freezed.dart';
 
 @freezed
 abstract class AddSessionState with _$AddSessionState {
-  const AddSessionState._();
-
   const factory AddSessionState({
-    final String? sessionId,
+    String? sessionId,
     @Default('') String title,
     @Default(false) bool isRepeating,
     @Default(true) bool setGoals,
@@ -53,6 +51,7 @@ abstract class AddSessionState with _$AddSessionState {
     String? selectedDaysError,
     String? goalsError,
   }) = _AddSessionState;
+  const AddSessionState._();
 
   List<TaskModel> get ungroupedTasks =>
       tasks.where((TaskModel task) => task.goalId == null).toList();

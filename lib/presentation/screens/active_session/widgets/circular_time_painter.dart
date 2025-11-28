@@ -29,12 +29,12 @@ class CircularTimePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Offset center = Offset(size.width / 2, size.height / 2);
-    final double radius = math.min(size.width, size.height) / 2;
-    final double strokeWidth = 10.0;
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = math.min(size.width, size.height) / 2;
+    const double strokeWidth = 10;
 
     // Background circle
-    final Paint backgroundPaint = Paint()
+    final backgroundPaint = Paint()
       ..color = backgroundColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
@@ -42,14 +42,14 @@ class CircularTimePainter extends CustomPainter {
     canvas.drawCircle(center, radius, backgroundPaint);
 
     // Progress arc
-    final Paint progressPaint = Paint()
+    final progressPaint = Paint()
       ..color = progressColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
 
     // Draw from top and counter-clockwise
-    final double sweepAngle = (isReversed ? 2 : -2) * math.pi * progress;
+    final sweepAngle = (isReversed ? 2 : -2) * math.pi * progress;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       -math.pi / 2, // Start at top

@@ -9,9 +9,9 @@ extension SessionInstanceToModelMapper on SessionInstance {
       sessionId: sessionId.toString(),
       scheduledAt: scheduledAt,
       status: status,
-      totalFocusPhases: (totalFocusPhases),
-      totalCompletedBlocks: (totalCompletedBlocks),
-      totalFocusSecondsElapsed: (totalFocusSecondsElapsed),
+      totalFocusPhases: totalFocusPhases,
+      totalCompletedBlocks: totalCompletedBlocks,
+      totalFocusSecondsElapsed: totalFocusSecondsElapsed,
       totalBreakSecondsElapsed: totalBreakSecondsElapsed,
       totalCompletedGoals: totalCompletedGoals,
       totalCompletedTasks: totalCompletedTasks,
@@ -54,14 +54,12 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
 
   SessionInstancesCompanion toUpdateCompanion() {
     return SessionInstancesCompanion(
-      sessionId: const Value<int>.absent(), // should not update
       completedAt: completedAt != null
           ? Value<DateTime>(completedAt!)
           : const Value<
               DateTime
             >.absent(), // should not update; only when passed
       status: Value<SessionStatus>(status),
-      scheduledAt: const Value<DateTime>.absent(), // should not update
       totalFocusPhases: Value<int>(totalFocusPhases),
       totalCompletedBlocks: Value<int>(totalCompletedBlocks),
       totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),
@@ -72,7 +70,6 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
           ? Value<String>(notes!)
           : const Value<String>.absent(),
       totalCompletedTasks: Value<int>(totalCompletedTasks),
-      createdAt: const Value<DateTime>.absent(), // should not update
     );
   }
 }

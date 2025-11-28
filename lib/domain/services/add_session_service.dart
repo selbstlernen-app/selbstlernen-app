@@ -4,10 +4,6 @@ import 'package:srl_app/domain/usecases/use_cases.dart';
 /// Service class to help centralize logic for mulitple use cases needed
 /// for the creation or update of a session
 class AddSessionService {
-  final ManageSessionUseCase _manageSessionUseCase;
-  final ManageGoalUseCase _manageGoalUseCase;
-  final ManageTasksUseCase _manageTasksUseCase;
-
   AddSessionService({
     required ManageSessionUseCase manageSessionUseCase,
     required ManageGoalUseCase manageGoalUseCase,
@@ -15,6 +11,9 @@ class AddSessionService {
   }) : _manageSessionUseCase = manageSessionUseCase,
        _manageGoalUseCase = manageGoalUseCase,
        _manageTasksUseCase = manageTasksUseCase;
+  final ManageSessionUseCase _manageSessionUseCase;
+  final ManageGoalUseCase _manageGoalUseCase;
+  final ManageTasksUseCase _manageTasksUseCase;
 
   /// Creates a new session with associated goals and tasks
   /// Returns the created session ID
@@ -23,9 +22,9 @@ class AddSessionService {
     required List<GoalModel> goals,
     required List<TaskModel> tasks,
   }) async {
-    final int sessionId = await _manageSessionUseCase.createSession(session);
+    final sessionId = await _manageSessionUseCase.createSession(session);
 
-    final Map<String, int> goalIdMapping = await _createGoals(goals, sessionId);
+    final goalIdMapping = await _createGoals(goals, sessionId);
     await _createTasks(tasks, sessionId, goalIdMapping);
 
     return sessionId;
@@ -45,17 +44,15 @@ class AddSessionService {
     await _deleteTasks(taskIdsToDelete);
 
     // Separate into existing and new goasl/tasks
-    final ({List<GoalModel> existingGoals, List<GoalModel> newGoals}) goals =
-        separateGoals(goalsToUpdate);
-    final ({List<TaskModel> existingTasks, List<TaskModel> newTasks}) tasks =
-        separateTasks(tasksToUpdate);
+    final goals = separateGoals(goalsToUpdate);
+    final tasks = separateTasks(tasksToUpdate);
 
     // Update session and goals
     await _manageSessionUseCase.updateSession(sessionId, session);
     await _updateExistingGoals(goals.existingGoals);
 
     // Create new goals
-    final Map<String, int> goalIdMapping = await _createGoals(
+    final goalIdMapping = await _createGoals(
       goals.newGoals,
       sessionId,
     );
@@ -69,13 +66,13 @@ class AddSessionService {
     List<GoalModel> goals,
     int sessionId,
   ) async {
-    final Map<String, int> goalIdMapping = <String, int>{};
+    final goalIdMapping = <String, int>{};
 
-    for (final GoalModel goal in goals) {
-      final GoalModel goalWithSession = goal.copyWith(
+    for (final goal in goals) {
+      final goalWithSession = goal.copyWith(
         sessionId: sessionId.toString(),
       );
-      final int dbGoalId = await _manageGoalUseCase.createGoal(goalWithSession);
+      final dbGoalId = await _manageGoalUseCase.createGoal(goalWithSession);
 
       // Map temporary ID to actual DB ID
       if (goal.id != null) {
@@ -91,14 +88,14 @@ class AddSessionService {
     int sessionId,
     Map<String, int> goalIdMapping,
   ) async {
-    for (final TaskModel task in tasks) {
+    for (final task in tasks) {
       // Replace temporary goal ID with actual DB ID if needed
-      String? actualGoalId = task.goalId;
+      var actualGoalId = task.goalId;
       if (task.goalId != null && goalIdMapping.containsKey(task.goalId)) {
         actualGoalId = goalIdMapping[task.goalId].toString();
       }
 
-      final TaskModel taskWithSession = task.copyWith(
+      final taskWithSession = task.copyWith(
         sessionId: sessionId.toString(),
         goalId: actualGoalId,
       );
@@ -107,30 +104,31 @@ class AddSessionService {
   }
 
   Future<void> _updateExistingGoals(List<GoalModel> goals) async {
-    for (final GoalModel goal in goals) {
+    for (final goal in goals) {
       await _manageGoalUseCase.updateGoal(goal);
     }
   }
 
   Future<void> _updateExistingTasks(List<TaskModel> tasks) async {
-    for (final TaskModel task in tasks) {
+    for (final task in tasks) {
       await _manageTasksUseCase.updateTask(task);
     }
   }
 
   Future<void> _deleteGoals(List<String> goalIds) async {
-    for (final String goalId in goalIds) {
+    for (final goalId in goalIds) {
       await _manageGoalUseCase.deleteGoal(int.parse(goalId));
     }
   }
 
   Future<void> _deleteTasks(List<String> taskIds) async {
-    for (final String taskId in taskIds) {
+    for (final taskId in taskIds) {
       await _manageTasksUseCase.deleteTask(int.parse(taskId));
     }
   }
 
-  /// Helper to check if an ID is from the database (numeric) or temporary (UUID)
+  /// Helper to check if an ID is from the database (numeric) or
+  /// temporary (UUID)
   static bool isExistingItem(String? id) {
     if (id == null) return false;
     return int.tryParse(id) != null;
@@ -139,10 +137,10 @@ class AddSessionService {
   /// Separate goals into existing and new based on ID type
   static ({List<GoalModel> existingGoals, List<GoalModel> newGoals})
   separateGoals(List<GoalModel> goals) {
-    final List<GoalModel> existing = goals
+    final existing = goals
         .where((GoalModel g) => isExistingItem(g.id))
         .toList();
-    final List<GoalModel> newGoals = goals
+    final newGoals = goals
         .where((GoalModel g) => !isExistingItem(g.id))
         .toList();
     return (existingGoals: existing, newGoals: newGoals);
@@ -151,10 +149,10 @@ class AddSessionService {
   /// Separate tasks into existing and new based on ID type
   static ({List<TaskModel> existingTasks, List<TaskModel> newTasks})
   separateTasks(List<TaskModel> tasks) {
-    final List<TaskModel> existing = tasks
+    final existing = tasks
         .where((TaskModel t) => isExistingItem(t.id))
         .toList();
-    final List<TaskModel> newTasks = tasks
+    final newTasks = tasks
         .where((TaskModel t) => !isExistingItem(t.id))
         .toList();
     return (existingTasks: existing, newTasks: newTasks);

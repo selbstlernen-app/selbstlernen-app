@@ -10,6 +10,7 @@ extension TaskToModelMapper on Task {
       goalId: goalId?.toString(),
       sessionId: sessionId.toString(),
       isCompleted: isCompleted,
+      keptForFutureSessions: keptForFutureSessions,
       completedAt: completedAt,
       createdAt: createdAt,
     );
@@ -31,6 +32,7 @@ extension TaskToCompanionMapper on TaskModel {
       goalId: goalId != null
           ? Value<int>(int.parse(goalId!))
           : const Value<int>.absent(),
+      keptForFutureSessions: Value<bool>(keptForFutureSessions),
       completedAt: completedAt != null
           ? Value<DateTime>(completedAt!)
           : const Value<DateTime>.absent(),
@@ -47,11 +49,11 @@ extension TaskToCompanionMapper on TaskModel {
       isCompleted: Value<bool>(isCompleted),
       goalId: goalId != null
           ? Value<int>(int.parse(goalId!))
-          : const Value<int>.absent(),
+          : const Value<int?>(null),
+      keptForFutureSessions: Value<bool>(keptForFutureSessions),
       completedAt: completedAt != null
           ? Value<DateTime>(completedAt!)
           : const Value<DateTime>.absent(),
-      createdAt: const Value<DateTime>.absent(),
     );
   }
 }

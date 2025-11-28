@@ -4,7 +4,7 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/domain/models/models.dart';
 
 class StatsLineChart extends StatefulWidget {
-  const StatsLineChart({super.key, required this.instances});
+  const StatsLineChart({required this.instances, super.key});
 
   final List<SessionInstanceModel> instances;
 
@@ -20,7 +20,7 @@ class _StatsLineChartState extends State<StatsLineChart> {
 
   @override
   Widget build(BuildContext context) {
-    final List<SessionInstanceModel> completed = widget.instances
+    final completed = widget.instances
         .where(
           (SessionInstanceModel i) =>
               i.status == SessionStatus.completed && i.completedAt != null,
@@ -30,7 +30,7 @@ class _StatsLineChartState extends State<StatsLineChart> {
     if (completed.isEmpty) {
       return const Center(
         child: Padding(
-          padding: EdgeInsets.all(24.0),
+          padding: EdgeInsets.all(24),
           child: Text('Keine abgeschlossenen Sessions'),
         ),
       );
@@ -40,23 +40,23 @@ class _StatsLineChartState extends State<StatsLineChart> {
       (SessionInstanceModel a, SessionInstanceModel b) =>
           a.completedAt!.compareTo(b.completedAt!),
     );
-    final List<BarChartGroupData> groups = <BarChartGroupData>[];
-    final List<String> dateStrings = <String>[];
+    final groups = <BarChartGroupData>[];
+    final dateStrings = <String>[];
 
-    for (int i = 0; i < completed.length; i++) {
-      final SessionInstanceModel s = completed[i];
-      final DateTime dtStart = s.scheduledAt;
-      DateTime dtEnd = s.completedAt!;
+    for (var i = 0; i < completed.length; i++) {
+      final s = completed[i];
+      final dtStart = s.scheduledAt;
+      var dtEnd = s.completedAt!;
 
       if (dtEnd.isBefore(dtStart)) {
         dtEnd = dtEnd.add(const Duration(days: 1));
       }
 
-      final double start = _toHour(s.scheduledAt);
-      final double end = _toHour(s.completedAt!);
+      final start = _toHour(s.scheduledAt);
+      final end = _toHour(s.completedAt!);
 
-      final double fromY = start;
-      final double toY = end;
+      final fromY = start;
+      final toY = end;
 
       groups.add(
         BarChartGroupData(
@@ -73,7 +73,7 @@ class _StatsLineChartState extends State<StatsLineChart> {
         ),
       );
 
-      dateStrings.add("${s.completedAt!.day}.${s.completedAt!.month}");
+      dateStrings.add('${s.completedAt!.day}.${s.completedAt!.month}');
     }
 
     return SizedBox(
@@ -90,25 +90,21 @@ class _StatsLineChartState extends State<StatsLineChart> {
                 showTitles: true,
                 interval: 4,
                 reservedSize: 32,
-                getTitlesWidget: (double value, _) => Text("${value.toInt()}h"),
+                getTitlesWidget: (double value, _) => Text('${value.toInt()}h'),
               ),
             ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
+            rightTitles: const AxisTitles(),
+            topTitles: const AxisTitles(),
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
                 getTitlesWidget: (double value, TitleMeta meta) {
-                  final int i = value.toInt();
+                  final i = value.toInt();
                   if (i < 0 || i >= dateStrings.length) {
                     return const SizedBox.shrink();
                   }
                   return Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
+                    padding: const EdgeInsets.only(top: 4),
                     child: Text(dateStrings[i]),
                   );
                 },
@@ -116,8 +112,6 @@ class _StatsLineChartState extends State<StatsLineChart> {
             ),
           ),
           gridData: const FlGridData(
-            show: true,
-            drawVerticalLine: true,
             verticalInterval: 4,
           ),
           borderData: FlBorderData(show: false),
@@ -131,17 +125,16 @@ class _StatsLineChartState extends State<StatsLineChart> {
                     BarChartRodData rod,
                     int rodIndex,
                   ) {
-                    final SessionInstanceModel session =
-                        completed[group.x.toInt()];
-                    final DateTime dtStart = session.scheduledAt;
-                    final DateTime dtEnd = session.completedAt!;
+                    final session = completed[group.x];
+                    final dtStart = session.scheduledAt;
+                    final dtEnd = session.completedAt!;
 
-                    final Duration dur = dtEnd.difference(dtStart);
+                    final dur = dtEnd.difference(dtStart);
 
                     return BarTooltipItem(
-                      "Start: ${_fmt(dtStart)}\n"
-                      "End: ${_fmt(dtEnd)}\n"
-                      "Dauer: ${_formatDuration(dur)}",
+                      'Start: ${_fmt(dtStart)}\n'
+                      'End: ${_fmt(dtEnd)}\n'
+                      'Dauer: ${_formatDuration(dur)}',
                       const TextStyle(color: Colors.white),
                     );
                   },
@@ -156,13 +149,13 @@ class _StatsLineChartState extends State<StatsLineChart> {
       "${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}";
 
   String _formatDuration(Duration d) {
-    final int h = d.inHours;
-    final int m = d.inMinutes % 60;
+    final h = d.inHours;
+    final m = d.inMinutes % 60;
 
     if (h > 0) {
-      return "${h}h ${m}m";
+      return '${h}h ${m}m';
     } else {
-      return "${m}m";
+      return '${m}m';
     }
   }
 }

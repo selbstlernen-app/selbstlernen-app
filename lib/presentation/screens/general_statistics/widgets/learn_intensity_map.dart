@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:intl/intl.dart';
-import 'package:srl_app/common_widgets/vertical_space.dart';
-import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
@@ -13,7 +12,7 @@ import 'package:srl_app/domain/models/session_instance_model.dart';
 /// Widget to show on which days one has learned;
 /// How many sessions were conducted on that particular day
 class LearnIntensityMap extends StatefulWidget {
-  const LearnIntensityMap({super.key, required this.instances});
+  const LearnIntensityMap({required this.instances, super.key});
 
   final List<SessionInstanceModel> instances;
 
@@ -70,7 +69,7 @@ class _LearnIntensityMapState extends State<LearnIntensityMap> {
               flexible: true,
               colorMode: ColorMode.color,
               onClick: (DateTime date) {
-                final Map<DateTime, int> dataset = _buildCalendarDataset();
+                final dataset = _buildCalendarDataset();
                 setState(() {
                   _selectedDate = date;
                   _selectedSessions = dataset[date] ?? 0;
@@ -96,7 +95,7 @@ class _LearnIntensityMapState extends State<LearnIntensityMap> {
 
             if (_selectedDate != null)
               Container(
-                margin: const EdgeInsets.only(top: 8.0),
+                margin: const EdgeInsets.only(top: 8),
                 decoration: BoxDecoration(
                   color: AppPalette.darkGrey.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(10),
@@ -121,13 +120,13 @@ class _LearnIntensityMapState extends State<LearnIntensityMap> {
   }
 
   Map<DateTime, int> _buildCalendarDataset() {
-    final Map<DateTime, int> dataset = <DateTime, int>{};
+    final dataset = <DateTime, int>{};
 
     // Group instances by date
-    for (final SessionInstanceModel instance in widget.instances) {
+    for (final instance in widget.instances) {
       if (instance.status == SessionStatus.completed) {
         // Normalize to start of day
-        final DateTime date = DateTime(
+        final date = DateTime(
           instance.scheduledAt.year,
           instance.scheduledAt.month,
           instance.scheduledAt.day,

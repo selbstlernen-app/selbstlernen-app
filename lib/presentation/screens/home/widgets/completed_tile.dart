@@ -6,38 +6,42 @@ import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
 
 class CompletedSessionTile extends StatelessWidget {
-  const CompletedSessionTile({super.key, required this.sessionWithInstance});
+  const CompletedSessionTile({required this.sessionWithInstance, super.key});
 
   final SessionWithInstanceModel sessionWithInstance;
 
   Icon _getIcon() {
-    final SessionStatus status = sessionWithInstance.instance!.status;
+    final status = sessionWithInstance.instance!.status;
     switch (status) {
       case SessionStatus.completed:
         return const Icon(Icons.check_circle);
       case SessionStatus.skipped:
         return const Icon(Icons.skip_next);
-      default:
+      case SessionStatus.inProgress:
+        return const Icon(Icons.timelapse);
+      case SessionStatus.scheduled:
         return const Icon(Icons.circle_outlined);
     }
   }
 
   Color _getColor() {
-    final SessionStatus status = sessionWithInstance.instance!.status;
+    final status = sessionWithInstance.instance!.status;
     switch (status) {
       case SessionStatus.completed:
         return AppPalette.green;
       case SessionStatus.skipped:
         return AppPalette.rose;
-      default:
+      case SessionStatus.scheduled:
         return AppPalette.zinc;
+      case SessionStatus.inProgress:
+        return AppPalette.primaryVariant;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final SessionModel session = sessionWithInstance.session;
-    final SessionInstanceModel instance = sessionWithInstance.instance!;
+    final session = sessionWithInstance.session;
+    final instance = sessionWithInstance.instance!;
 
     return InkWell(
       onTap: () => Navigator.pushNamed(
@@ -49,7 +53,7 @@ class CompletedSessionTile extends StatelessWidget {
         ),
       ),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 8.0),
+        margin: const EdgeInsets.only(bottom: 8),
         decoration: BoxDecoration(
           color: _getColor(),
           borderRadius: BorderRadius.circular(10),
@@ -63,8 +67,8 @@ class CompletedSessionTile extends StatelessWidget {
           ),
           subtitle: Text(
             instance.status == SessionStatus.skipped
-                ? "Übersprungen"
-                : "Erledigt",
+                ? 'Übersprungen'
+                : 'Erledigt',
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),

@@ -1,10 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/services/add_session_service.dart';
+import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/instance/get_or_create_instance_use_case.dart';
-import 'package:srl_app/presentation/validators/add_session_validator.dart';
+import 'package:srl_app/presentation/screens/add_session/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 part 'add_session_view_model.g.dart';
@@ -27,11 +26,11 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  void setIsRepeating(bool isRepeating) {
+  void setIsRepeating({required bool isRepeating}) {
     state = state.copyWith(isRepeating: isRepeating);
   }
 
-  void setGoals(bool setGoals) {
+  void setGoals({required bool setGoals}) {
     state = state.copyWith(setGoals: setGoals);
   }
 
@@ -58,7 +57,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void toggleDay(int day) {
-    final List<int> days = List<int>.from(state.selectedDays);
+    final days = List<int>.from(state.selectedDays);
     if (days.contains(day)) {
       days.remove(day);
     } else {
@@ -79,8 +78,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void removeGoal(int index) {
-    final List<GoalModel> goals = List<GoalModel>.from(state.goals);
-    goals.removeAt(index);
+    final goals = List<GoalModel>.from(state.goals)..removeAt(index);
     state = state.copyWith(goals: goals);
   }
 
@@ -89,8 +87,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void removeTask(int index) {
-    final List<TaskModel> tasks = List<TaskModel>.from(state.tasks);
-    tasks.removeAt(index);
+    final tasks = List<TaskModel>.from(state.tasks)..removeAt(index);
     state = state.copyWith(tasks: tasks);
   }
 
@@ -102,7 +99,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Marks goals and associated tasks for deletion
   void markGoalForDeletion(String goalId) {
-    final List<String> associatedTaskIds = state.tasks
+    final associatedTaskIds = state.tasks
         .where((TaskModel task) => task.goalId == goalId && task.id != null)
         .map((TaskModel task) => task.id!)
         .toList();
@@ -115,15 +112,15 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Creates a task directly linked to a goal
   void addTaskToGoal(TaskModel task, String goalId) {
-    final TaskModel taskWithGoal = task.copyWith(goalId: goalId);
+    final taskWithGoal = task.copyWith(goalId: goalId);
 
     state = state.copyWith(tasks: <TaskModel>[...state.tasks, taskWithGoal]);
   }
 
   // Task is udpated and linked to a goal
   void linkTaskToGoal(int taskIndex, String goalId) {
-    final List<TaskModel> tasks = List<TaskModel>.from(state.tasks);
-    final TaskModel task = tasks[taskIndex];
+    final tasks = List<TaskModel>.from(state.tasks);
+    final task = tasks[taskIndex];
 
     tasks[taskIndex] = task.copyWith(goalId: goalId);
 
@@ -143,7 +140,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void toggleStrategy(String strategy) {
-    final List<String> updated = List<String>.from(state.learningStrategies);
+    final updated = List<String>.from(state.learningStrategies);
 
     if (updated.contains(strategy)) {
       updated.remove(strategy);
@@ -185,8 +182,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Initialization (if in edit mode)
   void initializeState(FullSessionModel fullSessionModel) {
-    SessionModel session = fullSessionModel.session;
-    bool hasUngroupedTasks = fullSessionModel.tasks.any(
+    final session = fullSessionModel.session;
+    final hasUngroupedTasks = fullSessionModel.tasks.any(
       (TaskModel task) => task.goalId == null,
     );
 
@@ -217,18 +214,18 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   bool validateAll() {
-    final String? titleErr = AddSessionValidator.validateTitle(state.title);
-    final String? dateErr = AddSessionValidator.validateDate(
+    final titleErr = AddSessionValidator.validateTitle(state.title);
+    final dateErr = AddSessionValidator.validateDate(
       startDate: state.startDate,
       isRepeating: state.isRepeating,
       endDate: state.endDate,
     );
-    final String? goalError = AddSessionValidator.validateGoals(
+    final goalError = AddSessionValidator.validateGoals(
       setGoals: state.setGoals,
       goals: state.goals,
       tasks: state.tasks,
     );
-    final String? daysErr = AddSessionValidator.validateDays(
+    final daysErr = AddSessionValidator.validateDays(
       state.selectedDays,
       isRepeating: state.isRepeating,
     );
@@ -247,20 +244,29 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   bool get isFormValid {
-    return state.titleError == null &&
-        (state.isRepeating
-            ? (state.startDate != null &&
-                  state.endDate != null &&
-                  state.selectedDays.isNotEmpty == true)
-            : true) &&
-        ((state.goals.isNotEmpty && state.setGoals) ||
-            (!state.setGoals && state.tasks.isNotEmpty));
+    // Title must be valid
+    if (state.titleError != null) return false;
+
+    // If repeating, must have date range and selected days
+    if (state.isRepeating) {
+      if (state.startDate == null ||
+          state.endDate == null ||
+          state.selectedDays.isEmpty) {
+        return false;
+      }
+    }
+
+    // Must have either goals or tasks
+    final hasGoals = state.setGoals && state.goals.isNotEmpty;
+    final hasTasks = !state.setGoals && state.tasks.isNotEmpty;
+
+    return hasGoals || hasTasks;
   }
 
   // Update session info
   Future<void> updateSession() async {
-    final AddSessionService service = ref.read(addSessionServiceProvider);
-    final SessionModel session = _stateToSessionModel(state);
+    final service = ref.read(addSessionServiceProvider);
+    final session = _stateToSessionModel(state);
 
     await service.updateSessionWithChanges(
       sessionId: int.parse(state.sessionId!),
@@ -270,8 +276,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       goalIdsToDelete: state.goalIdsToDelete,
       taskIdsToDelete: state.taskIdsToDelete,
     );
-
-    resetFields();
   }
 
   // Save all info
@@ -280,10 +284,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       throw Exception('Bitte fülle alle Felder korrekt aus!');
     }
 
-    final AddSessionService service = ref.read(addSessionServiceProvider);
-    final SessionModel session = _stateToSessionModel(state);
+    final service = ref.read(addSessionServiceProvider);
+    final session = _stateToSessionModel(state);
 
-    int sessionId = await service.createSessionWithGoalsAndTasks(
+    final sessionId = await service.createSessionWithGoalsAndTasks(
       session: session,
       goals: state.goals,
       tasks: state.tasks,
@@ -317,8 +321,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   Future<SessionInstanceModel> startSession() async {
-    DateTime now = DateTime.now();
-    return await _getOrCreateInstanceUseCase.call(
+    final now = DateTime.now();
+    return _getOrCreateInstanceUseCase.call(
       sessionId: int.parse(state.sessionId!),
       date: now,
     );

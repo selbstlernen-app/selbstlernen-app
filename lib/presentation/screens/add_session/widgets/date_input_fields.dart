@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_error_text.dart';
-import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/core/utils/date_time_utils.dart';
-import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class DateInputFields extends ConsumerStatefulWidget {
@@ -20,13 +19,13 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
   late TextEditingController _endDateController;
 
   static const List<String> dayNames = <String>[
-    "Mo",
-    "Di",
-    "Mi",
-    "Do",
-    "Fr",
-    "Sa",
-    "So",
+    'Mo',
+    'Di',
+    'Mi',
+    'Do',
+    'Fr',
+    'Sa',
+    'So',
   ];
 
   @override
@@ -37,14 +36,14 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
 
     // Initialize after build; if in edit mode
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final AddSessionState state = ref.read(addSessionViewModelProvider);
+      final state = ref.read(addSessionViewModelProvider);
       if (state.isEditingMode) {
         _startDateController.text = state.startDate != null
-            ? DateTimeUtils.dateTimeToString(date: state.startDate!)
-            : "";
+            ? DateFormat('dd.MM.yyyy').format(state.startDate!)
+            : '';
         _endDateController.text = state.endDate != null
-            ? DateTimeUtils.dateTimeToString(date: state.endDate!)
-            : "";
+            ? DateFormat('dd.MM.yyyy').format(state.endDate!)
+            : '';
       }
     });
   }
@@ -60,16 +59,51 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
     TextEditingController controller,
     bool isStartDate,
   ) async {
-    final DateTime? picked = await showDatePicker(
+    DateTime? lastTypedDate;
+    if (controller.text.isNotEmpty) {
+      lastTypedDate = DateFormat('dd.MM.yyyy').parse(controller.text);
+    }
+
+    final today = DateTime.now();
+    final normalizedToday = DateTime(
+      today.year,
+      today.month,
+      today.day,
+    );
+
+    final effectiveLastDate = lastTypedDate == null
+        ? null
+        : DateTime(lastTypedDate.year, lastTypedDate.month, lastTypedDate.day);
+
+    final firstDate = (isStartDate && effectiveLastDate != null)
+        ? (effectiveLastDate.isAfter(normalizedToday)
+              ? normalizedToday // fallback to todays date
+              : effectiveLastDate) // else go with last date
+        : normalizedToday;
+
+    final picked = await showDatePicker(
+      helpText: isStartDate ? 'Startdatum auswählen' : 'Enddatum auswählen',
       context: context,
-      firstDate: DateTime.now(),
+      initialDate: lastTypedDate ?? DateTime.now(),
+      firstDate: firstDate,
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null) {
-      controller.text = DateTimeUtils.dateTimeToString(date: picked);
+      controller.text = DateFormat('dd.MM.yyyy').format(picked);
 
       if (isStartDate) {
         ref.read(addSessionViewModelProvider.notifier).setStartDate(picked);
+
+        // After having picked a start date, automatically open
+        // end date calendar if we are not in editing mode
+        if (!ref.read(addSessionViewModelProvider).isEditingMode) {
+          await Future<Null>.delayed(
+            const Duration(milliseconds: 200),
+            () async {
+              await _pickDate(_endDateController, false);
+            },
+          );
+        }
       } else {
         ref.read(addSessionViewModelProvider.notifier).setEndDate(picked);
       }
@@ -78,19 +112,19 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
 
   @override
   Widget build(BuildContext context) {
-    final AddSessionState state = ref.watch(addSessionViewModelProvider);
+    final state = ref.watch(addSessionViewModelProvider);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        const VerticalSpace(size: SpaceSize.medium),
+        const VerticalSpace(),
 
         // Pick weekdays
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: dayNames.map((String day) {
-            final int dayIndex = dayNames.indexOf(day);
-            final bool isSelected = state.selectedDays.contains(dayIndex);
+            final dayIndex = dayNames.indexOf(day);
+            final isSelected = state.selectedDays.contains(dayIndex);
 
             return InkWell(
               onTap: () => ref
@@ -98,8 +132,8 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                   .toggleDay(dayIndex),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
-                  vertical: 10.0,
-                  horizontal: 8.0,
+                  vertical: 10,
+                  horizontal: 8,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -137,7 +171,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
         if (state.selectedDaysError != null)
           CustomErrorText(errorText: state.selectedDaysError!),
 
-        const VerticalSpace(size: SpaceSize.medium),
+        const VerticalSpace(),
 
         // Pick start and end dates
         Row(
@@ -150,7 +184,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    "Startdatum",
+                    'Startdatum',
                     style: context.textTheme.headlineSmall!.copyWith(
                       fontSize: 16,
                     ),
@@ -159,7 +193,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                   CustomTextField(
                     controller: _startDateController,
                     readOnly: true,
-                    hintText: "Startdatum",
+                    hintText: 'Startdatum',
                     onTap: () => _pickDate(_startDateController, true),
                     hasError: state.dateError != null,
                   ),
@@ -172,7 +206,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    "Enddatum",
+                    'Enddatum',
                     style: context.textTheme.headlineSmall!.copyWith(
                       fontSize: 16,
                     ),
@@ -181,7 +215,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                   CustomTextField(
                     controller: _endDateController,
                     readOnly: true,
-                    hintText: "Enddatum",
+                    hintText: 'Enddatum',
                     onTap: () => _pickDate(_endDateController, false),
                     hasError: state.dateError != null,
                   ),

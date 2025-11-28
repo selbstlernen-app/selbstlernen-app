@@ -1,9 +1,9 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
+import 'package:srl_app/domain/services/add_session_service.dart';
 import 'package:srl_app/domain/usecases/session/get_focus_minutes_by_weekday_use_case.dart';
 import 'package:srl_app/domain/usecases/session/get_session_statistics_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
-import 'package:srl_app/domain/services/add_session_service.dart';
 
 part 'providers.g.dart';
 

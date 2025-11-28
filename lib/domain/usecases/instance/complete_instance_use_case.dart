@@ -3,8 +3,9 @@ import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 
-/// "Completes" a session instance this can be either because a session has been conducted
-/// or a session has been skipped/missed
+/// Completes a session instance
+/// Either because a session has been conducted; or because
+/// it has been skipped/missed
 class CompleteInstanceUseCase {
   const CompleteInstanceUseCase(this.sessionRepo, this.instanceRepo);
 
@@ -22,7 +23,7 @@ class CompleteInstanceUseCase {
   }
 
   Future<void> _checkAndArchiveIfComplete(String sessionId) async {
-    final SessionModel session = await sessionRepo.getSessionById(
+    final session = await sessionRepo.getSessionById(
       int.parse(sessionId),
     );
 
@@ -31,13 +32,15 @@ class CompleteInstanceUseCase {
         int.parse(session.id!),
         session.copyWith(isArchived: true),
       );
+
       return;
     }
 
-    final int totalInstances = await instanceRepo
-        .countTotalInstancesBySessionId(int.parse(session.id!));
+    final totalInstances = await instanceRepo.countTotalInstancesBySessionId(
+      int.parse(session.id!),
+    );
 
-    final int expectedCount = DateTimeUtils.countDaysBetweenDates(
+    final expectedCount = DateTimeUtils.countDaysBetweenDates(
       session.startDate!,
       session.endDate!,
       session.selectedDays,

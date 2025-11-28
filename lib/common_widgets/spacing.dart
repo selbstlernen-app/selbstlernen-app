@@ -1,4 +1,8 @@
+export 'horizontal_space.dart';
+export 'vertical_space.dart';
+
 // Spacing sizes for unified spacing across screens
+// Mostly used together with vertical and or horizontal spacing
 enum SpaceSize {
   xsmall,
   small,

@@ -1,11 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
 
-part "home_state.freezed.dart";
+part 'home_state.freezed.dart';
 
 @freezed
 abstract class HomeState with _$HomeState {
-  const HomeState._();
 
   const factory HomeState({
     @Default(<SessionWithInstanceModel>[])
@@ -17,6 +16,7 @@ abstract class HomeState with _$HomeState {
 
     String? error,
   }) = _HomeState;
+  const HomeState._();
 }
 
 /// Enum for filtering the session according to

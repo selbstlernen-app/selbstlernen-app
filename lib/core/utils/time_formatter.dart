@@ -10,11 +10,11 @@ class TimeFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    if (newValue.text == "") {
-      return const TextEditingValue();
+    if (newValue.text == '') {
+      return TextEditingValue.empty;
     }
     return int.parse(newValue.text) > maxValue
-        ? const TextEditingValue().copyWith(text: maxValue.toString())
+        ? TextEditingValue.empty.copyWith(text: maxValue.toString())
         : newValue;
   }
 }

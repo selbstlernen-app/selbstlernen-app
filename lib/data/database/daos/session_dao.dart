@@ -6,11 +6,11 @@ part 'session_dao.g.dart';
 
 @DriftAccessor(tables: <Type>[Sessions])
 class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
-  SessionDao(super.db);
+  SessionDao(super.attachedDatabase);
 
   // Insert session
   Future<int> addSession(SessionsCompanion session) async {
-    return await into(sessions).insert(session);
+    return into(sessions).insert(session);
   }
 
   // Watch all sessions
@@ -54,7 +54,7 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
 
   // Delete session
   Future<int> deleteSession(int id) async {
-    return await (delete(
+    return (delete(
       sessions,
     )..where(($SessionsTable s) => s.id.equals(id))).go();
   }

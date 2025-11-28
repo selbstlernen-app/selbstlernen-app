@@ -39,7 +39,7 @@ class AddSessionValidator {
   }) {
     if (!isRepeating) return null;
     if (selectedDays.isEmpty) {
-      return "Es muss mind. ein Tag ausgewählt sein.";
+      return 'Es muss mind. ein Tag ausgewählt sein.';
     }
     return null;
   }
@@ -50,10 +50,10 @@ class AddSessionValidator {
     required List<TaskModel> tasks,
   }) {
     if (setGoals && goals.isEmpty) {
-      return "Es muss mind. 1 Ziel festgelegt werden.";
+      return 'Es muss mind. 1 Ziel festgelegt werden.';
     }
     if (!setGoals && tasks.isEmpty) {
-      return "Es muss mind. 1 Aufgabe festgelegt werden.";
+      return 'Es muss mind. 1 Aufgabe festgelegt werden.';
     }
     return null;
   }

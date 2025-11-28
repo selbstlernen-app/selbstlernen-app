@@ -13,15 +13,15 @@ class TimeString {
 class TimeUtils {
   // Function to format time to 00:00 (mm:SS)
   static String formatTime(int seconds) {
-    final int minutes = seconds ~/ 60;
-    final int secs = seconds % 60;
+    final minutes = seconds ~/ 60;
+    final secs = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
   static TimeString formatTimeString({required int totalSeconds}) {
-    final int hours = totalSeconds ~/ 3600;
-    final int minutes = (totalSeconds % 3600) ~/ 60;
-    final int seconds = totalSeconds % 60;
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
 
     return TimeString(
       hours: hours > 0 ? hours.toString().padLeft(2, '0') : null,
@@ -32,26 +32,26 @@ class TimeUtils {
 
   static String formatBarChartTime(double minutes) {
     if (minutes < 60) {
-      if (minutes.toStringAsFixed(1).contains(RegExp(".0"))) {
-        return "${minutes.floor()} min";
+      if (minutes.toStringAsFixed(1).contains(RegExp('.0'))) {
+        return '${minutes.floor()} min';
       }
-      return "${minutes.toStringAsFixed(1)} min";
+      return '${minutes.toStringAsFixed(1)} min';
     } else {
-      final double hours = minutes / 60;
+      final hours = minutes / 60;
 
-      if (hours.toStringAsFixed(1).contains(RegExp(".0"))) {
-        return "${hours.floor()} h";
+      if (hours.toStringAsFixed(1).contains(RegExp('.0'))) {
+        return '${hours.floor()} h';
       }
-      return "${hours.toStringAsFixed(1)} h";
+      return '${hours.toStringAsFixed(1)} h';
     }
   }
 
   static String formatToolTipTime(double time) {
     if (time < 60) {
-      return "${time.toStringAsFixed(1)} min";
+      return '${time.toStringAsFixed(1)} min';
     } else {
-      final double hours = time / 60;
-      return "${hours.toStringAsFixed(1)} h";
+      final hours = time / 60;
+      return '${hours.toStringAsFixed(1)} h';
     }
   }
 }

@@ -1,4 +1,3 @@
-import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/daos/task_dao.dart';
 import 'package:srl_app/data/entity_mappers/task_mapper.dart';
 import 'package:srl_app/domain/models/task_model.dart';
@@ -26,8 +25,8 @@ class TaskRepositoryImp implements TaskRepository {
 
   @override
   Future<List<TaskModel>> getTasksBySessionId(int sessionId) async {
-    List<Task> taskEntities = await taskDao.getTasksBySessionId(sessionId);
-    List<TaskModel> tasks = TaskToModelMapper.mapFromListOfEntity(taskEntities);
+    final taskEntities = await taskDao.getTasksBySessionId(sessionId);
+    final tasks = TaskToModelMapper.mapFromListOfEntity(taskEntities);
     return tasks;
   }
 
@@ -36,13 +35,35 @@ class TaskRepositoryImp implements TaskRepository {
     return taskDao
         .watchTasksBySessionId(sessionId)
         .map(
-          (List<Task> taskList) =>
-              TaskToModelMapper.mapFromListOfEntity(taskList),
+          TaskToModelMapper.mapFromListOfEntity,
+        );
+  }
+
+  @override
+  Stream<List<TaskModel>> watchTasksBySessionIdAndDate(
+    int sessionId,
+    DateTime sessionScheduledDate,
+  ) {
+    return taskDao
+        .watchTasksBySessionIdAndDate(sessionId, sessionScheduledDate)
+        .map(
+          TaskToModelMapper.mapFromListOfEntity,
         );
   }
 
   @override
   Future<int> updateTask(int taskId, TaskModel updatedtask) {
     return taskDao.updateTask(taskId, updatedtask.toUpdateCompanion());
+  }
+
+  @override
+  Future<int> updateTaskFutureStatus(
+    int goalId, {
+    required bool keptForFutureSessions,
+  }) {
+    return taskDao.updateTaskFutureStatus(
+      goalId,
+      keptForFutureSessions: keptForFutureSessions,
+    );
   }
 }

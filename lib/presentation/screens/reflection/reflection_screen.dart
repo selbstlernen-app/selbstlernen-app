@@ -2,20 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/custom_text_field.dart';
-import 'package:srl_app/common_widgets/horizontal_space.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
-import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/time_break_down_item.dart';
 import 'package:srl_app/core/constants/constants.dart';
-import 'package:srl_app/core/constants/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/presentation/view_models/reflection/reflection_state.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_view_model.dart';
 
 class ReflectionScreen extends ConsumerStatefulWidget {
-  const ReflectionScreen({super.key, required this.instance});
+  const ReflectionScreen({required this.instance, super.key});
 
   final SessionInstanceModel instance;
 
@@ -33,7 +31,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
   }
 
   Future<void> submitReflection() async {
-    final ReflectionViewModel viewModel = ref.read(
+    final viewModel = ref.read(
       reflectionViewModelProvider(widget.instance).notifier,
     );
 
@@ -61,15 +59,15 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ReflectionState reflectionState = ref.watch(
+    final reflectionState = ref.watch(
       reflectionViewModelProvider(widget.instance),
     );
-    final ReflectionViewModel viewModel = ref.read(
+    final viewModel = ref.read(
       reflectionViewModelProvider(widget.instance).notifier,
     );
 
     return MainLayout(
-      appBarTitle: "Reflexion",
+      appBarTitle: 'Reflexion',
       content: Column(
         children: <Widget>[
           Expanded(
@@ -83,19 +81,19 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                     style: context.textTheme.headlineMedium,
                   ),
 
-                  const VerticalSpace(size: SpaceSize.medium),
+                  const VerticalSpace(),
 
-                  // Focus vs Break breakdown
+                  // Focus and break time
                   Column(
                     children: <Widget>[
-                      _TimeBreakdownItem(
+                      TimeBreakdownItem(
                         icon: Icons.psychology,
                         label: 'Fokuszeit',
                         value: '${reflectionState.totalTimeFocused} Min',
                         color: AppPalette.pink,
                       ),
 
-                      _TimeBreakdownItem(
+                      TimeBreakdownItem(
                         icon: Icons.coffee,
                         label: 'Pausenzeit',
                         value: '${reflectionState.totalTimeInBreak} Min',
@@ -110,7 +108,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                       ),
                       const VerticalSpace(size: SpaceSize.small),
 
-                      _TimeBreakdownItem(
+                      TimeBreakdownItem(
                         icon: Icons.timelapse_outlined,
                         label: 'Gesamte Zeit',
                         value: '${reflectionState.totalTimeSpent} Min',
@@ -132,11 +130,10 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                     children: Constants.emojiMoods.asMap().entries.map((
                       MapEntry<int, String> entry,
                     ) {
-                      final int emojiIndex = entry.key;
-                      final String emoji = entry.value;
+                      final emojiIndex = entry.key;
+                      final emoji = entry.value;
 
-                      final bool isSelected =
-                          reflectionState.mood == emojiIndex;
+                      final isSelected = reflectionState.mood == emojiIndex;
 
                       return InkWell(
                         onTap: () => viewModel.selectMood(emojiIndex),
@@ -148,19 +145,19 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           padding: const EdgeInsets.symmetric(
-                            vertical: 10.0,
-                            horizontal: 12.0,
+                            vertical: 8,
+                            horizontal: 14,
                           ),
                           child: Text(
                             emoji,
-                            style: const TextStyle(fontSize: 28),
+                            style: const TextStyle(fontSize: 32),
                           ),
                         ),
                       );
                     }).toList(),
                   ),
 
-                  const VerticalSpace(size: SpaceSize.medium),
+                  const VerticalSpace(),
 
                   // Notes Field
                   Text('Notizen', style: context.textTheme.headlineSmall),
@@ -168,7 +165,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                   CustomTextField(
                     controller: notesController,
                     maxLines: 5,
-                    hintText: "Was hast du gelernt? Wie lief die Einheit?",
+                    hintText: 'Was hast du gelernt? Wie lief die Einheit?',
                   ),
                 ],
               ),
@@ -184,42 +181,6 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _TimeBreakdownItem extends StatelessWidget {
-  const _TimeBreakdownItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Icon(icon, color: color, size: 32),
-            const HorizontalSpace(size: SpaceSize.small),
-            Text(
-              label,
-              style: context.textTheme.bodyLarge!.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-        Text(value, style: context.textTheme.bodyLarge?.copyWith(color: color)),
-      ],
     );
   }
 }

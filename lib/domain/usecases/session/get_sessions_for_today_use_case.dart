@@ -16,24 +16,21 @@ class GetSessionsForTodayUseCase {
 
   Stream<List<SessionWithInstanceModel>> call(DateTime date) {
     // Stream active (non-archived) sessions
-    final Stream<List<SessionModel>> sessionsStream = _sessionRepo
-        .watchAllActiveSessions();
+    final sessionsStream = _sessionRepo.watchAllActiveSessions();
 
     // Stream instances for given date
-    final Stream<List<SessionInstanceModel>> instancesStream = _instanceRepo
-        .watchAllInstancesForDate(date);
+    final instancesStream = _instanceRepo.watchAllInstancesForDate(date);
 
     return Rx.combineLatest2(sessionsStream, instancesStream, (
       List<SessionModel> sessions,
       List<SessionInstanceModel> instances,
     ) {
-      final List<SessionWithInstanceModel> occurrences =
-          <SessionWithInstanceModel>[];
+      final occurrences = <SessionWithInstanceModel>[];
 
-      for (final SessionModel session in sessions) {
+      for (final session in sessions) {
         // Check if session should occur on this date
         if (_shouldOccurOnDate(session, date)) {
-          final SessionInstanceModel? instance = instances.firstWhereOrNull(
+          final instance = instances.firstWhereOrNull(
             (SessionInstanceModel i) => i.sessionId == session.id,
           );
 
