@@ -28,11 +28,12 @@ void main() {
     expect(state.focusPromptInterval, 10);
   });
 
-  test('validateAll returns false and sets error messages', () {
+  test('validateAll returns false and sets date error messages', () {
     final AddSessionViewModel vm = container.read(
       addSessionViewModelProvider.notifier,
     );
 
+    // 1) Initial invalid state
     vm.state = vm.state.copyWith(
       title: '',
       isRepeating: true,
@@ -44,13 +45,67 @@ void main() {
       goals: <GoalModel>[],
     );
 
+    bool isValid = vm.validateAll();
+
+    expect(isValid, false);
+    expect(vm.state.titleError, "Titel kann nicht leer sein.");
+    expect(vm.state.dateError, "Startdatum muss gegeben sein.");
+    expect(vm.state.selectedDaysError, isNotNull);
+    expect(vm.state.goalsError, "Es muss mind. 1 Aufgabe festgelegt werden.");
+
+    // 2) Enddate missing
+    vm.state = vm.state.copyWith(
+      title: 'Titel',
+      startDate: DateTime(2025, 11, 1),
+      endDate: null,
+      selectedDays: <int>[1, 2, 3],
+    );
+
+    isValid = vm.validateAll();
+
+    expect(isValid, false);
+    expect(vm.state.dateError, "Enddatum muss gegeben sein.");
+    expect(vm.state.selectedDaysError, isNull);
+
+    // 3) Same date (invalid)
+    vm.state = vm.state.copyWith(endDate: DateTime(2025, 11, 1));
+
+    isValid = vm.validateAll();
+
+    expect(isValid, false);
+    expect(
+      vm.state.dateError,
+      "Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.",
+    );
+
+    // 4) End before start (invalid)
+    vm.state = vm.state.copyWith(endDate: DateTime(2025, 10, 1));
+
+    isValid = vm.validateAll();
+
+    expect(isValid, false);
+    expect(vm.state.dateError, "Startdatum muss vor dem Enddatum liegen.");
+  });
+
+  test('validateAll returns false and sets error messages', () {
+    final AddSessionViewModel vm = container.read(
+      addSessionViewModelProvider.notifier,
+    );
+
+    vm.state = vm.state.copyWith(
+      title: '12',
+      isRepeating: false,
+      setGoals: false,
+      tasks: <TaskModel>[],
+      goals: <GoalModel>[],
+    );
+
     final bool isValid = vm.validateAll();
 
     expect(isValid, false);
 
     expect(vm.state.titleError, isNotNull);
-    expect(vm.state.dateError, "Startdatum muss gegeben sein.");
-    expect(vm.state.selectedDaysError, isNotNull);
+    expect(vm.state.titleError, "Titel muss mind. 3 Charaktere lang sein.");
     expect(vm.state.goalsError, "Es muss mind. 1 Aufgabe festgelegt werden.");
   });
 
