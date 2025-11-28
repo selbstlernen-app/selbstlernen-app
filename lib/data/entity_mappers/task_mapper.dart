@@ -49,7 +49,7 @@ extension TaskToCompanionMapper on TaskModel {
       isCompleted: Value<bool>(isCompleted),
       goalId: goalId != null
           ? Value<int>(int.parse(goalId!))
-          : const Value<int>.absent(),
+          : const Value<int?>(null),
       keptForFutureSessions: Value<bool>(keptForFutureSessions),
       completedAt: completedAt != null
           ? Value<DateTime>(completedAt!)

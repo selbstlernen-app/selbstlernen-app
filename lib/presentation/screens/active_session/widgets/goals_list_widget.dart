@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_add_item_field.dart';
 import 'package:srl_app/common_widgets/custom_icon_button.dart';
-import 'package:srl_app/common_widgets/vertical_space.dart';
-import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
@@ -192,7 +191,10 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                     // Expanded body with tasks
                     if (isExpanded)
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 8.0,
+                        ),
                         child: Column(
                           children: <Widget>[
                             Divider(
@@ -200,6 +202,8 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                               thickness: 4,
                               radius: BorderRadius.circular(10),
                             ),
+
+                            const VerticalSpace(size: SpaceSize.xsmall),
 
                             ...relatedTasks.map(
                               (TaskModel task) => _TaskItem(
@@ -268,10 +272,7 @@ class _TaskItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 4.0,
-        vertical: 8.0,
-      ),
+      contentPadding: const EdgeInsets.only(left: 16.0),
       leading: Checkbox(value: isCompleted, onChanged: (_) => onToggle()),
       title: Text(
         task.title,

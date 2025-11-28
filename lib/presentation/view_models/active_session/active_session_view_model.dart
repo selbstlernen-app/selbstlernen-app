@@ -371,6 +371,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }) async {
     if (state.instance == null) return state.instance!;
 
+    print(goalIdsToKeep);
+    print(taskIdsToKeep);
+
     try {
       final SessionInstanceModel updatedInstance = state.instance!.copyWith(
         completedAt: DateTime.now(),
@@ -389,7 +392,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       for (String goalId in goalIdsToKeep) {
         await _manageGoalUseCase.updateGoalFutureStatus(goalId, true);
       }
-      for (String taskId in goalIdsToKeep) {
+      for (String taskId in taskIdsToKeep) {
         await _manageTasksUseCase.updateTaskFutureStatus(taskId, true);
       }
 

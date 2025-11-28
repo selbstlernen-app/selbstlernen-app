@@ -62,7 +62,11 @@ void main() {
     vm.state = vm.state.copyWith(
       title: 'My session',
       goals: <GoalModel>[
-        const GoalModel(title: 'Test Goal', isCompleted: false),
+        const GoalModel(
+          title: 'Test Goal',
+          isCompleted: false,
+          keptForFutureSessions: true,
+        ),
       ],
       setGoals: true,
     );
@@ -77,10 +81,18 @@ void main() {
       () => mockService.createSessionWithGoalsAndTasks(
         session: const SessionModel(title: "Session"),
         goals: <GoalModel>[
-          const GoalModel(title: 'Test Goal', isCompleted: false),
+          const GoalModel(
+            title: 'Test Goal',
+            isCompleted: false,
+            keptForFutureSessions: true,
+          ),
         ],
         tasks: <TaskModel>[
-          const TaskModel(title: 'Test Task', isCompleted: false),
+          const TaskModel(
+            title: 'Test Task',
+            isCompleted: false,
+            keptForFutureSessions: true,
+          ),
         ],
       ),
     ).thenAnswer((_) async => 123);
@@ -90,10 +102,18 @@ void main() {
         sessionId: 123,
         session: const SessionModel(title: "Session2"),
         goalsToUpdate: <GoalModel>[
-          const GoalModel(title: 'Test Goal', isCompleted: false),
+          const GoalModel(
+            title: 'Test Goal',
+            isCompleted: false,
+            keptForFutureSessions: true,
+          ),
         ],
         tasksToUpdate: <TaskModel>[
-          const TaskModel(title: 'Test Task', isCompleted: true),
+          const TaskModel(
+            title: 'Test Task',
+            isCompleted: true,
+            keptForFutureSessions: true,
+          ),
         ],
         goalIdsToDelete: <String>[],
         taskIdsToDelete: <String>[],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/theme/text_theme.dart';
 
@@ -7,7 +8,6 @@ class CustomTheme {
 
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    fontFamily: "Urbanist",
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
       primary: AppPalette.primary, //Color(0xff00BCFF)
@@ -28,13 +28,11 @@ class CustomTheme {
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Color(0xffFAFAFA),
     ),
-
-    textTheme: CustomTextTheme.lightTextTheme,
+    textTheme: GoogleFonts.urbanistTextTheme(CustomTextTheme.lightTextTheme),
   );
 
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
-    fontFamily: "Urbanist",
     brightness: Brightness.dark,
     primaryColor: Colors.blue,
     scaffoldBackgroundColor: Colors.black,

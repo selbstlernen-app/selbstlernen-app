@@ -56,6 +56,8 @@ dependencies:
   fl_chart: ^1.1.1
   flutter_heatmap_calendar: ^1.0.5
   vibration: ^3.1.4
+  google_fonts: ^6.3.2
+  collection: ^1.19.1
 
 dev_dependencies:
   flutter_test:
@@ -70,17 +72,3 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
-  fonts:
-    - family: Urbanist
-      fonts:
-        - asset: assets/fonts/Urbanist/Urbanist-Italic.ttf
-          weight: 400
-          style: italic
-        - asset: assets/fonts/Urbanist/Urbanist-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Urbanist/Urbanist-Medium.ttf
-          weight: 500
-        - asset: assets/fonts/Urbanist/Urbanist-SemiBold.ttf
-          weight: 600
-        - asset: assets/fonts/Urbanist/Urbanist-Bold.ttf
-          weight: 700

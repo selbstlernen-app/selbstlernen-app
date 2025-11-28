@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:srl_app/common_widgets/horizontal_space.dart';
-import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 class CustomItemTile extends StatelessWidget {
@@ -26,10 +25,12 @@ class CustomItemTile extends StatelessWidget {
 
           const HorizontalSpace(size: SpaceSize.small),
 
-          Text(
-            text,
-            style: context.textTheme.bodyLarge!.copyWith(
-              fontWeight: FontWeight.w500,
+          Expanded(
+            child: Text(
+              text,
+              style: context.textTheme.bodyLarge!.copyWith(
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],

@@ -4,7 +4,7 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/time_break_down_item.dart';
 import 'package:srl_app/core/constants/constants.dart';
-import 'package:srl_app/core/constants/spacing.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -198,38 +198,36 @@ class SessionDetailScreen extends ConsumerWidget {
                 ),
               ],
 
-              if (instanceId == null)
-                SizedBox(
-                  width: context.mediaQuery.size.width,
-                  child: CustomButton(
-                    onPressed: () async {
-                      try {
-                        // Get or create instance
-                        SessionInstanceModel existingInstance = await ref
-                            .read(
-                              detailSessionViewModelProvider(
-                                sessionId,
-                              ).notifier,
-                            )
-                            .startSession(DateTime.now());
+              // if (instanceId == null)
+              SizedBox(
+                width: context.mediaQuery.size.width,
+                child: CustomButton(
+                  onPressed: () async {
+                    try {
+                      // Get or create instance
+                      SessionInstanceModel existingInstance = await ref
+                          .read(
+                            detailSessionViewModelProvider(sessionId).notifier,
+                          )
+                          .startSession(DateTime.now());
 
-                        if (context.mounted) {
-                          await Navigator.pushNamed(
-                            context,
-                            AppRoutes.active,
-                            arguments: ActiveSessionArgs(
-                              instanceId: int.parse(existingInstance.id!),
-                              sessionId: int.parse(session.id!),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        throw ArgumentError(e);
+                      if (context.mounted) {
+                        await Navigator.pushNamed(
+                          context,
+                          AppRoutes.active,
+                          arguments: ActiveSessionArgs(
+                            instanceId: int.parse(existingInstance.id!),
+                            sessionId: int.parse(session.id!),
+                          ),
+                        );
                       }
-                    },
-                    label: "Starten",
-                  ),
+                    } catch (e) {
+                      throw ArgumentError(e);
+                    }
+                  },
+                  label: "Starten",
                 ),
+              ),
             ],
           ),
         );
