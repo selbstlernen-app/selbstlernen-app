@@ -10,6 +10,9 @@ abstract class TaskRepository {
   Future<int> addTask(TaskModel task);
   Future<void> deleteTask(int taskId);
   Future<int> updateTask(int taskId, TaskModel updatedTask);
-  Future<int> updateTaskFutureStatus(int taskId, bool status);
+  Future<int> updateTaskFutureStatus(
+    int taskId, {
+    required bool keptForFutureSessions,
+  });
   Future<void> deleteTasksBySessionId(int sessionId);
 }

@@ -14,9 +14,9 @@ import 'package:srl_app/presentation/view_models/active_session/active_session_v
 
 class ActiveSessionScreen extends ConsumerStatefulWidget {
   const ActiveSessionScreen({
-    super.key,
     required this.instanceId,
     required this.sessionId,
+    super.key,
   });
 
   final int instanceId;
@@ -32,7 +32,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final ActiveSessionState state = ref.watch(
+    final state = ref.watch(
       activeSessionViewModelProvider(widget.instanceId),
     );
 
@@ -56,7 +56,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
       backgroundColor: context.colorScheme.secondary,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -64,7 +64,6 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       TimerWidget(instanceId: widget.instanceId),
                       const VerticalSpace(size: SpaceSize.small),
@@ -86,9 +85,9 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                 SizedBox(
                   width: context.mediaQuery.size.width,
                   child: CustomButton(
-                    verticalPadding: 8.0,
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
+                    verticalPadding: 8,
+                    onPressed: () async {
+                      await Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute<dynamic>(
                           builder: (BuildContext context) =>
@@ -97,7 +96,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                         (Route<dynamic> route) => false,
                       );
                     },
-                    label: "Lerneinheit verlassen",
+                    label: 'Lerneinheit verlassen',
                   ),
                 ),
               ],

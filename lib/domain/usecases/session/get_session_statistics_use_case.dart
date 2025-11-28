@@ -22,17 +22,18 @@ class GetSessionStatisticsUseCase {
   final TaskRepository taskRepository;
 
   Future<SessionStatistics> call(int sessionId) async {
-    final SessionModel session = await sessionRepository.getSessionById(
+    final session = await sessionRepository.getSessionById(
       sessionId,
     );
 
-    final List<SessionInstanceModel> instances = await instanceRepository
-        .getAllInstancesBySessionId(sessionId);
-
-    final List<GoalModel> goals = await goalRepository.getGoalsBySessionId(
+    final instances = await instanceRepository.getAllInstancesBySessionId(
       sessionId,
     );
-    final List<TaskModel> tasks = await taskRepository.getTasksBySessionId(
+
+    final goals = await goalRepository.getGoalsBySessionId(
+      sessionId,
+    );
+    final tasks = await taskRepository.getTasksBySessionId(
       sessionId,
     );
 
@@ -65,53 +66,53 @@ class GetSessionStatisticsUseCase {
     List<TaskModel> tasks,
   ) {
     // Sort instances by date
-    final List<SessionInstanceModel> sortedInstances =
-        <SessionInstanceModel>[...instances]..sort(
-          (SessionInstanceModel a, SessionInstanceModel b) =>
-              a.scheduledAt.compareTo(b.scheduledAt),
-        );
+    final sortedInstances = <SessionInstanceModel>[...instances]
+      ..sort(
+        (SessionInstanceModel a, SessionInstanceModel b) =>
+            a.scheduledAt.compareTo(b.scheduledAt),
+      );
 
     // Calculate aggregates
-    final List<SessionInstanceModel> completed = instances
+    final completed = instances
         .where((SessionInstanceModel i) => i.status == SessionStatus.completed)
         .toList();
-    final List<SessionInstanceModel> skipped = instances
+    final skipped = instances
         .where((SessionInstanceModel i) => i.status == SessionStatus.skipped)
         .toList();
-    final List<SessionInstanceModel> inProgress = instances
+    final inProgress = instances
         .where((SessionInstanceModel i) => i.status == SessionStatus.inProgress)
         .toList();
 
-    final int totalFocusSeconds = completed.fold<int>(
+    final totalFocusSeconds = completed.fold<int>(
       0,
       (int sum, SessionInstanceModel i) => sum + i.totalFocusSecondsElapsed,
     );
-    final int totalBreakSeconds = completed.fold<int>(
+    final totalBreakSeconds = completed.fold<int>(
       0,
       (int sum, SessionInstanceModel i) => sum + i.totalBreakSecondsElapsed,
     );
-    final int totalGoals = completed.fold<int>(
+    final totalGoals = completed.fold<int>(
       0,
       (int sum, SessionInstanceModel i) => sum + i.totalCompletedGoals,
     );
-    final int totalTasks = completed.fold<int>(
+    final totalTasks = completed.fold<int>(
       0,
       (int sum, SessionInstanceModel i) => sum + i.totalCompletedTasks,
     );
-    final int totalPhases = completed.fold<int>(
+    final totalPhases = completed.fold<int>(
       0,
       (int sum, SessionInstanceModel i) => sum + i.totalFocusPhases,
     );
-    final int totalBlocks = completed.fold<int>(
+    final totalBlocks = completed.fold<int>(
       0,
       (int sum, SessionInstanceModel i) => sum + i.totalCompletedBlocks,
     );
 
     // Calculate average mood
-    final List<SessionInstanceModel> completedWithMood = completed
+    final completedWithMood = completed
         .where((SessionInstanceModel i) => i.mood != null)
         .toList();
-    final double? averageMood = completedWithMood.isNotEmpty
+    final averageMood = completedWithMood.isNotEmpty
         ? completedWithMood.fold<int>(
                 0,
                 (int sum, SessionInstanceModel i) => sum + i.mood!,
@@ -120,7 +121,7 @@ class GetSessionStatisticsUseCase {
         : null;
 
     // Calculate streaks
-    final ({int current, int longest}) streaks = _calculateStreaks(
+    final streaks = _calculateStreaks(
       sortedInstances,
     );
 
@@ -161,26 +162,26 @@ class GetSessionStatisticsUseCase {
   ) {
     if (sortedInstances.isEmpty) return (current: 0, longest: 0);
 
-    final List<SessionInstanceModel> completed = sortedInstances
+    final completed = sortedInstances
         .where((SessionInstanceModel i) => i.status == SessionStatus.completed)
         .toList();
 
     if (completed.isEmpty) return (current: 0, longest: 0);
 
-    int currentStreak = 0;
-    int longestStreak = 0;
-    int tempStreak = 1;
+    var currentStreak = 0;
+    var longestStreak = 0;
+    var tempStreak = 1;
     DateTime? lastDate;
 
-    for (final SessionInstanceModel instance in completed.reversed) {
-      final DateTime date = instance.scheduledAt;
+    for (final instance in completed.reversed) {
+      final date = instance.scheduledAt;
 
       if (lastDate == null) {
         // First iteration
         currentStreak = 1;
         tempStreak = 1;
       } else {
-        final int daysDiff = lastDate.difference(date).inDays;
+        final daysDiff = lastDate.difference(date).inDays;
 
         if (daysDiff == 1) {
           // Consecutive day

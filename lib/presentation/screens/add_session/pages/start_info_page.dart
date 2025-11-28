@@ -7,12 +7,11 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/date_input_fields.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/input_list.dart';
-import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 import 'package:uuid/uuid.dart';
 
 class StartInfoPage extends ConsumerStatefulWidget {
-  const StartInfoPage({super.key, required this.navigateForward});
+  const StartInfoPage({required this.navigateForward, super.key});
   final VoidCallback navigateForward;
 
   @override
@@ -36,7 +35,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
 
     // Initialize after build; if in edit mode
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final AddSessionState state = ref.read(addSessionViewModelProvider);
+      final state = ref.read(addSessionViewModelProvider);
       _titleController.text = state.title;
     });
   }
@@ -51,8 +50,8 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
   }
 
   void _scrollDown() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
@@ -61,15 +60,15 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
   }
 
   void _handleAddGoal() {
-    final String text = _bigGoalController.text.trim();
+    final text = _bigGoalController.text.trim();
     if (text.isEmpty) return;
 
-    final AddSessionState state = ref.read(addSessionViewModelProvider);
+    final state = ref.read(addSessionViewModelProvider);
     if (state.goals.any((GoalModel goal) => goal.title == text)) return;
 
     if (state.goals.length == 5) return;
 
-    const Uuid uuid = Uuid();
+    const uuid = Uuid();
     ref
         .read(addSessionViewModelProvider.notifier)
         // Temporary goalId
@@ -89,15 +88,15 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
   }
 
   void _handleAddTask() {
-    final String text = _smallGoalController.text.trim();
+    final text = _smallGoalController.text.trim();
     if (text.isEmpty) return;
 
-    final AddSessionState state = ref.read(addSessionViewModelProvider);
+    final state = ref.read(addSessionViewModelProvider);
     if (state.tasks.any((TaskModel task) => task.title == text)) return;
 
     if (state.tasks.length == 10) return;
 
-    const Uuid uuid = Uuid();
+    const uuid = Uuid();
     ref
         .read(addSessionViewModelProvider.notifier)
         // Temporary taskId
@@ -121,7 +120,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final AddSessionState state = ref.watch(addSessionViewModelProvider);
+    final state = ref.watch(addSessionViewModelProvider);
     return Column(
       children: <Widget>[
         Expanded(
@@ -132,7 +131,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
               children: <Widget>[
                 // Title
                 Text(
-                  "Titel der Lerneinheit",
+                  'Titel der Lerneinheit',
                   style: context.textTheme.headlineMedium,
                 ),
                 const VerticalSpace(size: SpaceSize.small),
@@ -141,7 +140,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       .read(addSessionViewModelProvider.notifier)
                       .setTitle,
                   controller: _titleController,
-                  hintText: "z.B. Info 1 - Vorlesung 3...",
+                  hintText: 'z.B. Info 1 - Vorlesung 3...',
                   hasError: state.titleError != null,
                 ),
                 if (state.titleError != null)
@@ -154,7 +153,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                   children: <Widget>[
                     const Icon(Icons.event_repeat_rounded),
                     const HorizontalSpace(size: SpaceSize.small),
-                    Text("Häufigkeit", style: context.textTheme.headlineSmall),
+                    Text('Häufigkeit', style: context.textTheme.headlineSmall),
                   ],
                 ),
                 const VerticalSpace(size: SpaceSize.small),
@@ -163,11 +162,11 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                     CustomButton(
                       onPressed: () => ref
                           .read(addSessionViewModelProvider.notifier)
-                          .setIsRepeating(false),
+                          .setIsRepeating(isRepeating: false),
                       isActive: !state.isRepeating,
-                      borderRadius: 10.0,
-                      verticalPadding: 8.0,
-                      label: "Einmalig",
+                      borderRadius: 10,
+                      verticalPadding: 8,
+                      label: 'Einmalig',
                     ),
                     const HorizontalSpace(size: SpaceSize.small),
 
@@ -175,56 +174,55 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       isActive: state.isRepeating,
                       onPressed: () => ref
                           .read(addSessionViewModelProvider.notifier)
-                          .setIsRepeating(true),
-                      borderRadius: 10.0,
-                      verticalPadding: 8.0,
-                      label: "Wiederholend",
+                          .setIsRepeating(isRepeating: true),
+                      borderRadius: 10,
+                      verticalPadding: 8,
+                      label: 'Wiederholend',
                     ),
                   ],
                 ),
 
                 if (state.isRepeating) const DateInputFields(),
 
-                const VerticalSpace(size: SpaceSize.medium),
+                const VerticalSpace(),
 
                 // Set goals/tasks
                 Text(
                   state.setGoals
-                      ? "Ziele für diese Lerneinheit"
-                      : "Aufgaben für diese Lerneinheit",
+                      ? 'Ziele für diese Lerneinheit'
+                      : 'Aufgaben für diese Lerneinheit',
                   style: context.textTheme.headlineSmall,
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Expanded(
                       child: CustomButton(
                         onPressed: () => ref
                             .read(addSessionViewModelProvider.notifier)
-                            .setGoals(true),
-                        label: "Ziele",
+                            .setGoals(setGoals: true),
+                        label: 'Ziele',
                         isActive: state.setGoals,
                         borderLeft: true,
-                        verticalPadding: 8.0,
+                        verticalPadding: 8,
                       ),
                     ),
                     Expanded(
                       child: CustomButton(
                         onPressed: () => ref
                             .read(addSessionViewModelProvider.notifier)
-                            .setGoals(false),
-                        label: "Aufgaben",
+                            .setGoals(setGoals: false),
+                        label: 'Aufgaben',
                         isActive: !state.setGoals,
                         borderRight: true,
-                        verticalPadding: 8.0,
+                        verticalPadding: 8,
                       ),
                     ),
                   ],
                 ),
 
-                const VerticalSpace(size: SpaceSize.medium),
+                const VerticalSpace(),
 
                 InputList(
                   errorText: state.goalsError,
@@ -235,8 +233,8 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                   isBigGoal: state.setGoals,
                   items: state.setGoals ? state.goals : state.tasks,
                   toolTip: state.setGoals
-                      ? "Tipp: Halte deine Ziele so präzise und kurz wie möglich."
-                      : "Tipp: Du kannst Aufgaben später unter Zielen gruppieren.",
+                      ? 'Tipp: Halte deine Ziele so präzise und kurz wie möglich.'
+                      : 'Tipp: Du kannst Aufgaben später unter Zielen gruppieren.',
                 ),
               ],
             ),
@@ -246,7 +244,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
         SizedBox(
           width: MediaQuery.sizeOf(context).width,
           child: CustomButton(
-            label: "Weiter",
+            label: 'Weiter',
             isActive: ref
                 .watch(addSessionViewModelProvider.notifier)
                 .isFormValid,

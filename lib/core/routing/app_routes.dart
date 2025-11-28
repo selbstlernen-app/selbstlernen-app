@@ -16,7 +16,7 @@ class AppRoutes {
   static const String reflection = '/reflection';
   static const String stats = '/stats';
   static const String addSession = '/add-session';
-  static const String statistics = "/statistics";
+  static const String statistics = '/statistics';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -27,7 +27,7 @@ class AppRoutes {
         );
 
       case detail:
-        final DetailSessionArgs args = settings.arguments as DetailSessionArgs;
+        final args = settings.arguments! as DetailSessionArgs;
         return MaterialPageRoute<dynamic>(
           builder: (_) => SessionDetailScreen(
             sessionId: args.sessionId,
@@ -37,7 +37,7 @@ class AppRoutes {
         );
 
       case active:
-        final ActiveSessionArgs args = settings.arguments as ActiveSessionArgs;
+        final args = settings.arguments! as ActiveSessionArgs;
         return MaterialPageRoute<dynamic>(
           builder: (_) => ActiveSessionScreen(
             instanceId: args.instanceId,
@@ -47,23 +47,21 @@ class AppRoutes {
         );
 
       case reflection:
-        final SessionInstanceModel instance =
-            settings.arguments as SessionInstanceModel;
+        final instance = settings.arguments! as SessionInstanceModel;
         return MaterialPageRoute<dynamic>(
           builder: (_) => ReflectionScreen(instance: instance),
           settings: const RouteSettings(name: AppRoutes.reflection),
         );
 
       case stats:
-        final int sessionId = settings.arguments as int;
+        final sessionId = settings.arguments! as int;
         return MaterialPageRoute<dynamic>(
           builder: (_) => SessionStatisticsScreen(sessionId: sessionId),
           settings: const RouteSettings(name: AppRoutes.stats),
         );
 
       case addSession:
-        final FullSessionModel? fullSession =
-            settings.arguments as FullSessionModel?;
+        final fullSession = settings.arguments as FullSessionModel?;
         return MaterialPageRoute<dynamic>(
           builder: (_) => AddSessionScreen(fullSessionModel: fullSession),
           settings: const RouteSettings(name: AppRoutes.addSession),
@@ -86,15 +84,13 @@ class AppRoutes {
 
 // Argument class for active session
 class ActiveSessionArgs {
+  ActiveSessionArgs({required this.instanceId, required this.sessionId});
   final int instanceId;
   final int sessionId;
-
-  ActiveSessionArgs({required this.instanceId, required this.sessionId});
 }
 
 class DetailSessionArgs {
+  DetailSessionArgs({required this.sessionId, this.instanceId});
   final int sessionId;
   final int? instanceId;
-
-  DetailSessionArgs({required this.sessionId, this.instanceId});
 }

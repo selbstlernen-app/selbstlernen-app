@@ -4,11 +4,11 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 class TimeBreakdownItem extends StatelessWidget {
   const TimeBreakdownItem({
-    super.key,
     required this.icon,
     required this.label,
     required this.value,
     required this.color,
+    super.key,
   });
 
   final IconData icon;

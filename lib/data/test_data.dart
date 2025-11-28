@@ -4,8 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
-import 'package:srl_app/domain/session_instance_repository.dart';
-import 'package:srl_app/domain/session_repository.dart';
 
 part 'test_data.g.dart';
 
@@ -15,30 +13,27 @@ class TestData extends _$TestData {
   void build() {}
 
   Future<void> insertTestData() async {
-    final SessionRepository sessionRepo = ref.read(sessionRepositoryProvider);
-    final SessionInstanceRepository instanceRepo = ref.read(
+    final sessionRepo = ref.read(sessionRepositoryProvider);
+    final instanceRepo = ref.read(
       sessionInstanceRepositoryProvider,
     );
 
-    final SessionModel testSession = SessionModel(
-      title: "Deep Learning / Fokus Block",
+    final testSession = SessionModel(
+      title: 'Deep Learning / Fokus Block',
       isRepeating: true,
-      startDate: DateTime(2025, 11, 1),
+      startDate: DateTime(2025, 11),
       endDate: DateTime(2026, 1, 15),
       selectedDays: <int>[0, 1, 2, 3, 4, 5, 6],
-      learningStrategies: <String>["Pomodoro", "Active Recall", "Feynman"],
+      learningStrategies: <String>['Pomodoro', 'Active Recall', 'Feynman'],
       focusTimeMin: 50,
       breakTimeMin: 10,
       longBreakTimeMin: 20,
-      focusPhases: 4,
-      hasFocusPrompt: true,
-      hasFreetextPrompt: true,
       createdAt: DateTime(2025, 11, 20),
     );
 
-    int sessionId = await sessionRepo.addSession(testSession);
+    final sessionId = await sessionRepo.addSession(testSession);
 
-    final List<SessionInstanceModel> testInstances = <SessionInstanceModel>[
+    final testInstances = <SessionInstanceModel>[
       // Completed sessions
       ...List<SessionInstanceModel>.generate(10, (int i) {
         return SessionInstanceModel(
@@ -57,8 +52,8 @@ class TestData extends _$TestData {
           totalBreakSecondsElapsed: 10 * 60,
           totalCompletedGoals: 2,
           totalCompletedTasks: 4,
-          mood: (3 + (i % 3)),
-          notes: "Completed successfully",
+          mood: 3 + (i % 3),
+          notes: 'Completed successfully',
           completedAt: DateTime(
             2025,
             11,
@@ -76,16 +71,16 @@ class TestData extends _$TestData {
           sessionId: sessionId.toString(),
           status: SessionStatus.skipped,
           scheduledAt: DateTime(2025, 10, 5).add(Duration(days: i * 3)),
-          notes: "Skipped due to lack of time",
+          notes: 'Skipped due to lack of time',
           createdAt: DateTime(2025, 11, 20),
         );
       }),
     ];
 
-    for (final SessionInstanceModel instance in testInstances) {
+    for (final instance in testInstances) {
       await instanceRepo.createInstance(instance: instance);
     }
 
-    print("🎉 Test data insertion complete!");
+    print('🎉 Test data insertion complete!');
   }
 }

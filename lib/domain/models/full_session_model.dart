@@ -5,13 +5,13 @@ part 'full_session_model.freezed.dart';
 
 @freezed
 abstract class FullSessionModel with _$FullSessionModel {
-  const FullSessionModel._();
 
   const factory FullSessionModel({
     required SessionModel session,
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,
   }) = _FullSessionModel;
+  const FullSessionModel._();
 
   List<TaskModel> get ungroupedTasks =>
       tasks.where((TaskModel task) => task.goalId == null).toList();

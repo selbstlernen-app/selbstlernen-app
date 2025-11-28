@@ -4,8 +4,6 @@ part 'session_statistics.freezed.dart';
 
 @freezed
 abstract class SessionStatistics with _$SessionStatistics {
-  const SessionStatistics._();
-
   const factory SessionStatistics({
     required int totalInstances,
     required int completedInstances,
@@ -22,7 +20,8 @@ abstract class SessionStatistics with _$SessionStatistics {
     required int totalOpenGoals,
     required int totalOpenTasks,
 
-    // TODO: rework streak logic//maybe instead of streak have sth like days learned in a row (depending on days)
+    // TODO: rework streak logic//maybe instead of
+    // streak have sth like days learned in a row (depending on days)
     required int currentStreak,
     required int longestStreak,
 
@@ -30,8 +29,10 @@ abstract class SessionStatistics with _$SessionStatistics {
     DateTime? lastSessionDate,
     DateTime? firstSessionDate,
   }) = _SessionStatistics;
+  const SessionStatistics._();
 
-  /// How much progress has been done already; TODO: check for non-repeating sessions!
+  /// How much progress has been done already;
+  /// TODO: check for non-repeating sessions!
   double get completionRate =>
       totalInstances > 0 ? completedInstances / totalInstances : 0.0;
 

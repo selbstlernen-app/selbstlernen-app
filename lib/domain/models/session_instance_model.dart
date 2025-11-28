@@ -4,14 +4,12 @@ part 'session_instance_model.freezed.dart';
 
 @freezed
 abstract class SessionInstanceModel with _$SessionInstanceModel {
-  const SessionInstanceModel._();
-
   const factory SessionInstanceModel({
-    String? id,
     required String sessionId,
+    required DateTime scheduledAt,
+    String? id,
 
     @Default(SessionStatus.scheduled) SessionStatus status,
-    required DateTime scheduledAt,
 
     // Time Measures
     @Default(0) int totalFocusPhases,
@@ -32,10 +30,12 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
     DateTime? completedAt,
     DateTime? createdAt,
   }) = _SessionInstanceModel;
+  const SessionInstanceModel._();
 }
 
 enum SessionStatus {
-  /// Session instance created but not started yet; on creation always in this state
+  /// Session instance created but not started yet; on creation always
+  /// in this state
   scheduled,
 
   /// User is currently doing the session

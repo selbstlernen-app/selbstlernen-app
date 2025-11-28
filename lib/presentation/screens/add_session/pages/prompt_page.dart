@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
-import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
-import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class PromptPage extends ConsumerStatefulWidget {
-  const PromptPage({super.key, required this.navigateForward});
+  const PromptPage({required this.navigateForward, super.key});
   final VoidCallback navigateForward;
 
   @override
@@ -28,7 +26,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
 
     // Initialize after build; if in edit mode
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final AddSessionState state = ref.read(addSessionViewModelProvider);
+      final state = ref.read(addSessionViewModelProvider);
       _focusPromptController.text = state.focusPromptInterval.toString();
     });
   }
@@ -71,7 +69,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         AppRoutes.home,
         (Route<dynamic> route) => false,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
       context.scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -97,7 +95,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         AppRoutes.home,
         (Route<dynamic> route) => false,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
       context.scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -117,7 +115,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
       }
 
       // Create or get instance for today
-      SessionInstanceModel instance = await ref
+      final instance = await ref
           .read(addSessionViewModelProvider.notifier)
           .startSession();
 
@@ -132,7 +130,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         ),
         (Route<dynamic> route) => false,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       if (!mounted) return;
       context.scaffoldMessenger.showSnackBar(
         SnackBar(
@@ -145,7 +143,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
 
   @override
   Widget build(BuildContext context) {
-    final AddSessionState state = ref.watch(addSessionViewModelProvider);
+    final state = ref.watch(addSessionViewModelProvider);
 
     return Column(
       children: <Widget>[
@@ -155,21 +153,20 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  "Abfragen während der Lerneinheit",
+                  'Abfragen während der Lerneinheit',
                   style: context.textTheme.headlineMedium,
                 ),
 
-                const VerticalSpace(size: SpaceSize.medium),
+                const VerticalSpace(),
 
-                Text("Fokusabfrage", style: context.textTheme.headlineSmall),
+                Text('Fokusabfrage', style: context.textTheme.headlineSmall),
                 const VerticalSpace(size: SpaceSize.xsmall),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Expanded(
                       child: Text(
-                        "Konfiguriere eine Abfrage, die während der Lerneinheit deine Aufmerksamkeit testet.",
+                        'Konfiguriere eine Abfrage, die während der Lerneinheit deine Aufmerksamkeit testet.',
                         style: context.textTheme.bodyMedium!.copyWith(
                           color: state.hasFocusPrompt
                               ? context.colorScheme.onSurface
@@ -195,49 +192,48 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
                 ),
 
                 if (state.hasFocusPrompt) ...<Widget>[
-                  const VerticalSpace(size: SpaceSize.medium),
+                  const VerticalSpace(),
                   TimeInputField(
                     minValue: 10,
                     maxValue: 120,
                     controller: _focusPromptController,
-                    label: "Abfrage alle (min)",
+                    label: 'Abfrage alle (min)',
                     onChanged: (int value) {
                       _switchValues(focusPromptInterval: value);
                     },
                   ),
 
-                  const VerticalSpace(size: SpaceSize.medium),
+                  const VerticalSpace(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Expanded(
                         child: CustomButton(
                           onPressed: () =>
                               _switchValues(showFocusPromptAlways: false),
-                          label: "Nach Inaktvität",
+                          label: 'Nach Inaktvität',
                           isActive: !state.showFocusPromptAlways,
                           borderLeft: true,
-                          verticalPadding: 8.0,
+                          verticalPadding: 8,
                         ),
                       ),
                       Expanded(
                         child: CustomButton(
                           onPressed: () =>
                               _switchValues(showFocusPromptAlways: true),
-                          label: "Immer",
+                          label: 'Immer',
                           isActive: state.showFocusPromptAlways,
                           borderRight: true,
-                          verticalPadding: 8.0,
+                          verticalPadding: 8,
                         ),
                       ),
                     ],
                   ),
-                  const VerticalSpace(size: SpaceSize.medium),
+                  const VerticalSpace(),
                   Text(
                     !state.showFocusPromptAlways
-                        ? "Bekomme die Abfrage nach ${state.focusPromptInterval} min Inaktvität (d.h. du hast für die Zeit nicht den Bildschirm berührt)."
-                        : "Bekomme die Abfrage immer, unabhängig von Bildschirm-Aktivität.",
+                        ? 'Bekomme die Abfrage nach ${state.focusPromptInterval} min Inaktvität (d.h. du hast für die Zeit nicht den Bildschirm berührt).'
+                        : 'Bekomme die Abfrage immer, unabhängig von Bildschirm-Aktivität.',
                     style: context.textTheme.bodyMedium,
                   ),
                   const VerticalSpace(size: SpaceSize.small),
@@ -251,20 +247,20 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
           children: <Widget>[
             Expanded(
               child: CustomButton(
-                verticalPadding: 8.0,
+                verticalPadding: 8,
                 label: state.isEditingMode
-                    ? "Lerneinheit mit Änderungen starten"
-                    : "Lerneinheit sofort starten",
+                    ? 'Lerneinheit mit Änderungen starten'
+                    : 'Lerneinheit sofort starten',
                 onPressed: () => _startSession(state.isEditingMode),
               ),
             ),
             const HorizontalSpace(size: SpaceSize.small),
             Expanded(
               child: CustomButton(
-                verticalPadding: 8.0,
+                verticalPadding: 8,
                 label: state.isEditingMode
-                    ? "Änderungen speichern"
-                    : "Lerneinheit erstellen",
+                    ? 'Änderungen speichern'
+                    : 'Lerneinheit erstellen',
                 onPressed: () =>
                     state.isEditingMode ? _updateSession() : _saveSession(),
               ),

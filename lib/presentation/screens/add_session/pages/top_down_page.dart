@@ -10,7 +10,7 @@ import 'package:srl_app/presentation/view_models/add_session/add_session_view_mo
 import 'package:uuid/uuid.dart';
 
 class TopDownPage extends ConsumerStatefulWidget {
-  const TopDownPage({super.key, required this.navigateForward});
+  const TopDownPage({required this.navigateForward, super.key});
   final VoidCallback navigateForward;
 
   @override
@@ -30,17 +30,17 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
 
   String _getButtonText(AddSessionState state) {
     // Check if any goal has tasks
-    final bool hasAnyTasks = state.goals.any(
+    final hasAnyTasks = state.goals.any(
       (GoalModel goal) => state.tasksForGoal(goal.id!).isNotEmpty,
     );
-    return hasAnyTasks ? "Weiter" : "Überspringen";
+    return hasAnyTasks ? 'Weiter' : 'Überspringen';
   }
 
   void _addTaskToGoal({required GoalModel goal}) {
-    final String taskText = _taskController.text.trim();
+    final taskText = _taskController.text.trim();
     if (taskText.isEmpty) return;
 
-    final AddSessionState state = ref.read(addSessionViewModelProvider);
+    final state = ref.read(addSessionViewModelProvider);
 
     // Check for duplicates
     if (state
@@ -83,7 +83,7 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
 
   @override
   Widget build(BuildContext context) {
-    final AddSessionState state = ref.watch(addSessionViewModelProvider);
+    final state = ref.watch(addSessionViewModelProvider);
 
     return Column(
       children: <Widget>[
@@ -93,16 +93,16 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  "Ziele aufbrechen",
+                  'Ziele aufbrechen',
                   style: context.textTheme.headlineMedium,
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
-                  "Erstelle zusätzliche Aufgaben, die dir beim Erreichen deiner Ziele helfen. Du kannst diesen Schritt auch vorerst überspringen.",
+                  'Erstelle zusätzliche Aufgaben, die dir beim Erreichen deiner Ziele helfen. Du kannst diesen Schritt auch vorerst überspringen.',
                   style: context.textTheme.bodyMedium,
                 ),
 
-                const VerticalSpace(size: SpaceSize.medium),
+                const VerticalSpace(),
 
                 ...state.goals.map((GoalModel goal) {
                   return GoalWithTasksCard(

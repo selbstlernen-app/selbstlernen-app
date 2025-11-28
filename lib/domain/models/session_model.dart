@@ -5,11 +5,9 @@ part 'session_model.freezed.dart';
 
 @freezed
 abstract class SessionModel with _$SessionModel {
-  const SessionModel._();
-
   const factory SessionModel({
-    String? id,
     required String title,
+    String? id,
     @Default(false) bool isRepeating,
     DateTime? startDate,
     DateTime? endDate,
@@ -30,6 +28,7 @@ abstract class SessionModel with _$SessionModel {
 
     DateTime? createdAt,
   }) = _SessionModel;
+  const SessionModel._();
 
   // Helper
   int get totalInstances {
@@ -59,8 +58,8 @@ extension SessionExtensions on SessionModel {
       return true;
     }
 
-    final DateTime start = startDate ?? date;
-    final DateTime end = endDate ?? date;
+    final start = startDate ?? date;
+    final end = endDate ?? date;
 
     if (date.isBefore(start) || date.isAfter(end)) return false;
 

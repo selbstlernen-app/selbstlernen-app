@@ -8,8 +8,8 @@ class DateTimeUtils {
   ) {
     if (end.isBefore(start)) return 0;
 
-    int count = 0;
-    DateTime current = start;
+    var count = 0;
+    var current = start;
 
     // Iterate through each day from start to end (both are inclusive)
     while (current.isBefore(end) || current.isAtSameMomentAs(end)) {

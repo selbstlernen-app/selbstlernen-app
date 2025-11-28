@@ -8,10 +8,10 @@ class CalendarWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    DateTime today = DateTime.now();
+    final today = DateTime.now();
 
-    DateTime startOfTheWeek = today.subtract(Duration(days: today.weekday - 1));
-    List<DateTime> daysToDisplay = <DateTime>[];
+    var startOfTheWeek = today.subtract(Duration(days: today.weekday - 1));
+    var daysToDisplay = <DateTime>[];
     if (today.weekday < 3) {
       // If we did not have Wednesday yet; generate five days starting from Monday
       daysToDisplay = List<DateTime>.generate(
@@ -32,7 +32,7 @@ class CalendarWidget extends ConsumerWidget {
         ...daysToDisplay.map(
           (DateTime date) => Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(right: 12.0),
+              padding: const EdgeInsets.only(right: 12),
               child: Container(
                 decoration: BoxDecoration(
                   color: date.day == today.day
@@ -41,10 +41,9 @@ class CalendarWidget extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(

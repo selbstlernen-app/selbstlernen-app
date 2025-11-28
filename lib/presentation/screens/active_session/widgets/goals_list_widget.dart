@@ -6,11 +6,10 @@ import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
 class GoalsListWidget extends ConsumerStatefulWidget {
-  const GoalsListWidget({super.key, required this.instanceId});
+  const GoalsListWidget({required this.instanceId, super.key});
 
   final int instanceId;
 
@@ -35,7 +34,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
         .read(activeSessionViewModelProvider(widget.instanceId).notifier)
         .addTask(
           _taskGoalController.text.trim(),
-          goalId: goalId != "0"
+          goalId: goalId != '0'
               ? goalId
               : null, // for "Sonstige Aufgaben"; has a temp goal model with id 0
         );
@@ -55,24 +54,24 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final ActiveSessionState state = ref.watch(
+    final state = ref.watch(
       activeSessionViewModelProvider(widget.instanceId),
     );
-    final ActiveSessionViewModel viewModel = ref.read(
+    final viewModel = ref.read(
       activeSessionViewModelProvider(widget.instanceId).notifier,
     );
 
-    List<GoalModel> goals = List<GoalModel>.from(state.goals);
-    List<TaskModel> allTasks = List<TaskModel>.from(state.tasks);
+    var goals = List<GoalModel>.from(state.goals);
+    var allTasks = List<TaskModel>.from(state.tasks);
 
     // Add a temporary goal; with invalid goal id, to add ungrouped tasks
-    final GoalModel ungroupedGoal = const GoalModel(
-      id: "0",
-      title: "Sonstige Aufgaben",
+    const ungroupedGoal = GoalModel(
+      id: '0',
+      title: 'Sonstige Aufgaben',
       isCompleted: false,
       keptForFutureSessions: false,
     );
-    final List<TaskModel> ungroupedTasks = allTasks
+    final ungroupedTasks = allTasks
         .where((TaskModel t) => t.goalId == null || t.goalId!.isEmpty)
         .map((TaskModel t) => t.copyWith(goalId: '0'))
         .toList();
@@ -107,17 +106,17 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
             physics: const NeverScrollableScrollPhysics(),
             itemCount: goals.length,
             itemBuilder: (BuildContext context, int index) {
-              final GoalModel goal = goals[index];
+              final goal = goals[index];
 
-              final List<TaskModel> relatedTasks = allTasks
+              final relatedTasks = allTasks
                   .where((TaskModel t) => t.goalId == goal.id)
                   .toList();
 
-              final bool isGoalCompleted = state.completedGoalIds.contains(
+              final isGoalCompleted = state.completedGoalIds.contains(
                 goal.id,
               );
 
-              final bool isExpanded = state.expandedGoalId == goal.id;
+              final isExpanded = state.expandedGoalId == goal.id;
 
               return Card(
                 elevation: 0.5,
@@ -125,7 +124,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                   children: <Widget>[
                     // Heading
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         children: <Widget>[
                           // Checkbox
@@ -162,7 +161,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                           // Delete button if no tasks
                           if (relatedTasks.isEmpty &&
                               state.isEditMode &&
-                              goal.id != "0")
+                              goal.id != '0')
                             IconButton(
                               icon: Icon(
                                 Icons.delete,
@@ -192,8 +191,8 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                     if (isExpanded)
                       Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 8.0,
+                          horizontal: 16,
+                          vertical: 8,
                         ),
                         child: Column(
                           children: <Widget>[
@@ -221,9 +220,9 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                             if (state.isEditMode)
                               CustomAddItemField(
                                 controller: _taskGoalController,
-                                hintText: "Neue Aufgabe für ${goal.title}...",
-                                onSubmitted: () => _addTask(goal.id!),
-                                onPressed: () => _addTask(goal.id!),
+                                hintText: 'Neue Aufgabe für ${goal.title}...',
+                                onSubmitted: () => _addTask(goal.id),
+                                onPressed: () => _addTask(goal.id),
                               ),
                           ],
                         ),
@@ -238,14 +237,14 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
         if (state.expandedGoalId == null && state.isEditMode)
           Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: 12.0,
-              horizontal: 4.0,
+              vertical: 12,
+              horizontal: 4,
             ),
             child: CustomAddItemField(
               controller: _taskGoalController,
-              hintText: "Neues Ziel...",
-              onSubmitted: () => _addGoal(),
-              onPressed: () => _addGoal(),
+              hintText: 'Neues Ziel...',
+              onSubmitted: _addGoal,
+              onPressed: _addGoal,
             ),
           ),
       ],
@@ -272,7 +271,7 @@ class _TaskItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: const EdgeInsets.only(left: 16.0),
+      contentPadding: const EdgeInsets.only(left: 16),
       leading: Checkbox(value: isCompleted, onChanged: (_) => onToggle()),
       title: Text(
         task.title,
@@ -283,9 +282,7 @@ class _TaskItem extends StatelessWidget {
       onTap: onToggle,
       trailing: isEditMode
           ? IconButton(
-              onPressed: () {
-                onDelete();
-              },
+              onPressed: onDelete,
               icon: Icon(Icons.delete, color: context.colorScheme.error),
             )
           : null,

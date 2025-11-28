@@ -8,11 +8,11 @@ import 'package:srl_app/domain/models/models.dart';
 
 class InputList<T> extends StatelessWidget {
   const InputList({
-    super.key,
     required this.controller,
     required this.onEnter,
     required this.isBigGoal,
     required this.items,
+    super.key,
     this.hideHeadline = false,
     this.toolTip,
     this.errorText,
@@ -32,16 +32,16 @@ class InputList<T> extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         CustomAddItemField(
-          onSubmitted: () => onEnter(),
+          onSubmitted: onEnter,
           onPressed: onEnter,
           controller: controller,
-          hintText: "Ich will...",
+          hintText: 'Ich will...',
           hasError: errorText != null,
         ),
         if ((toolTip?.isNotEmpty ?? false) && errorText == null)
           _buildTooltip(context),
         if (errorText != null) CustomErrorText(errorText: errorText!),
-        const VerticalSpace(size: SpaceSize.medium),
+        const VerticalSpace(),
         if (!hideHeadline) _buildHeader(context),
         const VerticalSpace(size: SpaceSize.small),
         ..._buildItemsList(),
@@ -51,7 +51,7 @@ class InputList<T> extends StatelessWidget {
 
   Widget _buildTooltip(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 4.0, left: 12.0),
+      padding: const EdgeInsets.only(top: 4, left: 12),
       child: Text(
         toolTip!,
         style: context.textTheme.bodySmall?.copyWith(
@@ -63,16 +63,14 @@ class InputList<T> extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Text(
-      (isBigGoal) ? "Ziele (max. 5)" : "Aufgaben (max. 10)",
+      isBigGoal ? 'Ziele (max. 5)' : 'Aufgaben (max. 10)',
       style: context.textTheme.headlineSmall,
     );
   }
 
   List<Widget> _buildItemsList() {
     return items.map((T item) {
-      final String title = item is TaskModel
-          ? item.title
-          : (item as GoalModel).title;
+      final title = item is TaskModel ? item.title : (item as GoalModel).title;
       return CustomItemTile(isLargeGoal: isBigGoal, text: title);
     }).toList();
   }

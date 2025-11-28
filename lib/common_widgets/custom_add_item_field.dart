@@ -5,16 +5,16 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 class CustomAddItemField extends StatelessWidget {
   const CustomAddItemField({
-    super.key,
     required this.onSubmitted,
     required this.onPressed,
     required this.controller,
     required this.hintText,
+    super.key,
     this.hasError,
   });
 
   /// Function called when item is to be added
-  final Function onSubmitted;
+  final VoidCallback onSubmitted;
 
   /// The same function as onSubmitted usually, but has other type
   final VoidCallback onPressed;
@@ -46,7 +46,7 @@ class CustomAddItemField extends StatelessWidget {
           icon: const Icon(Icons.add),
           onPressed: onPressed,
           style: IconButton.styleFrom(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             foregroundColor: context.colorScheme.onPrimary,
             backgroundColor: context.colorScheme.primary,
             shape: RoundedRectangleBorder(

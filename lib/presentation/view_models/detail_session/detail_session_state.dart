@@ -3,7 +3,7 @@ import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 
-part "detail_session_state.freezed.dart";
+part 'detail_session_state.freezed.dart';
 
 @freezed
 abstract class DetailSessionState with _$DetailSessionState {

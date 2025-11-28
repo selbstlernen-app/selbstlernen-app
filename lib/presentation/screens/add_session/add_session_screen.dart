@@ -10,7 +10,6 @@ import 'package:srl_app/presentation/screens/add_session/pages/start_info_page.d
 import 'package:srl_app/presentation/screens/add_session/pages/strategy_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/timer_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/top_down_page.dart';
-import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class AddSessionScreen extends ConsumerStatefulWidget {
@@ -24,7 +23,7 @@ class AddSessionScreen extends ConsumerStatefulWidget {
 }
 
 class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
-  final PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController();
   int currentPage = 0;
   double _progress = 0;
 
@@ -36,7 +35,8 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.fullSessionModel != null) {
-        // Edit mode: initialize with existing data; navigating back always possible
+        // Edit mode: initialize with existing data;
+        // navigating back always possible
         ref
             .read(addSessionViewModelProvider.notifier)
             .initializeState(widget.fullSessionModel!);
@@ -47,13 +47,13 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     });
   }
 
-  void _navigateBack() {
+  Future<void> _navigateBack() async {
     FocusScope.of(context).unfocus();
 
     if (currentPage > 0) {
-      final int targetPage = currentPage - 1;
+      final targetPage = currentPage - 1;
 
-      _pageController
+      await _pageController
           .animateToPage(
             targetPage,
             duration: const Duration(milliseconds: 300),
@@ -72,10 +72,10 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     }
   }
 
-  void _navigateForward() {
-    final int targetPage = currentPage + 1;
+  Future<void> _navigateForward() async {
+    final targetPage = currentPage + 1;
 
-    _pageController
+    await _pageController
         .animateToPage(
           targetPage,
           duration: const Duration(milliseconds: 300),
@@ -91,34 +91,36 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final AddSessionState state = ref.watch(addSessionViewModelProvider);
+    final state = ref.watch(addSessionViewModelProvider);
 
-    final bool showBackButton =
-        widget.fullSessionModel != null || currentPage > 0;
+    final showBackButton = widget.fullSessionModel != null || currentPage > 0;
 
     return MainLayout(
       appBarTitle: widget.fullSessionModel != null
-          ? "Lerneinheit bearbeiten"
-          : "Neue Lerneinheit erstellen",
+          ? 'Lerneinheit bearbeiten'
+          : 'Neue Lerneinheit erstellen',
       showFloatingActionButton: state.isEditingMode,
-      onPressedFAB: () {
-        ref.read(addSessionViewModelProvider.notifier).updateSession();
-        context.scaffoldMessenger.showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 2),
-            content: Text(Constants.successModified),
-          ),
-        );
-        Navigator.pop(context);
+      onPressedFAB: () async {
+        await ref.read(addSessionViewModelProvider.notifier).updateSession();
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              duration: const Duration(seconds: 2),
+              content: Text(Constants.successModified),
+            ),
+          );
+          Navigator.pop(context);
+        }
       },
       bottomBarWidget: PreferredSize(
-        preferredSize: const Size.fromHeight(30.0),
+        preferredSize: const Size.fromHeight(30),
         child: Padding(
-          padding: const EdgeInsets.only(left: 30.0, right: 30.0, bottom: 20.0),
+          padding: const EdgeInsets.only(left: 30, right: 30, bottom: 20),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
-              minHeight: 8.0,
+              minHeight: 8,
               value: _progress,
               color: context.colorScheme.primary,
               backgroundColor: Colors.white,
@@ -131,9 +133,10 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
           StartInfoPage(navigateForward: _navigateForward),
-          state.setGoals
-              ? TopDownPage(navigateForward: _navigateForward)
-              : BottomUpPage(navigateForward: _navigateForward),
+          if (state.setGoals)
+            TopDownPage(navigateForward: _navigateForward)
+          else
+            BottomUpPage(navigateForward: _navigateForward),
           StrategyPage(navigateForward: _navigateForward),
           TimerPage(navigateForward: _navigateForward),
           PromptPage(navigateForward: _navigateForward),

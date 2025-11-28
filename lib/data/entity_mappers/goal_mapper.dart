@@ -47,7 +47,6 @@ extension GoalToCompanionMapper on GoalModel {
       completedAt: completedAt != null
           ? Value<DateTime>(completedAt!)
           : const Value<DateTime>.absent(),
-      createdAt: const Value<DateTime>.absent(),
     );
   }
 }

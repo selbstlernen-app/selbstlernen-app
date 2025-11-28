@@ -7,7 +7,7 @@ import 'package:srl_app/domain/models/task_model.dart';
 
 // 1. Session Info Card
 class SessionInfoCard extends StatelessWidget {
-  const SessionInfoCard({super.key, required this.session});
+  const SessionInfoCard({required this.session, super.key});
 
   final SessionModel session;
 
@@ -49,7 +49,7 @@ class SessionInfoCard extends StatelessWidget {
   }
 
   String _formatWeekdays(List<int> weekdays) {
-    final List<String> days = <String>[
+    final days = <String>[
       'Mo',
       'Di',
       'Mi',
@@ -62,9 +62,9 @@ class SessionInfoCard extends StatelessWidget {
   }
 
   String _formatDateRange(SessionModel session) {
-    final String start = (session.startDate!).day.toString();
+    final start = (session.startDate!).day.toString();
     if (session.endDate != null) {
-      final DateTime end = (session.endDate!);
+      final end = session.endDate!;
       return '$start - $end';
     }
     return start;
@@ -73,7 +73,7 @@ class SessionInfoCard extends StatelessWidget {
 
 // 3. Goals Section
 class GoalsSection extends StatelessWidget {
-  const GoalsSection({super.key, required this.goals});
+  const GoalsSection({required this.goals, super.key});
 
   final List<GoalModel> goals;
 
@@ -107,7 +107,7 @@ class GoalsSection extends StatelessWidget {
 
 // 4. Tasks Section (similar to goals)
 class TasksSection extends StatelessWidget {
-  const TasksSection({super.key, required this.tasks});
+  const TasksSection({required this.tasks, super.key});
 
   final List<TaskModel> tasks;
 
@@ -141,18 +141,18 @@ class TasksSection extends StatelessWidget {
 
 // 5. History Section
 class HistorySection extends StatelessWidget {
-  const HistorySection({super.key, required this.instances});
+  const HistorySection({required this.instances, super.key});
 
   final List<SessionInstanceModel> instances;
 
   @override
   Widget build(BuildContext context) {
     // Sort by date, most recent first
-    final List<SessionInstanceModel> sorted =
-        <SessionInstanceModel>[...instances]..sort(
-          (SessionInstanceModel a, SessionInstanceModel b) =>
-              b.scheduledAt.compareTo(a.scheduledAt),
-        );
+    final sorted = <SessionInstanceModel>[...instances]
+      ..sort(
+        (SessionInstanceModel a, SessionInstanceModel b) =>
+            b.scheduledAt.compareTo(a.scheduledAt),
+      );
 
     return Card(
       child: Padding(
@@ -174,7 +174,7 @@ class HistorySection extends StatelessWidget {
                           ? Colors.green
                           : Colors.orange,
                     ),
-                    title: Text((instance.scheduledAt).toString()),
+                    title: Text(instance.scheduledAt.toString()),
                     subtitle: Text(
                       '${instance.totalFocusSecondsElapsed ~/ 60} min Fokuszeit',
                     ),

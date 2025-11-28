@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/common_widgets/time_break_down_item.dart';
 import 'package:srl_app/core/constants/constants.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -15,8 +15,8 @@ import 'package:srl_app/presentation/view_models/detail_session/detail_session_v
 
 class SessionDetailScreen extends ConsumerWidget {
   const SessionDetailScreen({
-    super.key,
     required this.sessionId,
+    super.key,
     this.instanceId,
   });
   final int sessionId;
@@ -24,7 +24,7 @@ class SessionDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AsyncValue<DetailSessionState> state = ref.watch(
+    final state = ref.watch(
       detailSessionViewModelProvider(sessionId),
     );
 
@@ -39,7 +39,7 @@ class SessionDetailScreen extends ConsumerWidget {
           );
         }
 
-        final SessionModel session = detailState.fullSession!.session;
+        final session = detailState.fullSession!.session;
 
         return MainLayout(
           navigateBack: () {
@@ -48,8 +48,8 @@ class SessionDetailScreen extends ConsumerWidget {
           appBarTitle: session.title,
           actions: <Widget>[
             IconButton(
-              onPressed: () {
-                Navigator.pushNamed(
+              onPressed: () async {
+                await Navigator.pushNamed(
                   context,
                   AppRoutes.addSession,
                   arguments: detailState.fullSession,
@@ -59,13 +59,16 @@ class SessionDetailScreen extends ConsumerWidget {
             ),
             IconButton(
               onPressed: () async {
-                await deleteSessionDialog(context, session.isRepeating, ref);
+                await deleteSessionDialog(
+                  context,
+                  ref,
+                  isRepeating: session.isRepeating,
+                );
               },
               icon: const Icon(Icons.delete_forever_rounded),
             ),
           ],
           content: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Expanded(
                 child: SingleChildScrollView(
@@ -73,15 +76,15 @@ class SessionDetailScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        "Einzelheiten zu dieser Lerneinheit",
+                        'Einzelheiten zu dieser Lerneinheit',
                         style: context.textTheme.headlineMedium,
                       ),
 
-                      const VerticalSpace(size: SpaceSize.medium),
+                      const VerticalSpace(),
 
                       // Planned work and break time
                       Text(
-                        "Geplante Zeit",
+                        'Geplante Zeit',
                         style: context.textTheme.headlineSmall,
                       ),
                       const VerticalSpace(size: SpaceSize.small),
@@ -109,19 +112,18 @@ class SessionDetailScreen extends ConsumerWidget {
 
                       // Planned strategies
                       Text(
-                        "Deine Strategien",
+                        'Deine Strategien',
                         style: context.textTheme.headlineSmall,
                       ),
                       const VerticalSpace(size: SpaceSize.small),
                       ...session.learningStrategies.map(
-                        (String strategy) => Text(strategy),
+                        Text.new,
                       ),
 
                       const VerticalSpace(size: SpaceSize.large),
 
                       // Goals and tasks column
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Expanded(
@@ -133,7 +135,7 @@ class SessionDetailScreen extends ConsumerWidget {
                                     .goals
                                     .isNotEmpty) ...<Widget>[
                                   Text(
-                                    "Ziele",
+                                    'Ziele',
                                     style: context.textTheme.headlineSmall,
                                   ),
                                   const VerticalSpace(size: SpaceSize.small),
@@ -157,7 +159,7 @@ class SessionDetailScreen extends ConsumerWidget {
                                     .ungroupedTasks
                                     .isNotEmpty) ...<Widget>[
                                   Text(
-                                    "Sonstige Aufgaben",
+                                    'Sonstige Aufgaben',
                                     style: context.textTheme.headlineSmall,
                                   ),
                                   const VerticalSpace(size: SpaceSize.small),
@@ -180,20 +182,20 @@ class SessionDetailScreen extends ConsumerWidget {
               ),
               if (instanceId != null) ...<Widget>[
                 Text(
-                  "Einheit für heute erledigt!",
+                  'Einheit für heute erledigt!',
                   style: context.textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
-                const VerticalSpace(size: SpaceSize.medium),
+                const VerticalSpace(),
                 SizedBox(
                   width: context.mediaQuery.size.width,
                   child: CustomButton(
-                    onPressed: () {
-                      Navigator.of(
+                    onPressed: () async {
+                      await Navigator.of(
                         context,
                       ).pushNamed(AppRoutes.stats, arguments: sessionId);
                     },
-                    label: "Zur statistischen Auswertung",
+                    label: 'Zur statistischen Auswertung',
                   ),
                 ),
               ],
@@ -205,7 +207,7 @@ class SessionDetailScreen extends ConsumerWidget {
                   onPressed: () async {
                     try {
                       // Get or create instance
-                      SessionInstanceModel existingInstance = await ref
+                      final existingInstance = await ref
                           .read(
                             detailSessionViewModelProvider(sessionId).notifier,
                           )
@@ -221,11 +223,11 @@ class SessionDetailScreen extends ConsumerWidget {
                           ),
                         );
                       }
-                    } catch (e) {
+                    } on Exception catch (e) {
                       throw ArgumentError(e);
                     }
                   },
-                  label: "Starten",
+                  label: 'Starten',
                 ),
               ),
             ],
@@ -237,24 +239,26 @@ class SessionDetailScreen extends ConsumerWidget {
 
   Future<void> deleteSessionDialog(
     BuildContext context,
-    bool isRepeating,
-    WidgetRef ref,
-  ) {
-    void deleteSession() {
-      ref
+    WidgetRef ref, {
+    required bool isRepeating,
+  }) {
+    Future<void> deleteSession() async {
+      await ref
           .read(detailSessionViewModelProvider(sessionId).notifier)
           .deleteSession();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          content: Text(Constants.successDeleted),
-        ),
-      );
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        AppRoutes.home,
-        (Route<dynamic> route) => false,
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            content: Text(Constants.successDeleted),
+          ),
+        );
+        await Navigator.pushNamedAndRemoveUntil(
+          context,
+          AppRoutes.home,
+          (Route<dynamic> route) => false,
+        );
+      }
     }
 
     return showDialog<void>(
@@ -268,7 +272,7 @@ class SessionDetailScreen extends ConsumerWidget {
           content: Text(
             isRepeating
                 ? 'Willst du diese und alle zukünftigen Einheiten löschen?'
-                : "Willst du diese Einheit wirklich löschen?",
+                : 'Willst du diese Einheit wirklich löschen?',
             style: context.textTheme.bodyLarge,
           ),
           actions: <Widget>[
@@ -278,15 +282,15 @@ class SessionDetailScreen extends ConsumerWidget {
               ),
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                "Abbrechen",
+                'Abbrechen',
                 style: context.textTheme.labelLarge!.copyWith(
                   color: context.colorScheme.error,
                 ),
               ),
             ),
             TextButton(
-              onPressed: () => deleteSession(),
-              child: const Text("Bestätigen"),
+              onPressed: deleteSession,
+              child: const Text('Bestätigen'),
             ),
           ],
         );

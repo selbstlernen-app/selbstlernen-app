@@ -1,4 +1,3 @@
-import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/daos/goal_dao.dart';
 import 'package:srl_app/data/entity_mappers/goal_mapper.dart';
 import 'package:srl_app/domain/goal_repository.dart';
@@ -26,8 +25,8 @@ class GoalRepositoryImp implements GoalRepository {
 
   @override
   Future<List<GoalModel>> getGoalsBySessionId(int sessionId) async {
-    List<Goal> goalEntities = await goalDao.getGoalsBySessionId(sessionId);
-    List<GoalModel> goals = GoalToModelMapper.mapFromListOfEntity(goalEntities);
+    final goalEntities = await goalDao.getGoalsBySessionId(sessionId);
+    final goals = GoalToModelMapper.mapFromListOfEntity(goalEntities);
     return goals;
   }
 
@@ -36,8 +35,7 @@ class GoalRepositoryImp implements GoalRepository {
     return goalDao
         .watchGoalsBySessionId(sessionId)
         .map(
-          (List<Goal> goalList) =>
-              GoalToModelMapper.mapFromListOfEntity(goalList),
+          GoalToModelMapper.mapFromListOfEntity,
         );
   }
 
@@ -49,8 +47,7 @@ class GoalRepositoryImp implements GoalRepository {
     return goalDao
         .watchGoalsBySessionIdAndDate(sessionId, sessionScheduledDate)
         .map(
-          (List<Goal> goalList) =>
-              GoalToModelMapper.mapFromListOfEntity(goalList),
+          GoalToModelMapper.mapFromListOfEntity,
         );
   }
 
@@ -60,7 +57,13 @@ class GoalRepositoryImp implements GoalRepository {
   }
 
   @override
-  Future<int> updateGoalFutureStatus(int goalId, bool status) {
-    return goalDao.updateGoalFutureStatus(goalId, status);
+  Future<int> updateGoalFutureStatus(
+    int goalId, {
+    required bool keptForFutureSessions,
+  }) {
+    return goalDao.updateGoalFutureStatus(
+      goalId,
+      keptForFutureSessions: keptForFutureSessions,
+    );
   }
 }

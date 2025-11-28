@@ -7,7 +7,7 @@ part 'session_instance_dao.g.dart';
 @DriftAccessor(tables: <Type>[SessionInstances])
 class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     with _$SessionInstanceDaoMixin {
-  SessionInstanceDao(super.db);
+  SessionInstanceDao(super.attachedDatabase);
 
   // Insert new session instance
   Future<int> createInstance(SessionInstancesCompanion companion) {
@@ -22,7 +22,7 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<List<SessionInstance>> getAllInstances() {
-    return (select(sessionInstances)).get();
+    return select(sessionInstances).get();
   }
 
   // Get an instance by its session id
@@ -48,8 +48,8 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
 
   /// Watch all session instances for a given date
   Stream<List<SessionInstance>> watchAllInstancesForDate(DateTime date) {
-    final DateTime startOfDay = DateTime(date.year, date.month, date.day);
-    final DateTime endOfDay = DateTime(
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = DateTime(
       date.year,
       date.month,
       date.day,
@@ -104,8 +104,8 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     int sessionId,
     DateTime date,
   ) {
-    final DateTime startOfDay = DateTime(date.year, date.month, date.day);
-    final DateTime endOfDay = DateTime(
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = DateTime(
       date.year,
       date.month,
       date.day,
@@ -123,7 +123,7 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<int> countTotalInstancesBySessionId(int sessionId) async {
-    List<SessionInstance> instances =
+    final instances =
         await (select(sessionInstances)..where(
               ($SessionInstancesTable tbl) => tbl.sessionId.equals(sessionId),
             ))

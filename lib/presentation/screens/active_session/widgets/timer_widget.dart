@@ -10,7 +10,7 @@ import 'package:srl_app/presentation/view_models/active_session/active_session_s
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
 class TimerWidget extends ConsumerStatefulWidget {
-  const TimerWidget({super.key, required this.instanceId});
+  const TimerWidget({required this.instanceId, super.key});
   final int instanceId;
 
   @override
@@ -43,19 +43,19 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final ActiveSessionState state = ref.watch(
+    final state = ref.watch(
       activeSessionViewModelProvider(widget.instanceId),
     );
 
-    final ActiveSessionViewModel viewModel = ref.read(
+    final viewModel = ref.read(
       activeSessionViewModelProvider(widget.instanceId).notifier,
     );
 
-    final int totalDuration = _getPhaseDuration(state);
+    final totalDuration = _getPhaseDuration(state);
 
     /// If we count upwards, get the total seconds passed per phase,
     /// else get the seconds remaining of a phase
-    final double progress = state.countUpwards
+    final progress = state.countUpwards
         ? (state.currentPhaseElapsed / totalDuration)
         : (state.remainingSeconds / totalDuration);
 
@@ -63,7 +63,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
       elevation: 0.5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: <Widget>[
             Text(
@@ -71,7 +71,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
               style: context.textTheme.headlineLarge,
               textAlign: TextAlign.center,
             ),
-            const VerticalSpace(size: SpaceSize.medium),
+            const VerticalSpace(),
 
             Stack(
               alignment: Alignment.center,
@@ -120,19 +120,20 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
             _buildPhaseIndicator(state),
 
-            const VerticalSpace(size: SpaceSize.medium),
+            const VerticalSpace(),
 
             // Button row
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 // Switch timer view
                 CustomIconButton(
                   icon: const Icon(Icons.sync_alt_rounded),
                   isActive: true,
                   onPressed: () {
-                    viewModel.setCountUpwards(!state.countUpwards);
+                    viewModel.setCountUpwards(
+                      countUpwards: !state.countUpwards,
+                    );
                   },
                 ),
 
@@ -148,12 +149,12 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                         ? const Icon(Icons.play_arrow_rounded)
                         : const Icon(Icons.pause_rounded),
                     label: state.timerStatus == TimerStatus.initial
-                        ? "Starten"
+                        ? 'Starten'
                         : null,
                     isActive: true,
-                    onPressed: () {
+                    onPressed: () async {
                       if (state.timerStatus == TimerStatus.running) {
-                        viewModel.pauseTimer();
+                        await viewModel.pauseTimer();
                       } else {
                         viewModel.startTimer();
                       }
@@ -165,9 +166,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                 CustomIconButton(
                   icon: const Icon(Icons.skip_next_rounded, size: 25),
                   isActive: true,
-                  onPressed: () {
-                    viewModel.skipPhase();
-                  },
+                  onPressed: viewModel.skipPhase,
                 ),
               ],
             ),
@@ -178,29 +177,28 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
   }
 
   Widget _buildPhaseIndicator(ActiveSessionState state) {
-    final int focusPhases = state.session!.focusPhases;
-    final int currentBlock = state.currentPhaseIndex;
+    final focusPhases = state.session!.focusPhases;
+    final currentBlock = state.currentPhaseIndex;
 
     return Wrap(
-      spacing: 0,
       runSpacing: 4,
       children: List<Widget>.generate(focusPhases, (int index) {
-        final int focusBlockIndex = index * 2;
-        final int breakBlockIndex = focusBlockIndex + 1;
+        final focusBlockIndex = index * 2;
+        final breakBlockIndex = focusBlockIndex + 1;
         if (index < focusPhases - 1) {
           return Container(
-            margin: const EdgeInsets.only(right: 4.0),
+            margin: const EdgeInsets.only(right: 4),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Opacity(
                   opacity: currentBlock == focusBlockIndex ? 1.0 : 0.2,
-                  child: _buildPreviewBlock("F", context.colorScheme.primary),
+                  child: _buildPreviewBlock('F', context.colorScheme.primary),
                 ),
-                const HorizontalSpace(custom: 2.0),
+                const HorizontalSpace(custom: 2),
                 Opacity(
                   opacity: currentBlock == breakBlockIndex ? 1.0 : 0.2,
-                  child: _buildPreviewBlock("K", context.colorScheme.primary),
+                  child: _buildPreviewBlock('K', context.colorScheme.primary),
                 ),
               ],
             ),
@@ -211,12 +209,12 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
             children: <Widget>[
               Opacity(
                 opacity: currentBlock == focusBlockIndex ? 1.0 : 0.2,
-                child: _buildPreviewBlock("F", context.colorScheme.primary),
+                child: _buildPreviewBlock('F', context.colorScheme.primary),
               ),
-              const HorizontalSpace(custom: 2.0),
+              const HorizontalSpace(custom: 2),
               Opacity(
                 opacity: currentBlock == breakBlockIndex ? 1.0 : 0.2,
-                child: _buildPreviewBlock("L", context.colorScheme.primary),
+                child: _buildPreviewBlock('L', context.colorScheme.primary),
               ),
             ],
           );

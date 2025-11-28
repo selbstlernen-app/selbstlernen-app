@@ -4,8 +4,8 @@ Future<void> showCustomDialog({
   required BuildContext context,
   required String title,
   required Widget content,
-  required Function() onConfirm,
-  required Function() onCancel,
+  required Future<void> Function() onConfirm,
+  required VoidCallback onCancel,
   required String confirmLabel,
   required String cancelLabel,
 }) {
@@ -18,7 +18,7 @@ Future<void> showCustomDialog({
         actions: <Widget>[
           TextButton(
             onPressed: () async {
-              await onCancel();
+              onCancel();
               if (context.mounted) Navigator.of(context).pop();
             },
             child: Text(
@@ -28,7 +28,7 @@ Future<void> showCustomDialog({
           ),
           TextButton(
             onPressed: () async {
-              onConfirm();
+              await onConfirm();
               if (context.mounted) Navigator.of(context).pop();
             },
             child: Text(confirmLabel),

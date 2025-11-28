@@ -4,11 +4,10 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
-import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class TimerPage extends ConsumerStatefulWidget {
-  const TimerPage({super.key, required this.navigateForward});
+  const TimerPage({required this.navigateForward, super.key});
   final VoidCallback navigateForward;
 
   @override
@@ -32,7 +31,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
 
     // Initialize after build; if in edit mode
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final AddSessionState state = ref.read(addSessionViewModelProvider);
+      final state = ref.read(addSessionViewModelProvider);
 
       _focusController.text = state.focusTimeMin.toString();
       _breakController.text = state.breakTimeMin.toString();
@@ -66,7 +65,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
 
   @override
   Widget build(BuildContext context) {
-    final AddSessionState state = ref.watch(addSessionViewModelProvider);
+    final state = ref.watch(addSessionViewModelProvider);
 
     return Column(
       children: <Widget>[
@@ -75,14 +74,14 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text("Timer (in min)", style: context.textTheme.headlineMedium),
+                Text('Timer (in min)', style: context.textTheme.headlineMedium),
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
-                  "Lege die Zeit fest, die du in dieser Lerneinheit verbringen willst.",
+                  'Lege die Zeit fest, die du in dieser Lerneinheit verbringen willst.',
                   style: context.textTheme.bodyMedium,
                 ),
 
-                const VerticalSpace(size: SpaceSize.medium),
+                const VerticalSpace(),
 
                 _buildTimeSettings(),
               ],
@@ -93,7 +92,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           width: context.mediaQuery.size.width,
           child: CustomButton(
             isActive: state.isTimeValid,
-            label: "Weiter",
+            label: 'Weiter',
             onPressed: () => state.isTimeValid ? _saveSettings() : null,
           ),
         ),
@@ -109,7 +108,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           children: <Widget>[
             Expanded(
               child: TimeInputField(
-                label: "Fokuszeit",
+                label: 'Fokuszeit',
                 controller: _focusController,
                 onChanged: (int value) {
                   ref
@@ -119,7 +118,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
               ),
             ),
             TimeInputField(
-              label: "Kurze Pause",
+              label: 'Kurze Pause',
               controller: _breakController,
               onChanged: (int value) {
                 ref
@@ -137,20 +136,19 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           children: <Widget>[
             Expanded(
               child: TimeInputField(
-                label: "Fokusphasen bis zur langen Pause",
+                label: 'Fokusphasen bis zur langen Pause',
                 controller: _focusPhaseController,
                 onChanged: (int value) {
                   ref
                       .read(addSessionViewModelProvider.notifier)
                       .setPomodoroSettings(focusPhases: value);
                 },
-                minValue: 1,
                 maxValue: 15,
               ),
             ),
 
             TimeInputField(
-              label: "Lange Pause",
+              label: 'Lange Pause',
               controller: _longBreakController,
               onChanged: (int value) {
                 ref
@@ -179,14 +177,14 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   }
 
   Widget _buildTimerPreview() {
-    final AddSessionState state = ref.read(addSessionViewModelProvider);
+    final state = ref.read(addSessionViewModelProvider);
 
-    int focusPhases = state.focusPhases != 0 ? state.focusPhases : 1;
+    final focusPhases = state.focusPhases != 0 ? state.focusPhases : 1;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text("Block Vorschau", style: context.textTheme.headlineSmall),
+        Text('Block Vorschau', style: context.textTheme.headlineSmall),
         const VerticalSpace(size: SpaceSize.small),
         Wrap(
           spacing: 4,
@@ -194,13 +192,13 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           children: List<Widget>.generate(focusPhases, (int index) {
             if (index < focusPhases - 1) {
               return Container(
-                margin: const EdgeInsets.only(right: 8.0),
+                margin: const EdgeInsets.only(right: 8),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    _buildPreviewBlock("F", context.colorScheme.primary),
+                    _buildPreviewBlock('F', context.colorScheme.primary),
                     const HorizontalSpace(size: SpaceSize.xsmall),
-                    _buildPreviewBlock("K", context.colorScheme.secondary),
+                    _buildPreviewBlock('K', context.colorScheme.secondary),
                   ],
                 ),
               );
@@ -208,9 +206,9 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  _buildPreviewBlock("F", context.colorScheme.primary),
+                  _buildPreviewBlock('F', context.colorScheme.primary),
                   const HorizontalSpace(size: SpaceSize.xsmall),
-                  _buildPreviewBlock("L", context.colorScheme.onTertiary),
+                  _buildPreviewBlock('L', context.colorScheme.onTertiary),
                 ],
               );
             }
@@ -218,7 +216,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
         ),
         const VerticalSpace(size: SpaceSize.small),
         Text(
-          "F = Fokusphase, K = Kurze Pause, L = Lange Pause",
+          'F = Fokusphase, K = Kurze Pause, L = Lange Pause',
           style: context.textTheme.bodyMedium,
         ),
       ],
@@ -245,21 +243,21 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   }
 
   Widget _calculateTotalTime() {
-    final AddSessionState state = ref.read(addSessionViewModelProvider);
+    final state = ref.read(addSessionViewModelProvider);
 
-    int focusPhases = state.focusPhases != 0 ? state.focusPhases : 1;
+    final focusPhases = state.focusPhases != 0 ? state.focusPhases : 1;
 
-    int totalMins =
-        ((state.focusTimeMin + state.breakTimeMin) * focusPhases +
-        state.longBreakTimeMin);
+    final totalMins =
+        (state.focusTimeMin + state.breakTimeMin) * focusPhases +
+        state.longBreakTimeMin;
 
     if (totalMins >= 60) {
-      int hours = totalMins ~/ 60;
-      int mins = totalMins % 60;
+      final hours = totalMins ~/ 60;
+      final mins = totalMins % 60;
 
-      return Text("Zeit insgesamt: ${hours}h ${mins}m");
+      return Text('Zeit insgesamt: ${hours}h ${mins}m');
     } else {
-      return Text("Zeit insgesamt: ${totalMins}m");
+      return Text('Zeit insgesamt: ${totalMins}m');
     }
   }
 }

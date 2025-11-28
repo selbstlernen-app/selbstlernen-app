@@ -6,11 +6,11 @@ part 'goal_dao.g.dart';
 
 @DriftAccessor(tables: <Type>[Goals])
 class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
-  GoalDao(super.db);
+  GoalDao(super.attachedDatabase);
 
   // Insert goal
   Future<int> addGoal(GoalsCompanion goal) async {
-    return await into(goals).insert(goal);
+    return into(goals).insert(goal);
   }
 
   // Get all goals of a session
@@ -21,7 +21,8 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
   }
 
   /// Watch all goals of a session that are active,
-  ///  i.e. such that are kept for future sessions or on the scheduled day of the session
+  ///  i.e. such that are kept for future sessions or on the scheduled day
+  ///  of the session
   Stream<List<Goal>> watchGoalsBySessionId(int sessionId) {
     return (select(goals)..where(
           ($GoalsTable goal) =>
@@ -35,8 +36,8 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     int sessionId,
     DateTime date,
   ) {
-    final DateTime startOfDay = DateTime(date.year, date.month, date.day);
-    final DateTime endOfDay = DateTime(
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = DateTime(
       date.year,
       date.month,
       date.day,
@@ -68,22 +69,25 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     )..where(($GoalsTable tbl) => tbl.id.equals(id))).write(companion);
   }
 
-  Future<int> updateGoalFutureStatus(int id, bool status) async {
+  Future<int> updateGoalFutureStatus(
+    int id, {
+    required bool keptForFutureSessions,
+  }) async {
     return (update(goals)..where(($GoalsTable tbl) => tbl.id.equals(id))).write(
-      GoalsCompanion(keptForFutureSessions: Value<bool>(status)),
+      GoalsCompanion(keptForFutureSessions: Value<bool>(keptForFutureSessions)),
     );
   }
 
   // Delete goal
   Future<int> deleteGoal(int id) async {
-    return await (delete(
+    return (delete(
       goals,
     )..where(($GoalsTable s) => s.id.equals(id))).go();
   }
 
   // Delete all goals of a session
   Future<int> deleteGoalsBySessionId(int sessionId) async {
-    return await (delete(
+    return (delete(
       goals,
     )..where(($GoalsTable s) => s.sessionId.equals(sessionId))).go();
   }

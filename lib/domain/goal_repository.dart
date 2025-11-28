@@ -11,6 +11,9 @@ abstract class GoalRepository {
   Future<int> addGoal(GoalModel goal);
   Future<void> deleteGoal(int goalId);
   Future<int> updateGoal(int goalId, GoalModel updatedGoal);
-  Future<int> updateGoalFutureStatus(int goalId, bool status);
+  Future<int> updateGoalFutureStatus(
+    int goalId, {
+    required bool keptForFutureSessions,
+  });
   Future<void> deleteGoalsBySessionId(int sessionId);
 }

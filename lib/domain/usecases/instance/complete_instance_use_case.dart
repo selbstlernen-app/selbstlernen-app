@@ -23,7 +23,7 @@ class CompleteInstanceUseCase {
   }
 
   Future<void> _checkAndArchiveIfComplete(String sessionId) async {
-    final SessionModel session = await sessionRepo.getSessionById(
+    final session = await sessionRepo.getSessionById(
       int.parse(sessionId),
     );
 
@@ -36,10 +36,11 @@ class CompleteInstanceUseCase {
       return;
     }
 
-    final int totalInstances = await instanceRepo
-        .countTotalInstancesBySessionId(int.parse(session.id!));
+    final totalInstances = await instanceRepo.countTotalInstancesBySessionId(
+      int.parse(session.id!),
+    );
 
-    final int expectedCount = DateTimeUtils.countDaysBetweenDates(
+    final expectedCount = DateTimeUtils.countDaysBetweenDates(
       session.startDate!,
       session.endDate!,
       session.selectedDays,

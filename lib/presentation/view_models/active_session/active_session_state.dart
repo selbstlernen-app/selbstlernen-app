@@ -9,8 +9,6 @@ enum TimerStatus { initial, running, paused, completed }
 
 @freezed
 abstract class ActiveSessionState with _$ActiveSessionState {
-  const ActiveSessionState._();
-
   const factory ActiveSessionState({
     SessionModel? session,
     SessionInstanceModel? instance,
@@ -39,6 +37,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(0) int currentPhaseIndex,
     String? error,
   }) = _ActiveSessionState;
+  const ActiveSessionState._();
 
   List<TaskModel> get ungroupedTasks =>
       tasks.where((TaskModel task) => task.goalId == null).toList();
@@ -46,20 +45,18 @@ abstract class ActiveSessionState with _$ActiveSessionState {
   List<TaskModel> tasksForGoal(String goalId) =>
       tasks.where((TaskModel task) => task.goalId == goalId).toList();
 
-  List<TaskModel> get newlyAddedTasks => tasks
-      .where((TaskModel task) => task.keptForFutureSessions == false)
-      .toList();
+  List<TaskModel> get newlyAddedTasks =>
+      tasks.where((TaskModel task) => !task.keptForFutureSessions).toList();
 
-  List<GoalModel> get newlyAddedGoals => goals
-      .where((GoalModel goal) => goal.keptForFutureSessions == false)
-      .toList();
+  List<GoalModel> get newlyAddedGoals =>
+      goals.where((GoalModel goal) => !goal.keptForFutureSessions).toList();
 
   List<GoalModel> getExistingGoalsWithNewTasks() {
-    Set<String> goalIds = tasks
+    final goalIds = tasks
         .where((TaskModel t) => t.goalId != null)
         .map((TaskModel t) => t.goalId!)
         .toSet();
-    List<GoalModel> existingGoalsWithNewTasks = goals
+    final existingGoalsWithNewTasks = goals
         .where(
           (GoalModel goal) =>
               goal.keptForFutureSessions == true & goalIds.contains(goal.id),

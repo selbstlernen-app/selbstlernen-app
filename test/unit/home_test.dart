@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
-import 'package:srl_app/domain/models/session_with_instance_model.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 import 'package:srl_app/domain/usecases/session/get_completed_sessions_for_today_use_case.dart';
@@ -18,26 +17,27 @@ void main() {
   test(
     'GetCompletedSessionsForTodayUseCase returns completed sessions',
     () async {
-      final MockSessionRepository sessionRepo = MockSessionRepository();
-      final MockSessionInstanceRepository instanceRepo =
-          MockSessionInstanceRepository();
+      final sessionRepo = MockSessionRepository();
+      final instanceRepo = MockSessionInstanceRepository();
 
-      final GetCompletedSessionsForTodayUseCase useCase =
-          GetCompletedSessionsForTodayUseCase(sessionRepo, instanceRepo);
+      final useCase = GetCompletedSessionsForTodayUseCase(
+        sessionRepo,
+        instanceRepo,
+      );
 
       // ---- Test Data ----
-      final SessionModel session = const SessionModel(
+      const session = SessionModel(
         id: '1',
         title: 'Mathe TEST-Vorlesung',
       );
-      final SessionInstanceModel completedInstance = SessionInstanceModel(
+      final completedInstance = SessionInstanceModel(
         sessionId: '1',
         scheduledAt: DateTime.now(),
         status: SessionStatus.completed,
       );
 
       // ---- Mock streams ----
-      when(() => sessionRepo.watchAllSessions()).thenAnswer(
+      when(sessionRepo.watchAllSessions).thenAnswer(
         (_) => Stream<List<SessionModel>>.value(<SessionModel>[session]),
       );
 
@@ -48,7 +48,7 @@ void main() {
       );
 
       // ---- Collect result ----
-      final List<SessionWithInstanceModel> result = await useCase(
+      final result = await useCase(
         DateTime.now(),
       ).first;
 
@@ -59,28 +59,25 @@ void main() {
   );
 
   test('GetSessionsForTodayUseCase returns sessions occurring today', () async {
-    final MockSessionRepository sessionRepo = MockSessionRepository();
-    final MockSessionInstanceRepository instanceRepo =
-        MockSessionInstanceRepository();
+    final sessionRepo = MockSessionRepository();
+    final instanceRepo = MockSessionInstanceRepository();
 
-    final GetSessionsForTodayUseCase useCase = GetSessionsForTodayUseCase(
+    final useCase = GetSessionsForTodayUseCase(
       sessionRepo,
       instanceRepo,
     );
 
-    final DateTime now = DateTime(2025, 1, 1);
+    final now = DateTime(2025);
 
     // Session that should occur today
-    final SessionModel session_1 = const SessionModel(
+    const session_1 = SessionModel(
       id: '1',
       title: 'TEST EINHEIT 1',
-      isRepeating: false,
     );
 
-    final SessionModel session_2 = const SessionModel(
+    const session_2 = SessionModel(
       id: '2',
       title: 'TEST EINHEIT 2',
-      isRepeating: false,
     );
 
     // No instances should be found in repo for the sessions
@@ -89,14 +86,14 @@ void main() {
     );
 
     // When active session is watched, return both sessions
-    when(() => sessionRepo.watchAllActiveSessions()).thenAnswer(
+    when(sessionRepo.watchAllActiveSessions).thenAnswer(
       (_) => Stream<List<SessionModel>>.value(<SessionModel>[
         session_1,
         session_2,
       ]),
     );
 
-    final List<SessionWithInstanceModel> result = await useCase(now).first;
+    final result = await useCase(now).first;
 
     expect(result.length, 2);
     // We expect first session; first in line
@@ -106,27 +103,26 @@ void main() {
   });
 
   test('Skips repeating session on non-matching weekday', () async {
-    final MockSessionRepository sessionRepo = MockSessionRepository();
-    final MockSessionInstanceRepository instanceRepo =
-        MockSessionInstanceRepository();
+    final sessionRepo = MockSessionRepository();
+    final instanceRepo = MockSessionInstanceRepository();
 
-    final GetSessionsForTodayUseCase useCase = GetSessionsForTodayUseCase(
+    final useCase = GetSessionsForTodayUseCase(
       sessionRepo,
       instanceRepo,
     );
 
-    final DateTime wednesday = DateTime(2025, 11, 5); // Wednesday
+    final wednesday = DateTime(2025, 11, 5); // Wednesday
 
-    final SessionModel session = SessionModel(
+    final session = SessionModel(
       id: '1',
       title: 'TEST Sport machen',
       isRepeating: true,
-      startDate: DateTime(2025, 11, 1),
+      startDate: DateTime(2025, 11),
       endDate: DateTime(2025, 11, 23),
       selectedDays: <int>[0, 1, 4],
     );
 
-    when(() => sessionRepo.watchAllActiveSessions()).thenAnswer(
+    when(sessionRepo.watchAllActiveSessions).thenAnswer(
       (_) => Stream<List<SessionModel>>.value(<SessionModel>[session]),
     );
 
@@ -134,7 +130,7 @@ void main() {
       (_) => Stream<List<SessionInstanceModel>>.value(<SessionInstanceModel>[]),
     );
 
-    final List<SessionWithInstanceModel> result = await useCase(
+    final result = await useCase(
       wednesday,
     ).first;
 
@@ -142,23 +138,22 @@ void main() {
   });
 
   test('Repeating session is returned when the weekday matches', () async {
-    final MockSessionRepository sessionRepo = MockSessionRepository();
-    final MockSessionInstanceRepository instanceRepo =
-        MockSessionInstanceRepository();
+    final sessionRepo = MockSessionRepository();
+    final instanceRepo = MockSessionInstanceRepository();
 
-    final GetSessionsForTodayUseCase useCase = GetSessionsForTodayUseCase(
+    final useCase = GetSessionsForTodayUseCase(
       sessionRepo,
       instanceRepo,
     );
 
-    final DateTime monday = DateTime(2025, 11, 3);
+    final monday = DateTime(2025, 11, 3);
 
-    final SessionModel session = SessionModel(
+    final session = SessionModel(
       id: '1',
       title: 'TEST MONTAG',
       isRepeating: true,
-      startDate: DateTime(2025, 11, 1),
-      endDate: DateTime(2025, 31, 1),
+      startDate: DateTime(2025, 11),
+      endDate: DateTime(2025, 31),
       selectedDays: <int>[0],
     );
 
@@ -166,11 +161,11 @@ void main() {
       (_) => Stream<List<SessionInstanceModel>>.value(<SessionInstanceModel>[]),
     );
 
-    when(() => sessionRepo.watchAllActiveSessions()).thenAnswer(
+    when(sessionRepo.watchAllActiveSessions).thenAnswer(
       (_) => Stream<List<SessionModel>>.value(<SessionModel>[session]),
     );
 
-    final List<SessionWithInstanceModel> result = await useCase(monday).first;
+    final result = await useCase(monday).first;
 
     expect(result.length, 1);
     expect(result.first.session, session);

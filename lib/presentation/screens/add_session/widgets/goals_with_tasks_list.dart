@@ -5,34 +5,32 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/input_list.dart';
-import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class GoalWithTasksCard extends ConsumerWidget {
+  const GoalWithTasksCard({
+    required this.goal,
+    required this.isExpanded,
+    required this.onToggleExpand,
+    required this.onAddTask,
+    required this.taskController,
+    super.key,
+  });
   final GoalModel goal;
   final bool isExpanded;
   final VoidCallback onToggleExpand;
   final VoidCallback onAddTask;
   final TextEditingController taskController;
 
-  const GoalWithTasksCard({
-    super.key,
-    required this.goal,
-    required this.isExpanded,
-    required this.onToggleExpand,
-    required this.onAddTask,
-    required this.taskController,
-  });
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final AddSessionState state = ref.watch(addSessionViewModelProvider);
-    final List<TaskModel> goalTasks = state.tasksForGoal(goal.id!);
+    final state = ref.watch(addSessionViewModelProvider);
+    final goalTasks = state.tasksForGoal(goal.id!);
 
     return Card(
       elevation: 0.5,
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -41,7 +39,7 @@ class GoalWithTasksCard extends ConsumerWidget {
               onTap: onToggleExpand,
               borderRadius: BorderRadius.circular(8),
               child: Padding(
-                padding: const EdgeInsets.all(12.0),
+                padding: const EdgeInsets.all(12),
                 child: Row(
                   children: <Widget>[
                     // Goal icon
@@ -51,7 +49,7 @@ class GoalWithTasksCard extends ConsumerWidget {
                       size: 24,
                     ),
 
-                    const HorizontalSpace(size: SpaceSize.medium),
+                    const HorizontalSpace(),
 
                     // Goal title + task count
                     Expanded(
@@ -97,7 +95,7 @@ class GoalWithTasksCard extends ConsumerWidget {
             // Expanded content
             if (isExpanded)
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -113,7 +111,7 @@ class GoalWithTasksCard extends ConsumerWidget {
                     if (goalTasks.isNotEmpty) ...<Widget>[
                       ...goalTasks.map((TaskModel task) {
                         return Padding(
-                          padding: const EdgeInsets.only(left: 32.0),
+                          padding: const EdgeInsets.only(left: 32),
                           child: Row(
                             children: <Widget>[
                               // Task icon
@@ -141,10 +139,10 @@ class GoalWithTasksCard extends ConsumerWidget {
                                   size: 20,
                                 ),
                                 onPressed: () {
-                                  final AddSessionViewModel notifier = ref.read(
+                                  final notifier = ref.read(
                                     addSessionViewModelProvider.notifier,
                                   );
-                                  final AddSessionState state = ref.read(
+                                  final state = ref.read(
                                     addSessionViewModelProvider,
                                   );
                                   if (state.isEditingMode && task.id != null) {
@@ -161,7 +159,7 @@ class GoalWithTasksCard extends ConsumerWidget {
                       }),
                     ],
 
-                    const VerticalSpace(size: SpaceSize.medium),
+                    const VerticalSpace(),
 
                     // Add task input
                     InputList<TaskModel>(

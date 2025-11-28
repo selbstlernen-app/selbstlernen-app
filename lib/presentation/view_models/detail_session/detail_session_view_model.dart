@@ -1,8 +1,8 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
 
@@ -23,10 +23,10 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
     _getInstancesUseCase = ref.watch(getInstanceUseCaseProvider);
     _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
 
-    final Stream<FullSessionModel> fullSession$ = _fullSessionUseCase
-        .watchFullSession(sessionId);
-    final Stream<List<SessionInstanceModel>> instances$ = _getInstancesUseCase
-        .watchInstancesBySessionId(sessionId);
+    final fullSession$ = _fullSessionUseCase.watchFullSession(sessionId);
+    final instances$ = _getInstancesUseCase.watchInstancesBySessionId(
+      sessionId,
+    );
 
     return Rx.combineLatest2(fullSession$, instances$, (
       FullSessionModel fullSession,
@@ -54,7 +54,7 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   }
 
   Future<SessionInstanceModel> startSession(DateTime date) async {
-    return await _getOrCreateInstanceUseCase.call(
+    return _getOrCreateInstanceUseCase.call(
       sessionId: _sessionId,
       date: date,
     );

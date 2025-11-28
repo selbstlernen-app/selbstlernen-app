@@ -6,16 +6,16 @@ import 'package:srl_app/core/utils/time_formatter.dart';
 
 class TimeInputField extends StatelessWidget {
   const TimeInputField({
-    super.key,
     required this.controller,
     required this.label,
     required this.onChanged,
+    super.key,
     this.minValue = 1,
     this.maxValue = 480, // 480 min = 8 hours of learning
   });
 
   final TextEditingController controller;
-  final Function(int) onChanged;
+  final ValueChanged<int> onChanged;
   final String label;
   final int minValue;
   final int maxValue;
@@ -48,7 +48,7 @@ class TimeInputField extends StatelessWidget {
                   onChanged(0);
                   return;
                 }
-                int? parsed = int.tryParse(value);
+                final parsed = int.tryParse(value);
                 if (parsed == null) {
                   return;
                 } else {
@@ -67,7 +67,7 @@ class TimeInputField extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
                 ),
-                hintText: "xxx",
+                hintText: 'xxx',
                 hintStyle: TextStyle(color: context.colorScheme.onTertiary),
               ),
               inputFormatters: <TextInputFormatter>[

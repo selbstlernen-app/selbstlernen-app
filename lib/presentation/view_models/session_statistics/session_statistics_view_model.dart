@@ -1,7 +1,6 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/domain/models/session_model.dart';
-import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/session/get_focus_minutes_by_weekday_use_case.dart';
 import 'package:srl_app/domain/usecases/session/get_session_statistics_use_case.dart';
@@ -30,24 +29,25 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
     _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
     _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
 
-    _loadData();
-    return const SessionStatisticsState(isLoading: true);
+    unawaited(_loadData());
+    return const SessionStatisticsState();
   }
 
   Future<void> _loadData() async {
     try {
-      final SessionStatistics statistics = await _getSessionStatisticsUseCase
-          .call(_sessionId);
+      final statistics = await _getSessionStatisticsUseCase.call(_sessionId);
 
-      final List<double> weekdayMinutes = await _getFocusMinutesByWeekdayUseCase
-          .call(_sessionId);
-
-      final SessionModel session = await _manageSessionUseCase.getSessionById(
+      final weekdayMinutes = await _getFocusMinutesByWeekdayUseCase.call(
         _sessionId,
       );
 
-      final List<SessionInstanceModel> instances = await _getInstanceUseCase
-          .getInstancesBySessionId(sessionId);
+      final session = await _manageSessionUseCase.getSessionById(
+        _sessionId,
+      );
+
+      final instances = await _getInstanceUseCase.getInstancesBySessionId(
+        sessionId,
+      );
 
       state = state.copyWith(
         stats: statistics,
@@ -56,7 +56,7 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
         weekdayMinutes: weekdayMinutes,
         isLoading: false,
       );
-    } catch (e) {
+    } on Exception catch (e) {
       state = state.copyWith(error: e.toString(), isLoading: false);
     }
   }

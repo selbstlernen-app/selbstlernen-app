@@ -8,7 +8,6 @@ import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/goal_model.dart';
-import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/task_model.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
@@ -17,7 +16,7 @@ import 'package:srl_app/presentation/view_models/active_session/active_session_v
 /// Requires double tap to avoid accidentally leaving the session
 /// and kept minimal to avoid users directly clicking it
 class ExitButton extends ConsumerStatefulWidget {
-  const ExitButton({super.key, required this.instanceId});
+  const ExitButton({required this.instanceId, super.key});
 
   final int instanceId;
 
@@ -52,77 +51,75 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
     // Do not close the button when dialog is open
     _timer?.cancel();
 
-    final ActiveSessionState state = ref.read(
+    final state = ref.read(
       activeSessionViewModelProvider(widget.instanceId),
     );
-    final ActiveSessionViewModel viewModel = ref.read(
+    final viewModel = ref.read(
       activeSessionViewModelProvider(widget.instanceId).notifier,
     );
 
     // Stop the session
     if (state.timerStatus != TimerStatus.initial) {
-      viewModel.pauseTimer();
+      await viewModel.pauseTimer();
 
       // Filter to only show items that are NEW to this session
-      final List<GoalModel> newGoals = state.newlyAddedGoals;
-      final List<TaskModel> newTasks = state.newlyAddedTasks;
+      final newGoals = state.newlyAddedGoals;
+      final newTasks = state.newlyAddedTasks;
 
       // Group tasks by goalId
-      final Map<String, List<TaskModel>> tasksByGoal =
-          <String, List<TaskModel>>{};
-      for (final TaskModel task in newTasks) {
+      final tasksByGoal = <String, List<TaskModel>>{};
+      for (final task in newTasks) {
         if (task.goalId != null) {
           tasksByGoal.putIfAbsent(task.goalId!, () => <TaskModel>[]).add(task);
         }
       }
 
       // Get all existing goals that have new tasks
-      final List<GoalModel> existingGoalsWithNewTasks = state
-          .getExistingGoalsWithNewTasks();
+      final existingGoalsWithNewTasks = state.getExistingGoalsWithNewTasks();
 
       // Combine: new goals + existing goals with new tasks
-      final List<GoalModel> allDisplayedGoals = <GoalModel>[
+      final allDisplayedGoals = <GoalModel>[
         ...newGoals,
         ...existingGoalsWithNewTasks,
       ];
 
       // Separate ungrouped tasks
-      final List<TaskModel> ungroupedTasks = newTasks
+      final ungroupedTasks = newTasks
           .where((TaskModel t) => t.goalId == null)
           .toList();
 
       // Track selection - only for items to decide
-      final Map<String, bool> goalSelection = <String, bool>{
-        for (GoalModel g in newGoals) g.id!: false,
+      final goalSelection = <String, bool>{
+        for (final GoalModel g in newGoals) g.id!: false,
       };
-      final Map<String, bool> taskSelection = <String, bool>{
-        for (TaskModel t in newTasks) t.id!: false,
+      final taskSelection = <String, bool>{
+        for (final TaskModel t in newTasks) t.id!: false,
       };
 
       await showCustomDialog(
         context: context,
-        title: "Lerneinheit beenden",
+        title: 'Lerneinheit beenden',
         content: StatefulBuilder(
-          builder: (BuildContext context, Function setState) {
+          builder: (BuildContext context, StateSetter setState) {
             return SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    "Willst du diese Lerneinheit wirklich beenden?",
+                    'Willst du diese Lerneinheit wirklich beenden?',
                     style: context.textTheme.bodyMedium,
                   ),
                   if (state.session!.isRepeating &&
                       (newGoals.isNotEmpty || newTasks.isNotEmpty)) ...<Widget>[
-                    const VerticalSpace(size: SpaceSize.medium),
+                    const VerticalSpace(),
                     Text(
-                      "Neue Elemente für diese Einheit:",
+                      'Neue Elemente für diese Einheit:',
                       style: context.textTheme.labelMedium,
                     ),
                     const VerticalSpace(size: SpaceSize.xsmall),
                     Text(
-                      "Wähle die Elemente aus, die du für zukünftige Sitzungen behalten möchtest:",
+                      'Wähle die Elemente aus, die du für zukünftige Sitzungen behalten möchtest:',
                       style: TextStyle(
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
@@ -134,9 +131,8 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
 
                     // Goals with their tasks
                     ...allDisplayedGoals.map((GoalModel goal) {
-                      final List<TaskModel> goalTasks =
-                          tasksByGoal[goal.id!] ?? <TaskModel>[];
-                      final bool isNewGoal = !goal.keptForFutureSessions;
+                      final goalTasks = tasksByGoal[goal.id!] ?? <TaskModel>[];
+                      final isNewGoal = !goal.keptForFutureSessions;
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -157,7 +153,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                                     setState(() {
                                       goalSelection[goal.id!] = value ?? false;
                                       // Toggle all tasks under this goal
-                                      for (final TaskModel task in goalTasks) {
+                                      for (final task in goalTasks) {
                                         taskSelection[task.id!] =
                                             value ?? false;
                                       }
@@ -168,11 +164,10 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                                   child: GestureDetector(
                                     onTap: () {
                                       setState(() {
-                                        final bool newValue =
+                                        final newValue =
                                             !(goalSelection[goal.id!] ?? false);
                                         goalSelection[goal.id!] = newValue;
-                                        for (final TaskModel task
-                                            in goalTasks) {
+                                        for (final task in goalTasks) {
                                           taskSelection[task.id!] = newValue;
                                         }
                                       });
@@ -186,13 +181,14 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                                   ),
                                 ),
                               ],
-                              // Show plain text for EXISTING goals (context only)
+                              // Show plain text for EXISTING goals
+                              // (context only)
                               if (!isNewGoal)
                                 Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
-                                      vertical: 8.0,
-                                      horizontal: 12.0,
+                                      vertical: 8,
+                                      horizontal: 12,
                                     ),
                                     child: Row(
                                       children: <Widget>[
@@ -262,7 +258,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                     if (ungroupedTasks.isNotEmpty) ...<Widget>[
                       const SizedBox(height: 12),
                       Text(
-                        "Sonstige Aufgaben:",
+                        'Sonstige Aufgaben:',
                         style: context.textTheme.labelMedium?.copyWith(
                           color: AppPalette.grey,
                         ),
@@ -294,7 +290,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                       }),
                     ],
 
-                    const VerticalSpace(size: SpaceSize.medium),
+                    const VerticalSpace(),
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -302,7 +298,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        "Nicht markierte Elemente werden als abgeschlossen markiert",
+                        'Nicht markierte Elemente werden als abgeschlossen markiert',
                         style: TextStyle(
                           fontSize: 12,
                           fontStyle: FontStyle.italic,
@@ -316,21 +312,21 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
             );
           },
         ),
-        confirmLabel: "Bestätigen",
-        cancelLabel: "Abbrechen",
-        onCancel: () => viewModel.startTimer(),
+        confirmLabel: 'Bestätigen',
+        cancelLabel: 'Abbrechen',
+        onCancel: viewModel.startTimer,
         onConfirm: () async {
-          final List<String> goalIdsToKeep = goalSelection.entries
+          final goalIdsToKeep = goalSelection.entries
               .where((MapEntry<String, bool> e) => e.value)
               .map((MapEntry<String, bool> e) => e.key)
               .toList();
-          final List<String> taskIdsToKeep = taskSelection.entries
+          final taskIdsToKeep = taskSelection.entries
               .where((MapEntry<String, bool> e) => e.value)
               .map((MapEntry<String, bool> e) => e.key)
               .toList();
 
-          for (final String taskId in taskIdsToKeep) {
-            final TaskModel task = state.newlyAddedTasks.firstWhere(
+          for (final taskId in taskIdsToKeep) {
+            final task = state.newlyAddedTasks.firstWhere(
               (TaskModel t) => t.id == taskId,
             );
             // If task has a goalId and that goal is NOT being kept,
@@ -340,11 +336,10 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
             }
           }
 
-          final SessionInstanceModel updatedInstance = await viewModel
-              .completeSession(
-                goalIdsToKeep: goalIdsToKeep,
-                taskIdsToKeep: taskIdsToKeep,
-              );
+          final updatedInstance = await viewModel.completeSession(
+            goalIdsToKeep: goalIdsToKeep,
+            taskIdsToKeep: taskIdsToKeep,
+          );
 
           if (!mounted) return;
           await Navigator.pushReplacementNamed(
@@ -388,9 +383,9 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
               duration: const Duration(milliseconds: 200),
               child: _tappedOnce
                   ? const Padding(
-                      padding: EdgeInsets.only(left: 8.0),
+                      padding: EdgeInsets.only(left: 8),
                       child: Text(
-                        "Lerneinheit beenden?",
+                        'Lerneinheit beenden?',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,

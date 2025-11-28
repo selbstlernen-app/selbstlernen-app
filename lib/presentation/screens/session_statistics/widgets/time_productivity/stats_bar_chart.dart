@@ -8,10 +8,10 @@ import 'package:srl_app/core/utils/time_utils.dart';
 
 class StatsBarChart extends StatefulWidget {
   const StatsBarChart({
-    super.key,
     required this.weekdayMinutes,
     required this.plannedFocusMinutesPerWeekday,
     required this.averageFocusMinutesPerSession,
+    super.key,
   });
 
   final List<double> weekdayMinutes;
@@ -27,8 +27,8 @@ class _StatsBarChartState extends State<StatsBarChart> {
   Timer? _tooltipTimer;
 
   double get _maxY {
-    final int maxPlanned = widget.plannedFocusMinutesPerWeekday.reduce(max);
-    final int maxActual = widget.weekdayMinutes.reduce(max).toInt();
+    final maxPlanned = widget.plannedFocusMinutesPerWeekday.reduce(max);
+    final maxActual = widget.weekdayMinutes.reduce(max).toInt();
 
     final int computedMax = max(maxPlanned, maxActual);
 
@@ -52,7 +52,6 @@ class _StatsBarChartState extends State<StatsBarChart> {
           horizontalLines: <HorizontalLine>[
             HorizontalLine(
               y: widget.averageFocusMinutesPerSession,
-              strokeWidth: 2,
               color: AppPalette.purple,
               dashArray: <int>[10, 16],
             ),
@@ -77,7 +76,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
       allowTouchBarBackDraw: true,
       touchCallback: (FlTouchEvent event, BarTouchResponse? response) {
         if (event is FlTapUpEvent) {
-          final int? index = response?.spot?.touchedBarGroupIndex;
+          final index = response?.spot?.touchedBarGroupIndex;
 
           setState(() {
             touchedGroupIndex = index;
@@ -136,13 +135,13 @@ class _StatsBarChartState extends State<StatsBarChart> {
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(showTitles: true, getTitlesWidget: getTitles),
       ),
-      topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-      rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      topTitles: const AxisTitles(),
+      rightTitles: const AxisTitles(),
     );
   }
 
   Widget getTitles(double value, TitleMeta meta) {
-    String text = switch (value.toInt()) {
+    final text = switch (value.toInt()) {
       0 => 'Mo',
       1 => 'Di',
       2 => 'Mi',
@@ -166,7 +165,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
       return SideTitleWidget(
         meta: meta,
         child: Text(
-          maxY <= 60 ? "0 min" : "0 h",
+          maxY <= 60 ? '0 min' : '0 h',
           style: ChartUtils.styleLeftBar,
         ),
       );
@@ -186,8 +185,8 @@ class _StatsBarChartState extends State<StatsBarChart> {
 
   List<BarChartGroupData> _buildBarGroups() {
     return List<BarChartGroupData>.generate(7, (int index) {
-      final double minutes = widget.weekdayMinutes[index];
-      final int plannedMinutes = widget.plannedFocusMinutesPerWeekday[index];
+      final minutes = widget.weekdayMinutes[index];
+      final plannedMinutes = widget.plannedFocusMinutesPerWeekday[index];
 
       return BarChartGroupData(
         x: index,

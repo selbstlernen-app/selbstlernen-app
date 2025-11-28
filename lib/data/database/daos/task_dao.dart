@@ -6,11 +6,11 @@ part 'task_dao.g.dart';
 
 @DriftAccessor(tables: <Type>[Tasks])
 class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
-  TaskDao(super.db);
+  TaskDao(super.attachedDatabase);
 
   // Insert task
   Future<int> addTask(TasksCompanion task) async {
-    return await into(tasks).insert(task);
+    return into(tasks).insert(task);
   }
 
   // Get all tasks of a session
@@ -42,8 +42,8 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     int sessionId,
     DateTime date,
   ) {
-    final DateTime startOfDay = DateTime(date.year, date.month, date.day);
-    final DateTime endOfDay = DateTime(
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = DateTime(
       date.year,
       date.month,
       date.day,
@@ -67,22 +67,25 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     )..where(($TasksTable tbl) => tbl.id.equals(id))).write(companion);
   }
 
-  Future<int> updateTaskFutureStatus(int id, bool status) async {
+  Future<int> updateTaskFutureStatus(
+    int id, {
+    required bool keptForFutureSessions,
+  }) async {
     return (update(tasks)..where(($TasksTable tbl) => tbl.id.equals(id))).write(
-      TasksCompanion(keptForFutureSessions: Value<bool>(status)),
+      TasksCompanion(keptForFutureSessions: Value<bool>(keptForFutureSessions)),
     );
   }
 
   // Delete task
   Future<int> deleteTask(int id) async {
-    return await (delete(
+    return (delete(
       tasks,
     )..where(($TasksTable s) => s.id.equals(id))).go();
   }
 
   // Delete all tasks of a session
   Future<int> deleteTasksBySessionId(int sessionId) async {
-    return await (delete(
+    return (delete(
       tasks,
     )..where(($TasksTable s) => s.sessionId.equals(sessionId))).go();
   }

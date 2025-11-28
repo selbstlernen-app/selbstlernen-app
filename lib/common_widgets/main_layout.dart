@@ -4,9 +4,7 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 class MainLayout extends StatelessWidget {
   const MainLayout({
-    super.key,
-    required this.appBarTitle,
-    required this.content,
+    required this.appBarTitle, required this.content, super.key,
     this.navigateBack,
     this.bottomBarWidget,
     this.actions,
@@ -28,11 +26,11 @@ class MainLayout extends StatelessWidget {
       backgroundColor: context.colorScheme.secondary,
       floatingActionButton: showFloatingActionButton
           ? Padding(
-              padding: const EdgeInsets.only(top: 70.0),
+              padding: const EdgeInsets.only(top: 70),
               child: FloatingActionButton(
                 backgroundColor: AppPalette.orange,
                 onPressed: onPressedFAB,
-                tooltip: "Änderungen speichern",
+                tooltip: 'Änderungen speichern',
                 child: const Icon(Icons.save_rounded),
               ),
             )
@@ -71,7 +69,7 @@ class MainLayout extends StatelessWidget {
           color: Colors.white,
           width: context.mediaQuery.size.width,
           child: SafeArea(
-            child: Padding(padding: const EdgeInsets.all(24.0), child: content),
+            child: Padding(padding: const EdgeInsets.all(24), child: content),
           ),
         ),
       ),

@@ -5,13 +5,13 @@ part 'session_with_instance_model.freezed.dart';
 
 @freezed
 abstract class SessionWithInstanceModel with _$SessionWithInstanceModel {
-  const SessionWithInstanceModel._();
 
   const factory SessionWithInstanceModel({
     required SessionModel session,
     // Instance; if any was created yet
     SessionInstanceModel? instance,
   }) = _SessionWithInstanceModel;
+  const SessionWithInstanceModel._();
 
   // Helpers
   SessionStatus get todayStatus => instance?.status ?? SessionStatus.scheduled;

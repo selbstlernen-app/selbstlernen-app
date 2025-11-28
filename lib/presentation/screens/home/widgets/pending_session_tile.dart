@@ -8,14 +8,14 @@ import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 
 class PendingSessionTile extends ConsumerWidget {
-  const PendingSessionTile({super.key, required this.session});
+  const PendingSessionTile({required this.session, super.key});
 
   final SessionModel session;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 8.0),
+      margin: const EdgeInsets.only(bottom: 8),
       child: Stack(
         clipBehavior: Clip.antiAlias,
         children: <Widget>[
@@ -30,12 +30,10 @@ class PendingSessionTile extends ConsumerWidget {
           ClipRRect(
             child: Slidable(
               key: ValueKey<int>(int.parse(session.id!)),
-              direction: Axis.horizontal,
               endActionPane: ActionPane(
                 motion: const BehindMotion(),
                 children: <Widget>[
                   SlidableAction(
-                    autoClose: true,
                     onPressed: (BuildContext slidableContext) async {
                       await _showSkipDialog(context, ref);
                     },
@@ -94,27 +92,29 @@ class PendingSessionTile extends ConsumerWidget {
 
   String _getDisplayDate() {
     if (!session.isRepeating) {
-      return "Einmalig";
+      return 'Einmalig';
     } else {
-      final DateTime? date = session.startDate;
-      return "${date?.day}.${date?.month}.${date?.year}";
+      final date = session.startDate;
+      return '${date?.day}.${date?.month}.${date?.year}';
     }
   }
 
   Future<void> _showSkipDialog(BuildContext context, WidgetRef ref) {
-    void skipSession() {
-      ref
+    Future<void> skipSession() async {
+      await ref
           .read(homeViewModelProvider.notifier)
           .skipSession(sessionId: session.id!);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          duration: Duration(seconds: 2),
-          content: Text("Lerneinheit übersprungen!"),
-        ),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            duration: Duration(seconds: 2),
+            content: Text('Lerneinheit übersprungen!'),
+          ),
+        );
 
-      Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
     }
 
     return showDialog<void>(
@@ -126,7 +126,7 @@ class PendingSessionTile extends ConsumerWidget {
             style: context.textTheme.headlineMedium,
           ),
           content: Text(
-            "Willst du diese Einheit wirklich überspringen?",
+            'Willst du diese Einheit wirklich überspringen?',
             style: context.textTheme.bodyLarge,
           ),
           actions: <Widget>[
@@ -136,13 +136,13 @@ class PendingSessionTile extends ConsumerWidget {
               ),
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                "Abbrechen",
+                'Abbrechen',
                 style: context.textTheme.labelLarge!.copyWith(
                   color: context.colorScheme.error,
                 ),
               ),
             ),
-            TextButton(onPressed: skipSession, child: const Text("Bestätigen")),
+            TextButton(onPressed: skipSession, child: const Text('Bestätigen')),
           ],
         );
       },

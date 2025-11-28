@@ -17,11 +17,11 @@ class FullSessionUseCase {
   final GoalRepository goalRepository;
 
   Future<FullSessionModel> getFullModel(int sessionId) async {
-    SessionModel session = await repository.getSessionById(sessionId);
-    List<GoalModel> goals = await goalRepository.getGoalsBySessionId(sessionId);
-    List<TaskModel> tasks = await taskRepository.getTasksBySessionId(sessionId);
+    final session = await repository.getSessionById(sessionId);
+    final goals = await goalRepository.getGoalsBySessionId(sessionId);
+    final tasks = await taskRepository.getTasksBySessionId(sessionId);
 
-    FullSessionModel fullSessionModel = FullSessionModel(
+    final fullSessionModel = FullSessionModel(
       session: session,
       goals: goals,
       tasks: tasks,
@@ -30,13 +30,13 @@ class FullSessionUseCase {
   }
 
   Stream<FullSessionModel> watchFullSession(int sessionId) {
-    final Stream<SessionModel> session$ = repository.watchSessionById(
+    final session$ = repository.watchSessionById(
       sessionId,
     );
-    final Stream<List<GoalModel>> goals$ = goalRepository.watchGoalsBySessionId(
+    final goals$ = goalRepository.watchGoalsBySessionId(
       sessionId,
     );
-    final Stream<List<TaskModel>> tasks$ = taskRepository.watchTasksBySessionId(
+    final tasks$ = taskRepository.watchTasksBySessionId(
       sessionId,
     );
 

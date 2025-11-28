@@ -23,8 +23,13 @@ class ManageTasksUseCase {
   Future<int> updateTask(TaskModel task) =>
       repository.updateTask(int.parse(task.id!), task);
 
-  Future<int> updateTaskFutureStatus(String taskId, bool status) =>
-      repository.updateTaskFutureStatus(int.parse(taskId), status);
+  Future<int> updateTaskFutureStatus(
+    String taskId, {
+    required bool keptForFutureSessions,
+  }) => repository.updateTaskFutureStatus(
+    int.parse(taskId),
+    keptForFutureSessions: keptForFutureSessions,
+  );
 
   // Delete
   Future<void> deleteTask(int taskId) => repository.deleteTask(taskId);
