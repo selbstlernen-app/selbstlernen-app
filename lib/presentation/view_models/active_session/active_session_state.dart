@@ -56,7 +56,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
 
   List<GoalModel> getExistingGoalsWithNewTasks() {
     Set<String> goalIds = tasks
-        .where((t) => t.goalId != null)
+        .where((TaskModel t) => t.goalId != null)
         .map((TaskModel t) => t.goalId!)
         .toSet();
     List<GoalModel> existingGoalsWithNewTasks = goals

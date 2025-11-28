@@ -371,9 +371,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }) async {
     if (state.instance == null) return state.instance!;
 
-    print(goalIdsToKeep);
-    print(taskIdsToKeep);
-
     try {
       final SessionInstanceModel updatedInstance = state.instance!.copyWith(
         completedAt: DateTime.now(),

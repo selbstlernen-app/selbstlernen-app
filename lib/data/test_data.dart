@@ -20,8 +20,6 @@ class TestData extends _$TestData {
       sessionInstanceRepositoryProvider,
     );
 
-    print("Inserting test data");
-
     final SessionModel testSession = SessionModel(
       title: "Deep Learning / Fokus Block",
       isRepeating: true,
@@ -39,8 +37,6 @@ class TestData extends _$TestData {
     );
 
     int sessionId = await sessionRepo.addSession(testSession);
-
-    print("✔ Inserted SessionModel");
 
     final List<SessionInstanceModel> testInstances = <SessionInstanceModel>[
       // Completed sessions
@@ -89,10 +85,6 @@ class TestData extends _$TestData {
     for (final SessionInstanceModel instance in testInstances) {
       await instanceRepo.createInstance(instance: instance);
     }
-
-    print(
-      "✔ Inserted ${testInstances.length} SessionInstanceModels for session with id $sessionId",
-    );
 
     print("🎉 Test data insertion complete!");
   }
