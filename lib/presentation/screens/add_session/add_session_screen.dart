@@ -47,6 +47,12 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    ref.read(addSessionViewModelProvider.notifier).resetFields();
+    super.dispose();
+  }
+
   void _navigateBack() {
     FocusScope.of(context).unfocus();
 

@@ -270,8 +270,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       goalIdsToDelete: state.goalIdsToDelete,
       taskIdsToDelete: state.taskIdsToDelete,
     );
-
-    resetFields();
   }
 
   // Save all info

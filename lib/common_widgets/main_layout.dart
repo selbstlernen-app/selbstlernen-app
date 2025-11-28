@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 class MainLayout extends StatelessWidget {
@@ -27,15 +28,16 @@ class MainLayout extends StatelessWidget {
       backgroundColor: context.colorScheme.secondary,
       floatingActionButton: showFloatingActionButton
           ? Padding(
-              padding: const EdgeInsets.only(bottom: 50.0),
+              padding: const EdgeInsets.only(top: 70.0),
               child: FloatingActionButton(
+                backgroundColor: AppPalette.orange,
                 onPressed: onPressedFAB,
                 tooltip: "Änderungen speichern",
                 child: const Icon(Icons.save_rounded),
               ),
             )
           : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,

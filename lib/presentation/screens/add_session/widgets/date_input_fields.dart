@@ -60,9 +60,33 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
     TextEditingController controller,
     bool isStartDate,
   ) async {
+    DateTime? lastTypedDate;
+    if (controller.text.isNotEmpty) {
+      lastTypedDate = DateFormat('dd.MM.yyyy').parse(controller.text);
+    }
+
+    final DateTime today = DateTime.now();
+    final DateTime normalizedToday = DateTime(
+      today.year,
+      today.month,
+      today.day,
+    );
+
+    final DateTime? effectiveLastDate = lastTypedDate == null
+        ? null
+        : DateTime(lastTypedDate.year, lastTypedDate.month, lastTypedDate.day);
+
+    final DateTime firstDate = (isStartDate && effectiveLastDate != null)
+        ? (effectiveLastDate.isAfter(normalizedToday)
+              ? normalizedToday // fallback to todays date
+              : effectiveLastDate) // else go with last date
+        : normalizedToday;
+
     final DateTime? picked = await showDatePicker(
+      helpText: isStartDate ? "Startdatum auswählen" : "Enddatum auswählen",
       context: context,
-      firstDate: DateTime.now(),
+      initialDate: lastTypedDate ?? DateTime.now(),
+      firstDate: firstDate,
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null) {
@@ -72,9 +96,12 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
         ref.read(addSessionViewModelProvider.notifier).setStartDate(picked);
 
         // After having picked a start date, automatically open end date calendar
-        await Future<Null>.delayed(const Duration(milliseconds: 200), () {
-          _pickDate(_endDateController, false);
-        });
+        // if we are not in editing mode
+        if (!ref.read(addSessionViewModelProvider).isEditingMode) {
+          await Future<Null>.delayed(const Duration(milliseconds: 200), () {
+            _pickDate(_endDateController, false);
+          });
+        }
       } else {
         ref.read(addSessionViewModelProvider.notifier).setEndDate(picked);
       }
