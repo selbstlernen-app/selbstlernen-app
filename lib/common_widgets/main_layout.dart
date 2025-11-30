@@ -4,7 +4,9 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 class MainLayout extends StatelessWidget {
   const MainLayout({
-    required this.appBarTitle, required this.content, super.key,
+    required this.appBarTitle,
+    required this.content,
+    super.key,
     this.navigateBack,
     this.bottomBarWidget,
     this.actions,
@@ -23,7 +25,7 @@ class MainLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.colorScheme.secondary,
+      backgroundColor: context.colorScheme.secondary.withValues(alpha: 0.8),
       floatingActionButton: showFloatingActionButton
           ? Padding(
               padding: const EdgeInsets.only(top: 70),
@@ -48,7 +50,7 @@ class MainLayout extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
-        backgroundColor: context.colorScheme.secondary,
+        backgroundColor: context.colorScheme.secondary.withValues(alpha: 0.3),
         actions: actions,
         leading: navigateBack != null
             ? IconButton(

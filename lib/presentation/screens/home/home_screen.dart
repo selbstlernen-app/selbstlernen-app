@@ -94,7 +94,10 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
               // Sessions that have yet to be completed
               ...homeState.sessions.map(
                 (SessionWithInstanceModel sessionWithInstance) =>
-                    PendingSessionTile(session: sessionWithInstance.session),
+                    PendingSessionTile(
+                      session: sessionWithInstance.session,
+                      hasInstance: sessionWithInstance.instance != null,
+                    ),
               ),
               const VerticalSpace(),
 

@@ -325,13 +325,23 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
               .map((MapEntry<String, bool> e) => e.key)
               .toList();
 
+          // IDs of goals that have NOT been clicked in this session
+          final goalIdsBeingRemoved = goalSelection.entries
+              .where(
+                (MapEntry<String, bool> e) => !e.value,
+              ) // Goals NOT selected
+              .map((MapEntry<String, bool> e) => e.key)
+              .toSet();
+
           for (final taskId in taskIdsToKeep) {
             final task = state.newlyAddedTasks.firstWhere(
               (TaskModel t) => t.id == taskId,
             );
+
             // If task has a goalId and that goal is NOT being kept,
             // set its goalId to null and "orphan" it
-            if (task.goalId != null && !goalIdsToKeep.contains(task.goalId)) {
+            if (task.goalId != null &&
+                goalIdsBeingRemoved.contains(task.goalId)) {
               await viewModel.orphanTask(task);
             }
           }

@@ -24,7 +24,7 @@ class GoalTaskCompletionCard extends StatelessWidget {
                 Expanded(
                   child: _ProductivitySquare(
                     icon: Icons.flag,
-                    iconColor: AppPalette.error,
+                    iconColor: AppPalette.pink,
                     label: 'Ziele erreicht',
                     total: stats.totalGoalsCompleted,
                     average: stats.averageGoalsPerSession,
@@ -34,7 +34,7 @@ class GoalTaskCompletionCard extends StatelessWidget {
                 Expanded(
                   child: _ProductivitySquare(
                     icon: Icons.task_alt,
-                    iconColor: AppPalette.success,
+                    iconColor: AppPalette.emerald,
                     label: 'Aufgaben erledigt',
                     total: stats.totalTasksCompleted,
                     average: stats.averageTasksPerSession,
@@ -56,14 +56,14 @@ class GoalTaskCompletionCard extends StatelessWidget {
               label: 'Ziele',
               value: stats.totalGoalsCompleted,
               totalValue: stats.totalOpenGoals,
-              color: AppPalette.success,
+              color: AppPalette.emerald,
             ),
             const SizedBox(height: 12),
             _ProductivityProgressBar(
               label: 'Aufgaben',
               value: stats.totalTasksCompleted,
               totalValue: stats.totalOpenTasks,
-              color: AppPalette.error,
+              color: AppPalette.pink,
             ),
           ],
         ],

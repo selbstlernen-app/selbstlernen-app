@@ -98,7 +98,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
       },
 
       touchTooltipData: BarTouchTooltipData(
-        getTooltipColor: (_) => AppPalette.primary,
+        getTooltipColor: (_) => AppPalette.sky,
         tooltipPadding: const EdgeInsets.all(4),
         tooltipMargin: 12,
         getTooltipItem:
@@ -204,7 +204,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
             toY: minutes,
             color: touchedGroupIndex == index
                 ? AppPalette.orangeLight
-                : AppPalette.primary,
+                : AppPalette.sky,
             width: 20,
           ),
         ],

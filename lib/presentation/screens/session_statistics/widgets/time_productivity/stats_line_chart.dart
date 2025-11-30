@@ -13,7 +13,7 @@ class StatsLineChart extends StatefulWidget {
 }
 
 class _StatsLineChartState extends State<StatsLineChart> {
-  List<Color> gradientColors = <Color>[AppPalette.success, AppPalette.purple];
+  List<Color> gradientColors = <Color>[AppPalette.emerald, AppPalette.purple];
   bool showAvg = false;
 
   double _toHour(DateTime dt) => dt.hour + dt.minute / 60.0;
