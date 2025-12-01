@@ -24,8 +24,10 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(0) int completedBlocks,
     @Default(0) int currentPhaseElapsed, // used for counting upwards
     DateTime? sessionStartTime,
+
     // check which goal is currently expanded if any
     @Default(null) String? expandedGoalId,
+
     @Default(<String>{}) Set<String> completedGoalIds,
     @Default(<String>{}) Set<String> completedTaskIds,
     // Keep track of newly added items and let user decide on what to keep

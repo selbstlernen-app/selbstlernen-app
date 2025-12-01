@@ -19,7 +19,7 @@ class CompletionRateCard extends StatelessWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Abschlussrate', style: context.textTheme.headlineSmall),
+          Text('Abschlussrate', style: context.textTheme.headlineMedium),
           const VerticalSpace(size: SpaceSize.small),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -93,7 +93,7 @@ class CompletionRateCard extends StatelessWidget {
                     stats.totalInstances == 1
                         ? 'Abgeschlossen'
                         : '''${stats.completedInstances + stats.skippedInstances + stats.missedInstances} '''
-                              '''von ${stats.totalInstances} Einheiten\nabgeschlossen.''',
+                              '''von ${stats.totalInstances} Einheiten\nabgeschlossen''',
                     style: context.textTheme.bodyMedium,
                   ),
 

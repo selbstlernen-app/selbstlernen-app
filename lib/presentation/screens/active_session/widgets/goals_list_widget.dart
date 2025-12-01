@@ -19,6 +19,7 @@ class GoalsListWidget extends ConsumerStatefulWidget {
 
 class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
   final TextEditingController _taskGoalController = TextEditingController();
+  static const String ungroupedGoalId = '__ungrouped__';
 
   @override
   void dispose() {
@@ -34,9 +35,9 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
         .read(activeSessionViewModelProvider(widget.instanceId).notifier)
         .addTask(
           _taskGoalController.text.trim(),
-          goalId: goalId != '0'
-              ? goalId
-              : null, // for "Sonstige Aufgaben"; has a temp goal model with id 0
+          goalId: goalId == ungroupedGoalId
+              ? null // for "Sonstige Aufgaben"
+              : goalId,
         );
 
     _taskGoalController.clear();
@@ -62,22 +63,18 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
     );
 
     var goals = List<GoalModel>.from(state.goals);
-    var allTasks = List<TaskModel>.from(state.tasks);
+    final allTasks = List<TaskModel>.from(state.tasks);
 
-    // Add a temporary goal; with invalid goal id, to add ungrouped tasks
+    // Add a temporary goal;
+    // with special goal id to add ungrouped tasks
     const ungroupedGoal = GoalModel(
-      id: '0',
+      id: ungroupedGoalId,
       title: 'Sonstige Aufgaben',
       isCompleted: false,
       keptForFutureSessions: false,
     );
-    final ungroupedTasks = allTasks
-        .where((TaskModel t) => t.goalId == null || t.goalId!.isEmpty)
-        .map((TaskModel t) => t.copyWith(goalId: '0'))
-        .toList();
 
     goals = <GoalModel>[...goals, ungroupedGoal];
-    allTasks = <TaskModel>[...allTasks, ...ungroupedTasks];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,7 +106,12 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
               final goal = goals[index];
 
               final relatedTasks = allTasks
-                  .where((TaskModel t) => t.goalId == goal.id)
+                  .where(
+                    (TaskModel t) => goal.id == ungroupedGoalId
+                        ? t.goalId ==
+                              null // Match orphaned tasks
+                        : t.goalId == goal.id, // Match normal tasks
+                  )
                   .toList();
 
               final isGoalCompleted = state.completedGoalIds.contains(
@@ -127,11 +129,17 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         children: <Widget>[
-                          // Checkbox
-                          Checkbox(
-                            value: isGoalCompleted,
-                            onChanged: (_) =>
-                                viewModel.toggleGoalCompletion(goal.id!),
+                          // Checkbox; invisible for tasks
+                          // under 'Sonstige Aufgaben'
+                          Opacity(
+                            opacity: goal.id != ungroupedGoalId ? 1.0 : 0.0,
+                            child: Checkbox(
+                              value: isGoalCompleted,
+                              onChanged: goal.id != ungroupedGoalId
+                                  ? (_) =>
+                                        viewModel.toggleGoalCompletion(goal.id!)
+                                  : null,
+                            ),
                           ),
 
                           // Title + subtitle
@@ -161,7 +169,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                           // Delete button if no tasks
                           if (relatedTasks.isEmpty &&
                               state.isEditMode &&
-                              goal.id != '0')
+                              goal.id != ungroupedGoalId)
                             IconButton(
                               icon: Icon(
                                 Icons.delete,

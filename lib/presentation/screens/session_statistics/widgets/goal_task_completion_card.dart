@@ -2,29 +2,51 @@ import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/card_layout.dart';
 
 class GoalTaskCompletionCard extends StatelessWidget {
-  const GoalTaskCompletionCard({required this.stats, super.key});
+  const GoalTaskCompletionCard({
+    required this.stats,
+    required this.currentInstance,
+    required this.totalGoals,
+    required this.totalTasks,
+    super.key,
+  });
 
   final SessionStatistics stats;
+  final SessionInstanceModel currentInstance;
+
+  final int totalGoals;
+  final int totalTasks;
 
   @override
   Widget build(BuildContext context) {
+    print(totalGoals);
+    print("tassks $totalTasks");
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text('Ziele & Aufgaben', style: context.textTheme.headlineMedium),
+          const VerticalSpace(size: SpaceSize.xsmall),
+          Text(
+            '''Alle Ziele und Aufgaben, die du über den Verlauf dieser Einheit geschafft hast''',
+            style: context.textTheme.bodySmall!.copyWith(
+              color: AppPalette.grey,
+            ),
+          ),
+
           const VerticalSpace(size: SpaceSize.small),
+
           IntrinsicHeight(
             child: Row(
               children: <Widget>[
                 Expanded(
                   child: _ProductivitySquare(
                     icon: Icons.flag,
-                    iconColor: AppPalette.pink,
+                    iconColor: AppPalette.sky,
                     label: 'Ziele erreicht',
                     total: stats.totalGoalsCompleted,
                     average: stats.averageGoalsPerSession,
@@ -44,26 +66,37 @@ class GoalTaskCompletionCard extends StatelessWidget {
             ),
           ),
 
-          if (stats.totalGoalsCompleted > 0 ||
-              stats.totalTasksCompleted > 0) ...<Widget>[
-            const VerticalSpace(),
+          if (totalGoals > 0) ...<Widget>[
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
             Divider(
               color: context.colorScheme.tertiary,
               thickness: 4,
               radius: BorderRadius.circular(10),
             ),
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+
             _ProductivityProgressBar(
               label: 'Ziele',
               value: stats.totalGoalsCompleted,
-              totalValue: stats.totalOpenGoals,
-              color: AppPalette.emerald,
+              totalValue: totalGoals,
+              color: AppPalette.sky,
             ),
-            const SizedBox(height: 12),
+          ],
+
+          if (totalTasks > 0) ...<Widget>[
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+
             _ProductivityProgressBar(
               label: 'Aufgaben',
               value: stats.totalTasksCompleted,
-              totalValue: stats.totalOpenTasks,
-              color: AppPalette.pink,
+              totalValue: totalTasks,
+              color: AppPalette.emerald,
             ),
           ],
         ],

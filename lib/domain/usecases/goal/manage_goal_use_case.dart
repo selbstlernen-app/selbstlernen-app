@@ -19,6 +19,9 @@ class ManageGoalUseCase {
     DateTime date,
   ) => repository.watchGoalsBySessionIdAndDate(sessionId, date);
 
+  Future<List<GoalModel>> getAllGoalsBySessionId(int sessionId) =>
+      repository.getGoalsBySessionId(sessionId);
+
   // Update
   Future<int> updateGoal(GoalModel goal) =>
       repository.updateGoal(int.parse(goal.id!), goal);

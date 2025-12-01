@@ -75,7 +75,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
           horizontalLines: <HorizontalLine>[
             HorizontalLine(
               y: widget.targetFocusMinutes,
-              color: AppPalette.roseLight,
+              color: AppPalette.rose,
               strokeWidth: 3,
               dashArray: <int>[10, 7],
               label: HorizontalLineLabel(
@@ -91,7 +91,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
             ),
             HorizontalLine(
               y: widget.averageFocusMinutes,
-              color: AppPalette.orangeLight,
+              color: AppPalette.orange,
               strokeWidth: 3,
               dashArray: <int>[10, 7],
               label: HorizontalLineLabel(
@@ -102,7 +102,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
                   fontWeight: FontWeight.w700,
                   color: AppPalette.orange,
                 ),
-                labelResolver: (_) => 'Avg',
+                labelResolver: (_) => 'Ø Avg',
               ),
             ),
           ],
@@ -257,7 +257,7 @@ class _StatsBarChartState extends State<StatsBarChart> {
               toY: minutes,
               color: touchedGroupIndex == index
                   ? AppPalette.amberLight
-                  : AppPalette.orange,
+                  : AppPalette.orangeLight,
               width: 16,
             ),
           ],

@@ -49,8 +49,6 @@ class GetSessionStatisticsUseCase {
         totalCompletedBlocks: 0,
         totalGoalsCompleted: 0,
         totalTasksCompleted: 0,
-        totalOpenGoals: 0,
-        totalOpenTasks: 0,
       );
     }
 
@@ -150,8 +148,6 @@ class GetSessionStatisticsUseCase {
       totalCompletedBlocks: totalBlocks,
       totalGoalsCompleted: totalGoals,
       totalTasksCompleted: totalTasks,
-      totalOpenGoals: goals.length,
-      totalOpenTasks: tasks.length,
       averageMood: averageMood,
       lastSessionDate: sortedInstances.last.scheduledAt,
       firstSessionDate: sortedInstances.first.scheduledAt,

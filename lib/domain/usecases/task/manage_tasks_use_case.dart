@@ -19,6 +19,9 @@ class ManageTasksUseCase {
     DateTime date,
   ) => repository.watchTasksBySessionIdAndDate(sessionId, date);
 
+  Future<List<TaskModel>> getAllTasksBySessionId(int sessionId) =>
+      repository.getTasksBySessionId(sessionId);
+
   // Update
   Future<int> updateTask(TaskModel task) =>
       repository.updateTask(int.parse(task.id!), task);

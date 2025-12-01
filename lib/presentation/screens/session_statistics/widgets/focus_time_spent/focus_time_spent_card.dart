@@ -6,7 +6,7 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/card_layout.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/stats_bar_chart.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/stats_bar_chart.dart';
 
 class FocusTimeSpentCard extends ConsumerWidget {
   const FocusTimeSpentCard({
@@ -40,6 +40,13 @@ class FocusTimeSpentCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text('Fokuszeit', style: context.textTheme.headlineMedium),
+          const VerticalSpace(size: SpaceSize.xsmall),
+          Text(
+            'Deine Fokuszeit der zuletzt abgeschlossenen Einheiten',
+            style: context.textTheme.bodySmall!.copyWith(
+              color: AppPalette.grey,
+            ),
+          ),
 
           const VerticalSpace(size: SpaceSize.xsmall),
           Divider(
@@ -53,7 +60,7 @@ class FocusTimeSpentCard extends ConsumerWidget {
           Row(
             children: <Widget>[
               _StatColumn(
-                label: 'Fokuszeit insgesamt',
+                label: 'Gesamtzeit',
                 value: hours > 0 ? '$hours h $minutes min' : '$minutes min',
               ),
 

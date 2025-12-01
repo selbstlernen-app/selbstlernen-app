@@ -15,11 +15,13 @@ abstract class SessionStatistics with _$SessionStatistics {
     required int totalBreakMinutes,
     required int totalFocusPhases,
     required int totalCompletedBlocks,
+
     // Goal/Task Productivity
+    /// All goals ever completed, across session instances
     required int totalGoalsCompleted,
+
+    /// All tasks ever completed, across session instances
     required int totalTasksCompleted,
-    required int totalOpenGoals,
-    required int totalOpenTasks,
 
     double? averageMood,
     DateTime? lastSessionDate,

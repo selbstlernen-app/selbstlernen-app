@@ -74,10 +74,10 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
         }
       }
 
-      // Get all existing goals that have new tasks
+      // Get all existing goals that have new tasks (for context)
       final existingGoalsWithNewTasks = state.getExistingGoalsWithNewTasks();
 
-      // Combine: new goals + existing goals with new tasks
+      // Display new goals + existing goals (that have new tasks under them)
       final allDisplayedGoals = <GoalModel>[
         ...newGoals,
         ...existingGoalsWithNewTasks,
@@ -119,7 +119,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                     ),
                     const VerticalSpace(size: SpaceSize.xsmall),
                     Text(
-                      'Wähle die Elemente aus, die du für zukünftige Sitzungen behalten möchtest:',
+                      '''Wähle die Elemente aus, die du für zukünftige Sitzungen behalten möchtest:''',
                       style: TextStyle(
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
@@ -256,9 +256,9 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
 
                     // Ungrouped tasks
                     if (ungroupedTasks.isNotEmpty) ...<Widget>[
-                      const SizedBox(height: 12),
+                      const VerticalSpace(),
                       Text(
-                        'Sonstige Aufgaben:',
+                        'Sonstige Aufgaben',
                         style: context.textTheme.labelMedium?.copyWith(
                           color: AppPalette.grey,
                         ),
@@ -298,7 +298,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        'Nicht markierte Elemente werden als abgeschlossen markiert',
+                        '''Markierte Elemente werden für zukünftige Sitzungen behalten''',
                         style: TextStyle(
                           fontSize: 12,
                           fontStyle: FontStyle.italic,
