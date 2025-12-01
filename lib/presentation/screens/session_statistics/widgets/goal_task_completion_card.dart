@@ -23,8 +23,6 @@ class GoalTaskCompletionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(totalGoals);
-    print("tassks $totalTasks");
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -32,12 +30,50 @@ class GoalTaskCompletionCard extends StatelessWidget {
           Text('Ziele & Aufgaben', style: context.textTheme.headlineMedium),
           const VerticalSpace(size: SpaceSize.xsmall),
           Text(
-            '''Alle Ziele und Aufgaben, die du über den Verlauf dieser Einheit geschafft hast''',
+            'Heutige Lerneinheit',
             style: context.textTheme.bodySmall!.copyWith(
               color: AppPalette.grey,
             ),
           ),
 
+          const VerticalSpace(size: SpaceSize.small),
+          // TODAY'S SESSION INSTANCE
+          if (totalGoals > 0) ...<Widget>[
+            _ProductivityProgressBar(
+              label: 'Ziele',
+              value: currentInstance.totalCompletedGoals,
+              totalValue: totalGoals,
+              color: AppPalette.sky,
+            ),
+            const VerticalSpace(size: SpaceSize.small),
+          ],
+
+          if (totalTasks > 0) ...<Widget>[
+            _ProductivityProgressBar(
+              label: 'Aufgaben',
+              value: currentInstance.totalCompletedTasks,
+              totalValue: totalTasks,
+              color: AppPalette.emerald,
+            ),
+          ],
+
+          // DIVIDER
+          if (totalGoals > 0 || totalTasks > 0) ...<Widget>[
+            const VerticalSpace(size: SpaceSize.small),
+            Divider(
+              color: context.colorScheme.tertiary,
+              thickness: 4,
+            ),
+            const VerticalSpace(size: SpaceSize.small),
+          ],
+
+          // ALL-TIME STATISTICS - Show second (context)
+          Text(
+            'Abgeschlossene Aufgaben und Ziele über alle Sitzungen hinweg',
+            style: context.textTheme.bodySmall!.copyWith(
+              color: AppPalette.grey,
+            ),
+          ),
           const VerticalSpace(size: SpaceSize.small),
 
           IntrinsicHeight(
@@ -65,40 +101,6 @@ class GoalTaskCompletionCard extends StatelessWidget {
               ],
             ),
           ),
-
-          if (totalGoals > 0) ...<Widget>[
-            const VerticalSpace(
-              size: SpaceSize.small,
-            ),
-            Divider(
-              color: context.colorScheme.tertiary,
-              thickness: 4,
-              radius: BorderRadius.circular(10),
-            ),
-            const VerticalSpace(
-              size: SpaceSize.small,
-            ),
-
-            _ProductivityProgressBar(
-              label: 'Ziele',
-              value: stats.totalGoalsCompleted,
-              totalValue: totalGoals,
-              color: AppPalette.sky,
-            ),
-          ],
-
-          if (totalTasks > 0) ...<Widget>[
-            const VerticalSpace(
-              size: SpaceSize.small,
-            ),
-
-            _ProductivityProgressBar(
-              label: 'Aufgaben',
-              value: stats.totalTasksCompleted,
-              totalValue: totalTasks,
-              color: AppPalette.emerald,
-            ),
-          ],
         ],
       ),
     );
@@ -148,8 +150,9 @@ class _ProductivitySquare extends StatelessWidget {
             const VerticalSpace(size: SpaceSize.xsmall),
             Text(
               'Ø ${average.toStringAsFixed(1)}/Einheit',
-              style: context.textTheme.bodySmall?.copyWith(
+              style: context.textTheme.bodyMedium?.copyWith(
                 color: AppPalette.grey,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -181,12 +184,7 @@ class _ProductivityProgressBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text(label, style: context.textTheme.bodyMedium),
-            Text(
-              '$totalValue',
-              style: context.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('$value/$totalValue', style: context.textTheme.bodyMedium),
           ],
         ),
         const VerticalSpace(size: SpaceSize.xsmall),

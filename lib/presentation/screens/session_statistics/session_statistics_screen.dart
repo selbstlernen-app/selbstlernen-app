@@ -9,8 +9,8 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/completion_rate_card.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/focus_time_spent_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion_card.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
 
@@ -128,6 +128,16 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
                       const VerticalSpace(),
 
+                      /// Goals and Task Progress
+                      GoalTaskCompletionCard(
+                        stats: stats,
+                        currentInstance: lastInstances.first,
+                        totalGoals: state.goals!.length,
+                        totalTasks: state.tasks!.length,
+                      ),
+
+                      const VerticalSpace(),
+
                       /// Productivity
                       /// Shows how much time spent on the
                       /// last (five) sessions
@@ -137,21 +147,11 @@ class SessionStatisticsScreen extends ConsumerWidget {
                         lastInstances: lastInstances,
                       ),
 
-                      const VerticalSpace(),
-
                       /// Shows the time sessions were completed (Tendency evening/morning/etc.)
                       // if (state.session?.isRepeating == true) ...<Widget>[
                       //   TimeLearnedCard(instances: instances),
                       //   const VerticalSpace(size: SpaceSize.medium),
                       // ],
-
-                      /// Goals and Task Progress
-                      GoalTaskCompletionCard(
-                        stats: stats,
-                        currentInstance: lastInstances.first,
-                        totalGoals: state.goals!.length,
-                        totalTasks: state.tasks!.length,
-                      ),
 
                       /// TODO: add mood trend/general mood
                     ],
