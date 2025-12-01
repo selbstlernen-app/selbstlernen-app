@@ -4,8 +4,8 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/session_status_utils.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/presentation/screens/home/utils/tile_helper.dart';
 import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 
 class PendingSessionTile extends ConsumerWidget {

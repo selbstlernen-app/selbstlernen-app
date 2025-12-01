@@ -14,6 +14,8 @@ IconData getIcon(SessionStatus status) {
       return Icons.timelapse;
     case SessionStatus.scheduled:
       return Icons.circle_outlined;
+    case SessionStatus.missed:
+      return Icons.warning_amber_rounded;
   }
 }
 
@@ -26,6 +28,8 @@ Color getColor(SessionStatus status) {
     case SessionStatus.scheduled:
       return AppPalette.teal;
     case SessionStatus.inProgress:
+      return AppPalette.sky;
+    case SessionStatus.missed:
       return AppPalette.indigo;
   }
 }
@@ -62,5 +66,7 @@ String getSubtitle(
       return 'Übersprungen';
     case SessionStatus.completed:
       return 'Abgeschlossen';
+    case SessionStatus.missed:
+      return 'Verpasst';
   }
 }

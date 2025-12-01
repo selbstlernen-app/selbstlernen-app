@@ -8,7 +8,8 @@ abstract class SessionStatistics with _$SessionStatistics {
     required int totalInstances,
     required int completedInstances,
     required int skippedInstances,
-    required int inProgressInstances,
+    required int missedInstances,
+
     // Time Measurements
     required int totalFocusMinutes,
     required int totalBreakMinutes,
@@ -19,11 +20,6 @@ abstract class SessionStatistics with _$SessionStatistics {
     required int totalTasksCompleted,
     required int totalOpenGoals,
     required int totalOpenTasks,
-
-    // TODO: rework streak logic//maybe instead of
-    // streak have sth like days learned in a row (depending on days)
-    required int currentStreak,
-    required int longestStreak,
 
     double? averageMood,
     DateTime? lastSessionDate,
@@ -39,7 +35,10 @@ abstract class SessionStatistics with _$SessionStatistics {
   double get skipRate =>
       totalInstances > 0 ? skippedInstances / totalInstances : 0.0;
 
-  double get combinedRate => completionRate + skipRate;
+  double get missRate =>
+      totalInstances > 0 ? missedInstances / totalInstances : 0.0;
+
+  double get combinedRate => completionRate + skipRate + missRate;
 
   double get averageFocusMinutesPerSession =>
       completedInstances > 0 ? totalFocusMinutes / completedInstances : 0.0;

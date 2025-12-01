@@ -53,7 +53,11 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
     }
 
     return Scaffold(
-      backgroundColor: context.colorScheme.secondary,
+      backgroundColor: Color.lerp(
+        context.colorScheme.secondary,
+        Colors.white,
+        0.3,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),

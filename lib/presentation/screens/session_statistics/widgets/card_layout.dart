@@ -7,8 +7,11 @@ class CardLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 0,
-      child: Padding(padding: const EdgeInsetsGeometry.all(16), child: content),
+      elevation: 0.1,
+      child: Padding(
+        padding: const EdgeInsetsGeometry.all(16),
+        child: content,
+      ),
     );
   }
 }

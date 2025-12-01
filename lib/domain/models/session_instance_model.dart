@@ -46,4 +46,7 @@ enum SessionStatus {
 
   /// User explicitly skipped it; or past date and was never completed
   skipped,
+
+  // User missed a session
+  missed,
 }

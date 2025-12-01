@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
@@ -9,7 +10,7 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/completion_rate_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion_card.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/spent_time_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/time_productivity/focus_time_spent_card.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
 
@@ -59,6 +60,15 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
     final stats = state.stats!;
     final instances = state.instances!;
+    final session = state.session!;
+
+    final lastInstances = instances
+        .where((i) => i.completedAt != null)
+        .sorted(
+          (a, b) => b.completedAt!.compareTo(a.completedAt!),
+        ) // Sort descending; most current one on top
+        .take(5) // Take up to 5 (if fewer, takes fewer)
+        .toList();
 
     // Empty state
     if (stats.totalInstances == 0) {
@@ -113,19 +123,16 @@ class SessionStatisticsScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
+                      /// Completion rate (completed/skipped)
+                      CompletionRateCard(stats: stats),
+
                       /// Productivity
-                      /// Shows how much time spent on which weekday
-                      /// vs. how much was expected (Focus-time only)
-                      SpentTimeCard(
+                      /// Shows how much time spent on the
+                      /// last (five) sessions
+                      FocusTimeSpentCard(
                         stats: stats,
-                        weekdayMinutes: state.weekdayMinutes!,
-                        plannedFocusMinutesPerWeekday:
-                            plannedFocusMinutesPerWeekday(
-                              state.session!,
-                              !state.session!.isRepeating
-                                  ? instances.first
-                                  : null,
-                            ),
+                        targetFocusMinutes: session.focusTimeMin.toDouble(),
+                        lastInstances: lastInstances,
                       ),
 
                       const VerticalSpace(),
@@ -135,10 +142,6 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       //   TimeLearnedCard(instances: instances),
                       //   const VerticalSpace(size: SpaceSize.medium),
                       // ],
-
-                      /// Completion rate (completed/skipped)
-                      CompletionRateCard(stats: stats),
-
                       const VerticalSpace(),
 
                       /// Goals and Task Progress
@@ -174,7 +177,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
     SessionInstanceModel? instance,
   ) {
     // Total of one block focus time
-    final plannedMinutes = session.focusTimeMin * session.focusPhases;
+    final plannedMinutes = session.focusTimeMin;
 
     // If non-repeating session, fill all with zero unless the scheduled day
     if (!session.isRepeating && instance != null) {

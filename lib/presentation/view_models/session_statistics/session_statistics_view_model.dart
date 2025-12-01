@@ -49,6 +49,8 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
         sessionId,
       );
 
+      print(instances);
+
       state = state.copyWith(
         stats: statistics,
         session: session,

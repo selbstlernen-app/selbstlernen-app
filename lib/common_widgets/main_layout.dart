@@ -25,7 +25,11 @@ class MainLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.colorScheme.secondary.withValues(alpha: 0.8),
+      backgroundColor: Color.lerp(
+        context.colorScheme.secondary,
+        Colors.white,
+        0.3,
+      ),
       floatingActionButton: showFloatingActionButton
           ? Padding(
               padding: const EdgeInsets.only(top: 70),
@@ -50,7 +54,11 @@ class MainLayout extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
         ),
-        backgroundColor: context.colorScheme.secondary.withValues(alpha: 0.3),
+        backgroundColor: Color.lerp(
+          context.colorScheme.secondary,
+          Colors.white,
+          0.3,
+        ),
         actions: actions,
         leading: navigateBack != null
             ? IconButton(
