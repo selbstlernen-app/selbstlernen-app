@@ -162,6 +162,12 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                                     style: context.textTheme.bodyMedium!
                                         .copyWith(color: AppPalette.grey),
                                   ),
+                                if (relatedTasks.isEmpty)
+                                  Text(
+                                    'Keine Aufgaben',
+                                    style: context.textTheme.bodyMedium!
+                                        .copyWith(color: AppPalette.grey),
+                                  ),
                               ],
                             ),
                           ),

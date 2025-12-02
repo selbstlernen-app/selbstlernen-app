@@ -139,6 +139,8 @@ class MoodLineChart extends StatelessWidget {
                         )
                         .toList(),
                     isCurved: true,
+                    preventCurveOverShooting: true,
+                    preventCurveOvershootingThreshold: 0,
                     color: theme.colorScheme.primary,
                     barWidth: 3,
                     isStrokeCapRound: true,
@@ -169,7 +171,8 @@ class MoodLineChart extends StatelessWidget {
                         final moodEmoji = Constants.emojiMoods[spot.y.toInt()];
 
                         return LineTooltipItem(
-                          '$moodEmoji\n${instance.completedAt!.month}/${instance.completedAt!.day}',
+                          '''$moodEmoji\n${_getMoodLabel(spot.y.toInt())}\n'''
+                          '''${instance.completedAt!.month}/${instance.completedAt!.day}''',
                           TextStyle(
                             color: theme.colorScheme.onInverseSurface,
                             fontWeight: FontWeight.bold,
@@ -185,5 +188,22 @@ class MoodLineChart extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _getMoodLabel(int index) {
+    switch (index) {
+      case 0:
+        return 'Sehr Schlecht';
+      case 1:
+        return 'Schlecht';
+      case 2:
+        return 'Okay';
+      case 3:
+        return 'Gut';
+      case 4:
+        return 'Super';
+      default:
+        return '';
+    }
   }
 }

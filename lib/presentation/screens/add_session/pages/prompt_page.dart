@@ -229,8 +229,8 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
                   const VerticalSpace(),
                   Text(
                     !state.showFocusPromptAlways
-                        ? 'Bekomme die Abfrage nach ${state.focusPromptInterval} min Inaktvität (d.h. du hast für die Zeit nicht den Bildschirm berührt).'
-                        : 'Bekomme die Abfrage immer, unabhängig von Bildschirm-Aktivität.',
+                        ? '''Bekomme die Abfrage nach ${state.focusPromptInterval} min Inaktvität (d.h. du hast für diese Zeit den Bildschirm nicht berührt).'''
+                        : '''Bekomme die Abfrage immer, unabhängig von Bildschirm-Aktivität.''',
                     style: context.textTheme.bodyMedium,
                   ),
                   const VerticalSpace(size: SpaceSize.small),

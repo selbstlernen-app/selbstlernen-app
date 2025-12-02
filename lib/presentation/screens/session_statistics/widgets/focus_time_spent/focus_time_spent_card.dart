@@ -40,7 +40,7 @@ class FocusTimeSpentCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text('Fokuszeit', style: context.textTheme.headlineMedium),
-          const VerticalSpace(size: SpaceSize.xsmall),
+          const VerticalSpace(size: SpaceSize.small),
           Text(
             'Deine Fokuszeit der zuletzt abgeschlossenen Einheiten',
             style: context.textTheme.bodySmall!.copyWith(

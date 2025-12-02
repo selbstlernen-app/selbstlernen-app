@@ -22,6 +22,7 @@ class CompletionRateCard extends StatelessWidget {
           Text('Abschlussrate', style: context.textTheme.headlineMedium),
           const VerticalSpace(size: SpaceSize.small),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               Stack(
@@ -110,7 +111,7 @@ class CompletionRateCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      const HorizontalSpace(size: SpaceSize.xsmall),
+                      const HorizontalSpace(size: SpaceSize.small),
                       Text(
                         '${stats.completedInstances} durchgeführt',
                         style: context.textTheme.bodySmall,
@@ -130,7 +131,7 @@ class CompletionRateCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        const HorizontalSpace(size: SpaceSize.xsmall),
+                        const HorizontalSpace(size: SpaceSize.small),
                         Text(
                           '${stats.missedInstances} verpasst',
                           style: context.textTheme.bodySmall,
@@ -152,7 +153,7 @@ class CompletionRateCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        const HorizontalSpace(size: SpaceSize.xsmall),
+                        const HorizontalSpace(size: SpaceSize.small),
                         Text(
                           '${stats.skippedInstances} übersprungen',
                           style: context.textTheme.bodySmall,

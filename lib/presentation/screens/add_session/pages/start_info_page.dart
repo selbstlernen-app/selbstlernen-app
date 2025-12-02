@@ -141,6 +141,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       .setTitle,
                   controller: _titleController,
                   hintText: 'z.B. Info 1 - Vorlesung 3...',
+                  maxLength: 40,
                   hasError: state.titleError != null,
                 ),
                 if (state.titleError != null)
@@ -233,8 +234,8 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                   isBigGoal: state.setGoals,
                   items: state.setGoals ? state.goals : state.tasks,
                   toolTip: state.setGoals
-                      ? 'Tipp: Halte deine Ziele so präzise und kurz wie möglich.'
-                      : 'Tipp: Du kannst Aufgaben später unter Zielen gruppieren.',
+                      ? '''Tipp: Du kannst Ziele später in Aufgaben aufbrechen.'''
+                      : '''Tipp: Du kannst Aufgaben später unter Zielen gruppieren.''',
                 ),
               ],
             ),
