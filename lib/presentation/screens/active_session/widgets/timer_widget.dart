@@ -166,7 +166,9 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                 CustomIconButton(
                   icon: const Icon(Icons.skip_next_rounded, size: 25),
                   isActive: true,
-                  onPressed: viewModel.skipPhase,
+                  onPressed: state.timerStatus == TimerStatus.initial
+                      ? null
+                      : viewModel.skipPhase,
                 ),
               ],
             ),

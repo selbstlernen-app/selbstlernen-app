@@ -30,9 +30,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
 
     @Default(<String>{}) Set<String> completedGoalIds,
     @Default(<String>{}) Set<String> completedTaskIds,
-    // Keep track of newly added items and let user decide on what to keep
-    // @Default(<String>{}) Set<String> newlyAddedGoalIds,
-    // @Default(<String>{}) Set<String> newlyAddedTaskIds,
+
     @Default(false) bool isEditMode,
     @Default(false) bool countUpwards,
     @Default(true) bool isLoading,
@@ -55,7 +53,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
 
   List<GoalModel> getExistingGoalsWithNewTasks() {
     final goalIds = tasks
-        .where((TaskModel t) => t.goalId != null)
+        .where((TaskModel t) => (t.goalId != null) & (!t.keptForFutureSessions))
         .map((TaskModel t) => t.goalId!)
         .toSet();
     final existingGoalsWithNewTasks = goals
