@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -46,12 +47,13 @@ class MainLayout extends StatelessWidget {
         automaticallyImplyLeading: false,
         centerTitle: true,
         toolbarHeight: 80,
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
+        title: Flexible(
+          child: AutoSizeText(
             appBarTitle,
             style: context.textTheme.headlineLarge,
+            maxLines: 2,
             textAlign: TextAlign.center,
+            minFontSize: 14,
           ),
         ),
         backgroundColor: Color.lerp(

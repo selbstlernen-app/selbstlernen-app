@@ -141,7 +141,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       .setTitle,
                   controller: _titleController,
                   hintText: 'z.B. Info 1 - Vorlesung 3...',
-                  maxLength: 40,
+                  maxLength: 35,
                   hasError: state.titleError != null,
                 ),
                 if (state.titleError != null)

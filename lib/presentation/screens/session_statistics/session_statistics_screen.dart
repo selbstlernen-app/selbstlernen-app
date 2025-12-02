@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -104,14 +105,21 @@ class SessionStatisticsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        toolbarHeight: 70,
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            'Statistik für\n${state.session!.title}',
-            style: context.textTheme.headlineLarge,
-            textAlign: TextAlign.center,
-          ),
+        toolbarHeight: 80,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: AutoSizeText(
+                'Statistik für ${state.session!.title}',
+                style: context.textTheme.headlineLarge,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                minFontSize: 14,
+              ),
+            ),
+          ],
         ),
       ),
       body: SafeArea(
