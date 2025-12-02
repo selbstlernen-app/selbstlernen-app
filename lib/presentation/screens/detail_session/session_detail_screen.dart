@@ -146,56 +146,56 @@ class SessionDetailScreen extends ConsumerWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                if (detailState
-                                    .fullSession!
-                                    .goals
-                                    .isNotEmpty) ...<Widget>[
-                                  Text(
-                                    'Ziele',
-                                    style: context.textTheme.headlineSmall,
-                                  ),
-                                  const VerticalSpace(size: SpaceSize.small),
-                                  ...detailState.fullSession!.goals.map((
-                                    GoalModel goal,
-                                  ) {
-                                    return CustomItemTile(
-                                      iconSize: 20,
-                                      text: goal.title,
-                                      isLargeGoal: true,
-                                    );
-                                  }),
+                          if (detailState.fullSession!.goals.isNotEmpty)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  ...<Widget>[
+                                    Text(
+                                      'Ziele',
+                                      style: context.textTheme.headlineSmall,
+                                    ),
+                                    const VerticalSpace(size: SpaceSize.small),
+                                    ...detailState.fullSession!.goals.map((
+                                      GoalModel goal,
+                                    ) {
+                                      return CustomItemTile(
+                                        iconSize: 20,
+                                        text: goal.title,
+                                        isLargeGoal: true,
+                                      );
+                                    }),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              children: <Widget>[
-                                if (detailState
-                                    .fullSession!
-                                    .ungroupedTasks
-                                    .isNotEmpty) ...<Widget>[
-                                  Text(
-                                    'Sonstige Aufgaben',
-                                    style: context.textTheme.headlineSmall,
-                                  ),
-                                  const VerticalSpace(size: SpaceSize.small),
-                                  ...detailState.fullSession!.ungroupedTasks
-                                      .map((TaskModel task) {
-                                        return CustomItemTile(
-                                          iconSize: 20,
-                                          text: task.title,
-                                          isLargeGoal: false,
-                                        );
-                                      }),
+                          if (detailState
+                              .fullSession!
+                              .ungroupedTasks
+                              .isNotEmpty)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  ...<Widget>[
+                                    Text(
+                                      'Sonstige Aufgaben',
+                                      style: context.textTheme.headlineSmall,
+                                    ),
+                                    const VerticalSpace(size: SpaceSize.small),
+                                    ...detailState.fullSession!.ungroupedTasks
+                                        .map((TaskModel task) {
+                                          return CustomItemTile(
+                                            iconSize: 20,
+                                            text: task.title,
+                                            isLargeGoal: false,
+                                          );
+                                        }),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ],
@@ -366,11 +366,8 @@ class SessionDetailScreen extends ConsumerWidget {
             content: Text('Einheit erfolgreich archiviert'),
           ),
         );
-        await Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.home,
-          (Route<dynamic> route) => false,
-        );
+        // Close dialog
+        Navigator.of(context).pop();
       }
     }
 
