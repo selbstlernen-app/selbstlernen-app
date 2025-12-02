@@ -52,7 +52,7 @@ class TestData extends _$TestData {
           totalBreakSecondsElapsed: 10 * 60,
           totalCompletedGoals: 2,
           totalCompletedTasks: 4,
-          mood: 3 + (i % 3),
+          mood: Random().nextInt(5),
           notes: 'Completed successfully',
           completedAt: DateTime(
             2025,
@@ -71,7 +71,6 @@ class TestData extends _$TestData {
           sessionId: sessionId.toString(),
           status: SessionStatus.skipped,
           scheduledAt: DateTime(2025, 10, 5).add(Duration(days: i * 3)),
-          notes: 'Skipped due to lack of time',
           createdAt: DateTime(2025, 11, 20),
         );
       }),

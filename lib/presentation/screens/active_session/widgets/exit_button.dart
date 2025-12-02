@@ -64,6 +64,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
 
       // Filter to only show items that are NEW to this session
       final newGoals = state.newlyAddedGoals;
+      final newGoalIds = newGoals.map((g) => g.id).toSet();
       final newTasks = state.newlyAddedTasks;
 
       // Group tasks by goalId
@@ -75,12 +76,15 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
       }
 
       // Get all existing goals that have new tasks (for context)
-      final existingGoalsWithNewTasks = state.getExistingGoalsWithNewTasks();
+      final nonDuplicateExistingGoals = state
+          .getExistingGoalsWithNewTasks()
+          .where((g) => !newGoalIds.contains(g.id))
+          .toList();
 
       // Display new goals + existing goals (that have new tasks under them)
       final allDisplayedGoals = <GoalModel>[
         ...newGoals,
-        ...existingGoalsWithNewTasks,
+        ...nonDuplicateExistingGoals,
       ];
 
       // Separate ungrouped tasks

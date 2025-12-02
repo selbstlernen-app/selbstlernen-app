@@ -11,6 +11,7 @@ import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/completion_rate_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/focus_time_spent_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/mood/mood_card.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
 
@@ -152,6 +153,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       //   TimeLearnedCard(instances: instances),
                       //   const VerticalSpace(size: SpaceSize.medium),
                       // ],
+                      MoodCard(stats: stats, instances: instances),
 
                       /// TODO: add mood trend/general mood
                     ],
