@@ -37,7 +37,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
     // Initialize after build; if in edit mode
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final state = ref.read(addSessionViewModelProvider);
-      if (state.isEditingMode) {
+      if (state.isEditMode) {
         _startDateController.text = state.startDate != null
             ? DateFormat('dd.MM.yyyy').format(state.startDate!)
             : '';
@@ -96,7 +96,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
 
         // After having picked a start date, automatically open
         // end date calendar if we are not in editing mode
-        if (!ref.read(addSessionViewModelProvider).isEditingMode) {
+        if (!ref.read(addSessionViewModelProvider).isEditMode) {
           await Future<Null>.delayed(
             const Duration(milliseconds: 200),
             () async {

@@ -111,9 +111,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   // Creates a task directly linked to a goal
-  void addTaskToGoal(TaskModel task, String goalId) {
+  void addTaskToGoal(TaskModel task, String? goalId) {
     final taskWithGoal = task.copyWith(goalId: goalId);
-
     state = state.copyWith(tasks: <TaskModel>[...state.tasks, taskWithGoal]);
   }
 
@@ -187,20 +186,15 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       (TaskModel task) => task.goalId == null,
     );
 
-    if (session.isRepeating) {
-      state = state.copyWith(
-        startDate: session.startDate,
-        endDate: session.endDate,
-        selectedDays: session.selectedDays,
-      );
-    }
-
     state = state.copyWith(
       sessionId: session.id,
+      isEditMode: session.id != null,
       title: session.title,
       isRepeating: session.isRepeating,
-      setGoals:
-          !hasUngroupedTasks, // if no ungrouped tasks, we had set goals to true
+      startDate: session.isRepeating ? session.startDate : null,
+      endDate: session.isRepeating ? session.endDate : null,
+      selectedDays: session.isRepeating ? session.selectedDays : [],
+      setGoals: !hasUngroupedTasks,
       goals: fullSessionModel.goals,
       tasks: fullSessionModel.tasks,
       learningStrategies: session.learningStrategies,
@@ -209,6 +203,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       longBreakTimeMin: session.longBreakTimeMin,
       focusPhases: session.focusPhases,
       hasFocusPrompt: session.hasFocusPrompt,
+      focusPromptInterval: session.focusPromptInterval,
+      showFocusPromptAlways: session.showFocusPromptAlways,
       hasFreetextPrompt: session.hasFreetextPrompt,
     );
   }
@@ -278,6 +274,22 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
+  Future<void> updateSessionAndReset() async {
+    final service = ref.read(addSessionServiceProvider);
+    final session = _stateToSessionModel(state);
+
+    await service.updateSessionWithChanges(
+      sessionId: int.parse(state.sessionId!),
+      session: session,
+      goalsToUpdate: state.goals,
+      tasksToUpdate: state.tasks,
+      goalIdsToDelete: state.goalIdsToDelete,
+      taskIdsToDelete: state.taskIdsToDelete,
+    );
+
+    resetFields();
+  }
+
   // Save all info
   Future<void> createSession() async {
     if (!validateAll()) {
@@ -322,9 +334,12 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   Future<SessionInstanceModel> startSession() async {
     final now = DateTime.now();
-    return _getOrCreateInstanceUseCase.call(
+    final instance = await _getOrCreateInstanceUseCase.call(
       sessionId: int.parse(state.sessionId!),
       date: now,
     );
+
+    resetFields();
+    return instance;
   }
 }
