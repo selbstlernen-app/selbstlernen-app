@@ -47,14 +47,12 @@ class MainLayout extends StatelessWidget {
         automaticallyImplyLeading: false,
         centerTitle: true,
         toolbarHeight: 80,
-        title: Flexible(
-          child: AutoSizeText(
-            appBarTitle,
-            style: context.textTheme.headlineLarge,
-            maxLines: 2,
-            textAlign: TextAlign.center,
-            minFontSize: 14,
-          ),
+        title: AutoSizeText(
+          appBarTitle,
+          style: context.textTheme.headlineLarge,
+          maxLines: 2,
+          textAlign: TextAlign.center,
+          minFontSize: 14,
         ),
         backgroundColor: Color.lerp(
           context.colorScheme.secondary,

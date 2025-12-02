@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
+import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
@@ -11,6 +12,7 @@ part 'detail_session_view_model.g.dart';
 @riverpod
 class DetailSessionViewModel extends _$DetailSessionViewModel {
   late final FullSessionUseCase _fullSessionUseCase;
+  late final ManageSessionUseCase _manageSessionUseCase;
   late final GetInstanceUseCase _getInstancesUseCase;
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
   late final int _sessionId;
@@ -21,6 +23,7 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
     _fullSessionUseCase = ref.watch(fullSessionUseCaseProvider);
     _getInstancesUseCase = ref.watch(getInstanceUseCaseProvider);
     _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
+    _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
 
     final fullSession$ = _fullSessionUseCase.watchFullSession(sessionId);
     final instances$ = _getInstancesUseCase.watchInstancesBySessionId(
@@ -46,7 +49,18 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   }
 
   Future<void> archiveSession() async {
-    // Archive instead of delete? // Past session data still persists
+    // Archive session, so that past session data still persists
+    final currentFullSession = state.value?.fullSession;
+
+    if (currentFullSession == null) {
+      throw Exception("No session loaded");
+    }
+
+    final updated = currentFullSession.session.copyWith(
+      isArchived: true,
+    );
+
+    await _manageSessionUseCase.updateSession(sessionId, updated);
   }
 
   Future<SessionInstanceModel> startSession(DateTime date) async {

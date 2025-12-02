@@ -16,13 +16,21 @@ class CustomItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Row(
         children: <Widget>[
           if (isLargeGoal)
-            Icon(Icons.emoji_flags_rounded, size: iconSize)
+            Icon(
+              Icons.emoji_flags_rounded,
+              size: iconSize,
+              color: context.colorScheme.primary,
+            )
           else
-            Icon(Icons.check_box_outline_blank_rounded, size: iconSize),
+            Icon(
+              Icons.check_box_outline_blank_rounded,
+              size: iconSize,
+              color: context.colorScheme.primary,
+            ),
 
           const HorizontalSpace(size: SpaceSize.small),
 
