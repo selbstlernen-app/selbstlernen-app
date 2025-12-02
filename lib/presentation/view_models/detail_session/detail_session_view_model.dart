@@ -13,7 +13,6 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   late final FullSessionUseCase _fullSessionUseCase;
   late final GetInstanceUseCase _getInstancesUseCase;
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
-  // TODO: Add stats later on...
   late final int _sessionId;
 
   @override
@@ -32,12 +31,9 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
       FullSessionModel fullSession,
       List<SessionInstanceModel> instances,
     ) {
-      //TODO:  Calculate stats from instances
-
       return DetailSessionState(
         fullSession: fullSession,
         pastInstances: instances,
-        // TODO: stats here
         isLoading: false,
       );
     }).handleError((dynamic error) {

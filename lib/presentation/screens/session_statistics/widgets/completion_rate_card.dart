@@ -7,11 +7,17 @@ import 'package:srl_app/core/utils/session_status_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/card_layout.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 
 class CompletionRateCard extends StatelessWidget {
-  const CompletionRateCard({required this.stats, super.key});
+  const CompletionRateCard({
+    required this.stats,
+    required this.instances,
+    super.key,
+  });
 
   final SessionStatistics stats;
+  final List<SessionInstanceModel> instances;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +25,25 @@ class CompletionRateCard extends StatelessWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Abschlussrate', style: context.textTheme.headlineMedium),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Abschlussrate', style: context.textTheme.headlineMedium),
+              // TODO: calculate instances for display that have been missed
+              IconButton(
+                color: AppPalette.grey.withValues(alpha: 0.5),
+                icon: const Icon(Icons.history_rounded),
+                onPressed: () => showHistoryBottomSheet(
+                  context,
+                  instances,
+                  'Abschluss-Status',
+                  (instance) => instance.status == SessionStatus.completed
+                      ? 'Abgeschlossen'
+                      : 'Übersprungen',
+                ),
+              ),
+            ],
+          ),
           const VerticalSpace(size: SpaceSize.small),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,11 +52,11 @@ class CompletionRateCard extends StatelessWidget {
               Stack(
                 alignment: AlignmentDirectional.center,
                 children: <Widget>[
-                  // Completed sessions, goes on top
                   SizedBox(
                     height: 100,
                     width: 100,
                     child: PieChart(
+                      // Completed sessions
                       PieChartData(
                         sectionsSpace: 0,
                         centerSpaceRadius: 30,
@@ -44,12 +68,14 @@ class CompletionRateCard extends StatelessWidget {
                             title: '',
                             radius: 16,
                           ),
+                          // Missed sessions
                           PieChartSectionData(
                             color: getColor(SessionStatus.missed),
                             value: stats.missRate * 100,
                             title: '',
                             radius: 16,
                           ),
+                          // Skipped sessions
                           PieChartSectionData(
                             color: getColor(SessionStatus.skipped),
                             value: stats.skipRate * 100,

@@ -7,6 +7,7 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/card_layout.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/mood/mood_line_chart.dart';
 
 class MoodCard extends StatefulWidget {
@@ -35,22 +36,43 @@ class _MoodCardState extends State<MoodCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Stimmung',
-                    style: context.textTheme.headlineMedium,
-                  ),
-                  const VerticalSpace(size: SpaceSize.small),
-                  Text(
-                    'Deine Stimmungs-Trends',
-                    style: context.textTheme.bodySmall!.copyWith(
-                      color: AppPalette.grey,
-                    ),
-                  ),
-                ],
+              Text(
+                'Stimmung',
+                style: context.textTheme.headlineMedium,
               ),
+              IconButton(
+                color: AppPalette.grey.withValues(alpha: 0.5),
+                icon: const Icon(Icons.history_rounded),
+                onPressed: () => showHistoryBottomSheet(
+                  context,
+                  widget.instances,
+                  'Stimmung',
+                  (instance) => instance.mood != null
+                      ? Constants.emojiMoods[instance.mood!]
+                      : '-',
+                ),
+              ),
+            ],
+          ),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              if (widget.instances.where((i) => i.mood != null).length > 5)
+                CustomIconButton(
+                  radius: 30,
+                  icon: Icon(
+                    showAllInstances ? Icons.compress : Icons.expand,
+                    size: 16,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      showAllInstances = !showAllInstances;
+                    });
+                  },
+                  isActive: true,
+                  label: showAllInstances ? 'Weniger' : 'Alle Anzeigen',
+                ),
 
               // Average mood
               if (widget.stats.averageMood != null)
@@ -80,31 +102,7 @@ class _MoodCardState extends State<MoodCard> {
             ],
           ),
 
-          if (widget.instances.where((i) => i.mood != null).length > 5) ...[
-            const VerticalSpace(
-              size: SpaceSize.small,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CustomIconButton(
-                  radius: 30,
-                  icon: Icon(
-                    showAllInstances ? Icons.compress : Icons.expand,
-                    size: 16,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      showAllInstances = !showAllInstances;
-                    });
-                  },
-                  isActive: true,
-                  label: showAllInstances ? 'Weniger' : 'Alle Anzeigen',
-                ),
-              ],
-            ),
-            const VerticalSpace(),
-          ],
+          const VerticalSpace(),
 
           // Chart
           if (widget.instances.where((i) => i.mood != null).length > 1)

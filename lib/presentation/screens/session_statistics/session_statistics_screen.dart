@@ -63,13 +63,13 @@ class SessionStatisticsScreen extends ConsumerWidget {
     final instances = state.instances!;
     final session = state.session!;
 
-    final lastInstances = instances
+    final currentInstance = instances
         .where((i) => i.completedAt != null)
         .sorted(
           (a, b) => b.completedAt!.compareTo(a.completedAt!),
         ) // Sort descending; most current one on top
-        .take(5) // Take up to 5 (if fewer, takes fewer)
-        .toList();
+        .toList()
+        .first;
 
     // Empty state
     if (stats.totalInstances == 0) {
@@ -125,14 +125,18 @@ class SessionStatisticsScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       /// Completion rate (completed/skipped)
-                      CompletionRateCard(stats: stats),
+                      CompletionRateCard(
+                        stats: stats,
+                        instances: instances,
+                      ),
 
                       const VerticalSpace(),
 
                       /// Goals and Task Progress
                       GoalTaskCompletionCard(
                         stats: stats,
-                        currentInstance: lastInstances.first,
+                        pastInstances: instances,
+                        currentInstance: currentInstance,
                         totalGoals: state.goals!.length,
                         totalTasks: state.tasks!.length,
                       ),
@@ -144,8 +148,8 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       /// last (five) sessions
                       FocusTimeSpentCard(
                         stats: stats,
+                        pastInstances: instances,
                         targetFocusMinutes: session.focusTimeMin.toDouble(),
-                        lastInstances: lastInstances,
                       ),
 
                       /// Shows the time sessions were completed (Tendency evening/morning/etc.)

@@ -5,6 +5,7 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/card_layout.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 
 class GoalTaskCompletionCard extends StatelessWidget {
   const GoalTaskCompletionCard({
@@ -12,11 +13,13 @@ class GoalTaskCompletionCard extends StatelessWidget {
     required this.currentInstance,
     required this.totalGoals,
     required this.totalTasks,
+    required this.pastInstances,
     super.key,
   });
 
   final SessionStatistics stats;
   final SessionInstanceModel currentInstance;
+  final List<SessionInstanceModel> pastInstances;
 
   final int totalGoals;
   final int totalTasks;
@@ -27,8 +30,31 @@ class GoalTaskCompletionCard extends StatelessWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Ziele & Aufgaben', style: context.textTheme.headlineMedium),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Ziele & Aufgaben', style: context.textTheme.headlineMedium),
+
+              IconButton(
+                color: AppPalette.grey.withValues(alpha: 0.5),
+                icon: const Icon(Icons.history_rounded),
+                onPressed: () => showHistoryBottomSheet(
+                  context,
+                  pastInstances
+                      .where(
+                        (instance) => instance.status != SessionStatus.skipped,
+                      )
+                      .toList(),
+                  'Ziele und Aufgaben',
+                  (instance) =>
+                      '''${instance.totalCompletedGoals} Ziele erledigt\n${instance.totalCompletedTasks} Aufgaben erledigt''',
+                ),
+              ),
+            ],
+          ),
+
           const VerticalSpace(size: SpaceSize.xsmall),
+
           Text(
             'Heutige Lerneinheit',
             style: context.textTheme.bodySmall!.copyWith(

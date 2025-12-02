@@ -1,23 +1,27 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/time_utils.dart';
+import 'package:srl_app/data/database/tables/session_table.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/card_layout.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/stats_bar_chart.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 
 class FocusTimeSpentCard extends ConsumerWidget {
   const FocusTimeSpentCard({
     required this.stats,
-    required this.lastInstances,
+    required this.pastInstances,
     required this.targetFocusMinutes,
     super.key,
   });
 
   final SessionStatistics stats;
-  final List<SessionInstanceModel> lastInstances;
+  final List<SessionInstanceModel> pastInstances;
   final double targetFocusMinutes;
 
   @override
@@ -35,11 +39,41 @@ class FocusTimeSpentCard extends ConsumerWidget {
     final expectedHours = expectedTime ~/ 60;
     final expectedMinutes = expectedTime % 60;
 
+    final lastInstances = pastInstances
+        .where((i) => i.completedAt != null)
+        .sorted(
+          (a, b) => b.completedAt!.compareTo(a.completedAt!),
+        ) // Sort descending; most current one on top
+        .take(5) // Take up to 5 (if fewer, takes fewer)
+        .toList();
+
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Fokuszeit', style: context.textTheme.headlineMedium),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Fokuszeit', style: context.textTheme.headlineMedium),
+              IconButton(
+                color: AppPalette.grey.withValues(alpha: 0.5),
+                icon: const Icon(Icons.history_rounded),
+                onPressed: () => showHistoryBottomSheet(
+                  context,
+                  pastInstances
+                      .where(
+                        (instance) => instance.status != SessionStatus.skipped,
+                      )
+                      .toList(),
+                  'Fokuszeit',
+                  (instance) => TimeUtils.formatBarChartTime(
+                    instance.totalFocusSecondsElapsed.toDouble(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
           const VerticalSpace(size: SpaceSize.small),
           Text(
             'Deine Fokuszeit der zuletzt abgeschlossenen Einheiten',
