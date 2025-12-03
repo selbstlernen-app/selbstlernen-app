@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:srl_app/domain/models/focus_check.dart';
 
 part 'session_instance_model.freezed.dart';
 
@@ -16,12 +17,15 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
     @Default(0) int totalCompletedBlocks,
     @Default(0) int totalFocusSecondsElapsed,
 
-    /// small and long break both count towards break seconds elapsed
+    /// Small and long break both count towards break seconds elapsed
     @Default(0) int totalBreakSecondsElapsed,
 
     // Checked off goals/tasks
     @Default(0) int totalCompletedGoals,
     @Default(0) int totalCompletedTasks,
+
+    // Focus measure
+    @Default([]) List<FocusCheck> focusChecks,
 
     // Reflection stats
     int? mood,

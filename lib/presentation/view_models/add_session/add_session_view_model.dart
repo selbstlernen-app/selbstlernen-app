@@ -328,6 +328,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       longBreakTimeMin: state.longBreakTimeMin,
       focusPhases: state.focusPhases,
       hasFocusPrompt: state.hasFocusPrompt,
+      focusPromptInterval: state.focusPromptInterval,
+      showFocusPromptAlways: state.showFocusPromptAlways,
       hasFreetextPrompt: state.hasFreetextPrompt,
     );
   }

@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:srl_app/domain/models/focus_check.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
+import 'package:srl_app/presentation/view_models/active_session/focus_prompter.dart';
 import 'package:vibration/vibration.dart';
 
 part 'active_session_view_model.g.dart';
@@ -24,6 +26,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   late StreamSubscription<dynamic>? _tasksSubscription;
 
   Timer? _timer;
+  FocusPrompter? _focusPrompter;
 
   @override
   ActiveSessionState build(int instanceId) {
@@ -85,6 +88,43 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
   }
 
+  // ---- FOCUS PROMPT RELATED ----
+  void startFocusPrompting() {
+    if (state.session == null) return;
+
+    _focusPrompter?.dispose();
+    _focusPrompter = FocusPrompter(
+      session: state.session!,
+      onPromptTrigger: _showFocusPrompt,
+    );
+    _focusPrompter?.startPrompting();
+  }
+
+  void _showFocusPrompt() {
+    state = state.copyWith(showFocusPrompt: true);
+  }
+
+  void recordUserInteraction() {
+    _focusPrompter?.recordInteraction();
+  }
+
+  Future<void> recordFocusLevel(FocusLevel level) async {
+    if (state.instance == null) return;
+
+    final focusCheck = FocusCheck(timestamp: DateTime.now(), level: level);
+
+    final updatedInstance = state.instance!.copyWith(
+      focusChecks: [...state.instance!.focusChecks, focusCheck],
+    );
+
+    state = state.copyWith(instance: updatedInstance, showFocusPrompt: false);
+
+    await _manangeInstanceUseCase.updateInstance(updatedInstance);
+
+    _focusPrompter?.recordInteraction();
+  }
+
+  // ---- GOAL/TASK RELATED ----
   void setCountUpwards({required bool countUpwards}) {
     state = state.copyWith(countUpwards: countUpwards);
   }
@@ -157,12 +197,22 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
   }
 
+  void toggleExpandedGoal(String id) {
+    state = state.copyWith(
+      expandedGoalId: state.expandedGoalId == id ? null : id,
+    );
+  }
+
+  // ---- TIMER RELATED ----
   void startTimer() {
     if (state.timerStatus == TimerStatus.initial) {
       state = state.copyWith(
         sessionStartTime: DateTime.now(),
         timerStatus: TimerStatus.running,
       );
+
+      // Start focus prompt when timer has been started
+      startFocusPrompting();
     } else if (state.timerStatus == TimerStatus.paused) {
       state = state.copyWith(timerStatus: TimerStatus.running);
     }
@@ -175,6 +225,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   Future<void> pauseTimer() async {
     _timer?.cancel();
+    _focusPrompter?.stopPrompting();
     state = state.copyWith(timerStatus: TimerStatus.paused);
     await _autoSave();
   }
@@ -209,13 +260,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     await _handlePhaseComplete();
   }
 
-  void toggleExpandedGoal(String id) {
-    state = state.copyWith(
-      expandedGoalId: state.expandedGoalId == id ? null : id,
-    );
-  }
-
-  // Function to switch phase dependent on the current one (focus -> short/long break)
+  /// Function to switch phase dependent
+  /// on the current one (focus -> short/long break)
   Future<void> _handlePhaseComplete() async {
     // Vibrate when allowed
     await _vibrateForPhaseChange();
@@ -285,16 +331,26 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       currentPhaseIndex: currentPhaseIndex ?? state.currentPhaseIndex,
       currentPhaseElapsed: 0,
     );
+    switch (phase) {
+      case SessionPhase.focus:
+        // Start focus prompting again when timer has been started
+        startFocusPrompting();
+      // Stop prompting in either long or short break
+      case SessionPhase.longBreak:
+        _focusPrompter?.stopPrompting();
+      case SessionPhase.shortBreak:
+        _focusPrompter?.stopPrompting();
+    }
     await _autoSave();
   }
 
   Future<void> _vibrateForPhaseChange() async {
     try {
       if (await Vibration.hasCustomVibrationsSupport()) {
-        await Vibration.vibrate(duration: 1000);
+        await Vibration.vibrate(duration: 200);
       } else if (await Vibration.hasVibrator()) {
         // Fallback: short vibration
-        await Vibration.vibrate(duration: 300);
+        await Vibration.vibrate(duration: 200);
       }
     } on Exception catch (_) {
       // ignore errors silently (e.g., when in simulator / unsupported)

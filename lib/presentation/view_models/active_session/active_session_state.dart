@@ -14,6 +14,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     SessionInstanceModel? instance,
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,
+    // Timer related data
     @Default(SessionPhase.focus) SessionPhase currentPhase,
     @Default(TimerStatus.initial) TimerStatus timerStatus,
     @Default(0) int remainingSeconds,
@@ -22,17 +23,21 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(0) int totalLongBreakSecondsElapsed,
     @Default(0) int totalFocusPhases,
     @Default(0) int completedBlocks,
-    @Default(0) int currentPhaseElapsed, // used for counting upwards
+    @Default(0) int currentPhaseElapsed, // Used for counting upwards
     DateTime? sessionStartTime,
 
-    // check which goal is currently expanded if any
+    // Goal and task tracking
+    // Check which goal is currently expanded if any
     @Default(null) String? expandedGoalId,
-
     @Default(<String>{}) Set<String> completedGoalIds,
     @Default(<String>{}) Set<String> completedTaskIds,
 
     @Default(false) bool isEditMode,
     @Default(false) bool countUpwards,
+
+    // Toggle focus prompt
+    @Default(false) bool showFocusPrompt,
+
     @Default(true) bool isLoading,
     @Default(0) int currentPhaseIndex,
     String? error,

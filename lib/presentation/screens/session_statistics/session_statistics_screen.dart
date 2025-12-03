@@ -10,6 +10,7 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/completion_rate_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/focus_time_spent_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/mood/mood_card.dart';
@@ -159,9 +160,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
                       const VerticalSpace(),
 
-                      /// Productivity
-                      /// Shows how much time spent on the
-                      /// last (five) sessions
+                      /// Focus time spent on last sessions
                       FocusTimeSpentCard(
                         stats: stats,
                         pastInstances: instances,
@@ -170,14 +169,23 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
                       const VerticalSpace(),
 
-                      /// Shows the time sessions were completed (Tendency evening/morning/etc.)
-                      // if (state.session?.isRepeating == true) ...<Widget>[
-                      //   TimeLearnedCard(instances: instances),
-                      //   const VerticalSpace(size: SpaceSize.medium),
-                      // ],
+                      // Shows average mood; or course of mood for
+                      // repeating session
                       MoodCard(stats: stats, instances: instances),
 
-                      /// TODO: add mood trend/general mood
+                      const VerticalSpace(),
+
+                      // Only if the session was supposed
+                      // to have a focus prompt
+                      // Shows only the statistics of the
+                      // current session performed
+                      if (state.session!.hasFocusPrompt) ...[
+                        // Shows how often what focus prompt has been clicked
+                        FocusPromptCard(
+                          focusChecks: currentInstance.focusChecks,
+                        ),
+                        const VerticalSpace(),
+                      ],
                     ],
                   ),
                 ),
