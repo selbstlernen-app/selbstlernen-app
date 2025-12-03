@@ -105,7 +105,7 @@ class CompletionRateCard extends StatelessWidget {
                   ),
 
                   Text(
-                    '${(stats.combinedRate * 100).toStringAsFixed(0)}%',
+                    '${(stats.combinedRate * 100).toStringAsFixed(1)}%',
                     style: context.textTheme.headlineSmall,
                   ),
                 ],

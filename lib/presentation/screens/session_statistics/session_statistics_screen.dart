@@ -103,7 +103,17 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
     // Data available
     return Scaffold(
+      backgroundColor: Color.lerp(
+        context.colorScheme.secondary,
+        Colors.white,
+        0.3,
+      ),
       appBar: AppBar(
+        backgroundColor: Color.lerp(
+          context.colorScheme.secondary,
+          Colors.white,
+          0.3,
+        ),
         centerTitle: true,
         toolbarHeight: 80,
         title: Row(
@@ -122,7 +132,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: <Widget>[
               Expanded(
@@ -157,6 +167,8 @@ class SessionStatisticsScreen extends ConsumerWidget {
                         pastInstances: instances,
                         targetFocusMinutes: session.focusTimeMin.toDouble(),
                       ),
+
+                      const VerticalSpace(),
 
                       /// Shows the time sessions were completed (Tendency evening/morning/etc.)
                       // if (state.session?.isRepeating == true) ...<Widget>[
