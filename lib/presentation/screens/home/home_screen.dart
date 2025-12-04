@@ -40,12 +40,12 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
               _buildHeading(context),
 
               // TODO: remove for production
-              // ElevatedButton(
-              //   onPressed: () async {
-              //     await ref.read(testDataProvider.notifier).insertTestData();
-              //   },
-              //   child: Text("Insert Test Data"),
-              // ),
+              ElevatedButton(
+                onPressed: () async {
+                  await ref.read(testDataProvider.notifier).insertTestData();
+                },
+                child: Text("Insert Test Data"),
+              ),
               const VerticalSpace(),
 
               const CalendarWidget(),

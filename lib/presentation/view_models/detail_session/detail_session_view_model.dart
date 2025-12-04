@@ -53,7 +53,7 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
     final currentFullSession = state.value?.fullSession;
 
     if (currentFullSession == null) {
-      throw Exception("No session loaded");
+      throw Exception('No session loaded');
     }
 
     final updated = currentFullSession.session.copyWith(

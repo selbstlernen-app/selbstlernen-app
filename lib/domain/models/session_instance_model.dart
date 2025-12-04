@@ -20,6 +20,10 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
     /// Small and long break both count towards break seconds elapsed
     @Default(0) int totalBreakSecondsElapsed,
 
+    // Measures needed when re-covering a session in progress
+    @Default(0) int currentPhaseIndex,
+    int? remainingSeconds,
+
     // Checked off goals/tasks
     @Default(0) int totalCompletedGoals,
     @Default(0) int totalCompletedTasks,

@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/domain/models/focus_check.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 
 extension SessionInstanceToModelMapper on SessionInstance {
   SessionInstanceModel toDomain() {
@@ -18,6 +19,8 @@ extension SessionInstanceToModelMapper on SessionInstance {
       totalBreakSecondsElapsed: totalBreakSecondsElapsed,
       totalCompletedGoals: totalCompletedGoals,
       totalCompletedTasks: totalCompletedTasks,
+      currentPhaseIndex: currentPhaseIndex,
+      remainingSeconds: remainingSeconds,
       mood: mood,
       notes: notes,
       completedAt: completedAt,
@@ -67,6 +70,8 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
       totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),
       totalBreakSecondsElapsed: Value<int>(totalBreakSecondsElapsed),
       totalCompletedGoals: Value<int>(totalCompletedGoals),
+      currentPhaseIndex: Value<int>(currentPhaseIndex),
+      remainingSeconds: Value<int?>(remainingSeconds),
       mood: mood != null ? Value<int>(mood!) : const Value<int>.absent(),
       notes: notes != null
           ? Value<String>(notes!)
@@ -90,6 +95,8 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
       totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),
       totalBreakSecondsElapsed: Value<int>(totalBreakSecondsElapsed),
       totalCompletedGoals: Value<int>(totalCompletedGoals),
+      currentPhaseIndex: Value<int>(currentPhaseIndex),
+      remainingSeconds: Value<int?>(remainingSeconds),
       mood: mood != null ? Value<int>(mood!) : const Value<int>.absent(),
       notes: notes != null
           ? Value<String>(notes!)
