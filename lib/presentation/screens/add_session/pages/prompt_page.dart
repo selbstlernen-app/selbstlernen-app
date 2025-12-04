@@ -83,18 +83,15 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
   Future<void> _updateSession() async {
     try {
       await ref.read(addSessionViewModelProvider.notifier).updateSession();
+
       if (!mounted) return;
-      context.scaffoldMessenger.showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 2),
           content: Text(Constants.successModified),
         ),
       );
-
-      await Navigator.of(context).pushNamedAndRemoveUntil(
-        AppRoutes.home,
-        (Route<dynamic> route) => false,
-      );
+      Navigator.pop(context);
     } on Exception catch (e) {
       if (!mounted) return;
       context.scaffoldMessenger.showSnackBar(
@@ -232,8 +229,8 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
                   const VerticalSpace(),
                   Text(
                     !state.showFocusPromptAlways
-                        ? 'Bekomme die Abfrage nach ${state.focusPromptInterval} min Inaktvität (d.h. du hast für die Zeit nicht den Bildschirm berührt).'
-                        : 'Bekomme die Abfrage immer, unabhängig von Bildschirm-Aktivität.',
+                        ? '''Bekomme die Abfrage nach ${state.focusPromptInterval} min Inaktvität (d.h. du hast für diese Zeit den Bildschirm nicht berührt).'''
+                        : '''Bekomme die Abfrage immer, unabhängig von Bildschirm-Aktivität.''',
                     style: context.textTheme.bodyMedium,
                   ),
                   const VerticalSpace(size: SpaceSize.small),
@@ -248,21 +245,21 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
             Expanded(
               child: CustomButton(
                 verticalPadding: 8,
-                label: state.isEditingMode
+                label: state.isEditMode
                     ? 'Lerneinheit mit Änderungen starten'
                     : 'Lerneinheit sofort starten',
-                onPressed: () => _startSession(state.isEditingMode),
+                onPressed: () => _startSession(state.isEditMode),
               ),
             ),
             const HorizontalSpace(size: SpaceSize.small),
             Expanded(
               child: CustomButton(
                 verticalPadding: 8,
-                label: state.isEditingMode
+                label: state.isEditMode
                     ? 'Änderungen speichern'
                     : 'Lerneinheit erstellen',
                 onPressed: () =>
-                    state.isEditingMode ? _updateSession() : _saveSession(),
+                    state.isEditMode ? _updateSession() : _saveSession(),
               ),
             ),
           ],

@@ -50,6 +50,9 @@ abstract class AddSessionState with _$AddSessionState {
     String? dateError,
     String? selectedDaysError,
     String? goalsError,
+
+    // Edit mode
+    @Default(false) bool isEditMode,
   }) = _AddSessionState;
   const AddSessionState._();
 
@@ -63,6 +66,4 @@ abstract class AddSessionState with _$AddSessionState {
     if (focusTimeMin > 0) return true;
     return false;
   }
-
-  bool get isEditingMode => sessionId != null;
 }

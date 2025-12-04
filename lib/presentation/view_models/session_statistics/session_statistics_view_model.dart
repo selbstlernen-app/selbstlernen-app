@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/usecases/session/get_focus_minutes_by_weekday_use_case.dart';
 import 'package:srl_app/domain/usecases/session/get_session_statistics_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
@@ -12,8 +11,9 @@ part 'session_statistics_view_model.g.dart';
 @riverpod
 class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
   late final GetSessionStatisticsUseCase _getSessionStatisticsUseCase;
-  late final GetFocusMinutesByWeekdayUseCase _getFocusMinutesByWeekdayUseCase;
   late final ManageSessionUseCase _manageSessionUseCase;
+  late final ManageGoalUseCase _manageGoalUseCase;
+  late final ManageTasksUseCase _manageTasksUseCase;
   late final GetInstanceUseCase _getInstanceUseCase;
   late final int _sessionId;
 
@@ -23,10 +23,10 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
     _getSessionStatisticsUseCase = ref.watch(
       getSessionStatisticsUseCaseProvider,
     );
-    _getFocusMinutesByWeekdayUseCase = ref.watch(
-      getFocusMinutesByWeekdayUseCaseProvider,
-    );
     _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
+    _manageGoalUseCase = ref.watch(manageGoalUseCaseProvider);
+    _manageTasksUseCase = ref.watch(manageTasksUseCaseProvider);
+
     _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
 
     unawaited(_loadData());
@@ -37,13 +37,11 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
     try {
       final statistics = await _getSessionStatisticsUseCase.call(_sessionId);
 
-      final weekdayMinutes = await _getFocusMinutesByWeekdayUseCase.call(
-        _sessionId,
-      );
-
       final session = await _manageSessionUseCase.getSessionById(
         _sessionId,
       );
+      final goals = await _manageGoalUseCase.getAllGoalsBySessionId(sessionId);
+      final tasks = await _manageTasksUseCase.getAllTasksBySessionId(sessionId);
 
       final instances = await _getInstanceUseCase.getInstancesBySessionId(
         sessionId,
@@ -53,7 +51,8 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
         stats: statistics,
         session: session,
         instances: instances,
-        weekdayMinutes: weekdayMinutes,
+        goals: goals,
+        tasks: tasks,
         isLoading: false,
       );
     } on Exception catch (e) {

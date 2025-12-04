@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import 'package:srl_app/data/app_database.dart';
+import 'package:srl_app/domain/models/focus_check.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
 extension SessionInstanceToModelMapper on SessionInstance {
@@ -19,7 +22,28 @@ extension SessionInstanceToModelMapper on SessionInstance {
       notes: notes,
       completedAt: completedAt,
       createdAt: createdAt,
+      focusChecks: _focusChecksFromJson(focusChecksJson),
     );
+  }
+
+  static List<FocusCheck> _focusChecksFromJson(String json) {
+    try {
+      final decoded = jsonDecode(json);
+      if (decoded is! List) return [];
+      final list = decoded;
+
+      return list.map((item) {
+        final map = item as Map<String, dynamic>;
+        return FocusCheck(
+          timestamp: DateTime.parse(map['timestamp'] as String),
+          level: FocusLevel.values.firstWhere(
+            (e) => e.name == map['level'],
+          ),
+        );
+      }).toList();
+    } on Exception catch (_) {
+      return []; // Return empty list if JSON is invalid
+    }
   }
 
   static List<SessionInstanceModel> mapFromListOfEntity(
@@ -48,6 +72,7 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
           ? Value<String>(notes!)
           : const Value<String>.absent(),
       totalCompletedTasks: Value<int>(totalCompletedTasks),
+      focusChecksJson: Value<String>(_focusChecksToJson(focusChecks)),
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
     );
   }
@@ -70,6 +95,20 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
           ? Value<String>(notes!)
           : const Value<String>.absent(),
       totalCompletedTasks: Value<int>(totalCompletedTasks),
+      focusChecksJson: Value<String>(_focusChecksToJson(focusChecks)),
+    );
+  }
+
+  static String _focusChecksToJson(List<FocusCheck> focusChecks) {
+    return jsonEncode(
+      focusChecks
+          .map(
+            (check) => {
+              'timestamp': check.timestamp.toIso8601String(),
+              'level': check.level.name,
+            },
+          )
+          .toList(),
     );
   }
 }

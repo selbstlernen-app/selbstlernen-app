@@ -4,6 +4,7 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
+import 'package:srl_app/presentation/screens/add_session/widgets/goals_with_tasks_list.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/input_list.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 import 'package:uuid/uuid.dart';
@@ -18,11 +19,14 @@ class BottomUpPage extends ConsumerStatefulWidget {
 
 class _BottomUpPageState extends ConsumerState<BottomUpPage> {
   final TextEditingController _goalController = TextEditingController();
+  final TextEditingController _taskController = TextEditingController();
   final List<TaskModel> _selectedTasks = <TaskModel>[];
+  final Set<String> expandedGoalIds = <String>{};
 
   @override
   void dispose() {
     _goalController.dispose();
+    _taskController.dispose();
     super.dispose();
   }
 
@@ -47,14 +51,62 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
           .read(addSessionViewModelProvider.notifier)
           .linkTaskToGoal(
             ref.read(addSessionViewModelProvider).tasks.indexOf(task),
-            // Link to temporary id of this goal
             newGoal.id!,
           );
     }
 
-    // Clear selections
-    setState(_selectedTasks.clear);
+    // Clear selections and expand the new goal!
+    setState(() {
+      _selectedTasks.clear();
+      expandedGoalIds
+        ..clear()
+        ..add(newGoal.id!);
+    });
     _goalController.clear();
+  }
+
+  void _toggleGoalExpansion(String goalId) {
+    setState(() {
+      if (expandedGoalIds.contains(goalId)) {
+        expandedGoalIds.remove(goalId);
+      } else {
+        expandedGoalIds
+          ..clear()
+          ..add(goalId);
+      }
+    });
+  }
+
+  void _addTaskToGoal({required GoalModel goal}) {
+    final taskText = _taskController.text.trim();
+    if (taskText.isEmpty) return;
+
+    final state = ref.read(addSessionViewModelProvider);
+
+    // Check for duplicates
+    if (state
+        .tasksForGoal(goal.id!)
+        .any((TaskModel task) => task.title == taskText)) {
+      return;
+    }
+
+    ref
+        .read(addSessionViewModelProvider.notifier)
+        .addTaskToGoal(
+          TaskModel(
+            id: const Uuid().v4(),
+            title: taskText,
+            isCompleted: false,
+            goalId: goal.id,
+            keptForFutureSessions: true,
+          ),
+          goal.id,
+        );
+
+    _taskController.clear();
+    setState(() {
+      expandedGoalIds.add(goal.id!);
+    });
   }
 
   @override
@@ -74,13 +126,13 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
-                  'Gruppiere Aufgaben unter einem Ziel zusammen. Du kannst diesen Schritt auch vorerst überspringen.',
+                  '''Gruppiere Aufgaben unter einem Ziel zusammen. Du kannst diesen Schritt auch vorerst überspringen.''',
                   style: context.textTheme.bodyMedium,
                 ),
 
                 const VerticalSpace(),
 
-                // Select tasks
+                // Ungrouped tasks for selection to goals
                 if (state.ungroupedTasks.isNotEmpty) ...<Widget>[
                   Text(
                     'Verfügbare Aufgaben',
@@ -112,8 +164,9 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                             }
                           }),
                           child: Padding(
-                            padding: const EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(4),
                             child: CustomItemTile(
+                              iconSize: 24,
                               isLargeGoal: false,
                               text: task.title,
                             ),
@@ -122,10 +175,10 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                       ),
                     );
                   }),
+                  const VerticalSpace(size: SpaceSize.small),
                 ],
 
-                const VerticalSpace(size: SpaceSize.small),
-
+                // Create new goal from selected tasks
                 if (_selectedTasks.isNotEmpty) ...<Widget>[
                   Text(
                     'Ziel formulieren (${_selectedTasks.length} ausgewählt)',
@@ -141,9 +194,10 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                     items: const <TaskModel>[],
                     hideHeadline: true, // Empty, showing input only
                   ),
+
+                  const VerticalSpace(size: SpaceSize.small),
                 ],
 
-                // Grouped tasks and their goal
                 if (state.goals.isNotEmpty) ...<Widget>[
                   Text(
                     'Gruppierte Aufgaben',
@@ -153,30 +207,13 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                   const VerticalSpace(size: SpaceSize.small),
 
                   ...state.goals.map((GoalModel goal) {
-                    final tasksForGoal = state.tasks
-                        .where((TaskModel t) => t.goalId == goal.id)
-                        .toList();
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          CustomItemTile(isLargeGoal: true, text: goal.title),
-                          ...tasksForGoal.map(
-                            (TaskModel task) => Padding(
-                              padding: const EdgeInsets.only(
-                                left: 16,
-                                top: 8,
-                              ),
-                              child: CustomItemTile(
-                                isLargeGoal: false,
-                                text: task.title,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    return GoalWithTasksCard(
+                      goal: goal,
+                      isExpanded: expandedGoalIds.contains(goal.id),
+                      onToggleExpand: () => _toggleGoalExpansion(goal.id!),
+                      onAddTask: () => _addTaskToGoal(goal: goal),
+                      tasksForGoal: state.tasksForGoal(goal.id!),
+                      taskController: _taskController,
                     );
                   }),
                 ],

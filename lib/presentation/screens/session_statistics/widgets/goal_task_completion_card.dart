@@ -2,13 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/card_layout.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 
 class GoalTaskCompletionCard extends StatelessWidget {
-  const GoalTaskCompletionCard({required this.stats, super.key});
+  const GoalTaskCompletionCard({
+    required this.stats,
+    required this.currentInstance,
+    required this.totalGoals,
+    required this.totalTasks,
+    required this.pastInstances,
+    super.key,
+  });
 
   final SessionStatistics stats;
+  final SessionInstanceModel currentInstance;
+  final List<SessionInstanceModel> pastInstances;
+
+  final int totalGoals;
+  final int totalTasks;
 
   @override
   Widget build(BuildContext context) {
@@ -16,15 +30,85 @@ class GoalTaskCompletionCard extends StatelessWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Ziele & Aufgaben', style: context.textTheme.headlineMedium),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Ziele & Aufgaben', style: context.textTheme.headlineMedium),
+
+              IconButton(
+                color: AppPalette.grey.withValues(alpha: 0.5),
+                icon: const Icon(Icons.history_rounded),
+                onPressed: () => showHistoryBottomSheet(
+                  context,
+                  pastInstances
+                      .where(
+                        (instance) => instance.status != SessionStatus.skipped,
+                      )
+                      .toList(),
+                  'Ziele und Aufgaben',
+                  (instance) =>
+                      '''${instance.totalCompletedGoals} Ziele erledigt\n${instance.totalCompletedTasks} Aufgaben erledigt''',
+                ),
+              ),
+            ],
+          ),
+
+          const VerticalSpace(size: SpaceSize.xsmall),
+
+          Text(
+            'Heutige Lerneinheit',
+            style: context.textTheme.bodySmall!.copyWith(
+              color: AppPalette.grey,
+            ),
+          ),
+
           const VerticalSpace(size: SpaceSize.small),
+          // TODAY'S SESSION INSTANCE
+          if (totalGoals > 0) ...<Widget>[
+            _ProductivityProgressBar(
+              label: 'Ziele',
+              value: currentInstance.totalCompletedGoals,
+              totalValue: totalGoals,
+              color: AppPalette.sky,
+            ),
+            const VerticalSpace(size: SpaceSize.small),
+          ],
+
+          if (totalTasks > 0) ...<Widget>[
+            _ProductivityProgressBar(
+              label: 'Aufgaben',
+              value: currentInstance.totalCompletedTasks,
+              totalValue: totalTasks,
+              color: AppPalette.emerald,
+            ),
+          ],
+
+          // DIVIDER
+          if (totalGoals > 0 || totalTasks > 0) ...<Widget>[
+            const VerticalSpace(size: SpaceSize.small),
+            Divider(
+              color: context.colorScheme.tertiary,
+              thickness: 4,
+            ),
+            const VerticalSpace(size: SpaceSize.small),
+          ],
+
+          // ALL-TIME STATISTICS - Show second (context)
+          Text(
+            'Abgeschlossene Aufgaben und Ziele über alle Sitzungen hinweg',
+            style: context.textTheme.bodySmall!.copyWith(
+              color: AppPalette.grey,
+            ),
+          ),
+          const VerticalSpace(size: SpaceSize.small),
+
           IntrinsicHeight(
             child: Row(
               children: <Widget>[
                 Expanded(
                   child: _ProductivitySquare(
                     icon: Icons.flag,
-                    iconColor: AppPalette.error,
+                    iconColor: AppPalette.sky,
                     label: 'Ziele erreicht',
                     total: stats.totalGoalsCompleted,
                     average: stats.averageGoalsPerSession,
@@ -34,7 +118,7 @@ class GoalTaskCompletionCard extends StatelessWidget {
                 Expanded(
                   child: _ProductivitySquare(
                     icon: Icons.task_alt,
-                    iconColor: AppPalette.success,
+                    iconColor: AppPalette.emerald,
                     label: 'Aufgaben erledigt',
                     total: stats.totalTasksCompleted,
                     average: stats.averageTasksPerSession,
@@ -43,29 +127,6 @@ class GoalTaskCompletionCard extends StatelessWidget {
               ],
             ),
           ),
-
-          if (stats.totalGoalsCompleted > 0 ||
-              stats.totalTasksCompleted > 0) ...<Widget>[
-            const VerticalSpace(),
-            Divider(
-              color: context.colorScheme.tertiary,
-              thickness: 4,
-              radius: BorderRadius.circular(10),
-            ),
-            _ProductivityProgressBar(
-              label: 'Ziele',
-              value: stats.totalGoalsCompleted,
-              totalValue: stats.totalOpenGoals,
-              color: AppPalette.success,
-            ),
-            const SizedBox(height: 12),
-            _ProductivityProgressBar(
-              label: 'Aufgaben',
-              value: stats.totalTasksCompleted,
-              totalValue: stats.totalOpenTasks,
-              color: AppPalette.error,
-            ),
-          ],
         ],
       ),
     );
@@ -115,8 +176,9 @@ class _ProductivitySquare extends StatelessWidget {
             const VerticalSpace(size: SpaceSize.xsmall),
             Text(
               'Ø ${average.toStringAsFixed(1)}/Einheit',
-              style: context.textTheme.bodySmall?.copyWith(
+              style: context.textTheme.bodyMedium?.copyWith(
                 color: AppPalette.grey,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -148,12 +210,7 @@ class _ProductivityProgressBar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Text(label, style: context.textTheme.bodyMedium),
-            Text(
-              '$totalValue',
-              style: context.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('$value/$totalValue', style: context.textTheme.bodyMedium),
           ],
         ),
         const VerticalSpace(size: SpaceSize.xsmall),

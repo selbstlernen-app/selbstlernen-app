@@ -13,6 +13,7 @@ class CustomTextField extends StatelessWidget {
     this.onTap,
     this.readOnly,
     this.maxLines,
+    this.maxLength,
   });
 
   final TextEditingController controller;
@@ -23,6 +24,7 @@ class CustomTextField extends StatelessWidget {
   final VoidCallback? onTap;
   final bool? readOnly;
   final int? maxLines;
+  final int? maxLength;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +33,7 @@ class CustomTextField extends StatelessWidget {
       onSubmitted: onSubmitted,
       onTap: onTap,
       controller: controller,
+      maxLength: maxLength,
       textInputAction: TextInputAction.go,
       readOnly: readOnly ?? false,
       maxLines: maxLines,

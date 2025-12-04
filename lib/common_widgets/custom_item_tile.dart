@@ -6,21 +6,31 @@ class CustomItemTile extends StatelessWidget {
   const CustomItemTile({
     required this.text,
     required this.isLargeGoal,
+    this.iconSize = 28,
     super.key,
   });
   final String text;
   final bool isLargeGoal;
+  final double? iconSize;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Row(
         children: <Widget>[
           if (isLargeGoal)
-            const Icon(Icons.emoji_flags_rounded, size: 28)
+            Icon(
+              Icons.emoji_flags_rounded,
+              size: iconSize,
+              color: context.colorScheme.primary,
+            )
           else
-            const Icon(Icons.check_box_outline_blank_rounded, size: 28),
+            Icon(
+              Icons.check_box_outline_blank_rounded,
+              size: iconSize,
+              color: context.colorScheme.primary,
+            ),
 
           const HorizontalSpace(size: SpaceSize.small),
 

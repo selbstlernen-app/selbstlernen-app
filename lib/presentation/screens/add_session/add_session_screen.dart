@@ -67,6 +67,8 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
           });
     } else {
       if (widget.fullSessionModel != null) {
+        // reset fields and then navigate back!
+        ref.read(addSessionViewModelProvider.notifier).resetFields();
         Navigator.pop(context);
       }
     }
@@ -92,16 +94,17 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(addSessionViewModelProvider);
-
     final showBackButton = widget.fullSessionModel != null || currentPage > 0;
 
     return MainLayout(
       appBarTitle: widget.fullSessionModel != null
           ? 'Lerneinheit bearbeiten'
           : 'Neue Lerneinheit erstellen',
-      showFloatingActionButton: state.isEditingMode,
+      showFloatingActionButton: state.isEditMode,
       onPressedFAB: () async {
-        await ref.read(addSessionViewModelProvider.notifier).updateSession();
+        await ref
+            .read(addSessionViewModelProvider.notifier)
+            .updateSessionAndReset();
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -133,7 +136,8 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
           StartInfoPage(navigateForward: _navigateForward),
-          if (state.setGoals)
+          // Always show TopDownPage in edit mode
+          if (state.isEditMode || state.setGoals)
             TopDownPage(navigateForward: _navigateForward)
           else
             BottomUpPage(navigateForward: _navigateForward),

@@ -21,6 +21,7 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
   final TextEditingController _taskController = TextEditingController();
 
   Set<String> expandedGoalIds = <String>{};
+  static const String ungroupedTaskGoalId = '__ungrouped__';
 
   @override
   void dispose() {
@@ -56,10 +57,10 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
             id: const Uuid().v4(),
             title: taskText,
             isCompleted: false,
-            goalId: goal.id,
+            goalId: goal.id != ungroupedTaskGoalId ? goal.id : null,
             keptForFutureSessions: true,
           ),
-          goal.id!,
+          goal.id != ungroupedTaskGoalId ? goal.id : null,
         );
 
     _taskController.clear();
@@ -85,6 +86,14 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(addSessionViewModelProvider);
 
+    const ungroupedTaskGoal = GoalModel(
+      id: ungroupedTaskGoalId,
+      title: 'Sonstige Aufgaben',
+      isCompleted: false,
+      keptForFutureSessions: false,
+    );
+    final goalsToMap = [...state.goals, ungroupedTaskGoal];
+
     return Column(
       children: <Widget>[
         Expanded(
@@ -104,12 +113,18 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
 
                 const VerticalSpace(),
 
-                ...state.goals.map((GoalModel goal) {
+                ...goalsToMap.map((GoalModel goal) {
+                  final state = ref.watch(addSessionViewModelProvider);
+                  if (goal.id == ungroupedTaskGoalId) {}
+
                   return GoalWithTasksCard(
                     goal: goal,
                     isExpanded: expandedGoalIds.contains(goal.id),
                     onToggleExpand: () => _toggleGoalExpansion(goal.id!),
                     onAddTask: () => _addTaskToGoal(goal: goal),
+                    tasksForGoal: goal.id == ungroupedTaskGoalId
+                        ? state.ungroupedTasks
+                        : state.tasksForGoal(goal.id!),
                     taskController: _taskController,
                   );
                 }),

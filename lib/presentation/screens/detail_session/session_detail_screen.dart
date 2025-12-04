@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/common_widgets/time_break_down_item.dart';
@@ -47,26 +48,18 @@ class SessionDetailScreen extends ConsumerWidget {
           },
           appBarTitle: session.title,
           actions: <Widget>[
-            IconButton(
-              onPressed: () async {
-                await Navigator.pushNamed(
-                  context,
-                  AppRoutes.addSession,
-                  arguments: detailState.fullSession,
-                );
-              },
-              icon: const Icon(Icons.mode_edit_outline_rounded),
-            ),
-            IconButton(
-              onPressed: () async {
-                await deleteSessionDialog(
-                  context,
-                  ref,
-                  isRepeating: session.isRepeating,
-                );
-              },
-              icon: const Icon(Icons.delete_forever_rounded),
-            ),
+            if (!session.isArchived)
+              CustomIconButton(
+                isActive: true,
+                onPressed: () async {
+                  await Navigator.pushNamed(
+                    context,
+                    AppRoutes.addSession,
+                    arguments: detailState.fullSession,
+                  );
+                },
+                icon: const Icon(Icons.mode_edit_outline_rounded),
+              ),
           ],
           content: Column(
             children: <Widget>[
@@ -75,12 +68,39 @@ class SessionDetailScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(
-                        'Einzelheiten zu dieser Lerneinheit',
-                        style: context.textTheme.headlineMedium,
-                      ),
-
-                      const VerticalSpace(),
+                      if (session.isArchived) ...[
+                        Text(
+                          'Diese Einheit ist archiviert',
+                          style: context.textTheme.headlineSmall!.copyWith(
+                            color: AppPalette.orange,
+                          ),
+                        ),
+                        const VerticalSpace(
+                          size: SpaceSize.small,
+                        ),
+                      ],
+                      // If session was checked off for today, say so in title
+                      if (instanceId != null &&
+                          !session.isArchived) ...<Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.check_circle_outline_rounded,
+                              size: 32,
+                            ),
+                            const HorizontalSpace(size: SpaceSize.small),
+                            Text(
+                              'Einheit für heute erledigt!',
+                              style: context.textTheme.headlineMedium,
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                        const VerticalSpace(
+                          size: SpaceSize.large,
+                        ),
+                      ],
 
                       // Planned work and break time
                       Text(
@@ -126,66 +146,94 @@ class SessionDetailScreen extends ConsumerWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                if (detailState
-                                    .fullSession!
-                                    .goals
-                                    .isNotEmpty) ...<Widget>[
-                                  Text(
-                                    'Ziele',
-                                    style: context.textTheme.headlineSmall,
-                                  ),
-                                  const VerticalSpace(size: SpaceSize.small),
-                                  ...detailState.fullSession!.goals.map((
-                                    GoalModel goal,
-                                  ) {
-                                    return CustomItemTile(
-                                      text: goal.title,
-                                      isLargeGoal: true,
-                                    );
-                                  }),
+                          if (detailState.fullSession!.goals.isNotEmpty)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  ...<Widget>[
+                                    Text(
+                                      'Ziele',
+                                      style: context.textTheme.headlineSmall,
+                                    ),
+                                    const VerticalSpace(size: SpaceSize.small),
+                                    ...detailState.fullSession!.goals.map((
+                                      GoalModel goal,
+                                    ) {
+                                      return CustomItemTile(
+                                        iconSize: 20,
+                                        text: goal.title,
+                                        isLargeGoal: true,
+                                      );
+                                    }),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              children: <Widget>[
-                                if (detailState
-                                    .fullSession!
-                                    .ungroupedTasks
-                                    .isNotEmpty) ...<Widget>[
-                                  Text(
-                                    'Sonstige Aufgaben',
-                                    style: context.textTheme.headlineSmall,
-                                  ),
-                                  const VerticalSpace(size: SpaceSize.small),
-                                  ...detailState.fullSession!.ungroupedTasks
-                                      .map((TaskModel task) {
-                                        return CustomItemTile(
-                                          text: task.title,
-                                          isLargeGoal: false,
-                                        );
-                                      }),
+                          if (detailState
+                              .fullSession!
+                              .ungroupedTasks
+                              .isNotEmpty)
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  ...<Widget>[
+                                    Text(
+                                      'Sonstige Aufgaben',
+                                      style: context.textTheme.headlineSmall,
+                                    ),
+                                    const VerticalSpace(size: SpaceSize.small),
+                                    ...detailState.fullSession!.ungroupedTasks
+                                        .map((TaskModel task) {
+                                          return CustomItemTile(
+                                            iconSize: 20,
+                                            text: task.title,
+                                            isLargeGoal: false,
+                                          );
+                                        }),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
               ),
+
+              // Delete and archive buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    color: AppPalette.rose,
+                    onPressed: () async {
+                      await deleteSessionDialog(
+                        context,
+                        ref,
+                        isRepeating: session.isRepeating,
+                      );
+                    },
+                    icon: const Icon(Icons.delete_forever_rounded),
+                  ),
+                  if (!session.isArchived)
+                    IconButton(
+                      color: AppPalette.orange,
+                      onPressed: () async {
+                        await archiveSessionDialog(
+                          context,
+                          ref,
+                          isRepeating: session.isRepeating,
+                        );
+                      },
+                      icon: const Icon(Icons.archive_outlined),
+                    ),
+                ],
+              ),
+
               if (instanceId != null) ...<Widget>[
-                Text(
-                  'Einheit für heute erledigt!',
-                  style: context.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                ),
                 const VerticalSpace(),
                 SizedBox(
                   width: context.mediaQuery.size.width,
@@ -200,36 +248,38 @@ class SessionDetailScreen extends ConsumerWidget {
                 ),
               ],
 
-              // if (instanceId == null)
-              SizedBox(
-                width: context.mediaQuery.size.width,
-                child: CustomButton(
-                  onPressed: () async {
-                    try {
-                      // Get or create instance
-                      final existingInstance = await ref
-                          .read(
-                            detailSessionViewModelProvider(sessionId).notifier,
-                          )
-                          .startSession(DateTime.now());
+              if (instanceId == null && !session.isArchived)
+                SizedBox(
+                  width: context.mediaQuery.size.width,
+                  child: CustomButton(
+                    onPressed: () async {
+                      try {
+                        // Get or create instance
+                        final existingInstance = await ref
+                            .read(
+                              detailSessionViewModelProvider(
+                                sessionId,
+                              ).notifier,
+                            )
+                            .startSession(DateTime.now());
 
-                      if (context.mounted) {
-                        await Navigator.pushNamed(
-                          context,
-                          AppRoutes.active,
-                          arguments: ActiveSessionArgs(
-                            instanceId: int.parse(existingInstance.id!),
-                            sessionId: int.parse(session.id!),
-                          ),
-                        );
+                        if (context.mounted) {
+                          await Navigator.pushNamed(
+                            context,
+                            AppRoutes.active,
+                            arguments: ActiveSessionArgs(
+                              instanceId: int.parse(existingInstance.id!),
+                              sessionId: int.parse(session.id!),
+                            ),
+                          );
+                        }
+                      } on Exception catch (e) {
+                        throw ArgumentError(e);
                       }
-                    } on Exception catch (e) {
-                      throw ArgumentError(e);
-                    }
-                  },
-                  label: 'Starten',
+                    },
+                    label: 'Starten',
+                  ),
                 ),
-              ),
             ],
           ),
         );
@@ -266,13 +316,13 @@ class SessionDetailScreen extends ConsumerWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Lerneinheit löschen',
+            'Lerneinheit löschen?',
             style: context.textTheme.headlineMedium,
           ),
           content: Text(
-            isRepeating
-                ? 'Willst du diese und alle zukünftigen Einheiten löschen?'
-                : 'Willst du diese Einheit wirklich löschen?',
+            '''Wenn du diese Einheit löschst, löschst du auch alle bisher durchgeführten Instanzen und Daten.\nDies kannst du nicht mehr rückgängig machen.'''
+            '''${isRepeating ? 'Willst du diese und alle zukünftigen Einheiten löschen?' : 'Willst du diese Einheit wirklich löschen?'}''',
+
             style: context.textTheme.bodyLarge,
           ),
           actions: <Widget>[
@@ -290,6 +340,65 @@ class SessionDetailScreen extends ConsumerWidget {
             ),
             TextButton(
               onPressed: deleteSession,
+              child: const Text('Bestätigen'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Dialog to archive a session
+  Future<void> archiveSessionDialog(
+    BuildContext context,
+    WidgetRef ref, {
+    required bool isRepeating,
+  }) {
+    Future<void> archiveSession() async {
+      await ref
+          .read(detailSessionViewModelProvider(sessionId).notifier)
+          .archiveSession();
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            duration: Duration(seconds: 2),
+            content: Text('Einheit erfolgreich archiviert'),
+          ),
+        );
+        // Close dialog
+        Navigator.of(context).pop();
+      }
+    }
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Lerneinheit archivieren?',
+            style: context.textTheme.headlineMedium,
+          ),
+          content: Text(
+            '''Wenn du diese Einheit archivierst, wirst du sie nicht länger bearbeiten oder durchführen können.'''
+            '''\nAlte abgeschlossene Einheiten können aber weiterhin eingesehen werden.''',
+            style: context.textTheme.bodyLarge,
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                overlayColor: context.colorScheme.error,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Abbrechen',
+                style: context.textTheme.labelLarge!.copyWith(
+                  color: context.colorScheme.error,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: archiveSession,
               child: const Text('Bestätigen'),
             ),
           ],

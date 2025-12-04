@@ -1,7 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/services/add_session_service.dart';
-import 'package:srl_app/domain/usecases/session/get_focus_minutes_by_weekday_use_case.dart';
 import 'package:srl_app/domain/usecases/session/get_session_statistics_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 
@@ -38,13 +37,6 @@ GetSessionStatisticsUseCase getSessionStatisticsUseCase(Ref ref) {
     ref.watch(sessionRepositoryProvider),
     ref.watch(goalRepositoryProvider),
     ref.watch(taskRepositoryProvider),
-  );
-}
-
-@riverpod
-GetFocusMinutesByWeekdayUseCase getFocusMinutesByWeekdayUseCase(Ref ref) {
-  return GetFocusMinutesByWeekdayUseCase(
-    ref.watch(sessionInstanceRepositoryProvider),
   );
 }
 

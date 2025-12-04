@@ -4,13 +4,19 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/domain/models/session_model.dart';
+import 'package:srl_app/core/utils/session_status_utils.dart';
+import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 
 class PendingSessionTile extends ConsumerWidget {
-  const PendingSessionTile({required this.session, super.key});
+  const PendingSessionTile({
+    required this.session,
+    required this.hasInstance,
+    super.key,
+  });
 
   final SessionModel session;
+  final bool hasInstance;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,12 +25,10 @@ class PendingSessionTile extends ConsumerWidget {
       child: Stack(
         clipBehavior: Clip.antiAlias,
         children: <Widget>[
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(10),
-              ),
+          const Positioned.fill(
+            child: Card(
+              elevation: 0.5,
+              color: AppPalette.amber,
             ),
           ),
           ClipRRect(
@@ -43,31 +47,39 @@ class PendingSessionTile extends ConsumerWidget {
                   ),
                 ],
               ),
-              child: InkWell(
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  AppRoutes.detail,
-                  arguments: DetailSessionArgs(
-                    sessionId: int.parse(session.id!),
-                  ),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppPalette.zinc,
-                    borderRadius: BorderRadius.circular(10),
+              child: Card(
+                elevation: 0.5,
+                clipBehavior: Clip.hardEdge,
+                child: InkWell(
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    AppRoutes.detail,
+                    arguments: DetailSessionArgs(
+                      sessionId: int.parse(session.id!),
+                    ),
                   ),
                   child: ListTile(
                     title: Text(
                       session.title,
-                      style: context.textTheme.headlineSmall!.copyWith(
-                        color: context.colorScheme.onSecondary,
+                      style: context.textTheme.headlineSmall,
+                    ),
+                    subtitle: Text(
+                      getSubtitle(
+                        hasInstance
+                            ? SessionStatus.inProgress
+                            : SessionStatus.scheduled,
+                        session.isRepeating ? session.startDate : null,
+                        isRepeating: session.isRepeating,
                       ),
                     ),
-                    subtitle: Text(_getDisplayDate()),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    leading: const Icon(Icons.circle_outlined),
+                    leading: getIconBox(
+                      hasInstance
+                          ? SessionStatus.inProgress
+                          : SessionStatus.scheduled,
+                    ),
                     trailing: IconButton(
                       onPressed: () => Navigator.pushNamed(
                         context,
@@ -77,9 +89,8 @@ class PendingSessionTile extends ConsumerWidget {
                         ),
                       ),
                       icon: const Icon(Icons.arrow_forward_ios_rounded),
+                      color: context.colorScheme.onTertiary,
                     ),
-                    textColor: context.colorScheme.onSecondary,
-                    iconColor: context.colorScheme.onSecondary,
                   ),
                 ),
               ),
@@ -88,15 +99,6 @@ class PendingSessionTile extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  String _getDisplayDate() {
-    if (!session.isRepeating) {
-      return 'Einmalig';
-    } else {
-      final date = session.startDate;
-      return '${date?.day}.${date?.month}.${date?.year}';
-    }
   }
 
   Future<void> _showSkipDialog(BuildContext context, WidgetRef ref) {

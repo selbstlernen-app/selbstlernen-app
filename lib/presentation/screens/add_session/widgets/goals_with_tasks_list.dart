@@ -14,9 +14,11 @@ class GoalWithTasksCard extends ConsumerWidget {
     required this.onToggleExpand,
     required this.onAddTask,
     required this.taskController,
+    required this.tasksForGoal,
     super.key,
   });
   final GoalModel goal;
+  final List<TaskModel> tasksForGoal;
   final bool isExpanded;
   final VoidCallback onToggleExpand;
   final VoidCallback onAddTask;
@@ -24,9 +26,6 @@ class GoalWithTasksCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(addSessionViewModelProvider);
-    final goalTasks = state.tasksForGoal(goal.id!);
-
     return Card(
       elevation: 0.5,
       child: Padding(
@@ -62,15 +61,15 @@ class GoalWithTasksCard extends ConsumerWidget {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          if (goalTasks.isNotEmpty)
+                          if (tasksForGoal.isNotEmpty)
                             Text(
-                              '${goalTasks.length} ${goalTasks.length == 1 ? "Aufgabe" : "Aufgaben"}',
+                              '${tasksForGoal.length} ${tasksForGoal.length == 1 ? "Aufgabe" : "Aufgaben"}',
                               style: context.textTheme.bodyMedium!.copyWith(
                                 color: AppPalette.grey,
                                 fontSize: 13,
                               ),
                             ),
-                          if (goalTasks.isEmpty)
+                          if (tasksForGoal.isEmpty)
                             Text(
                               'Noch keine Aufgaben',
                               style: context.textTheme.bodyMedium!.copyWith(
@@ -108,8 +107,8 @@ class GoalWithTasksCard extends ConsumerWidget {
                     const VerticalSpace(size: SpaceSize.small),
 
                     // Existing tasks
-                    if (goalTasks.isNotEmpty) ...<Widget>[
-                      ...goalTasks.map((TaskModel task) {
+                    if (tasksForGoal.isNotEmpty) ...<Widget>[
+                      ...tasksForGoal.map((TaskModel task) {
                         return Padding(
                           padding: const EdgeInsets.only(left: 32),
                           child: Row(
@@ -145,7 +144,7 @@ class GoalWithTasksCard extends ConsumerWidget {
                                   final state = ref.read(
                                     addSessionViewModelProvider,
                                   );
-                                  if (state.isEditingMode && task.id != null) {
+                                  if (state.isEditMode && task.id != null) {
                                     notifier.markTaskIdForDeletion(task.id!);
                                   }
                                   notifier.removeTask(

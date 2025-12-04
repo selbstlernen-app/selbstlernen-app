@@ -23,6 +23,9 @@ class SessionInstances extends Table with AutoIncrementingPrimaryKey {
   IntColumn get totalCompletedTasks =>
       integer().withDefault(const Constant<int>(0))();
 
+  TextColumn get focusChecksJson =>
+      text().withDefault(const Constant<String>('[]'))();
+
   IntColumn get mood => integer().nullable()();
   TextColumn get notes => text().nullable()();
 

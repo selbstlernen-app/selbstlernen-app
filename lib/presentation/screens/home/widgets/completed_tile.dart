@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
-import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/session_status_utils.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
 
@@ -10,32 +10,20 @@ class CompletedSessionTile extends StatelessWidget {
 
   final SessionWithInstanceModel sessionWithInstance;
 
-  Icon _getIcon() {
-    final status = sessionWithInstance.instance!.status;
-    switch (status) {
-      case SessionStatus.completed:
-        return const Icon(Icons.check_circle);
-      case SessionStatus.skipped:
-        return const Icon(Icons.skip_next);
-      case SessionStatus.inProgress:
-        return const Icon(Icons.timelapse);
-      case SessionStatus.scheduled:
-        return const Icon(Icons.circle_outlined);
-    }
-  }
-
-  Color _getColor() {
-    final status = sessionWithInstance.instance!.status;
-    switch (status) {
-      case SessionStatus.completed:
-        return AppPalette.green;
-      case SessionStatus.skipped:
-        return AppPalette.rose;
-      case SessionStatus.scheduled:
-        return AppPalette.zinc;
-      case SessionStatus.inProgress:
-        return AppPalette.primaryVariant;
-    }
+  Widget _getIconBox(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: getColor(sessionWithInstance.instance!.status),
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Icon(
+          getIcon(sessionWithInstance.instance!.status),
+          color: context.colorScheme.onPrimary,
+        ),
+      ),
+    );
   }
 
   @override
@@ -43,28 +31,20 @@ class CompletedSessionTile extends StatelessWidget {
     final session = sessionWithInstance.session;
     final instance = sessionWithInstance.instance!;
 
-    return InkWell(
-      onTap: () => Navigator.pushNamed(
-        context,
-        AppRoutes.detail,
-        arguments: DetailSessionArgs(
-          sessionId: int.parse(session.id!),
-          instanceId: int.parse(instance.id!),
-        ),
-      ),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        decoration: BoxDecoration(
-          color: _getColor(),
-          borderRadius: BorderRadius.circular(10),
+    return Card(
+      elevation: 0.5,
+      clipBehavior: Clip.hardEdge,
+      child: InkWell(
+        onTap: () => Navigator.pushNamed(
+          context,
+          AppRoutes.detail,
+          arguments: DetailSessionArgs(
+            sessionId: int.parse(session.id!),
+            instanceId: int.parse(instance.id!),
+          ),
         ),
         child: ListTile(
-          title: Text(
-            session.title,
-            style: context.textTheme.headlineSmall!.copyWith(
-              color: context.colorScheme.onSecondary,
-            ),
-          ),
+          title: Text(session.title, style: context.textTheme.headlineSmall),
           subtitle: Text(
             instance.status == SessionStatus.skipped
                 ? 'Übersprungen'
@@ -73,7 +53,7 @@ class CompletedSessionTile extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          leading: _getIcon(),
+          leading: _getIconBox(context),
           trailing: IconButton(
             onPressed: () => Navigator.pushNamed(
               context,
@@ -84,9 +64,8 @@ class CompletedSessionTile extends StatelessWidget {
               ),
             ),
             icon: const Icon(Icons.arrow_forward_ios_rounded),
+            color: context.colorScheme.onTertiary,
           ),
-          textColor: context.colorScheme.onSecondary,
-          iconColor: context.colorScheme.onSecondary,
         ),
       ),
     );

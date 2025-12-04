@@ -166,7 +166,9 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                 CustomIconButton(
                   icon: const Icon(Icons.skip_next_rounded, size: 25),
                   isActive: true,
-                  onPressed: viewModel.skipPhase,
+                  onPressed: state.timerStatus == TimerStatus.initial
+                      ? null
+                      : viewModel.skipPhase,
                 ),
               ],
             ),
@@ -225,8 +227,8 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
   Widget _buildPreviewBlock(String label, Color color) {
     return Container(
-      width: 16,
-      height: 16,
+      width: 17,
+      height: 17,
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(5),
@@ -237,6 +239,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
           style: context.textTheme.labelSmall!.copyWith(
             color: context.colorScheme.onPrimary,
           ),
+          textAlign: TextAlign.center,
         ),
       ),
     );

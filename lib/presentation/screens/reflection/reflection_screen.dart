@@ -112,7 +112,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                         icon: Icons.timelapse_outlined,
                         label: 'Gesamte Zeit',
                         value: '${reflectionState.totalTimeSpent} Min',
-                        color: AppPalette.primary,
+                        color: AppPalette.sky,
                       ),
                     ],
                   ),

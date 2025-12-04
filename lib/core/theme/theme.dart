@@ -10,8 +10,8 @@ class CustomTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
-      primary: AppPalette.primary, //Color(0xff00BCFF)
-      secondary: AppPalette.primaryVariant, //Color(0xff74d4ff),
+      primary: AppPalette.sky, //Color(0xff00BCFF)
+      secondary: AppPalette.skyLight, //Color(0xff74d4ff),
       onSecondary: Colors.white, // Texts/Icons on secondary
       tertiary: const Color(0xffF5F5F5), // grey used for inputs etc
       onTertiary: const Color(0xffA1A1A1),

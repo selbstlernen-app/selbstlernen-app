@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/domain/models/session_model.dart';
+import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 
 part 'session_statistics_state.freezed.dart';
@@ -11,7 +10,8 @@ abstract class SessionStatisticsState with _$SessionStatisticsState {
     SessionStatistics? stats,
     SessionModel? session,
     List<SessionInstanceModel>? instances,
-    List<double>? weekdayMinutes,
+    List<GoalModel>? goals,
+    List<TaskModel>? tasks,
     @Default(true) bool isLoading,
     String? error,
   }) = _SessionStatisticsState;

@@ -1,14 +1,23 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/session_status_utils.dart';
+import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/card_layout.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 
 class CompletionRateCard extends StatelessWidget {
-  const CompletionRateCard({required this.stats, super.key});
+  const CompletionRateCard({
+    required this.stats,
+    required this.instances,
+    super.key,
+  });
 
   final SessionStatistics stats;
+  final List<SessionInstanceModel> instances;
 
   @override
   Widget build(BuildContext context) {
@@ -16,59 +25,87 @@ class CompletionRateCard extends StatelessWidget {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text('Abschlussrate', style: context.textTheme.headlineSmall),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Abschlussrate', style: context.textTheme.headlineMedium),
+              // TODO: calculate instances for display that have been missed
+              IconButton(
+                color: AppPalette.grey.withValues(alpha: 0.5),
+                icon: const Icon(Icons.history_rounded),
+                onPressed: () => showHistoryBottomSheet(
+                  context,
+                  instances,
+                  'Abschluss-Status',
+                  (instance) => instance.status == SessionStatus.completed
+                      ? 'Abgeschlossen'
+                      : 'Übersprungen',
+                ),
+              ),
+            ],
+          ),
           const VerticalSpace(size: SpaceSize.small),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               Stack(
                 alignment: AlignmentDirectional.center,
                 children: <Widget>[
-                  // Background (total)
                   SizedBox(
-                    height: 55,
-                    width: 55,
-                    child: CircularProgressIndicator(
-                      value: 1,
-                      backgroundColor: AppPalette.grey.withValues(alpha: 0.2),
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        Colors.transparent,
-                      ),
-                      strokeWidth: 5,
-                    ),
-                  ),
+                    height: 100,
+                    width: 100,
+                    child: PieChart(
+                      // Completed sessions
+                      PieChartData(
+                        sectionsSpace: 0,
+                        centerSpaceRadius: 30,
+                        startDegreeOffset: -90,
+                        sections: [
+                          PieChartSectionData(
+                            color: getColor(SessionStatus.completed),
+                            value: stats.completionRate * 100,
+                            title: '',
+                            radius: 16,
+                          ),
+                          // Missed sessions
+                          PieChartSectionData(
+                            color: getColor(SessionStatus.missed),
+                            value: stats.missRate * 100,
+                            title: '',
+                            radius: 16,
+                          ),
+                          // Skipped sessions
+                          PieChartSectionData(
+                            color: getColor(SessionStatus.skipped),
+                            value: stats.skipRate * 100,
+                            title: '',
+                            radius: 16,
+                          ),
 
-                  // Skipped sessions (will be covered by completion)
-                  SizedBox(
-                    height: 55,
-                    width: 55,
-                    child: CircularProgressIndicator(
-                      value:
-                          stats.completionRate +
-                          stats.skipRate, // Completed + Skipped
-                      backgroundColor: Colors.transparent,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                        AppPalette.successLight,
+                          // Remaining/empty space
+                          if (stats.completionRate +
+                                  stats.skipRate +
+                                  stats.missRate <
+                              1)
+                            PieChartSectionData(
+                              color: AppPalette.grey.withValues(alpha: 0.2),
+                              value:
+                                  (1 -
+                                      stats.completionRate -
+                                      stats.skipRate -
+                                      stats.missRate) *
+                                  100,
+                              title: '',
+                              radius: 16,
+                            ),
+                        ],
                       ),
-                      strokeWidth: 5,
-                    ),
-                  ),
-
-                  // Completed sessions, goes on top
-                  SizedBox(
-                    height: 55,
-                    width: 55,
-                    child: CircularProgressIndicator(
-                      value: stats.completionRate,
-                      backgroundColor: Colors.transparent,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.blue.shade400,
-                      ),
-                      strokeWidth: 5,
                     ),
                   ),
 
                   Text(
-                    '${(stats.combinedRate * 100).toStringAsFixed(0)}%',
+                    '${(stats.combinedRate * 100).toStringAsFixed(1)}%',
                     style: context.textTheme.headlineSmall,
                   ),
                 ],
@@ -82,29 +119,52 @@ class CompletionRateCard extends StatelessWidget {
                   Text(
                     stats.totalInstances == 1
                         ? 'Abgeschlossen'
-                        : '${stats.completedInstances + stats.skippedInstances} von ${stats.totalInstances} Einheiten\nabgeschlossen.',
+                        : '''${stats.completedInstances + stats.skippedInstances + stats.missedInstances} '''
+                              '''von ${stats.totalInstances} Einheiten\nabgeschlossen''',
                     style: context.textTheme.bodyMedium,
                   ),
 
                   const VerticalSpace(size: SpaceSize.small),
 
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       Container(
                         height: 5,
                         width: 5,
                         decoration: BoxDecoration(
-                          color: AppPalette.primary,
+                          color: getColor(SessionStatus.completed),
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      const HorizontalSpace(size: SpaceSize.xsmall),
+                      const HorizontalSpace(size: SpaceSize.small),
                       Text(
                         '${stats.completedInstances} durchgeführt',
                         style: context.textTheme.bodySmall,
                       ),
                     ],
                   ),
+
+                  if (stats.missedInstances > 0) ...<Widget>[
+                    const VerticalSpace(size: SpaceSize.xsmall),
+                    Row(
+                      children: <Widget>[
+                        Container(
+                          height: 5,
+                          width: 5,
+                          decoration: BoxDecoration(
+                            color: getColor(SessionStatus.missed),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        const HorizontalSpace(size: SpaceSize.small),
+                        Text(
+                          '${stats.missedInstances} verpasst',
+                          style: context.textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ],
 
                   if (stats.skippedInstances > 0) ...<Widget>[
                     const VerticalSpace(size: SpaceSize.xsmall),
@@ -114,13 +174,12 @@ class CompletionRateCard extends StatelessWidget {
                         Container(
                           height: 5,
                           width: 5,
-
                           decoration: BoxDecoration(
-                            color: AppPalette.success,
+                            color: getColor(SessionStatus.skipped),
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        const HorizontalSpace(size: SpaceSize.xsmall),
+                        const HorizontalSpace(size: SpaceSize.small),
                         Text(
                           '${stats.skippedInstances} übersprungen',
                           style: context.textTheme.bodySmall,

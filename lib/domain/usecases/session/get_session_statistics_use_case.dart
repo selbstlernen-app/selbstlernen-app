@@ -42,17 +42,13 @@ class GetSessionStatisticsUseCase {
         totalInstances: 0,
         completedInstances: 0,
         skippedInstances: 0,
-        inProgressInstances: 0,
+        missedInstances: 0,
         totalFocusMinutes: 0,
         totalBreakMinutes: 0,
         totalFocusPhases: 0,
         totalCompletedBlocks: 0,
         totalGoalsCompleted: 0,
         totalTasksCompleted: 0,
-        totalOpenGoals: 0,
-        totalOpenTasks: 0,
-        currentStreak: 0,
-        longestStreak: 0,
       );
     }
 
@@ -79,9 +75,19 @@ class GetSessionStatisticsUseCase {
     final skipped = instances
         .where((SessionInstanceModel i) => i.status == SessionStatus.skipped)
         .toList();
-    final inProgress = instances
-        .where((SessionInstanceModel i) => i.status == SessionStatus.inProgress)
-        .toList();
+
+    // Get all instances that should have been from start to today
+    final shouldHaveInstances = session.isRepeating
+        ? DateTimeUtils.countDaysBetweenDates(
+            session.startDate!,
+            DateTime.now(),
+            session.selectedDays,
+          )
+        : 0;
+
+    final missedInstances = session.isRepeating
+        ? shouldHaveInstances - completed.length - skipped.length
+        : 0;
 
     final totalFocusSeconds = completed.fold<int>(
       0,
@@ -120,11 +126,6 @@ class GetSessionStatisticsUseCase {
               completedWithMood.length
         : null;
 
-    // Calculate streaks
-    final streaks = _calculateStreaks(
-      sortedInstances,
-    );
-
     int totalInstances;
     if (session.isRepeating) {
       totalInstances = DateTimeUtils.countDaysBetweenDates(
@@ -140,72 +141,16 @@ class GetSessionStatisticsUseCase {
       totalInstances: totalInstances,
       completedInstances: completed.length,
       skippedInstances: skipped.length,
-      inProgressInstances: inProgress.length,
+      missedInstances: missedInstances,
       totalFocusMinutes: totalFocusSeconds ~/ 60,
       totalBreakMinutes: totalBreakSeconds ~/ 60,
       totalFocusPhases: totalPhases,
       totalCompletedBlocks: totalBlocks,
       totalGoalsCompleted: totalGoals,
       totalTasksCompleted: totalTasks,
-      totalOpenGoals: goals.length,
-      totalOpenTasks: tasks.length,
-      currentStreak: streaks.current,
-      longestStreak: streaks.longest,
       averageMood: averageMood,
       lastSessionDate: sortedInstances.last.scheduledAt,
       firstSessionDate: sortedInstances.first.scheduledAt,
     );
-  }
-
-  ({int current, int longest}) _calculateStreaks(
-    List<SessionInstanceModel> sortedInstances,
-  ) {
-    if (sortedInstances.isEmpty) return (current: 0, longest: 0);
-
-    final completed = sortedInstances
-        .where((SessionInstanceModel i) => i.status == SessionStatus.completed)
-        .toList();
-
-    if (completed.isEmpty) return (current: 0, longest: 0);
-
-    var currentStreak = 0;
-    var longestStreak = 0;
-    var tempStreak = 1;
-    DateTime? lastDate;
-
-    for (final instance in completed.reversed) {
-      final date = instance.scheduledAt;
-
-      if (lastDate == null) {
-        // First iteration
-        currentStreak = 1;
-        tempStreak = 1;
-      } else {
-        final daysDiff = lastDate.difference(date).inDays;
-
-        if (daysDiff == 1) {
-          // Consecutive day
-          tempStreak++;
-          if (instance == completed.first) {
-            currentStreak = tempStreak;
-          }
-        } else {
-          // Streak broken
-          longestStreak = tempStreak > longestStreak
-              ? tempStreak
-              : longestStreak;
-          tempStreak = 1;
-          if (instance == completed.first) {
-            currentStreak = 1;
-          }
-        }
-      }
-
-      lastDate = date;
-    }
-
-    longestStreak = tempStreak > longestStreak ? tempStreak : longestStreak;
-
-    return (current: currentStreak, longest: longestStreak);
   }
 }

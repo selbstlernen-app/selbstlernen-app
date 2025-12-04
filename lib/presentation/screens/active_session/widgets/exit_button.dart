@@ -64,6 +64,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
 
       // Filter to only show items that are NEW to this session
       final newGoals = state.newlyAddedGoals;
+      final newGoalIds = newGoals.map((g) => g.id).toSet();
       final newTasks = state.newlyAddedTasks;
 
       // Group tasks by goalId
@@ -74,13 +75,16 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
         }
       }
 
-      // Get all existing goals that have new tasks
-      final existingGoalsWithNewTasks = state.getExistingGoalsWithNewTasks();
+      // Get all existing goals that have new tasks (for context)
+      final nonDuplicateExistingGoals = state
+          .getExistingGoalsWithNewTasks()
+          .where((g) => !newGoalIds.contains(g.id))
+          .toList();
 
-      // Combine: new goals + existing goals with new tasks
+      // Display new goals + existing goals (that have new tasks under them)
       final allDisplayedGoals = <GoalModel>[
         ...newGoals,
-        ...existingGoalsWithNewTasks,
+        ...nonDuplicateExistingGoals,
       ];
 
       // Separate ungrouped tasks
@@ -119,7 +123,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                     ),
                     const VerticalSpace(size: SpaceSize.xsmall),
                     Text(
-                      'Wähle die Elemente aus, die du für zukünftige Sitzungen behalten möchtest:',
+                      '''Wähle die Elemente aus, die du für zukünftige Sitzungen behalten möchtest:''',
                       style: TextStyle(
                         fontSize: 12,
                         fontStyle: FontStyle.italic,
@@ -256,9 +260,9 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
 
                     // Ungrouped tasks
                     if (ungroupedTasks.isNotEmpty) ...<Widget>[
-                      const SizedBox(height: 12),
+                      const VerticalSpace(),
                       Text(
-                        'Sonstige Aufgaben:',
+                        'Sonstige Aufgaben',
                         style: context.textTheme.labelMedium?.copyWith(
                           color: AppPalette.grey,
                         ),
@@ -298,7 +302,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
-                        'Nicht markierte Elemente werden als abgeschlossen markiert',
+                        '''Markierte Elemente werden für zukünftige Sitzungen behalten''',
                         style: TextStyle(
                           fontSize: 12,
                           fontStyle: FontStyle.italic,
@@ -325,13 +329,23 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
               .map((MapEntry<String, bool> e) => e.key)
               .toList();
 
+          // IDs of goals that have NOT been clicked in this session
+          final goalIdsBeingRemoved = goalSelection.entries
+              .where(
+                (MapEntry<String, bool> e) => !e.value,
+              ) // Goals NOT selected
+              .map((MapEntry<String, bool> e) => e.key)
+              .toSet();
+
           for (final taskId in taskIdsToKeep) {
             final task = state.newlyAddedTasks.firstWhere(
               (TaskModel t) => t.id == taskId,
             );
+
             // If task has a goalId and that goal is NOT being kept,
             // set its goalId to null and "orphan" it
-            if (task.goalId != null && !goalIdsToKeep.contains(task.goalId)) {
+            if (task.goalId != null &&
+                goalIdsBeingRemoved.contains(task.goalId)) {
               await viewModel.orphanTask(task);
             }
           }

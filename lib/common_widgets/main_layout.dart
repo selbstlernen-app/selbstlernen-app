@@ -1,10 +1,13 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 class MainLayout extends StatelessWidget {
   const MainLayout({
-    required this.appBarTitle, required this.content, super.key,
+    required this.appBarTitle,
+    required this.content,
+    super.key,
     this.navigateBack,
     this.bottomBarWidget,
     this.actions,
@@ -23,7 +26,11 @@ class MainLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.colorScheme.secondary,
+      backgroundColor: Color.lerp(
+        context.colorScheme.secondary,
+        Colors.white,
+        0.3,
+      ),
       floatingActionButton: showFloatingActionButton
           ? Padding(
               padding: const EdgeInsets.only(top: 70),
@@ -40,15 +47,18 @@ class MainLayout extends StatelessWidget {
         automaticallyImplyLeading: false,
         centerTitle: true,
         toolbarHeight: 80,
-        title: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(
-            appBarTitle,
-            style: context.textTheme.headlineLarge,
-            textAlign: TextAlign.center,
-          ),
+        title: AutoSizeText(
+          appBarTitle,
+          style: context.textTheme.headlineLarge,
+          maxLines: 2,
+          textAlign: TextAlign.center,
+          minFontSize: 14,
         ),
-        backgroundColor: context.colorScheme.secondary,
+        backgroundColor: Color.lerp(
+          context.colorScheme.secondary,
+          Colors.white,
+          0.3,
+        ),
         actions: actions,
         leading: navigateBack != null
             ? IconButton(

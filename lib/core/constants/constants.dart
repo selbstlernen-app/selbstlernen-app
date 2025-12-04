@@ -1,5 +1,5 @@
 class Constants {
-  static List<String> emojiMoods = <String>['😥', '😡', '😐', '🙂', '🥳'];
+  static const List<String> emojiMoods = ['😢', '😟', '😐', '😊', '🤩'];
 
   static String successCompleted = 'Einheit erfolgreich abgeschlossen';
   static String successCreated = 'Einheit erfolgreich erstellt';
