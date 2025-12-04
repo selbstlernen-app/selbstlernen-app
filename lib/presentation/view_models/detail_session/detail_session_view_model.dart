@@ -15,6 +15,8 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   late final ManageSessionUseCase _manageSessionUseCase;
   late final GetInstanceUseCase _getInstancesUseCase;
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
+
+  late final ManangeInstanceUseCase _manangeInstanceUseCase;
   late final int _sessionId;
 
   @override
@@ -24,6 +26,7 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
     _getInstancesUseCase = ref.watch(getInstanceUseCaseProvider);
     _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
     _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
+    _manangeInstanceUseCase = ref.watch(manangeInstanceUseCaseProvider);
 
     final fullSession$ = _fullSessionUseCase.watchFullSession(sessionId);
     final instances$ = _getInstancesUseCase.watchInstancesBySessionId(
@@ -68,5 +71,16 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
       sessionId: _sessionId,
       date: date,
     );
+  }
+
+  /// Creates a new session to be re-done
+  Future<SessionInstanceModel> redoSession() async {
+    var newInstance = SessionInstanceModel(
+      scheduledAt: DateTime.now(),
+      sessionId: sessionId.toString(),
+      status: SessionStatus.inProgress,
+    );
+    final id = await _manangeInstanceUseCase.createInstance(newInstance);
+    return newInstance = newInstance.copyWith(id: id.toString());
   }
 }

@@ -3,9 +3,13 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 class CustomIconButton extends StatelessWidget {
   const CustomIconButton({
-    required this.icon, required this.onPressed, required this.isActive, super.key,
+    required this.icon,
+    required this.onPressed,
+    required this.isActive,
+    super.key,
     this.radius = 20,
     this.label,
+    this.verticalPadding = 0,
   });
 
   final Icon icon;
@@ -13,6 +17,7 @@ class CustomIconButton extends StatelessWidget {
   final bool isActive;
   final double radius;
   final String? label;
+  final double? verticalPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,10 @@ class CustomIconButton extends StatelessWidget {
               )
             : const CircleBorder(),
         padding: label != null
-            ? const EdgeInsets.symmetric(horizontal: 10)
+            ? EdgeInsets.symmetric(
+                vertical: verticalPadding ?? 16.0,
+                horizontal: 12,
+              )
             : EdgeInsets.all(radius * 0.4),
         backgroundColor: isActive
             ? context.colorScheme.primary

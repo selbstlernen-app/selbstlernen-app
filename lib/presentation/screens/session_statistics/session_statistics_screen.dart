@@ -119,14 +119,15 @@ class SessionStatisticsScreen extends ConsumerWidget {
         toolbarHeight: 80,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            AutoSizeText(
-              'Statistik für ${state.session!.title}',
-              style: context.textTheme.headlineLarge,
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              minFontSize: 14,
+            Flexible(
+              child: AutoSizeText(
+                'Statistik für ${state.session!.title}',
+                style: context.textTheme.headlineLarge,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                minFontSize: 14,
+              ),
             ),
           ],
         ),

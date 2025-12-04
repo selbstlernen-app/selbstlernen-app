@@ -103,7 +103,7 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   Future<SessionInstance?> getInstancesBySessionIdAndDate(
     int sessionId,
     DateTime date,
-  ) {
+  ) async {
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = DateTime(
       date.year,
@@ -114,12 +114,22 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
       59,
     );
 
-    return (select(sessionInstances)..where(
-          ($SessionInstancesTable s) =>
-              s.sessionId.equals(sessionId) &
-              s.scheduledAt.isBetweenValues(startOfDay, endOfDay),
-        ))
-        .getSingleOrNull();
+    final instances =
+        await (select(sessionInstances)..where(
+              ($SessionInstancesTable s) =>
+                  s.sessionId.equals(sessionId) &
+                  s.scheduledAt.isBetweenValues(startOfDay, endOfDay),
+            ))
+            .get();
+
+    if (instances.isEmpty) return null;
+
+    // Pick the latest session by scheduledAt
+    instances.sort(
+      (a, b) => b.scheduledAt.compareTo(a.scheduledAt),
+    );
+
+    return instances.first;
   }
 
   Future<int> countTotalInstancesBySessionId(int sessionId) async {
