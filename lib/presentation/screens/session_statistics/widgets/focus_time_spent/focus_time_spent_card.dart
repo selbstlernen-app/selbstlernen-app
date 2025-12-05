@@ -73,7 +73,6 @@ class FocusTimeSpentCard extends ConsumerWidget {
             ],
           ),
 
-          const VerticalSpace(size: SpaceSize.small),
           Text(
             'Deine Fokuszeit der zuletzt abgeschlossenen Einheiten',
             style: context.textTheme.bodySmall!.copyWith(

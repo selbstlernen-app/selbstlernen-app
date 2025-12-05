@@ -6,13 +6,13 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/session_status_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
-void showHistoryBottomSheet(
+Future<void> showHistoryBottomSheet(
   BuildContext context,
   List<SessionInstanceModel> instances,
   String attributeLabel,
   String Function(SessionInstanceModel) getAttributeValue,
-) {
-  showModalBottomSheet(
+) async {
+  await showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
@@ -96,12 +96,19 @@ class _HistorySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Sort by date, most recent first
-    final sorted = <SessionInstanceModel>[...instances]
-      ..sort(
-        (SessionInstanceModel a, SessionInstanceModel b) =>
-            b.scheduledAt.compareTo(a.scheduledAt),
-      );
+    final dateTimeFormat = DateFormat('dd.MM.yy HH:mm');
+    final dateOnlyFormat = DateFormat('dd.MM.yy');
+
+    bool isSameDay(DateTime a, DateTime b) {
+      return a.year == b.year && a.month == b.month && a.day == b.day;
+    }
+
+    // Sort by date, most recent first; ignore null instances
+    final sorted =
+        instances.where((instance) => instance.completedAt != null).toList()
+          ..sort(
+            (a, b) => b.completedAt!.compareTo(a.completedAt!),
+          );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -121,17 +128,30 @@ class _HistorySection extends StatelessWidget {
               ),
             )
           else
-            ...sorted.map(
-              (SessionInstanceModel instance) => Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                ),
+            ...List.generate(sorted.length, (index) {
+              final instance = sorted[index];
+              final completedAt = instance.completedAt!;
+
+              final shouldShowTime =
+                  sorted
+                      .where(
+                        (item) =>
+                            item.completedAt != null &&
+                            isSameDay(item.completedAt!, completedAt),
+                      )
+                      .length >
+                  1;
+
+              final displayDate = shouldShowTime
+                  ? dateTimeFormat.format(completedAt)
+                  : dateOnlyFormat.format(completedAt);
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: ListTile(
                   leading: getIconBox(instance.status),
                   title: Text(
-                    DateFormat('dd.MM.yy').format(
-                      instance.completedAt ?? instance.scheduledAt,
-                    ),
+                    displayDate,
                     style: context.textTheme.bodyLarge,
                   ),
                   subtitle: Text(
@@ -140,8 +160,8 @@ class _HistorySection extends StatelessWidget {
                   ),
                   contentPadding: EdgeInsets.zero,
                 ),
-              ),
-            ),
+              );
+            }),
         ],
       ),
     );

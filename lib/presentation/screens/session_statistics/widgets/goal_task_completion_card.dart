@@ -37,7 +37,9 @@ class GoalTaskCompletionCard extends StatelessWidget {
 
               IconButton(
                 color: AppPalette.grey.withValues(alpha: 0.5),
-                icon: const Icon(Icons.history_rounded),
+                icon: const Icon(
+                  Icons.history_rounded,
+                ),
                 onPressed: () => showHistoryBottomSheet(
                   context,
                   pastInstances
@@ -52,8 +54,6 @@ class GoalTaskCompletionCard extends StatelessWidget {
               ),
             ],
           ),
-
-          const VerticalSpace(size: SpaceSize.xsmall),
 
           Text(
             'Heutige Lerneinheit',
