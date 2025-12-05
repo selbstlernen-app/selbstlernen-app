@@ -34,7 +34,7 @@ Color getColor(SessionStatus status) {
   }
 }
 
-Widget getIconBox(SessionStatus status) {
+Widget getIconBox({required SessionStatus status, double? size}) {
   return Container(
     decoration: BoxDecoration(
       color: getColor(status),
@@ -42,7 +42,11 @@ Widget getIconBox(SessionStatus status) {
     ),
     child: Padding(
       padding: const EdgeInsets.all(10),
-      child: Icon(getIcon(status), color: Colors.white),
+      child: Icon(
+        getIcon(status),
+        color: Colors.white,
+        size: size ?? 20,
+      ),
     ),
   );
 }

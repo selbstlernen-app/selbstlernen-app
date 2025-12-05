@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/session_status_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/view_models/statistics/statistics_view_model.dart';
 import 'package:srl_app/presentation/view_models/statistics/ui_model/enriched_session_instance.dart';
@@ -23,7 +24,6 @@ class LearnCalendar extends ConsumerStatefulWidget {
 }
 
 class _LearnCalendarState extends ConsumerState<LearnCalendar> {
-  int? _selectedSessions;
   DateTime? _selectedDate;
   List<EnrichedSessionInstance> _selectedDateInstances = [];
   final GlobalKey _calendarKey = GlobalKey();
@@ -76,13 +76,16 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
               flexible: true,
               colorMode: ColorMode.color,
               onClick: (DateTime date) {
-                final dataset = _buildCalendarDataset();
+                _buildCalendarDataset();
                 setState(() {
-                  _selectedDate = date;
-                  _selectedSessions = dataset[date] ?? 0;
-                  _selectedDateInstances = ref
-                      .watch(statisticsViewModelProvider)
-                      .getInstancesByDateAndSorted(date);
+                  if (_selectedDate == date) {
+                    _selectedDate = null;
+                  } else {
+                    _selectedDate = date;
+                    _selectedDateInstances = ref
+                        .watch(statisticsViewModelProvider)
+                        .getInstancesByDateAndSorted(date);
+                  }
                 });
               },
               size: 30,
@@ -97,26 +100,7 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
             ),
 
             if (_selectedDate != null) ...[
-              Container(
-                margin: const EdgeInsets.only(top: 8),
-                decoration: BoxDecoration(
-                  color: AppPalette.darkGrey.withValues(alpha: 0.8),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                child: Text(
-                  '''Einheiten am ${DateFormat('dd.MM.', 'de_DE').format(_selectedDate!)}: ${_selectedSessions ?? 0}''',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const VerticalSpace(size: SpaceSize.small),
+              const VerticalSpace(),
               _buildSessionsList(),
             ],
           ],
@@ -138,26 +122,22 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Lerneinheiten', style: context.textTheme.headlineSmall),
+        Text(
+          '''Lerneinheiten am ${DateFormat('dd.MM.', 'de_DE').format(_selectedDate!)}''',
+          style: context.textTheme.headlineSmall,
+        ),
         const VerticalSpace(size: SpaceSize.xsmall),
         ..._selectedDateInstances.map((enrichedInstance) {
           return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: context.colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                Icon(
-                  Icons.check_circle,
-                  color: context.colorScheme.primary,
-                  size: 20,
-                ),
-                const HorizontalSpace(
-                  size: SpaceSize.small,
-                ),
+                getIconBox(status: enrichedInstance.instance.status, size: 16),
+                const HorizontalSpace(),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

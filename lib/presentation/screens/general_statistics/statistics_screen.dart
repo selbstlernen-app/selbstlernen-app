@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
+import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/general_statistics/widgets/learn_calendar.dart';
 import 'package:srl_app/presentation/view_models/statistics/statistics_view_model.dart';
 
@@ -34,7 +35,11 @@ class StatisticsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Session Statistik'),
+        title: Text(
+          'Gesamt-Statistik',
+          textAlign: TextAlign.center,
+          style: context.textTheme.headlineLarge,
+        ),
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(

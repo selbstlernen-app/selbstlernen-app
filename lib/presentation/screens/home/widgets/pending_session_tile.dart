@@ -76,7 +76,7 @@ class PendingSessionTile extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     leading: getIconBox(
-                      hasInstance
+                      status: hasInstance
                           ? SessionStatus.inProgress
                           : SessionStatus.scheduled,
                     ),
