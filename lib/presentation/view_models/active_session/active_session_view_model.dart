@@ -267,8 +267,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     if (state.remainingSeconds > 0) {
       state = state.copyWith(remainingSeconds: state.remainingSeconds - 1);
 
-      // Save to DB every 10 seconds
-      if (state.remainingSeconds % 1 == 0) {
+      // Auto-save to DB every min
+      if (state.remainingSeconds % 60 == 0) {
         await _autoSave();
       }
 

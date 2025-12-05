@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
-import 'package:srl_app/presentation/screens/general_statistics/widgets/learn_intensity_map.dart';
+import 'package:srl_app/presentation/screens/general_statistics/widgets/learn_calendar.dart';
 import 'package:srl_app/presentation/view_models/statistics/statistics_view_model.dart';
 
 class StatisticsScreen extends ConsumerWidget {
@@ -11,7 +11,9 @@ class StatisticsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(statisticsViewModelProvider);
 
-    if (state.isLoading && state.stats == null && state.instances == null) {
+    if (state.isLoading &&
+        state.stats == null &&
+        state.enrichedInstances == null) {
       return const LoadingIndicator();
     }
 
@@ -40,7 +42,9 @@ class StatisticsScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[LearnIntensityMap(instances: state.instances!)],
+          children: <Widget>[
+            LearnCalendar(enrichedInstances: state.enrichedInstances!),
+          ],
         ),
       ),
     );

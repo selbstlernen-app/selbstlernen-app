@@ -58,7 +58,7 @@ String getSubtitle(
         return isRepeating ? 'Geplant (Datum unbekannt)' : 'Einmalig geplant';
       }
       final dateStr = DateFormat('dd.MM.yyyy').format(startDate);
-      return isRepeating ? 'Geplant am $dateStr' : 'Einmalig geplant';
+      return isRepeating ? 'Geplant seit dem $dateStr' : 'Einmalig geplant';
 
     case SessionStatus.inProgress:
       return 'In Bearbeitung';
