@@ -174,7 +174,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         TaskModel(
           sessionId: state.session!.id,
           title: title,
-          isCompleted: false,
           goalId: goalId,
           keptForFutureSessions: false,
         ),
@@ -208,7 +207,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         GoalModel(
           sessionId: state.session!.id,
           title: title,
-          isCompleted: false,
           keptForFutureSessions: false,
         ),
       );

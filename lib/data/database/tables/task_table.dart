@@ -7,8 +7,6 @@ class Tasks extends Table with AutoIncrementingPrimaryKey {
   IntColumn get goalId => integer().nullable().references(Goals, #id)();
 
   TextColumn get title => text()();
-  BoolColumn get isCompleted =>
-      boolean().withDefault(const Constant<bool>(false))();
 
   /// Attribute with which newly added tasks can be tracked
   /// independent of session status (e.g. made before the session was completed;

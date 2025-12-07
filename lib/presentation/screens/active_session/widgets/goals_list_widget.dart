@@ -70,7 +70,6 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
     const ungroupedGoal = GoalModel(
       id: ungroupedGoalId,
       title: 'Sonstige Aufgaben',
-      isCompleted: false,
       keptForFutureSessions: false,
     );
 

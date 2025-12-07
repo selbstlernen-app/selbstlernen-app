@@ -38,7 +38,6 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
 
     final newGoal = GoalModel(
       title: goalTitle,
-      isCompleted: false,
       id: uuid.v4(),
       keptForFutureSessions: true,
     );
@@ -96,7 +95,6 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
           TaskModel(
             id: const Uuid().v4(),
             title: taskText,
-            isCompleted: false,
             goalId: goal.id,
             keptForFutureSessions: true,
           ),

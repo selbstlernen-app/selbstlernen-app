@@ -118,7 +118,6 @@ void main() {
       goals: <GoalModel>[
         const GoalModel(
           title: 'Test Goal',
-          isCompleted: false,
           keptForFutureSessions: true,
         ),
       ],
@@ -137,14 +136,12 @@ void main() {
         goals: <GoalModel>[
           const GoalModel(
             title: 'Test Goal',
-            isCompleted: false,
             keptForFutureSessions: true,
           ),
         ],
         tasks: <TaskModel>[
           const TaskModel(
             title: 'Test Task',
-            isCompleted: false,
             keptForFutureSessions: true,
           ),
         ],
@@ -158,14 +155,12 @@ void main() {
         goalsToUpdate: <GoalModel>[
           const GoalModel(
             title: 'Test Goal',
-            isCompleted: false,
             keptForFutureSessions: true,
           ),
         ],
         tasksToUpdate: <TaskModel>[
           const TaskModel(
             title: 'Test Task',
-            isCompleted: true,
             keptForFutureSessions: true,
           ),
         ],

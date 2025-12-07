@@ -75,7 +75,6 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
         .addGoal(
           GoalModel(
             title: text,
-            isCompleted: false,
             id: uuid.v4(),
             keptForFutureSessions: true,
           ),
@@ -103,7 +102,6 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
         .addTask(
           TaskModel(
             title: text,
-            isCompleted: false,
             id: uuid.v4(),
             keptForFutureSessions: true,
           ),

@@ -5,8 +5,6 @@ class Goals extends Table with AutoIncrementingPrimaryKey {
   IntColumn get sessionId => integer().references(Sessions, #id)();
 
   TextColumn get title => text()();
-  BoolColumn get isCompleted =>
-      boolean().withDefault(const Constant<bool>(false))();
 
   /// Attribute with which newly added goals can be tracked
   /// independent of session status (e.g. made before the session was completed;

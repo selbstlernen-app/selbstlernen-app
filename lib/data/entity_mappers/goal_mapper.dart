@@ -8,7 +8,6 @@ extension GoalToModelMapper on Goal {
       id: id.toString(),
       title: title,
       sessionId: sessionId.toString(),
-      isCompleted: isCompleted,
       keptForFutureSessions: keptForFutureSessions,
       completedAt: completedAt,
       createdAt: createdAt,
@@ -27,7 +26,6 @@ extension GoalToCompanionMapper on GoalModel {
       sessionId: sessionId != null
           ? Value<int>(int.parse(sessionId!))
           : const Value<int>.absent(),
-      isCompleted: Value<bool>(isCompleted),
       keptForFutureSessions: Value<bool>(keptForFutureSessions),
       completedAt: completedAt != null
           ? Value<DateTime>(completedAt!)
@@ -42,7 +40,7 @@ extension GoalToCompanionMapper on GoalModel {
       sessionId: sessionId != null
           ? Value<int>(int.parse(sessionId!))
           : const Value<int>.absent(),
-      isCompleted: Value<bool>(isCompleted),
+
       keptForFutureSessions: Value<bool>(keptForFutureSessions),
       completedAt: completedAt != null
           ? Value<DateTime>(completedAt!)
