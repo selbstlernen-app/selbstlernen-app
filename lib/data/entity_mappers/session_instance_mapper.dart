@@ -4,7 +4,6 @@ import 'package:drift/drift.dart';
 import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/domain/models/focus_check.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 
 extension SessionInstanceToModelMapper on SessionInstance {
   SessionInstanceModel toDomain() {

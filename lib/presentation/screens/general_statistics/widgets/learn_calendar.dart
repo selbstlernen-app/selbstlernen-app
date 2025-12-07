@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +7,7 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/session_status_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/presentation/view_models/statistics/statistics_view_model.dart';
 import 'package:srl_app/presentation/view_models/statistics/ui_model/enriched_session_instance.dart';
 
@@ -33,10 +32,12 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
   Map<int, Color> generateColorPalette(Color baseColor, int steps) {
     return Map.fromEntries(
       List.generate(steps, (index) {
+        // Index 0 is lightest, index=max is the darkest; our base color
         final ratio = index / (steps - 1);
-        // Target color bit off-white so we can still view it on the map
-        final targetColor = Color.lerp(baseColor, Colors.white, 0.9)!;
-        final color = Color.lerp(baseColor, targetColor, ratio)!;
+
+        final lightColor = Color.lerp(Colors.white, baseColor, 0.1)!;
+        final color = Color.lerp(lightColor, baseColor, ratio)!;
+
         return MapEntry(index, color);
       }),
     );
@@ -46,9 +47,8 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
   Widget build(BuildContext context) {
     final colorpalette = generateColorPalette(context.colorScheme.primary, 6);
 
-    return Card(
-      elevation: 0,
-      child: Padding(
+    return CardLayout(
+      content: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,10 +94,7 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
 
             const VerticalSpace(size: SpaceSize.small),
 
-            _buildLegend(
-              context,
-              Map.fromEntries(colorpalette.entries.toList().reversed),
-            ),
+            _buildLegend(context, colorpalette),
 
             if (_selectedDate != null) ...[
               const VerticalSpace(),

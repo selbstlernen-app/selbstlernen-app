@@ -11,7 +11,7 @@ class ManageSessionUseCase {
   Future<int> createSession(SessionModel task) => repository.addSession(task);
 
   // Read
-  Stream<List<SessionModel>> getAllSessions() => repository.getAllSessions();
+  Future<List<SessionModel>> getAllSessions() => repository.getAllSessions();
 
   Stream<List<SessionModel>> watchAllActiveSessions() =>
       repository.watchAllActiveSessions();

@@ -13,6 +13,11 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
     return into(sessions).insert(session);
   }
 
+  // Get all sessions
+  Future<List<Session>> getAllSessions() {
+    return select(sessions).get();
+  }
+
   // Watch all sessions
   Stream<List<Session>> watchAllSessions() {
     return select(sessions).watch();

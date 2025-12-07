@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/services/add_session_service.dart';
+import 'package:srl_app/domain/usecases/session/get_general_statistics_use_case.dart';
 import 'package:srl_app/domain/usecases/session/get_session_statistics_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 
@@ -37,6 +38,16 @@ GetSessionStatisticsUseCase getSessionStatisticsUseCase(Ref ref) {
     ref.watch(sessionRepositoryProvider),
     ref.watch(goalRepositoryProvider),
     ref.watch(taskRepositoryProvider),
+  );
+}
+
+@riverpod
+GetGeneralStatisticsUseCase getGeneralStatisticsUseCase(Ref ref) {
+  return GetGeneralStatisticsUseCase(
+    sessionRepository: ref.watch(sessionRepositoryProvider),
+    instanceRepository: ref.watch(sessionInstanceRepositoryProvider),
+    goalRepository: ref.watch(goalRepositoryProvider),
+    taskRepository: ref.watch(taskRepositoryProvider),
   );
 }
 

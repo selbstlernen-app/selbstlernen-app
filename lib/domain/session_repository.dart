@@ -3,7 +3,7 @@ import 'package:srl_app/domain/models/session_model.dart';
 /// Abstract repository class for the session repository
 abstract class SessionRepository {
   // CRUD operations
-  Stream<List<SessionModel>> getAllSessions();
+  Future<List<SessionModel>> getAllSessions();
   Future<List<SessionModel>> getAllActiveSessions();
   Stream<List<SessionModel>> watchAllActiveSessions();
   Stream<List<SessionModel>> watchAllSessions();

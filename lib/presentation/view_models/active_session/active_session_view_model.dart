@@ -447,7 +447,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         remainingSeconds: state.remainingSeconds,
       );
 
-      print("saving: $updatedInstance");
+      print('saving: $updatedInstance');
 
       await _manangeInstanceUseCase.updateInstance(updatedInstance);
     } on Exception catch (e) {

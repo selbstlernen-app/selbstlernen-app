@@ -44,7 +44,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                 onPressed: () async {
                   await ref.read(testDataProvider.notifier).insertTestData();
                 },
-                child: Text("Insert Test Data"),
+                child: const Text('Insert Test Data'),
               ),
               const VerticalSpace(),
 
