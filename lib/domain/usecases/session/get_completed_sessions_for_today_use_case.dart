@@ -30,23 +30,42 @@ class GetCompletedSessionsForTodayUseCase {
           )
           .toList();
 
-      // Check if we have matching sessions
-      final result = completedOrSkipped.map((
-        SessionInstanceModel instance,
-      ) {
+      // Map instances to session id in case more than one instance responds
+      // In case a session was re-done
+      final latestInstancesBySession = <String, SessionInstanceModel>{};
+
+      for (final instance in completedOrSkipped) {
+        final key = instance.sessionId;
+
+        if (!latestInstancesBySession.containsKey(key)) {
+          latestInstancesBySession[key] = instance;
+        } else {
+          final existing = latestInstancesBySession[key]!;
+
+          // pick newest by completedAt
+          if ((instance.completedAt ?? DateTime(0)).isAfter(
+            existing.completedAt ?? DateTime(0),
+          )) {
+            latestInstancesBySession[key] = instance;
+          }
+        }
+      }
+
+      final latestInstances = latestInstancesBySession.values.toList();
+
+      return latestInstances.map((instance) {
         final session = sessions.firstWhere(
-          (SessionModel s) {
-            return s.id == instance.sessionId;
-          },
-          orElse: () {
-            throw Exception('Session ${instance.sessionId} not found');
-          },
+          (s) => s.id == instance.sessionId,
+          orElse: () => throw Exception(
+            'Session ${instance.sessionId} not found',
+          ),
         );
 
-        return SessionWithInstanceModel(session: session, instance: instance);
+        return SessionWithInstanceModel(
+          session: session,
+          instance: instance,
+        );
       }).toList();
-
-      return result;
     });
   }
 }

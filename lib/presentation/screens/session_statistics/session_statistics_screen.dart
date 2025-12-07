@@ -48,9 +48,8 @@ class SessionStatisticsScreen extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
+            const VerticalSpace(),
             Text('Fehler: ${state.error}'),
-            const SizedBox(height: 16),
           ],
         ),
       );
@@ -58,7 +57,11 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
     // No data
     if (state.stats == null) {
-      return const Center(child: Text('Keine Statistiken verfügbar'));
+      return const Center(
+        child: Text(
+          '''Noch keine Statistiken verfügbar, beginne, indem du eine Lerneinheit anlegst''',
+        ),
+      );
     }
 
     final stats = state.stats!;
@@ -119,14 +122,15 @@ class SessionStatisticsScreen extends ConsumerWidget {
         toolbarHeight: 80,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
           children: [
-            AutoSizeText(
-              'Statistik für ${state.session!.title}',
-              style: context.textTheme.headlineLarge,
-              maxLines: 2,
-              textAlign: TextAlign.center,
-              minFontSize: 14,
+            Flexible(
+              child: AutoSizeText(
+                'Statistik für ${state.session!.title}',
+                style: context.textTheme.headlineLarge,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                minFontSize: 14,
+              ),
             ),
           ],
         ),

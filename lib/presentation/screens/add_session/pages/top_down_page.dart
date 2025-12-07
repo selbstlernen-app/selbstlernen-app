@@ -56,7 +56,6 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
           TaskModel(
             id: const Uuid().v4(),
             title: taskText,
-            isCompleted: false,
             goalId: goal.id != ungroupedTaskGoalId ? goal.id : null,
             keptForFutureSessions: true,
           ),
@@ -89,7 +88,6 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
     const ungroupedTaskGoal = GoalModel(
       id: ungroupedTaskGoalId,
       title: 'Sonstige Aufgaben',
-      isCompleted: false,
       keptForFutureSessions: false,
     );
     final goalsToMap = [...state.goals, ungroupedTaskGoal];

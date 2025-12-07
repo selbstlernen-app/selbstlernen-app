@@ -26,6 +26,8 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(0) int currentPhaseElapsed, // Used for counting upwards
     DateTime? sessionStartTime,
 
+    @Default(0) int currentPhaseIndex,
+
     // Goal and task tracking
     // Check which goal is currently expanded if any
     @Default(null) String? expandedGoalId,
@@ -39,7 +41,6 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(false) bool showFocusPrompt,
 
     @Default(true) bool isLoading,
-    @Default(0) int currentPhaseIndex,
     String? error,
   }) = _ActiveSessionState;
   const ActiveSessionState._();
@@ -64,7 +65,7 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     final existingGoalsWithNewTasks = goals
         .where(
           (GoalModel goal) =>
-              goal.keptForFutureSessions == true & goalIds.contains(goal.id),
+              goal.keptForFutureSessions == goalIds.contains(goal.id),
         )
         .toList();
 

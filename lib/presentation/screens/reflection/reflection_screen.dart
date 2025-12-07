@@ -146,7 +146,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                           ),
                           padding: const EdgeInsets.symmetric(
                             vertical: 8,
-                            horizontal: 14,
+                            horizontal: 12,
                           ),
                           child: Text(
                             emoji,

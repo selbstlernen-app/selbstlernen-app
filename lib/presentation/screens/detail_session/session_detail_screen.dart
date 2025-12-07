@@ -85,13 +85,13 @@ class SessionDetailScreen extends ConsumerWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
-                              Icons.check_circle_outline_rounded,
-                              size: 32,
+                            const Text(
+                              '🥳',
+                              style: TextStyle(fontSize: 36),
                             ),
                             const HorizontalSpace(size: SpaceSize.small),
                             Text(
-                              'Einheit für heute erledigt!',
+                              'Einheit für heute erledigt! ',
                               style: context.textTheme.headlineMedium,
                               textAlign: TextAlign.center,
                             ),
@@ -233,8 +233,47 @@ class SessionDetailScreen extends ConsumerWidget {
                 ],
               ),
 
+              if (instanceId != null)
+                SizedBox(
+                  width: context.mediaQuery.size.width,
+                  child: CustomIconButton(
+                    verticalPadding: 16,
+                    radius: 30,
+                    isActive: true,
+                    icon: const Icon(Icons.redo),
+                    onPressed: () async {
+                      try {
+                        // Create new instance
+                        final newInstance = await ref
+                            .read(
+                              detailSessionViewModelProvider(
+                                sessionId,
+                              ).notifier,
+                            )
+                            .redoSession();
+
+                        if (context.mounted) {
+                          await Navigator.pushNamed(
+                            context,
+                            AppRoutes.active,
+                            arguments: ActiveSessionArgs(
+                              instanceId: int.parse(newInstance.id!),
+                              sessionId: int.parse(session.id!),
+                            ),
+                          );
+                        }
+                      } on Exception catch (e) {
+                        throw ArgumentError(e);
+                      }
+                    },
+                    label: 'Wiederholen?',
+                  ),
+                ),
+
               if (instanceId != null) ...<Widget>[
-                const VerticalSpace(),
+                const VerticalSpace(
+                  size: SpaceSize.xsmall,
+                ),
                 SizedBox(
                   width: context.mediaQuery.size.width,
                   child: CustomButton(

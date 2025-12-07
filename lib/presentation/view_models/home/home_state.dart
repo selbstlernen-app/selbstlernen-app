@@ -5,13 +5,14 @@ part 'home_state.freezed.dart';
 
 @freezed
 abstract class HomeState with _$HomeState {
-
   const factory HomeState({
     @Default(<SessionWithInstanceModel>[])
-    List<SessionWithInstanceModel> sessions,
+    List<SessionWithInstanceModel> todaysSessions,
+
     @Default(<SessionWithInstanceModel>[])
     List<SessionWithInstanceModel> completedSessionsForToday,
-    @Default(SessionFilter.today) SessionFilter filter,
+
+    @Default(SessionFilter.all) SessionFilter filter,
     @Default(false) bool isLoading,
 
     String? error,
@@ -21,4 +22,4 @@ abstract class HomeState with _$HomeState {
 
 /// Enum for filtering the session according to
 /// the buttons on the home screen
-enum SessionFilter { today, thisWeek, all }
+enum SessionFilter { open, done, all }

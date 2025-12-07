@@ -68,7 +68,18 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         totalBreakSecondsElapsed: instance.totalBreakSecondsElapsed,
         totalFocusPhases: instance.totalFocusPhases,
         completedBlocks: instance.totalCompletedBlocks,
-        remainingSeconds: session.focusTimeMin * 60,
+        currentPhaseIndex: instance.currentPhaseIndex,
+        currentPhase: phaseFromIndex(
+          instance.currentPhaseIndex,
+          session.focusPhases,
+        ),
+        remainingSeconds:
+            instance.remainingSeconds ??
+            getDefaultDuration(
+              phaseFromIndex(instance.currentPhaseIndex, session.focusPhases),
+              session,
+            ),
+
         isLoading: false,
       );
 
@@ -85,6 +96,28 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           });
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString(), isLoading: false);
+    }
+  }
+
+  SessionPhase phaseFromIndex(int index, int focusPhases) {
+    if (index.isEven) {
+      return SessionPhase.focus;
+    }
+    // Odd index means either long or short break was last
+    final lastBreakIndex = (focusPhases * 2) - 1;
+    return index == lastBreakIndex
+        ? SessionPhase.longBreak
+        : SessionPhase.shortBreak;
+  }
+
+  int getDefaultDuration(SessionPhase phase, SessionModel session) {
+    switch (phase) {
+      case SessionPhase.focus:
+        return session.focusTimeMin * 60;
+      case SessionPhase.shortBreak:
+        return session.breakTimeMin * 60;
+      case SessionPhase.longBreak:
+        return session.longBreakTimeMin * 60;
     }
   }
 
@@ -141,7 +174,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         TaskModel(
           sessionId: state.session!.id,
           title: title,
-          isCompleted: false,
           goalId: goalId,
           keptForFutureSessions: false,
         ),
@@ -175,7 +207,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         GoalModel(
           sessionId: state.session!.id,
           title: title,
-          isCompleted: false,
           keptForFutureSessions: false,
         ),
       );
@@ -234,21 +265,29 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     if (state.remainingSeconds > 0) {
       state = state.copyWith(remainingSeconds: state.remainingSeconds - 1);
 
+      // Auto-save to DB every min
+      if (state.remainingSeconds % 60 == 0) {
+        await _autoSave();
+      }
+
       // Track elapsed time based on phase
       if (state.currentPhase == SessionPhase.focus) {
         state = state.copyWith(
           totalFocusSecondsElapsed: state.totalFocusSecondsElapsed + 1,
           currentPhaseElapsed: state.currentPhaseElapsed + 1,
+          remainingSeconds: state.remainingSeconds - 1,
         );
       } else if (state.currentPhase == SessionPhase.shortBreak) {
         state = state.copyWith(
           totalBreakSecondsElapsed: state.totalBreakSecondsElapsed + 1,
           currentPhaseElapsed: state.currentPhaseElapsed + 1,
+          remainingSeconds: state.remainingSeconds - 1,
         );
       } else {
         state = state.copyWith(
           totalLongBreakSecondsElapsed: state.totalLongBreakSecondsElapsed + 1,
           currentPhaseElapsed: state.currentPhaseElapsed + 1,
+          remainingSeconds: state.remainingSeconds - 1,
         );
       }
     } else {
@@ -331,6 +370,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       currentPhaseIndex: currentPhaseIndex ?? state.currentPhaseIndex,
       currentPhaseElapsed: 0,
     );
+
+    // Prompting
     switch (phase) {
       case SessionPhase.focus:
         // Start focus prompting again when timer has been started
@@ -347,10 +388,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> _vibrateForPhaseChange() async {
     try {
       if (await Vibration.hasCustomVibrationsSupport()) {
-        await Vibration.vibrate(duration: 200);
+        await Vibration.vibrate(duration: 300);
       } else if (await Vibration.hasVibrator()) {
         // Fallback: short vibration
-        await Vibration.vibrate(duration: 200);
+        await Vibration.vibrate(duration: 300);
       }
     } on Exception catch (_) {
       // ignore errors silently (e.g., when in simulator / unsupported)
@@ -400,7 +441,11 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         totalCompletedGoals: state.completedGoalIds.length,
         totalCompletedTasks: state.completedTaskIds.length,
         status: SessionStatus.inProgress,
+        currentPhaseIndex: state.currentPhaseIndex,
+        remainingSeconds: state.remainingSeconds,
       );
+
+      print('saving: $updatedInstance');
 
       await _manangeInstanceUseCase.updateInstance(updatedInstance);
     } on Exception catch (e) {

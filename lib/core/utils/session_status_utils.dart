@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
@@ -34,7 +33,7 @@ Color getColor(SessionStatus status) {
   }
 }
 
-Widget getIconBox(SessionStatus status) {
+Widget getIconBox({required SessionStatus status, double? size}) {
   return Container(
     decoration: BoxDecoration(
       color: getColor(status),
@@ -42,24 +41,21 @@ Widget getIconBox(SessionStatus status) {
     ),
     child: Padding(
       padding: const EdgeInsets.all(10),
-      child: Icon(getIcon(status), color: Colors.white),
+      child: Icon(
+        getIcon(status),
+        color: Colors.white,
+        size: size ?? 20,
+      ),
     ),
   );
 }
 
 String getSubtitle(
   SessionStatus status,
-  DateTime? startDate, {
-  required bool isRepeating,
-}) {
+) {
   switch (status) {
     case SessionStatus.scheduled:
-      if (startDate == null) {
-        return isRepeating ? 'Geplant (Datum unbekannt)' : 'Einmalig geplant';
-      }
-      final dateStr = DateFormat('dd.MM.yyyy').format(startDate);
-      return isRepeating ? 'Geplant am $dateStr' : 'Einmalig geplant';
-
+      return 'Anstehend';
     case SessionStatus.inProgress:
       return 'In Bearbeitung';
     case SessionStatus.skipped:

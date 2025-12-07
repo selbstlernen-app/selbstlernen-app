@@ -6,7 +6,6 @@ part 'goal_model.freezed.dart';
 abstract class GoalModel with _$GoalModel {
   const factory GoalModel({
     required String title,
-    required bool isCompleted,
     required bool keptForFutureSessions,
     String? id,
     String? sessionId,

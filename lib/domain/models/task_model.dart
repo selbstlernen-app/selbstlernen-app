@@ -6,7 +6,6 @@ part 'task_model.freezed.dart';
 abstract class TaskModel with _$TaskModel {
   const factory TaskModel({
     required String title,
-    required bool isCompleted,
     required bool keptForFutureSessions,
     String? id,
     String? sessionId,

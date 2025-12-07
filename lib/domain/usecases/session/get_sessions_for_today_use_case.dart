@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
@@ -30,18 +29,29 @@ class GetSessionsForTodayUseCase {
       for (final session in sessions) {
         // Check if session should occur on this date
         if (_shouldOccurOnDate(session, date)) {
-          final instance = instances.firstWhereOrNull(
-            (SessionInstanceModel i) => i.sessionId == session.id,
-          );
+          // Sort all instances to show the latest scheduled one first
+          final sessionInstances =
+              instances.where((i) => i.sessionId == session.id).toList()..sort(
+                (a, b) => (b.scheduledAt).compareTo(
+                  a.scheduledAt,
+                ),
+              );
+
+          final latestInstance = sessionInstances.isNotEmpty
+              ? sessionInstances.first
+              : null;
 
           // Adds an instance if
-          // 1. it should occur on the day, but cannot be found yet in the db
-          // 2. it was created once, but not completed yet for the given date
-          if (instance == null ||
-              instance.status == SessionStatus.inProgress ||
-              instance.status == SessionStatus.scheduled) {
+          // 1. If no instance exists yet (null)
+          // 2. The latest instance has not yet been completed
+          if (latestInstance == null ||
+              latestInstance.status == SessionStatus.scheduled ||
+              latestInstance.status == SessionStatus.inProgress) {
             occurrences.add(
-              SessionWithInstanceModel(session: session, instance: instance),
+              SessionWithInstanceModel(
+                session: session,
+                instance: latestInstance,
+              ),
             );
           }
         }
