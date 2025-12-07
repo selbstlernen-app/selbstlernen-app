@@ -388,10 +388,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> _vibrateForPhaseChange() async {
     try {
       if (await Vibration.hasCustomVibrationsSupport()) {
-        await Vibration.vibrate(duration: 200);
+        await Vibration.vibrate(duration: 300);
       } else if (await Vibration.hasVibrator()) {
         // Fallback: short vibration
-        await Vibration.vibrate(duration: 200);
+        await Vibration.vibrate(duration: 300);
       }
     } on Exception catch (_) {
       // ignore errors silently (e.g., when in simulator / unsupported)

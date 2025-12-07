@@ -77,6 +77,8 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   Future<void> _navigateForward() async {
     final targetPage = currentPage + 1;
 
+    FocusScope.of(context).unfocus();
+
     await _pageController
         .animateToPage(
           targetPage,

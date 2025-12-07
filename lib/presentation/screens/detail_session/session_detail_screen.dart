@@ -85,13 +85,13 @@ class SessionDetailScreen extends ConsumerWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
-                              Icons.check_circle_outline_rounded,
-                              size: 32,
+                            const Text(
+                              '🥳',
+                              style: TextStyle(fontSize: 36),
                             ),
                             const HorizontalSpace(size: SpaceSize.small),
                             Text(
-                              'Einheit für heute erledigt!',
+                              'Einheit für heute erledigt! ',
                               style: context.textTheme.headlineMedium,
                               textAlign: TextAlign.center,
                             ),
