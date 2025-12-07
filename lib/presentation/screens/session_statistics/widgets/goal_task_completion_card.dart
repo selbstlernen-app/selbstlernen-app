@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
-import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 
 class GoalTaskCompletionCard extends StatelessWidget {

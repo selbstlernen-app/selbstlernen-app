@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
+import 'package:srl_app/presentation/screens/general_statistics/widgets/goal_task_completion_card.dart';
 import 'package:srl_app/presentation/screens/general_statistics/widgets/learn_calendar.dart';
-import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/presentation/view_models/statistics/statistics_view_model.dart';
 
 class StatisticsScreen extends ConsumerWidget {
@@ -35,6 +37,15 @@ class StatisticsScreen extends ConsumerWidget {
       );
     }
 
+    // No data
+    if (state.stats == null) {
+      return const Center(
+        child: Text(
+          '''Noch keine Statistiken verfügbar, beginne, indem du eine Lerneinheit anlegst''',
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -51,47 +62,60 @@ class StatisticsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            IntrinsicHeight(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: StatColumn(
-                      context,
-                      'Fokuszeit insgesamt',
-                      TimeUtils.formatBarChartTime(
-                        state.stats!.totalFocusMinutes.toDouble(),
+            if (state.stats!.totalInstances > 0)
+              IntrinsicHeight(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: buildStatColumn(
+                        context,
+                        'Fokuszeit\ninsgesamt',
+                        TimeUtils.formatBarChartTime(
+                          state.stats!.totalFocusMinutes.toDouble(),
+                        ),
                       ),
                     ),
-                  ),
 
-                  Expanded(
-                    child: StatColumn(
-                      context,
-                      'Durchgeführte Einheiten',
-                      state.stats!.totalInstances.toString(),
+                    Expanded(
+                      child: buildStatColumn(
+                        context,
+                        'Durchgeführte Einheiten',
+                        state.stats!.totalInstances.toString(),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+
+            const VerticalSpace(),
 
             LearnCalendar(enrichedInstances: state.enrichedInstances!),
+
+            const VerticalSpace(),
+
+            if (state.stats!.avgGoalsPerInstance > 0 ||
+                state.stats!.avgTasksPerInstance > 0)
+              GoalTaskCompletionCard(stats: state.stats!),
           ],
         ),
       ),
     );
   }
 
-  Widget StatColumn(BuildContext context, String label, String value) {
+  Widget buildStatColumn(BuildContext context, String label, String value) {
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(
             label,
-            style: context.textTheme.bodyLarge?.copyWith(
+            style: context.textTheme.bodySmall?.copyWith(
               color: AppPalette.grey,
             ),
+          ),
+          const VerticalSpace(
+            size: SpaceSize.small,
           ),
           Text(
             value,

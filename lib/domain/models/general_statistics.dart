@@ -9,5 +9,7 @@ abstract class GeneralStatistics with _$GeneralStatistics {
     required int totalFocusMinutes,
     required int totalGoalsCompleted,
     required int totalTasksCompleted,
+    required double avgGoalsPerInstance,
+    required double avgTasksPerInstance,
   }) = _GeneralStatistics;
 }

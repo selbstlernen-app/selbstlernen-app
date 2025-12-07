@@ -29,6 +29,8 @@ class GetGeneralStatisticsUseCase {
         totalFocusMinutes: 0,
         totalGoalsCompleted: 0,
         totalTasksCompleted: 0,
+        avgGoalsPerInstance: 0,
+        avgTasksPerInstance: 0,
       );
     }
 
@@ -69,11 +71,27 @@ class GetGeneralStatisticsUseCase {
       (int sum, GeneralStatistics i) => sum + i.totalTasksCompleted,
     );
 
+    final avgGoalsOfAverages =
+        listOfStatistics.fold<double>(
+          0,
+          (sum, s) => sum + s.avgGoalsPerInstance,
+        ) /
+        listOfStatistics.length;
+
+    final avgTasksOfAverages =
+        listOfStatistics.fold<double>(
+          0,
+          (sum, s) => sum + s.avgTasksPerInstance,
+        ) /
+        listOfStatistics.length;
+
     return GeneralStatistics(
       totalInstances: totalInstances,
       totalFocusMinutes: totalFocusMinutes,
       totalGoalsCompleted: totalGoals,
       totalTasksCompleted: totalTasks,
+      avgGoalsPerInstance: avgGoalsOfAverages,
+      avgTasksPerInstance: avgTasksOfAverages,
     );
   }
 
@@ -91,6 +109,8 @@ class GetGeneralStatisticsUseCase {
         .where((SessionInstanceModel i) => i.status == SessionStatus.skipped)
         .toList();
 
+    final totalInstances = completed.length + skipped.length;
+
     final totalFocusSeconds = completed.fold<int>(
       0,
       (int sum, SessionInstanceModel i) => sum + i.totalFocusSecondsElapsed,
@@ -105,11 +125,20 @@ class GetGeneralStatisticsUseCase {
       (int sum, SessionInstanceModel i) => sum + i.totalCompletedTasks,
     );
 
+    final avgGoalsPerInstance = totalInstances == 0
+        ? 0.0
+        : totalGoals / totalInstances;
+    final avgTasksPerInstance = totalInstances == 0
+        ? 0.0
+        : totalTasks / totalInstances;
+
     return GeneralStatistics(
-      totalInstances: completed.length + skipped.length,
+      totalInstances: totalInstances,
       totalFocusMinutes: totalFocusSeconds ~/ 60,
       totalGoalsCompleted: totalGoals,
       totalTasksCompleted: totalTasks,
+      avgGoalsPerInstance: avgGoalsPerInstance,
+      avgTasksPerInstance: avgTasksPerInstance,
     );
   }
 }
