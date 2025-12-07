@@ -68,8 +68,6 @@ class PendingSessionTile extends ConsumerWidget {
                         hasInstance
                             ? SessionStatus.inProgress
                             : SessionStatus.scheduled,
-                        session.isRepeating ? session.startDate : null,
-                        isRepeating: session.isRepeating,
                       ),
                     ),
                     shape: RoundedRectangleBorder(

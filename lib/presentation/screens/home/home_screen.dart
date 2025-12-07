@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/data/test_data.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
@@ -40,44 +41,21 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
               _buildHeading(context),
 
               // TODO: remove for production
-              ElevatedButton(
-                onPressed: () async {
-                  await ref.read(testDataProvider.notifier).insertTestData();
-                },
-                child: const Text('Insert Test Data'),
-              ),
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     await ref.read(testDataProvider.notifier).insertTestData();
+              //   },
+              //   child: const Text('Insert Test Data'),
+              // ),
               const VerticalSpace(),
 
               const CalendarWidget(),
 
               const VerticalSpace(),
 
-              Text(
-                'Anstehende Lerneinheiten',
-                style: context.textTheme.headlineSmall,
-              ),
-              const VerticalSpace(size: SpaceSize.small),
               Wrap(
                 spacing: 8,
                 children: <Widget>[
-                  CustomButton(
-                    verticalPadding: 8,
-                    borderRadius: 10,
-                    isActive: homeState.filter == SessionFilter.today,
-                    onPressed: () => ref
-                        .read(homeViewModelProvider.notifier)
-                        .setFilter(SessionFilter.today),
-                    label: 'Für heute',
-                  ),
-                  CustomButton(
-                    verticalPadding: 8,
-                    borderRadius: 10,
-                    isActive: homeState.filter == SessionFilter.thisWeek,
-                    onPressed: () => ref
-                        .read(homeViewModelProvider.notifier)
-                        .setFilter(SessionFilter.thisWeek),
-                    label: 'Diese Woche',
-                  ),
                   CustomButton(
                     verticalPadding: 8,
                     borderRadius: 10,
@@ -87,31 +65,95 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                         .setFilter(SessionFilter.all),
                     label: 'Alle',
                   ),
+                  CustomButton(
+                    verticalPadding: 8,
+                    borderRadius: 10,
+                    isActive: homeState.filter == SessionFilter.open,
+                    onPressed: () => ref
+                        .read(homeViewModelProvider.notifier)
+                        .setFilter(SessionFilter.open),
+                    label: 'Offen',
+                  ),
+                  CustomButton(
+                    verticalPadding: 8,
+                    borderRadius: 10,
+                    isActive: homeState.filter == SessionFilter.done,
+                    onPressed: () => ref
+                        .read(homeViewModelProvider.notifier)
+                        .setFilter(SessionFilter.done),
+                    label: 'Erledigt',
+                  ),
                 ],
               ),
 
-              const VerticalSpace(),
+              const VerticalSpace(size: SpaceSize.small),
 
-              // Sessions that have yet to be completed
-              ...homeState.sessions.map(
-                (SessionWithInstanceModel sessionWithInstance) =>
-                    PendingSessionTile(
-                      session: sessionWithInstance.session,
-                      hasInstance: sessionWithInstance.instance != null,
+              // List todays open sessions
+              if (homeState.filter == SessionFilter.open ||
+                  homeState.filter == SessionFilter.all) ...[
+                Text(
+                  'Anstehende Lerneinheiten',
+                  style: context.textTheme.labelLarge!.copyWith(
+                    color: AppPalette.grey,
+                  ),
+                ),
+                if (homeState.todaysSessions.isNotEmpty) ...[
+                  const VerticalSpace(),
+                  ...homeState.todaysSessions.map(
+                    (SessionWithInstanceModel sessionWithInstance) =>
+                        PendingSessionTile(
+                          session: sessionWithInstance.session,
+                          hasInstance: sessionWithInstance.instance != null,
+                        ),
+                  ),
+                  const VerticalSpace(),
+                ],
+                if (homeState.todaysSessions.isEmpty) ...[
+                  const VerticalSpace(
+                    size: SpaceSize.xsmall,
+                  ),
+                  Text(
+                    'Keine Lerneinheiten mehr offen für heute',
+                    style: context.textTheme.bodyMedium!.copyWith(
+                      color: AppPalette.grey.withValues(alpha: 0.8),
                     ),
-              ),
-              const VerticalSpace(),
+                  ),
+                  const VerticalSpace(),
+                ],
+              ],
 
-              Text('Erledigt', style: context.textTheme.headlineSmall),
-              const VerticalSpace(),
+              // List of all completed or skipped sessions of the day
+              if (homeState.filter == SessionFilter.done ||
+                  homeState.filter == SessionFilter.all) ...[
+                Text(
+                  'Erledigt',
+                  style: context.textTheme.labelLarge!.copyWith(
+                    color: AppPalette.grey,
+                  ),
+                ),
+                if (homeState.completedSessionsForToday.isNotEmpty) ...[
+                  const VerticalSpace(),
+                  ...homeState.completedSessionsForToday.map(
+                    (SessionWithInstanceModel sessionWithInstance) =>
+                        CompletedSessionTile(
+                          sessionWithInstance: sessionWithInstance,
+                        ),
+                  ),
+                ],
 
-              // Completed/Skipped sessions
-              ...homeState.completedSessionsForToday.map(
-                (SessionWithInstanceModel sessionWithInstance) =>
-                    CompletedSessionTile(
-                      sessionWithInstance: sessionWithInstance,
+                if (homeState.completedSessionsForToday.isEmpty) ...[
+                  const VerticalSpace(
+                    size: SpaceSize.xsmall,
+                  ),
+                  Text(
+                    'Noch keine Lerneinheiten für heute abgeschlossen',
+                    style: context.textTheme.bodyMedium!.copyWith(
+                      color: AppPalette.grey.withValues(alpha: 0.8),
                     ),
-              ),
+                  ),
+                  const VerticalSpace(),
+                ],
+              ],
             ],
           ),
         ),
@@ -140,17 +182,28 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
       children: <Widget>[
         Row(
           children: <Widget>[
-            Text('Guten ', style: context.textTheme.headlineMedium),
+            Text(
+              'Guten ',
+              style: context.textTheme.titleLarge!.copyWith(
+                fontWeight: FontWeight.w600,
+                fontSize: 26,
+              ),
+            ),
             Text(
               _getGreeting(),
-              style: context.textTheme.headlineMedium!.copyWith(
+              style: context.textTheme.titleLarge!.copyWith(
                 color: context.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 26,
               ),
             ),
           ],
         ),
-        const VerticalSpace(size: SpaceSize.xsmall),
-        Text(_getSubHeading()),
+
+        Text(
+          _getSubHeading(),
+          style: context.textTheme.bodyMedium,
+        ),
       ],
     );
   }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
@@ -53,17 +52,10 @@ Widget getIconBox({required SessionStatus status, double? size}) {
 
 String getSubtitle(
   SessionStatus status,
-  DateTime? startDate, {
-  required bool isRepeating,
-}) {
+) {
   switch (status) {
     case SessionStatus.scheduled:
-      if (startDate == null) {
-        return isRepeating ? 'Geplant (Datum unbekannt)' : 'Einmalig geplant';
-      }
-      final dateStr = DateFormat('dd.MM.yyyy').format(startDate);
-      return isRepeating ? 'Geplant seit dem $dateStr' : 'Einmalig geplant';
-
+      return 'Anstehend';
     case SessionStatus.inProgress:
       return 'In Bearbeitung';
     case SessionStatus.skipped:
