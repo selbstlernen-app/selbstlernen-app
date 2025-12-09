@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/focus_check.dart';
-import 'package:srl_app/common_widgets/card_layout.dart';
 
 class FocusPromptCard extends StatelessWidget {
   const FocusPromptCard({
@@ -19,9 +19,6 @@ class FocusPromptCard extends StatelessWidget {
     final okay = focusChecks.where((c) => c.level == FocusLevel.okay).length;
     final distracted = focusChecks
         .where((c) => c.level == FocusLevel.distracted)
-        .length;
-    final skipped = focusChecks
-        .where((c) => c.level == FocusLevel.skipped)
         .length;
 
     return CardLayout(
@@ -53,13 +50,6 @@ class FocusPromptCard extends StatelessWidget {
             count: distracted,
             total: total,
           ),
-          if (skipped > 0)
-            _StatRow(
-              emoji: '⏭️',
-              label: 'Übersprungen',
-              count: skipped,
-              total: total,
-            ),
         ],
       ),
     );

@@ -17,6 +17,4 @@ enum FocusLevel {
   okay,
   // Abgelenkt
   distracted,
-  // User clicked on "Weiter arbeiten" without clicking any of the three options
-  skipped,
 }
