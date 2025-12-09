@@ -68,7 +68,10 @@ abstract class ActiveSessionState with _$ActiveSessionState {
               goal.keptForFutureSessions == goalIds.contains(goal.id),
         )
         .toList();
-
     return existingGoalsWithNewTasks;
+  }
+
+  bool hasEditedItems() {
+    return newlyAddedGoals.isNotEmpty || newlyAddedTasks.isNotEmpty;
   }
 }
