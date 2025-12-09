@@ -49,6 +49,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
 
   Future<void> _navigateBack() async {
     FocusScope.of(context).unfocus();
+    final totalPages = ref.read(addSessionViewModelProvider).totalPages;
 
     if (currentPage > 0) {
       final targetPage = currentPage - 1;
@@ -62,7 +63,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
           .then((_) {
             setState(() {
               currentPage = targetPage;
-              _progress = (currentPage + 1) / 5;
+              _progress = (currentPage + 1) / totalPages;
             });
           });
     } else {
@@ -76,6 +77,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
 
   Future<void> _navigateForward() async {
     final targetPage = currentPage + 1;
+    final totalPages = ref.read(addSessionViewModelProvider).totalPages;
 
     FocusScope.of(context).unfocus();
 
@@ -88,7 +90,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         .then((_) {
           setState(() {
             currentPage = targetPage;
-            _progress = (currentPage + 1) / 5;
+            _progress = (currentPage + 1) / totalPages;
           });
         });
   }
@@ -143,8 +145,12 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
             TopDownPage(navigateForward: _navigateForward)
           else
             BottomUpPage(navigateForward: _navigateForward),
-          StrategyPage(navigateForward: _navigateForward),
-          TimerPage(navigateForward: _navigateForward),
+          // Do not show these pages in edit mode, since nothing can
+          // be changed here anyway
+          if (!state.isEditMode) ...[
+            StrategyPage(navigateForward: _navigateForward),
+            TimerPage(navigateForward: _navigateForward),
+          ],
           PromptPage(navigateForward: _navigateForward),
         ],
       ),

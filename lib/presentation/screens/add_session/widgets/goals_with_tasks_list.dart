@@ -162,6 +162,9 @@ class GoalWithTasksCard extends ConsumerWidget {
 
                     // Add task input
                     InputList<TaskModel>(
+                      markEditMode: ref
+                          .read(addSessionViewModelProvider)
+                          .isEditMode,
                       controller: taskController,
                       onEnter: onAddTask,
                       isBigGoal: false,

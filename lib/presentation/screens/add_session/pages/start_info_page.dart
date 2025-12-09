@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_error_text.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/date_input_fields.dart';
@@ -127,6 +128,33 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                if (state.isEditMode) ...[
+                  Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: AppPalette.amber),
+                      const HorizontalSpace(),
+                      Expanded(
+                        child: Text(
+                          'Momentan befindest du dich Editier-Modus',
+                          style: context.textTheme.labelLarge!.copyWith(
+                            color: AppPalette.amber,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const VerticalSpace(size: SpaceSize.xsmall),
+
+                  Text(
+                    'In diesem Modus kannst du nur beschränkt Elemente verändern',
+                    style: context.textTheme.bodyMedium!.copyWith(
+                      color: AppPalette.amber,
+                    ),
+                  ),
+                  const VerticalSpace(),
+                ],
                 // Title
                 Text(
                   'Titel der Lerneinheit',
@@ -134,6 +162,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 CustomTextField(
+                  readOnly: state.isEditMode,
                   onChanged: ref
                       .read(addSessionViewModelProvider.notifier)
                       .setTitle,
@@ -159,9 +188,11 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                 Row(
                   children: <Widget>[
                     CustomButton(
-                      onPressed: () => ref
-                          .read(addSessionViewModelProvider.notifier)
-                          .setIsRepeating(isRepeating: false),
+                      onPressed: () => state.isEditMode
+                          ? null
+                          : ref
+                                .read(addSessionViewModelProvider.notifier)
+                                .setIsRepeating(isRepeating: false),
                       isActive: !state.isRepeating,
                       borderRadius: 10,
                       verticalPadding: 8,
@@ -171,9 +202,11 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
 
                     CustomButton(
                       isActive: state.isRepeating,
-                      onPressed: () => ref
-                          .read(addSessionViewModelProvider.notifier)
-                          .setIsRepeating(isRepeating: true),
+                      onPressed: () => state.isEditMode
+                          ? null
+                          : ref
+                                .read(addSessionViewModelProvider.notifier)
+                                .setIsRepeating(isRepeating: true),
                       borderRadius: 10,
                       verticalPadding: 8,
                       label: 'Wiederholend',
@@ -224,6 +257,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                 const VerticalSpace(),
 
                 InputList(
+                  markEditMode: state.isEditMode,
                   errorText: state.goalsError,
                   controller: state.setGoals
                       ? _bigGoalController

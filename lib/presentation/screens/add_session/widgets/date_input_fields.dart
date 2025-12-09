@@ -95,15 +95,13 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
         ref.read(addSessionViewModelProvider.notifier).setStartDate(picked);
 
         // After having picked a start date, automatically open
-        // end date calendar if we are not in editing mode
-        if (!ref.read(addSessionViewModelProvider).isEditMode) {
-          await Future<Null>.delayed(
-            const Duration(milliseconds: 200),
-            () async {
-              await _pickDate(_endDateController, false);
-            },
-          );
-        }
+        // end date calendar
+        await Future<Null>.delayed(
+          const Duration(milliseconds: 200),
+          () async {
+            await _pickDate(_endDateController, false);
+          },
+        );
       } else {
         ref.read(addSessionViewModelProvider.notifier).setEndDate(picked);
       }
@@ -127,9 +125,11 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
             final isSelected = state.selectedDays.contains(dayIndex);
 
             return InkWell(
-              onTap: () => ref
-                  .read(addSessionViewModelProvider.notifier)
-                  .toggleDay(dayIndex),
+              onTap: () => state.isEditMode
+                  ? null
+                  : ref
+                        .read(addSessionViewModelProvider.notifier)
+                        .toggleDay(dayIndex),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 10,
@@ -194,7 +194,9 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                     controller: _startDateController,
                     readOnly: true,
                     hintText: 'Startdatum',
-                    onTap: () => _pickDate(_startDateController, true),
+                    onTap: () => state.isEditMode
+                        ? null
+                        : _pickDate(_startDateController, true),
                     hasError: state.dateError != null,
                   ),
                 ],
@@ -216,7 +218,9 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                     controller: _endDateController,
                     readOnly: true,
                     hintText: 'Enddatum',
-                    onTap: () => _pickDate(_endDateController, false),
+                    onTap: () => state.isEditMode
+                        ? null
+                        : _pickDate(_endDateController, false),
                     hasError: state.dateError != null,
                   ),
                 ],
