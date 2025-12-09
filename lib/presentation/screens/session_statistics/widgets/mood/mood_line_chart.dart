@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
@@ -13,6 +14,10 @@ class MoodLineChart extends StatelessWidget {
 
   final List<SessionInstanceModel> instances;
   final bool showAllInstances;
+
+  bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +48,14 @@ class MoodLineChart extends StatelessWidget {
         : moodInstances.length > 5
         ? moodInstances.sublist(moodInstances.length - 5)
         : moodInstances;
+
+    // Map the counts of instances on the same day, group by date
+    final dayCounts = <String, int>{};
+    for (final instance in displayInstances) {
+      final date = instance.completedAt!;
+      final key = DateFormat('yyyyMMdd').format(date);
+      dayCounts[key] = (dayCounts[key] ?? 0) + 1;
+    }
 
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -82,9 +95,7 @@ class MoodLineChart extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.only(top: 8),
                             child: Text(
-                              showAllInstances
-                                  ? '#${index + 1}'
-                                  : '${date.month}/${date.day}',
+                              DateFormat('dd.MM').format(date),
                               style: theme.textTheme.bodySmall,
                             ),
                           ),
@@ -169,10 +180,14 @@ class MoodLineChart extends StatelessWidget {
                         final index = spot.x.toInt();
                         final instance = displayInstances[index];
                         final moodEmoji = Constants.emojiMoods[spot.y.toInt()];
+                        final key = DateFormat(
+                          'yyyyMMdd',
+                        ).format(instance.completedAt!);
 
                         return LineTooltipItem(
                           '''$moodEmoji\n${_getMoodLabel(spot.y.toInt())}\n'''
-                          '''${instance.completedAt!.month}/${instance.completedAt!.day}''',
+                          '''${dayCounts[key]! > 1 ? DateFormat('dd.MM\nhh:mm').format(instance.completedAt!) : DateFormat('dd.MM').format(instance.completedAt!)}''',
+
                           TextStyle(
                             color: theme.colorScheme.onInverseSurface,
                             fontWeight: FontWeight.bold,
@@ -193,7 +208,7 @@ class MoodLineChart extends StatelessWidget {
   String _getMoodLabel(int index) {
     switch (index) {
       case 0:
-        return 'Sehr Schlecht';
+        return 'Sehr\nSchlecht';
       case 1:
         return 'Schlecht';
       case 2:

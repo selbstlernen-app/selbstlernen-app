@@ -148,9 +148,8 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       /// Completion rate (completed/skipped)
                       CompletionRateCard(
                         stats: stats,
-                        instances: instances,
+                        instances: [...instances, ...missedInstances(state)],
                       ),
-
                       const VerticalSpace(),
 
                       /// Goals and Task Progress
@@ -234,5 +233,62 @@ class SessionStatisticsScreen extends ConsumerWidget {
       7,
       (int i) => session.selectedDays.contains(i) ? plannedMinutes : 0,
     );
+  }
+
+  List<SessionInstanceModel> missedInstances(SessionStatisticsState state) {
+    final session = state.session;
+    final real = state.instances ?? [];
+
+    if (session == null || !session.isRepeating) return [];
+
+    // Index existing instances by their date
+    final instanceByDate = {
+      for (final inst in real)
+        if (inst.completedAt != null)
+          DateTime(
+            inst.completedAt!.year,
+            inst.completedAt!.month,
+            inst.completedAt!.day,
+          ): inst,
+    };
+
+    final missed = <SessionInstanceModel>[];
+
+    for (final date in generateScheduledDates(
+      session.startDate!,
+      session.selectedDays,
+    )) {
+      if (!instanceByDate.containsKey(date)) {
+        // Create a fake instance for display purposes
+        missed.add(
+          SessionInstanceModel(
+            sessionId: state.session!.id!,
+            id: 'missed-${date.toIso8601String()}',
+            completedAt: date,
+            scheduledAt: date,
+            status: SessionStatus.missed,
+          ),
+        );
+      }
+    }
+
+    return missed;
+  }
+
+  Iterable<DateTime> generateScheduledDates(
+    DateTime start,
+    List<int> selectedWeekdays,
+  ) sync* {
+    final today = DateTime.now();
+    final normalizedEnd = DateTime(today.year, today.month, today.day);
+
+    var current = DateTime(start.year, start.month, start.day);
+
+    while (!current.isAfter(normalizedEnd)) {
+      if (selectedWeekdays.contains(current.weekday - 1)) {
+        yield current;
+      }
+      current = current.add(const Duration(days: 1));
+    }
   }
 }

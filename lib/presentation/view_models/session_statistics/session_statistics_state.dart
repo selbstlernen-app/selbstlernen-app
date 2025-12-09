@@ -6,6 +6,8 @@ part 'session_statistics_state.freezed.dart';
 
 @freezed
 abstract class SessionStatisticsState with _$SessionStatisticsState {
+  const SessionStatisticsState._();
+
   const factory SessionStatisticsState({
     SessionStatistics? stats,
     SessionModel? session,

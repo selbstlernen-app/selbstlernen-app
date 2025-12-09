@@ -1,12 +1,12 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/session_status_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
-import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 
 class CompletionRateCard extends StatelessWidget {
@@ -28,18 +28,16 @@ class CompletionRateCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Abschlussrate', style: context.textTheme.headlineMedium),
-              // TODO: calculate instances for display that have been missed
+              Text('Fortschritt', style: context.textTheme.headlineMedium),
+
               IconButton(
                 color: AppPalette.grey.withValues(alpha: 0.5),
                 icon: const Icon(Icons.history_rounded),
                 onPressed: () => showHistoryBottomSheet(
                   context,
                   instances,
-                  'Abschluss-Status',
-                  (instance) => instance.status == SessionStatus.completed
-                      ? 'Abgeschlossen'
-                      : 'Übersprungen',
+                  'Einheiten-Fortschritt',
+                  (instance) => getSubtitle(instance.status),
                 ),
               ),
             ],
@@ -53,13 +51,13 @@ class CompletionRateCard extends StatelessWidget {
                 alignment: AlignmentDirectional.center,
                 children: <Widget>[
                   SizedBox(
-                    height: 100,
-                    width: 100,
+                    height: 120,
+                    width: 140,
                     child: PieChart(
                       // Completed sessions
                       PieChartData(
                         sectionsSpace: 0,
-                        centerSpaceRadius: 30,
+                        centerSpaceRadius: 45,
                         startDegreeOffset: -90,
                         sections: [
                           PieChartSectionData(
@@ -187,6 +185,26 @@ class CompletionRateCard extends StatelessWidget {
                       ],
                     ),
                   ],
+
+                  const VerticalSpace(size: SpaceSize.xsmall),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Container(
+                        height: 5,
+                        width: 5,
+                        decoration: BoxDecoration(
+                          color: AppPalette.grey,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      const HorizontalSpace(size: SpaceSize.small),
+                      Text(
+                        '${stats.openInstances} Noch offen',
+                        style: context.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ],
