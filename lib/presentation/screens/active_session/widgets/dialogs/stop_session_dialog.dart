@@ -17,6 +17,7 @@ class StopSessionDialog {
     }
 
     await showCustomDialog(
+      centerLabels: true,
       context: context,
       title: 'Lerneinheit beenden',
       content: Text(
@@ -26,6 +27,7 @@ class StopSessionDialog {
       ),
       confirmLabel: 'Ja',
       cancelLabel: 'Nein',
+
       onCancel: onDiscardAll,
       onConfirm: onShowDetailedSelection,
     );

@@ -6,8 +6,8 @@ import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/goal_model.dart';
 import 'package:srl_app/domain/models/task_model.dart';
-import 'package:srl_app/presentation/screens/active_session/widgets/session_selection_dialog.dart';
-import 'package:srl_app/presentation/screens/active_session/widgets/stop_session_dialog.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/dialogs/session_selection_dialog.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/dialogs/stop_session_dialog.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
@@ -38,6 +38,27 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
 
     _timer?.cancel();
 
+    final state = ref.read(
+      activeSessionViewModelProvider(widget.instanceId),
+    );
+    final newGoals = state.newlyAddedGoals;
+    final newTasks = state.newlyAddedTasks;
+    final deleteGoals = state.deleteGoals;
+    final deleteTasks = state.deleteTasks;
+    final totalEdits =
+        newGoals.length +
+        newTasks.length +
+        deleteTasks.length +
+        deleteGoals.length;
+
+    // Debug: Check what we're passing to the dialog
+    print('=== DEBUG ===');
+    print('Deleted goals: ${deleteGoals.length}');
+    print('Deleted tasks: ${deleteTasks.length}');
+    print('Goal IDs to delete: ${state.goalIdsToDelete}');
+    print('Task IDs to delete: ${state.taskIdsToDelete}');
+    print('=============');
+
     // If not clicked again after 5 seconds, close the button
     _timer = Timer(const Duration(seconds: 5), () {
       if (mounted) {
@@ -61,6 +82,8 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
     if (state.timerStatus != TimerStatus.initial) {
       await viewModel.pauseTimer();
 
+      if (!mounted) return;
+
       final newGoals = state.newlyAddedGoals;
       final newTasks = state.newlyAddedTasks;
       final totalEdits = newGoals.length + newTasks.length;
@@ -74,6 +97,8 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
           viewModel: viewModel,
           goalIdsToKeep: [],
           taskIdsToKeep: [],
+          goalIdsToDelete: [],
+          taskIdsToDelete: [],
         ),
         onShowDetailedSelection: () => _showDetailedSelection(
           state: state,
@@ -146,21 +171,31 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
         .where((g) => !newGoalIds.contains(g.id))
         .toList();
 
+    final deleteGoals = state.deleteGoals;
+    final deleteTasks = state.deleteTasks;
+
     await SessionSelectionDialog.show(
       context: context,
       newGoals: newGoals,
       newTasks: newTasks,
+      deleteGoals: deleteGoals,
+      deleteTasks: deleteTasks,
       existingGoalsWithNewTasks: existingGoalsWithNewTasks,
-      onConfirm: (goalIds, taskIds) => _handleSelectionConfirm(
-        state: state,
-        viewModel: viewModel,
-        goalIdsToKeep: goalIds,
-        taskIdsToKeep: taskIds,
-      ),
+      onConfirm: (goalIds, taskIds, deletedGoalIds, deletedTaskIds) =>
+          _handleSelectionConfirm(
+            state: state,
+            viewModel: viewModel,
+            goalIdsToKeep: goalIds,
+            taskIdsToKeep: taskIds,
+            goalIdsToDelete: deletedGoalIds,
+            taskIdsToDelete: deletedTaskIds,
+          ),
       onDiscardAll: () => _completeSessionAndNavigate(
         viewModel: viewModel,
         goalIdsToKeep: [],
         taskIdsToKeep: [],
+        goalIdsToDelete: [],
+        taskIdsToDelete: [],
       ),
     );
   }
@@ -170,7 +205,12 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
     required ActiveSessionViewModel viewModel,
     required List<String> goalIdsToKeep,
     required List<String> taskIdsToKeep,
+    required List<String> goalIdsToDelete,
+    required List<String> taskIdsToDelete,
   }) async {
+    // Close selection dialog before navigating
+    if (mounted) Navigator.of(context).pop();
+
     // Orphan tasks whose goals are being removed
     final goalIdsBeingRemoved = state.newlyAddedGoals
         .where((g) => !goalIdsToKeep.contains(g.id))
@@ -188,6 +228,8 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
       viewModel: viewModel,
       goalIdsToKeep: goalIdsToKeep,
       taskIdsToKeep: taskIdsToKeep,
+      goalIdsToDelete: goalIdsToDelete,
+      taskIdsToDelete: taskIdsToDelete,
     );
   }
 
@@ -195,13 +237,18 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
     required ActiveSessionViewModel viewModel,
     required List<String> goalIdsToKeep,
     required List<String> taskIdsToKeep,
+    required List<String> goalIdsToDelete,
+    required List<String> taskIdsToDelete,
   }) async {
     final updatedInstance = await viewModel.completeSession(
       goalIdsToKeep: goalIdsToKeep,
       taskIdsToKeep: taskIdsToKeep,
+      goalIdsToDelete: goalIdsToDelete,
+      taskIdsToDelete: taskIdsToDelete,
     );
 
     if (!mounted) return;
+
     await Navigator.pushReplacementNamed(
       context,
       AppRoutes.reflection,

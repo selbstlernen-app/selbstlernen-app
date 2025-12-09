@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/show_custom_dialog.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
+import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 
 class SessionSelectionDialog {
@@ -9,15 +10,19 @@ class SessionSelectionDialog {
     required BuildContext context,
     required List<GoalModel> newGoals,
     required List<TaskModel> newTasks,
+    required List<GoalModel> deleteGoals,
+    required List<TaskModel> deleteTasks,
     required List<GoalModel> existingGoalsWithNewTasks,
     required Future<void> Function(
       List<String> goalIds,
       List<String> taskIds,
+      List<String> goalIdsToDelete,
+      List<String> taskIdsToDelete,
     )
     onConfirm,
     required Future<void> Function() onDiscardAll,
   }) async {
-    // Prepare data
+    // Prepare new goals to show
     final newGoalIds = newGoals.map((g) => g.id).toSet();
     final tasksByGoal = _groupTasksByGoal(newTasks);
 
@@ -36,8 +41,17 @@ class SessionSelectionDialog {
       for (final task in newTasks) task.id!: true,
     };
 
+    // Initialize selections for deleted items
+    final deletedGoalSelection = <String, bool>{
+      for (final goal in deleteGoals) goal.id!: true,
+    };
+    final deletedTaskSelection = <String, bool>{
+      for (final task in deleteTasks) task.id!: true,
+    };
+
     await showCustomDialog(
       context: context,
+      centerLabels: true,
       title: 'Elemente auswählen',
       content: _SelectionDialogContent(
         allDisplayedGoals: allDisplayedGoals,
@@ -46,6 +60,10 @@ class SessionSelectionDialog {
         ungroupedTasks: ungroupedTasks,
         goalSelection: goalSelection,
         taskSelection: taskSelection,
+        deleteGoals: deleteGoals,
+        deleteTasks: deleteTasks,
+        deletedGoalSelection: deletedGoalSelection,
+        deletedTaskSelection: deletedTaskSelection,
       ),
       confirmLabel: 'Bestätigen',
       cancelLabel: 'Alle verwerfen',
@@ -61,7 +79,22 @@ class SessionSelectionDialog {
             .map((e) => e.key)
             .toList();
 
-        await onConfirm(goalIdsToKeep, taskIdsToKeep);
+        final goalIdsToDelete = deletedGoalSelection.entries
+            .where((e) => e.value)
+            .map((e) => e.key)
+            .toList();
+
+        final taskIdsToDelete = deletedTaskSelection.entries
+            .where((e) => e.value)
+            .map((e) => e.key)
+            .toList();
+
+        await onConfirm(
+          goalIdsToKeep,
+          taskIdsToKeep,
+          goalIdsToDelete,
+          taskIdsToDelete,
+        );
       },
     );
   }
@@ -85,6 +118,10 @@ class _SelectionDialogContent extends StatefulWidget {
     required this.ungroupedTasks,
     required this.goalSelection,
     required this.taskSelection,
+    required this.deleteGoals,
+    required this.deleteTasks,
+    required this.deletedGoalSelection,
+    required this.deletedTaskSelection,
   });
 
   final List<GoalModel> allDisplayedGoals;
@@ -94,6 +131,11 @@ class _SelectionDialogContent extends StatefulWidget {
   final Map<String, bool> goalSelection;
   final Map<String, bool> taskSelection;
 
+  final List<GoalModel> deleteGoals;
+  final List<TaskModel> deleteTasks;
+  final Map<String, bool> deletedGoalSelection;
+  final Map<String, bool> deletedTaskSelection;
+
   @override
   State<_SelectionDialogContent> createState() =>
       _SelectionDialogContentState();
@@ -102,17 +144,33 @@ class _SelectionDialogContent extends StatefulWidget {
 class _SelectionDialogContentState extends State<_SelectionDialogContent> {
   @override
   Widget build(BuildContext context) {
+    final hasDeletedItems =
+        widget.deleteGoals.isNotEmpty || widget.deleteTasks.isNotEmpty;
+
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Wähle die Elemente aus, die du für zukünftige Sitzungen behalten möchtest:',
-            style: Theme.of(context).textTheme.bodyMedium,
+            'Neue Elemente',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AppPalette.sky,
+            ),
+          ),
+          const VerticalSpace(size: SpaceSize.xsmall),
+          Text(
+            '''Diese Elemente wurden in dieser Sitzung hinzugefügt. '''
+            '''Markierte Elemente werden für zukünftige Sitzungen behalten.''',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: AppPalette.grey,
+              fontStyle: FontStyle.italic,
+            ),
           ),
           const VerticalSpace(),
 
+          // KEEP SELECTION SECTION
           // Goals with their tasks
           ...widget.allDisplayedGoals.map((goal) {
             return _GoalWithTasksItem(
@@ -122,7 +180,7 @@ class _SelectionDialogContentState extends State<_SelectionDialogContent> {
               goalSelected: widget.goalSelection[goal.id!] ?? false,
               taskSelection: widget.taskSelection,
               onGoalToggled: (value) => _onGoalToggled(goal, value),
-              onTaskToggled: (taskId, value) => _onTaskToggled(taskId, value),
+              onTaskToggled: _onTaskToggled,
             );
           }),
 
@@ -136,18 +194,82 @@ class _SelectionDialogContentState extends State<_SelectionDialogContent> {
               ),
             ),
             ...widget.ungroupedTasks.map((task) {
-              return _TaskCheckboxItem(
-                task: task,
-                isSelected: widget.taskSelection[task.id!] ?? false,
-                onToggled: (value) => _onTaskToggled(task.id!, value),
+              return Padding(
+                padding: const EdgeInsets.only(left: 32),
+                child: _TaskCheckboxItem(
+                  task: task,
+                  isSelected: widget.taskSelection[task.id!] ?? false,
+                  onToggled: (value) => _onTaskToggled(task.id!, value),
+                ),
               );
             }),
           ],
 
-          const VerticalSpace(),
-          _InfoContainer(
-            text: 'Markierte Elemente werden für zukünftige Sitzungen behalten',
-          ),
+          // DELETE SELECTION SECTION
+          // Display deleted goals and or tasks:
+          if (hasDeletedItems) ...<Widget>[
+            const VerticalSpace(
+              size: SpaceSize.xsmall,
+            ),
+            Divider(
+              color: context.colorScheme.tertiary,
+              thickness: 4,
+              radius: BorderRadius.circular(10),
+            ),
+            const VerticalSpace(size: SpaceSize.xsmall),
+
+            Text(
+              'Gelöschte Elemente',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: AppPalette.rose,
+              ),
+            ),
+            const VerticalSpace(size: SpaceSize.xsmall),
+            Text(
+              'Diese Elemente wurden in dieser Sitzung gelöscht. '
+              'Markierte Elemente werden dauerhaft gelöscht:',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppPalette.grey,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+
+            // Deleted goals
+            if (widget.deleteGoals.isNotEmpty) ...<Widget>[
+              ...widget.deleteGoals.map((goal) {
+                return _GoalItem(
+                  isDeletedMode: true,
+                  goal: goal,
+                  isSelected: widget.deletedGoalSelection[goal.id!] ?? false,
+                  onToggled: (value) => _onDeletedGoalToggled(goal.id!, value),
+                );
+              }),
+            ],
+
+            // Deleted tasks
+            if (widget.deleteTasks.isNotEmpty) ...<Widget>[
+              const VerticalSpace(size: SpaceSize.small),
+              Text(
+                'Gelöschte Aufgaben',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: AppPalette.grey,
+                ),
+              ),
+              ...widget.deleteTasks.map((task) {
+                return Padding(
+                  padding: const EdgeInsets.only(left: 32),
+                  child: _TaskCheckboxItem(
+                    isDeletedMode: true,
+                    task: task,
+                    isSelected: widget.deletedTaskSelection[task.id!] ?? false,
+                    onToggled: (value) =>
+                        _onDeletedTaskToggled(task.id!, value),
+                  ),
+                );
+              }),
+            ],
+          ],
         ],
       ),
     );
@@ -167,6 +289,18 @@ class _SelectionDialogContentState extends State<_SelectionDialogContent> {
   void _onTaskToggled(String taskId, bool value) {
     setState(() {
       widget.taskSelection[taskId] = value;
+    });
+  }
+
+  void _onDeletedGoalToggled(String goalId, bool value) {
+    setState(() {
+      widget.deletedGoalSelection[goalId] = value;
+    });
+  }
+
+  void _onDeletedTaskToggled(String taskId, bool value) {
+    setState(() {
+      widget.deletedTaskSelection[taskId] = value;
     });
   }
 }
@@ -197,7 +331,7 @@ class _GoalWithTasksItem extends StatelessWidget {
       children: <Widget>[
         // Goal row
         if (isNewGoal)
-          _NewGoalRow(
+          _GoalItem(
             goal: goal,
             isSelected: goalSelected,
             onToggled: onGoalToggled,
@@ -224,16 +358,18 @@ class _GoalWithTasksItem extends StatelessWidget {
   }
 }
 
-class _NewGoalRow extends StatelessWidget {
-  const _NewGoalRow({
+class _GoalItem extends StatelessWidget {
+  const _GoalItem({
     required this.goal,
     required this.isSelected,
     required this.onToggled,
+    this.isDeletedMode = false,
   });
 
   final GoalModel goal;
   final bool isSelected;
   final ValueChanged<bool> onToggled;
+  final bool isDeletedMode;
 
   @override
   Widget build(BuildContext context) {
@@ -242,20 +378,28 @@ class _NewGoalRow extends StatelessWidget {
         Icon(
           Icons.flag_outlined,
           size: 16,
-          color: AppPalette.grey,
+          color: isDeletedMode ? AppPalette.rose : AppPalette.grey,
         ),
-        Checkbox(
-          value: isSelected,
-          onChanged: (value) => onToggled(value ?? false),
-        ),
+        const HorizontalSpace(),
+
         Expanded(
           child: GestureDetector(
             onTap: () => onToggled(!isSelected),
             child: Text(
               goal.title,
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: context.textTheme.bodyMedium!.copyWith(
+                fontWeight: FontWeight.w600,
+                color: isDeletedMode ? AppPalette.rose : null,
+                decoration: isDeletedMode ? TextDecoration.lineThrough : null,
+              ),
             ),
           ),
+        ),
+
+        Checkbox(
+          value: isSelected,
+          activeColor: isDeletedMode ? AppPalette.rose : null,
+          onChanged: (value) => onToggled(value ?? false),
         ),
       ],
     );
@@ -269,27 +413,23 @@ class _ExistingGoalRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.flag_outlined,
-            size: 16,
-            color: AppPalette.grey,
-          ),
-          const HorizontalSpace(size: SpaceSize.small),
-          Expanded(
-            child: Text(
-              goal.title,
-              style: TextStyle(
-                color: AppPalette.grey,
-                fontStyle: FontStyle.italic,
-              ),
+    return Row(
+      children: <Widget>[
+        Icon(
+          Icons.flag_outlined,
+          size: 16,
+          color: AppPalette.grey,
+        ),
+        const HorizontalSpace(),
+        Expanded(
+          child: Text(
+            goal.title,
+            style: context.textTheme.bodyMedium!.copyWith(
+              color: AppPalette.grey,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -299,52 +439,43 @@ class _TaskCheckboxItem extends StatelessWidget {
     required this.task,
     required this.isSelected,
     required this.onToggled,
+    this.isDeletedMode = false,
   });
 
   final TaskModel task;
   final bool isSelected;
   final ValueChanged<bool> onToggled;
+  final bool isDeletedMode;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        Checkbox(
-          value: isSelected,
-          onChanged: (value) => onToggled(value ?? false),
+        Icon(
+          Icons.check_box_outline_blank_rounded,
+          size: 16,
+          color: isDeletedMode ? AppPalette.rose : AppPalette.grey,
         ),
+        const HorizontalSpace(),
         Expanded(
           child: GestureDetector(
             onTap: () => onToggled(!isSelected),
-            child: Text(task.title),
+            child: Text(
+              task.title,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: isDeletedMode ? AppPalette.rose : null,
+                decoration: isDeletedMode ? TextDecoration.lineThrough : null,
+              ),
+            ),
           ),
         ),
-      ],
-    );
-  }
-}
-
-class _InfoContainer extends StatelessWidget {
-  const _InfoContainer({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.tertiary,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 12,
-          fontStyle: FontStyle.italic,
-          color: AppPalette.grey,
+        Checkbox(
+          value: isSelected,
+          activeColor: isDeletedMode ? AppPalette.rose : null,
+          onChanged: (value) => onToggled(value ?? false),
         ),
-      ),
+      ],
     );
   }
 }

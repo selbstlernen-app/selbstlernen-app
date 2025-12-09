@@ -181,7 +181,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                                 color: context.colorScheme.error,
                               ),
                               onPressed: () =>
-                                  viewModel.deleteGoal(goalId: goal.id!),
+                                  viewModel.removeGoalById(goalId: goal.id!),
                             ),
 
                           // Expand/Collapse arrow
@@ -227,7 +227,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                                     viewModel.toggleTaskCompletion(task.id!),
                                 isEditMode: state.isEditMode,
                                 onDelete: () =>
-                                    viewModel.deleteTask(taskId: task.id!),
+                                    viewModel.removeTaskById(taskId: task.id!),
                               ),
                             ),
                             if (state.isEditMode)

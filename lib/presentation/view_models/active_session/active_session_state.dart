@@ -12,8 +12,13 @@ abstract class ActiveSessionState with _$ActiveSessionState {
   const factory ActiveSessionState({
     SessionModel? session,
     SessionInstanceModel? instance,
+
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,
+
+    @Default(<GoalModel>[]) List<GoalModel> allOriginalGoals,
+    @Default(<TaskModel>[]) List<TaskModel> allOriginalTasks,
+
     // Timer related data
     @Default(SessionPhase.focus) SessionPhase currentPhase,
     @Default(TimerStatus.initial) TimerStatus timerStatus,
@@ -33,6 +38,10 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(null) String? expandedGoalId,
     @Default(<String>{}) Set<String> completedGoalIds,
     @Default(<String>{}) Set<String> completedTaskIds,
+
+    // Keep track of ids to delete
+    @Default(<String>[]) List<String> goalIdsToDelete,
+    @Default(<String>[]) List<String> taskIdsToDelete,
 
     @Default(false) bool isEditMode,
     @Default(false) bool countUpwards,
@@ -70,6 +79,14 @@ abstract class ActiveSessionState with _$ActiveSessionState {
         .toList();
     return existingGoalsWithNewTasks;
   }
+
+  List<TaskModel> get deleteTasks => allOriginalTasks
+      .where((TaskModel task) => taskIdsToDelete.contains(task.id))
+      .toList();
+
+  List<GoalModel> get deleteGoals => allOriginalGoals
+      .where((GoalModel goal) => goalIdsToDelete.contains(goal.id))
+      .toList();
 
   bool hasEditedItems() {
     return newlyAddedGoals.isNotEmpty || newlyAddedTasks.isNotEmpty;

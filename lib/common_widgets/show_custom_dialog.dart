@@ -8,6 +8,7 @@ Future<void> showCustomDialog({
   required VoidCallback onCancel,
   required String confirmLabel,
   required String cancelLabel,
+  bool centerLabels = false,
 }) {
   return showDialog<void>(
     context: context,
@@ -15,6 +16,9 @@ Future<void> showCustomDialog({
       return AlertDialog(
         title: Text(title, style: Theme.of(context).textTheme.titleLarge),
         content: content,
+        actionsAlignment: centerLabels
+            ? MainAxisAlignment.center
+            : MainAxisAlignment.end,
         actions: <Widget>[
           TextButton(
             onPressed: () async {
