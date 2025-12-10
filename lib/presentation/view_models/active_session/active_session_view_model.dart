@@ -474,6 +474,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         totalCompletedBlocks: state.completedBlocks,
         totalCompletedGoals: state.completedGoalIds.length,
         totalCompletedTasks: state.completedTaskIds.length,
+
         status: SessionStatus.inProgress,
         currentPhaseIndex: state.currentPhaseIndex,
         remainingSeconds: state.remainingSeconds,
@@ -509,6 +510,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         totalCompletedBlocks: state.completedBlocks,
         totalCompletedGoals: state.completedGoalIds.length,
         totalCompletedTasks: state.completedTaskIds.length,
+        completedGoalsRate: state.goals.isNotEmpty
+            ? (state.completedGoalIds.length / state.goals.length) * 100
+            : 0.0,
+        completedTasksRate: state.tasks.isNotEmpty
+            ? (state.completedTaskIds.length / state.tasks.length) * 100
+            : 0.0,
       );
 
       await _completeInstanceUseCase.call(updatedInstance);

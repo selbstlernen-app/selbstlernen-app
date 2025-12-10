@@ -52,6 +52,8 @@ class TestData extends _$TestData {
           totalBreakSecondsElapsed: 10 * 60,
           totalCompletedGoals: 2,
           totalCompletedTasks: 4,
+          completedGoalsRate: Random().nextDouble() * 100,
+          completedTasksRate: Random().nextDouble() * 100,
           mood: Random().nextInt(5),
           notes: 'Completed successfully',
           completedAt: DateTime(
@@ -59,7 +61,7 @@ class TestData extends _$TestData {
             11,
             1,
             6 + Random().nextInt(12),
-            0 + Random().nextInt(60),
+            Random().nextInt(61),
           ).add(Duration(days: i)),
           createdAt: DateTime(2025, 11, 20),
         );

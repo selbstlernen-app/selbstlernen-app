@@ -12,7 +12,7 @@ import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/completion_rate_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/focus_time_spent_card.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion/goal_task_completion_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/mood/mood_card.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
@@ -137,7 +137,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
+          padding: const EdgeInsets.all(16),
           child: Column(
             children: <Widget>[
               Expanded(
@@ -145,13 +145,6 @@ class SessionStatisticsScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      /// Completion rate (completed/skipped)
-                      CompletionRateCard(
-                        stats: stats,
-                        instances: [...instances, ...missedInstances(state)],
-                      ),
-                      const VerticalSpace(),
-
                       /// Goals and Task Progress
                       GoalTaskCompletionCard(
                         stats: stats,
@@ -159,6 +152,14 @@ class SessionStatisticsScreen extends ConsumerWidget {
                         currentInstance: currentInstance,
                         totalGoals: state.goals!.length,
                         totalTasks: state.tasks!.length,
+                      ),
+
+                      const VerticalSpace(),
+
+                      /// Completion rate (completed/skipped)
+                      CompletionRateCard(
+                        stats: stats,
+                        instances: [...instances, ...missedInstances(state)],
                       ),
 
                       const VerticalSpace(),

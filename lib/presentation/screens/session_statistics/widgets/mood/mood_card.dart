@@ -59,19 +59,33 @@ class _MoodCardState extends State<MoodCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               if (widget.instances.where((i) => i.mood != null).length > 5)
-                CustomIconButton(
-                  radius: 30,
-                  icon: Icon(
-                    showAllInstances ? Icons.compress : Icons.expand,
-                    size: 16,
+                TextButton.icon(
+                  style: TextButton.styleFrom(
+                    backgroundColor: context.colorScheme.tertiary,
+                    foregroundColor: context.colorScheme.onTertiary,
+                    textStyle: context.textTheme.labelMedium!.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: context.colorScheme.onTertiary,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                   ),
                   onPressed: () {
                     setState(() {
                       showAllInstances = !showAllInstances;
                     });
                   },
-                  isActive: true,
-                  label: showAllInstances ? 'Weniger' : 'Alle Anzeigen',
+                  icon: Icon(
+                    showAllInstances ? Icons.compress : Icons.expand,
+                  ),
+                  label: Text(
+                    showAllInstances ? 'Weniger' : 'Alle anzeigen',
+                  ),
                 ),
 
               // Average mood
