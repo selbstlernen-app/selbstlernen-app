@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/statistics_ui_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
 class MoodLineChart extends StatelessWidget {
@@ -62,7 +63,7 @@ class MoodLineChart extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 200,
+            height: 160,
             child: LineChart(
               LineChartData(
                 gridData: FlGridData(
@@ -81,7 +82,7 @@ class MoodLineChart extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
+                      reservedSize: 32,
                       interval: 1,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
@@ -89,13 +90,16 @@ class MoodLineChart extends StatelessWidget {
                           return const SizedBox.shrink();
                         }
                         final date = displayInstances[index].completedAt!;
-                        return Transform.rotate(
-                          angle: showAllInstances ? -20 : 0,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              DateFormat('dd.MM').format(date),
-                              style: context.textTheme.bodySmall,
+                        return SideTitleWidget(
+                          meta: meta,
+                          child: Transform.rotate(
+                            angle: showAllInstances ? -20 : 0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                DateFormat('dd.MM').format(date),
+                                style: StatisticsUiUtils.styleBottomBar,
+                              ),
                             ),
                           ),
                         );
@@ -106,7 +110,7 @@ class MoodLineChart extends StatelessWidget {
                     sideTitles: SideTitles(
                       showTitles: true,
                       interval: 1,
-                      reservedSize: 40,
+                      reservedSize: 36,
                       getTitlesWidget: (value, meta) {
                         final moodIndex = value.toInt();
                         if (moodIndex < 0 ||

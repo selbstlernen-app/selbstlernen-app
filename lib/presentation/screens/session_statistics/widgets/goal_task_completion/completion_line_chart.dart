@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/statistics_UI_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
 class CompletionLineChart extends StatelessWidget {
@@ -91,7 +92,7 @@ class CompletionLineChart extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
+                      reservedSize: 32,
                       interval: 1,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
@@ -99,13 +100,16 @@ class CompletionLineChart extends StatelessWidget {
                           return const SizedBox.shrink();
                         }
                         final date = displayInstances[index].completedAt!;
-                        return Transform.rotate(
-                          angle: showAllInstances ? -20 : 0,
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              DateFormat('dd.MM').format(date),
-                              style: context.textTheme.bodySmall,
+                        return SideTitleWidget(
+                          meta: meta,
+                          child: Transform.rotate(
+                            angle: showAllInstances ? -20 : 0,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                DateFormat('dd.MM').format(date),
+                                style: StatisticsUiUtils.styleBottomBar,
+                              ),
                             ),
                           ),
                         );

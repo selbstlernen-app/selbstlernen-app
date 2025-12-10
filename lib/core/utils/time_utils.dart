@@ -18,15 +18,34 @@ class TimeUtils {
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
 
-  static TimeString formatTimeString({required int totalSeconds}) {
+  /// Returns the time split into hours, minutes and seconds
+  /// Each as string with 0 padding for singular nums
+  static TimeString formatTimeString({
+    required int totalSeconds,
+    bool zeroPadding = true,
+  }) {
     final hours = totalSeconds ~/ 3600;
     final minutes = (totalSeconds % 3600) ~/ 60;
     final seconds = totalSeconds % 60;
 
+    if (hours == 0 && minutes == 0) {
+      return TimeString(
+        hours: null,
+        minutes: minutes.toString(),
+        seconds: seconds.toString(),
+      );
+    }
+
     return TimeString(
-      hours: hours > 0 ? hours.toString().padLeft(2, '0') : null,
-      minutes: minutes.toString().padLeft(2, '0'),
-      seconds: seconds.toString().padLeft(2, '0'),
+      hours: zeroPadding
+          ? (hours > 0 ? hours.toString().padLeft(2, '0') : null)
+          : (hours > 0 ? hours.toString() : null),
+      minutes: zeroPadding
+          ? minutes.toString().padLeft(2, '0')
+          : minutes.toString(),
+      seconds: zeroPadding
+          ? seconds.toString().padLeft(2, '0')
+          : seconds.toString(),
     );
   }
 

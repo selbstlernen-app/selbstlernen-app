@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/card_layout.dart';
-import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
@@ -9,6 +8,7 @@ import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/mood/mood_line_chart.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
 class MoodCard extends StatefulWidget {
   const MoodCard({
@@ -58,35 +58,14 @@ class _MoodCardState extends State<MoodCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (widget.instances.where((i) => i.mood != null).length > 5)
-                TextButton.icon(
-                  style: TextButton.styleFrom(
-                    backgroundColor: context.colorScheme.tertiary,
-                    foregroundColor: context.colorScheme.onTertiary,
-                    textStyle: context.textTheme.labelMedium!.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: context.colorScheme.onTertiary,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      showAllInstances = !showAllInstances;
-                    });
-                  },
-                  icon: Icon(
-                    showAllInstances ? Icons.compress : Icons.expand,
-                  ),
-                  label: Text(
-                    showAllInstances ? 'Weniger' : 'Alle anzeigen',
-                  ),
-                ),
+              ToggleShowAllButton(
+                showAll: showAllInstances,
+                thresholdExceeded:
+                    widget.instances.where((i) => i.mood != null).length > 5,
+                onToggle: () {
+                  setState(() => showAllInstances = !showAllInstances);
+                },
+              ),
 
               // Average mood
               if (widget.stats.averageMood != null)
@@ -116,7 +95,7 @@ class _MoodCardState extends State<MoodCard> {
             ],
           ),
 
-          const VerticalSpace(),
+          const VerticalSpace(size: SpaceSize.small),
 
           // Chart
           if (widget.instances.where((i) => i.mood != null).length > 1)

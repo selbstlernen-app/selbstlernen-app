@@ -4,6 +4,9 @@ class AppPalette {
   static Color skyLight = const Color(0xFF74D4FF);
   static Color sky = const Color(0xFF00BCFF);
 
+  static Color blueLight = const Color(0xFF8EC5FF);
+  static Color blue = const Color(0xFF51A2FF);
+
   static Color emeraldLight = const Color(0xFF5EE9B5); // Emerald 300
   static Color emerald = const Color(0xFF00D492); // Emerald 400
 
@@ -30,6 +33,9 @@ class AppPalette {
 
   static const Color amberLight = Color(0xFFFFD230);
   static const Color amber = Color(0xFFFFB900);
+
+  static const Color yellowLight = Color(0xFFFFDF20);
+  static const Color yellow = Color(0xFFFDC700);
 
   static Color grey = Colors.grey[600]!;
   static Color darkGrey = Colors.grey[800]!;

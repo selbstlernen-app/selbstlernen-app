@@ -69,10 +69,12 @@ class TestData extends _$TestData {
 
       // Skipped sessions
       ...List<SessionInstanceModel>.generate(5, (int i) {
+        final date = DateTime(2025, 10, 5).add(Duration(days: i * 3));
         return SessionInstanceModel(
           sessionId: sessionId.toString(),
           status: SessionStatus.skipped,
-          scheduledAt: DateTime(2025, 10, 5).add(Duration(days: i * 3)),
+          scheduledAt: date,
+          completedAt: date,
           createdAt: DateTime(2025, 11, 20),
         );
       }),

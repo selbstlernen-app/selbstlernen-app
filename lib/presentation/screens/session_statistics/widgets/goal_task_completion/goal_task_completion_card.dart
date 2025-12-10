@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/card_layout.dart';
-import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -8,11 +7,11 @@ import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion/completion_line_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
 class GoalTaskCompletionCard extends StatefulWidget {
   const GoalTaskCompletionCard({
     required this.stats,
-    required this.currentInstance,
     required this.totalGoals,
     required this.totalTasks,
     required this.pastInstances,
@@ -20,7 +19,6 @@ class GoalTaskCompletionCard extends StatefulWidget {
   });
 
   final SessionStatistics stats;
-  final SessionInstanceModel currentInstance;
   final List<SessionInstanceModel> pastInstances;
 
   final int totalGoals;
@@ -57,7 +55,6 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
       ...widget.pastInstances.where(
         (instance) => instance.status != SessionStatus.skipped,
       ),
-      widget.currentInstance,
     ];
     return CardLayout(
       content: Column(
@@ -88,35 +85,13 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (allDoneInstances.length > 5)
-                TextButton.icon(
-                  style: TextButton.styleFrom(
-                    backgroundColor: context.colorScheme.tertiary,
-                    foregroundColor: context.colorScheme.onTertiary,
-                    textStyle: context.textTheme.labelMedium!.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: context.colorScheme.onTertiary,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      showAllInstances = !showAllInstances;
-                    });
-                  },
-                  icon: Icon(
-                    showAllInstances ? Icons.compress : Icons.expand,
-                  ),
-                  label: Text(
-                    showAllInstances ? 'Weniger' : 'Alle anzeigen',
-                  ),
-                ),
+              ToggleShowAllButton(
+                showAll: showAllInstances,
+                thresholdExceeded: allDoneInstances.length > 5,
+                onToggle: () {
+                  setState(() => showAllInstances = !showAllInstances);
+                },
+              ),
 
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -138,7 +113,7 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
             ],
           ),
 
-          const VerticalSpace(),
+          const VerticalSpace(size: SpaceSize.small),
 
           CompletionLineChart(
             instances: allDoneInstances,
@@ -150,7 +125,6 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
             style: context.textTheme.bodySmall!.copyWith(
               color: AppPalette.grey,
             ),
-            textAlign: TextAlign.center,
           ),
 
           const VerticalSpace(
@@ -181,6 +155,9 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
                 ),
               ],
             ),
+          ),
+          const VerticalSpace(
+            size: SpaceSize.xsmall,
           ),
         ],
       ),
@@ -239,40 +216,6 @@ class _ProductivitySquare extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _ProductivityProgressBar extends StatelessWidget {
-  const _ProductivityProgressBar({
-    required this.label,
-    required this.value,
-    required this.totalValue,
-    required this.percentage,
-    required this.color,
-  });
-
-  final String label;
-  final int value;
-  final int totalValue;
-  final double percentage;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text(label, style: context.textTheme.bodyMedium),
-            Text('$value/$totalValue', style: context.textTheme.bodyMedium),
-          ],
-        ),
-        Text(percentage.toString(), style: context.textTheme.bodyMedium),
-        const VerticalSpace(size: SpaceSize.xsmall),
-      ],
     );
   }
 }

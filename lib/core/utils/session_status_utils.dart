@@ -23,13 +23,13 @@ Color getColor(SessionStatus status) {
     case SessionStatus.completed:
       return AppPalette.emerald;
     case SessionStatus.skipped:
-      return AppPalette.amber;
+      return AppPalette.yellow;
     case SessionStatus.scheduled:
-      return AppPalette.teal;
+      return AppPalette.fuchsia;
     case SessionStatus.inProgress:
-      return AppPalette.sky;
+      return AppPalette.blue;
     case SessionStatus.missed:
-      return AppPalette.indigo;
+      return AppPalette.rose;
   }
 }
 
