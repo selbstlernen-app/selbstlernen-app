@@ -7,7 +7,7 @@ import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/focus_prompt_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/focus_time_spent_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion/goal_task_completion_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/mood/mood_card.dart';
@@ -150,6 +150,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       if (state.session!.hasFocusPrompt) ...[
                         // Shows how often what focus prompt has been clicked
                         FocusPromptCard(
+                          currentInstance: allCompletedInstances.last,
                           focusChecks: allCompletedInstances.last.focusChecks,
                         ),
                         const VerticalSpace(),

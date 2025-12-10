@@ -1,0 +1,171 @@
+import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:srl_app/core/constants/constants.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
+import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/core/utils/statistics_UI_utils.dart';
+import 'package:srl_app/domain/models/focus_check.dart';
+import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/focus_check_utils.dart';
+
+class FocusLevelChart extends StatelessWidget {
+  const FocusLevelChart({
+    required this.instance,
+    super.key,
+  });
+
+  final SessionInstanceModel instance;
+
+  /// Returns visually fitting interval depending on the max y value
+  double _calculateInterval(double maxY) {
+    if (maxY <= 60) return 10;
+    if (maxY <= 120) return 20;
+    if (maxY <= 300) return 60;
+    if (maxY <= 600) return 120;
+    return 180;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final focusData = prepareFocusCheckData(instance);
+
+    if (focusData.isEmpty) {
+      return const Center(
+        child: Text('Keine Fokusabfrage-Daten in dieser Lerneinheit gesammelt'),
+      );
+    }
+
+    final spots = focusData.map((data) {
+      return FlSpot(
+        data.minutesIntoSession.toDouble(),
+        focusLevelToValue(data.check.level),
+      );
+    }).toList();
+
+    final maxMinutes = focusData.last.minutesIntoSession;
+
+    return SizedBox(
+      height: 160,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: LineChart(
+          LineChartData(
+            minX: 0,
+            minY: 0,
+            maxX: maxMinutes.toDouble(),
+            maxY: 3,
+            borderData: FlBorderData(
+              show: true,
+              border: Border(
+                bottom: BorderSide(
+                  color: AppPalette.grey,
+                ),
+                left: BorderSide(
+                  color: AppPalette.grey,
+                ),
+              ),
+            ),
+            gridData: FlGridData(
+              verticalInterval: _calculateInterval(maxMinutes.toDouble()),
+              horizontalInterval: 1,
+              getDrawingHorizontalLine: (value) {
+                return FlLine(
+                  color: AppPalette.grey.withValues(alpha: 0.3),
+                  strokeWidth: 1,
+                );
+              },
+            ),
+            titlesData: FlTitlesData(
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 36,
+                  interval: 1,
+                  getTitlesWidget: (value, meta) {
+                    final focusIndex = value.toInt() - 1;
+                    if (focusIndex < 0 ||
+                        focusIndex >= Constants.emojiMoods.length) {
+                      return const SizedBox.shrink();
+                    }
+                    return Text(
+                      Constants.focusEmojis[focusIndex],
+                      style: const TextStyle(fontSize: 24),
+                    );
+                  },
+                ),
+              ),
+              rightTitles: const AxisTitles(),
+              topTitles: const AxisTitles(),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 30,
+                  interval: _calculateInterval(maxMinutes.toDouble()),
+                  getTitlesWidget: (value, meta) {
+                    return Text(
+                      '${value.toInt()} min',
+                      style: StatisticsUiUtils.styleBottomBar,
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            lineBarsData: [
+              LineChartBarData(
+                spots: spots,
+                isCurved: true,
+                color: AppPalette.blue,
+                preventCurveOverShooting: true,
+                preventCurveOvershootingThreshold: 0,
+                barWidth: 3,
+                isStrokeCapRound: true,
+                dotData: FlDotData(
+                  getDotPainter: (spot, percent, barData, index) {
+                    final level = focusData[index].check.level;
+                    final color = level == FocusLevel.good
+                        ? AppPalette.emerald
+                        : level == FocusLevel.okay
+                        ? AppPalette.yellow
+                        : AppPalette.rose;
+                    return FlDotCirclePainter(
+                      radius: 4,
+                      strokeWidth: 2,
+                      color: color,
+                      strokeColor: context.colorScheme.surface,
+                    );
+                  },
+                ),
+              ),
+            ],
+            lineTouchData: LineTouchData(
+              touchTooltipData: LineTouchTooltipData(
+                fitInsideHorizontally: true,
+                getTooltipItems: (touchedSpots) {
+                  return touchedSpots.map((spot) {
+                    final index = spot.spotIndex;
+                    final data = focusData[index];
+                    final level = data.check.level;
+                    final levelText = level == FocusLevel.good
+                        ? '🎯 Gut fokussiert'
+                        : level == FocusLevel.okay
+                        ? '😐 Mittelmäßig'
+                        : '😴 Abgelenkt';
+
+                    return LineTooltipItem(
+                      '${data.minutesIntoSession} min\n$levelText',
+                      TextStyle(
+                        color: context.colorScheme.onInverseSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  }).toList();
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
