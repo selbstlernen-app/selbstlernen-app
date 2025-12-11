@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/core/utils/statistics_UI_utils.dart';
+import 'package:srl_app/core/utils/statistics_ui_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/focus_check_utils.dart';
 
