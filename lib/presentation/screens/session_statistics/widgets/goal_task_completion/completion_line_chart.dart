@@ -55,7 +55,7 @@ class CompletionLineChart extends StatelessWidget {
     // Get last 5 or all instances based on toggle
     final displayInstances = showAllInstances
         ? sortedInstances
-        : sortedInstances.length > 5
+        : sortedInstances.length > 4
         ? sortedInstances.sublist(sortedInstances.length - 5)
         : sortedInstances;
 

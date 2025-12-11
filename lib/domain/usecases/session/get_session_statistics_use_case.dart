@@ -118,6 +118,7 @@ class GetSessionStatisticsUseCase {
     final completedWithMood = completed
         .where((SessionInstanceModel i) => i.mood != null)
         .toList();
+
     final averageMood = completedWithMood.isNotEmpty
         ? completedWithMood.fold<int>(
                 0,

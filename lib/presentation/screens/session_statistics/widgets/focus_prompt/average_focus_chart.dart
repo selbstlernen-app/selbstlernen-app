@@ -1,52 +1,41 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/core/utils/statistics_UI_utils.dart';
+import 'package:srl_app/core/utils/statistics_ui_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/focus_check_utils.dart';
 
-class FocusLevelChart extends StatelessWidget {
-  const FocusLevelChart({
-    required this.instance,
+class AverageFocusChart extends StatelessWidget {
+  const AverageFocusChart({
+    required this.instances,
     super.key,
   });
 
-  final SessionInstanceModel instance;
-
-  /// Returns visually fitting interval depending on the max y value
-  double _calculateInterval(double maxY) {
-    if (maxY <= 10) return 1;
-    if (maxY <= 30) return 5;
-    if (maxY <= 60) return 10;
-    if (maxY <= 120) return 20;
-    if (maxY <= 300) return 60;
-    if (maxY <= 600) return 120;
-    return 180;
-  }
+  final List<SessionInstanceModel> instances;
 
   @override
   Widget build(BuildContext context) {
-    final focusData = prepareFocusCheckData(instance);
+    // Calculate averages of past instances and map them to their date
+    final sessionAverages =
+        instances
+            .map((instance) {
+              final average = calculateSessionAverageFocus(instance);
 
-    if (focusData.isEmpty) {
-      return Center(
-        child: Text(
-          'Heute keine Fokusabfrage-Daten in dieser Lerneinheit gesammelt',
-          style: context.textTheme.bodySmall,
-        ),
-      );
-    }
+              return MapEntry(
+                instance.completedAt ?? instance.scheduledAt,
+                average,
+              );
+            })
+            .whereType<MapEntry<DateTime, double>>()
+            .toList()
+          ..sort((a, b) => a.key.compareTo(b.key));
 
-    final spots = focusData.map((data) {
-      return FlSpot(
-        data.minutesIntoSession.toDouble(),
-        focusLevelToValue(data.check.level),
-      );
+    final spots = sessionAverages.asMap().entries.map((entry) {
+      return FlSpot(entry.key.toDouble(), entry.value.value);
     }).toList();
-
-    final maxMinutes = focusData.last.minutesIntoSession;
 
     return SizedBox(
       height: 160,
@@ -56,8 +45,8 @@ class FocusLevelChart extends StatelessWidget {
           LineChartData(
             minX: 0,
             minY: 0,
-            maxX: maxMinutes.toDouble(),
-            maxY: 3,
+            maxY: Constants.focusEmojis.length.toDouble(),
+            maxX: (instances.length - 1).toDouble(),
             borderData: FlBorderData(
               show: true,
               border: Border(
@@ -70,7 +59,6 @@ class FocusLevelChart extends StatelessWidget {
               ),
             ),
             gridData: FlGridData(
-              verticalInterval: _calculateInterval(maxMinutes.toDouble()),
               horizontalInterval: 1,
               getDrawingHorizontalLine: (value) {
                 return FlLine(
@@ -103,12 +91,26 @@ class FocusLevelChart extends StatelessWidget {
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  reservedSize: 30,
-                  interval: _calculateInterval(maxMinutes.toDouble()),
+                  reservedSize: 32,
+                  interval: 1,
                   getTitlesWidget: (value, meta) {
-                    return Text(
-                      '${value.toInt()} min',
-                      style: StatisticsUiUtils.styleBottomBar,
+                    final index = value.toInt();
+                    if (index < 0 || index >= sessionAverages.length) {
+                      return const SizedBox.shrink();
+                    }
+                    final date = sessionAverages[index].key;
+                    return SideTitleWidget(
+                      meta: meta,
+                      child: Transform.rotate(
+                        angle: -20,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            DateFormat('dd.MM').format(date),
+                            style: StatisticsUiUtils.styleBottomBar,
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -126,7 +128,12 @@ class FocusLevelChart extends StatelessWidget {
                 isStrokeCapRound: true,
                 dotData: FlDotData(
                   getDotPainter: (spot, percent, barData, index) {
-                    final level = focusData[index].check.level;
+                    // Get the average focus level for this session
+                    final averageFocusLevel = sessionAverages[index].value;
+
+                    // Convert the average back to a FocusLevel enum
+                    final level = valueToFocusLevel(averageFocusLevel);
+
                     return FlDotCirclePainter(
                       radius: 4,
                       strokeWidth: 2,
@@ -139,15 +146,14 @@ class FocusLevelChart extends StatelessWidget {
             ],
             lineTouchData: LineTouchData(
               touchTooltipData: LineTouchTooltipData(
-                fitInsideHorizontally: true,
                 getTooltipItems: (touchedSpots) {
                   return touchedSpots.map((spot) {
                     final index = spot.spotIndex;
-                    final data = focusData[index];
-                    final level = data.check.level;
+                    final date = sessionAverages[index].key;
+                    final avg = sessionAverages[index].value;
 
                     return LineTooltipItem(
-                      '${data.minutesIntoSession} min\n${getFocusLabel(level)}',
+                      '${DateFormat('dd.MM').format(date)}\nØ ${avg.toStringAsFixed(1)}',
                       TextStyle(
                         color: context.colorScheme.onInverseSurface,
                         fontWeight: FontWeight.bold,

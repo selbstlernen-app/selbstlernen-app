@@ -44,6 +44,14 @@ class TestData extends _$TestData {
           6 + Random().nextInt(12),
           0 + Random().nextInt(60),
         ).add(Duration(days: i));
+
+        final randomStatus = Random().nextInt(3);
+        final levels = [
+          FocusLevel.distracted,
+          FocusLevel.okay,
+          FocusLevel.good,
+        ];
+
         return SessionInstanceModel(
           sessionId: sessionId.toString(),
           status: SessionStatus.completed,
@@ -56,44 +64,24 @@ class TestData extends _$TestData {
           totalCompletedTasks: 4,
           focusChecks: [
             FocusCheck(
-              timestamp: date.add(const Duration(minutes: 5)),
-              level: FocusLevel.good,
+              atElapsedSeconds: 60,
+              level: levels[randomStatus],
             ),
             FocusCheck(
-              timestamp: date.add(const Duration(minutes: 10)),
-              level: FocusLevel.good,
+              atElapsedSeconds: 120,
+              level: levels[randomStatus],
             ),
             FocusCheck(
-              timestamp: date.add(const Duration(minutes: 15)),
-              level: FocusLevel.okay,
+              atElapsedSeconds: 180,
+              level: levels[randomStatus],
             ),
             FocusCheck(
-              timestamp: date.add(const Duration(minutes: 20)),
-              level: FocusLevel.okay,
+              atElapsedSeconds: 240,
+              level: levels[randomStatus],
             ),
             FocusCheck(
-              timestamp: date.add(const Duration(minutes: 25)),
-              level: FocusLevel.distracted,
-            ),
-            FocusCheck(
-              timestamp: date.add(const Duration(minutes: 30)),
-              level: FocusLevel.okay,
-            ),
-            FocusCheck(
-              timestamp: date.add(const Duration(minutes: 35)),
-              level: FocusLevel.good,
-            ),
-            FocusCheck(
-              timestamp: date.add(const Duration(minutes: 40)),
-              level: FocusLevel.good,
-            ),
-            FocusCheck(
-              timestamp: date.add(const Duration(minutes: 45)),
-              level: FocusLevel.good,
-            ),
-            FocusCheck(
-              timestamp: date.add(const Duration(minutes: 50)),
-              level: FocusLevel.good,
+              atElapsedSeconds: 300,
+              level: levels[randomStatus],
             ),
           ],
           completedGoalsRate: Random().nextDouble() * 100,

@@ -77,17 +77,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
     // Data available
     return Scaffold(
-      backgroundColor: Color.lerp(
-        context.colorScheme.secondary,
-        Colors.white,
-        0.3,
-      ),
       appBar: AppBar(
-        backgroundColor: Color.lerp(
-          context.colorScheme.secondary,
-          Colors.white,
-          0.3,
-        ),
         centerTitle: true,
         toolbarHeight: 80,
         title: Row(
@@ -107,7 +97,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           child: Column(
             children: <Widget>[
               Expanded(
@@ -150,7 +140,8 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       if (state.session!.hasFocusPrompt) ...[
                         // Shows how often what focus prompt has been clicked
                         FocusPromptCard(
-                          currentInstance: allCompletedInstances.last,
+                          allDoneInstances: allCompletedInstances,
+                          currentInstance: allCompletedInstances.first,
                           focusChecks: allCompletedInstances.last.focusChecks,
                         ),
                         const VerticalSpace(),

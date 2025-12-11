@@ -61,7 +61,7 @@ class _MoodCardState extends State<MoodCard> {
               ToggleShowAllButton(
                 showAll: showAllInstances,
                 thresholdExceeded:
-                    widget.instances.where((i) => i.mood != null).length > 5,
+                    widget.instances.where((i) => i.mood != null).length > 4,
                 onToggle: () {
                   setState(() => showAllInstances = !showAllInstances);
                 },

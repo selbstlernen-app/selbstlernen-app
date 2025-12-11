@@ -159,7 +159,13 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> recordFocusLevel(FocusLevel level) async {
     if (state.instance == null) return;
 
-    final focusCheck = FocusCheck(timestamp: DateTime.now(), level: level);
+    final focusCheck = FocusCheck(
+      atElapsedSeconds: state.totalFocusSecondsElapsed,
+      level: level,
+    );
+
+    print("---FOCUS CHECK AT: ---");
+    print(focusCheck);
 
     final updatedInstance = state.instance!.copyWith(
       focusChecks: [...state.instance!.focusChecks, focusCheck],
@@ -272,10 +278,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   void startTimer() {
     if (state.timerStatus == TimerStatus.initial) {
       state = state.copyWith(
-        sessionStartTime: DateTime.now(),
         timerStatus: TimerStatus.running,
       );
-
       // Start focus prompt when timer has been started
       startFocusPrompting();
     } else if (state.timerStatus == TimerStatus.paused) {
@@ -474,7 +478,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         totalCompletedBlocks: state.completedBlocks,
         totalCompletedGoals: state.completedGoalIds.length,
         totalCompletedTasks: state.completedTaskIds.length,
-
+        completedGoalsRate: state.goals.isNotEmpty
+            ? (state.completedGoalIds.length / state.goals.length) * 100
+            : 0.0,
+        completedTasksRate: state.tasks.isNotEmpty
+            ? (state.completedTaskIds.length / state.tasks.length) * 100
+            : 0.0,
         status: SessionStatus.inProgress,
         currentPhaseIndex: state.currentPhaseIndex,
         remainingSeconds: state.remainingSeconds,

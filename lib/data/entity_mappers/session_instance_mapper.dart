@@ -39,7 +39,7 @@ extension SessionInstanceToModelMapper on SessionInstance {
       return list.map((item) {
         final map = item as Map<String, dynamic>;
         return FocusCheck(
-          timestamp: DateTime.parse(map['timestamp'] as String),
+          atElapsedSeconds: map['atElapsedSeconds'] as int,
           level: FocusLevel.values.firstWhere(
             (e) => e.name == map['level'],
           ),
@@ -118,7 +118,7 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
       focusChecks
           .map(
             (check) => {
-              'timestamp': check.timestamp.toIso8601String(),
+              'atElapsedSeconds': check.atElapsedSeconds,
               'level': check.level.name,
             },
           )

@@ -7,6 +7,8 @@ class ToggleShowAllButton extends StatelessWidget {
     required this.showAll,
     required this.onToggle,
     required this.thresholdExceeded,
+    this.expandedLabel = "Alle anzeigen",
+    this.collapsedLabel = "Weniger",
     super.key,
   });
 
@@ -18,6 +20,12 @@ class ToggleShowAllButton extends StatelessWidget {
 
   /// Called when button is pressed
   final VoidCallback onToggle;
+
+  /// Custom label to show expanded
+  final String expandedLabel;
+
+  /// Custom label to show collapsed
+  final String collapsedLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +46,7 @@ class ToggleShowAllButton extends StatelessWidget {
       ),
       onPressed: onToggle,
       icon: Icon(showAll ? Icons.compress : Icons.expand),
-      label: Text(showAll ? 'Weniger' : 'Alle anzeigen'),
+      label: Text(showAll ? collapsedLabel : expandedLabel),
     );
   }
 }

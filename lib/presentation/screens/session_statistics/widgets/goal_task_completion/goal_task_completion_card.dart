@@ -87,7 +87,7 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
             children: [
               ToggleShowAllButton(
                 showAll: showAllInstances,
-                thresholdExceeded: allDoneInstances.length > 5,
+                thresholdExceeded: allDoneInstances.length > 4,
                 onToggle: () {
                   setState(() => showAllInstances = !showAllInstances);
                 },
