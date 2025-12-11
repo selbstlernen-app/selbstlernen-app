@@ -79,20 +79,13 @@ class SessionStatisticsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        toolbarHeight: 80,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Flexible(
-              child: AutoSizeText(
-                'Statistik für ${state.session!.title}',
-                style: context.textTheme.headlineLarge,
-                maxLines: 2,
-                textAlign: TextAlign.center,
-                minFontSize: 14,
-              ),
-            ),
-          ],
+        toolbarHeight: 70,
+        title: AutoSizeText(
+          'Statistik für ${state.session!.title}',
+          style: context.textTheme.headlineLarge,
+          maxLines: 2,
+          textAlign: TextAlign.center,
+          minFontSize: 14,
         ),
       ),
       body: SafeArea(

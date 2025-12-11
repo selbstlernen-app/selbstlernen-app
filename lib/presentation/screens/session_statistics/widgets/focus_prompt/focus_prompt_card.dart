@@ -110,10 +110,14 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
 
           const VerticalSpace(size: SpaceSize.small),
 
-          if (showAllInstances)
-            AverageFocusChart(instances: widget.allDoneInstances)
-          else
-            FocusLevelChart(instance: widget.currentInstance),
+          AnimatedSwitcher(
+            duration: const Duration(seconds: 2),
+            switchInCurve: Curves.fastEaseInToSlowEaseOut,
+            switchOutCurve: Curves.fastEaseInToSlowEaseOut,
+            child: showAllInstances
+                ? AverageFocusChart(instances: widget.allDoneInstances)
+                : FocusLevelChart(instance: widget.currentInstance),
+          ),
         ],
       ),
     );

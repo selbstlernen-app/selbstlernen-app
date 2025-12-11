@@ -100,13 +100,13 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
                     'Ø ${_calcAverageGoalCompletion(
                       allDoneInstances,
                     ).toStringAsFixed(1)}% Ziele',
-                    style: context.textTheme.bodyLarge,
+                    style: context.textTheme.bodyMedium,
                   ),
                   Text(
                     'Ø ${_calcAverageTaskCompletion(
                       allDoneInstances,
                     ).toStringAsFixed(1)}% Aufgaben',
-                    style: context.textTheme.bodyLarge,
+                    style: context.textTheme.bodyMedium,
                   ),
                 ],
               ),

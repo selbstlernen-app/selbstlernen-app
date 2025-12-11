@@ -16,10 +16,6 @@ class CompletionLineChart extends StatelessWidget {
   final List<SessionInstanceModel> instances;
   final bool showAllInstances;
 
-  bool isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
-
   double getMaxRate(List<SessionInstanceModel> instances) {
     final maxGoals = instances
         .map((e) => e.completedGoalsRate)

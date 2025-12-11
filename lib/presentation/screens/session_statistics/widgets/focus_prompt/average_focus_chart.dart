@@ -37,6 +37,14 @@ class AverageFocusChart extends StatelessWidget {
       return FlSpot(entry.key.toDouble(), entry.value.value);
     }).toList();
 
+    // Map the counts of instances on the same day, group by date
+    final dayCounts = <String, int>{};
+    for (final instance in instances) {
+      final date = instance.completedAt!;
+      final key = DateFormat('yyyyMMdd').format(date);
+      dayCounts[key] = (dayCounts[key] ?? 0) + 1;
+    }
+
     return SizedBox(
       height: 160,
       child: Padding(
@@ -153,8 +161,13 @@ class AverageFocusChart extends StatelessWidget {
                     final date = sessionAverages[index].key;
                     final avg = sessionAverages[index].value;
 
+                    final key = DateFormat(
+                      'yyyyMMdd',
+                    ).format(sessionAverages[index].key);
+
                     return LineTooltipItem(
-                      '${DateFormat('dd.MM').format(date)}\nØ ${avg.toStringAsFixed(1)}',
+                      '''${dayCounts[key]! > 1 ? DateFormat('dd.MM\nhh:mm').format(date) : DateFormat('dd.MM').format(date)}'''
+                      '''\nØ ${avg.toStringAsFixed(1)}''',
                       TextStyle(
                         color: context.colorScheme.onInverseSurface,
                         fontWeight: FontWeight.bold,
