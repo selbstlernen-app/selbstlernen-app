@@ -18,6 +18,8 @@ extension SessionInstanceToModelMapper on SessionInstance {
       totalBreakSecondsElapsed: totalBreakSecondsElapsed,
       totalCompletedGoals: totalCompletedGoals,
       totalCompletedTasks: totalCompletedTasks,
+      completedGoalsRate: completedGoalsRate,
+      completedTasksRate: completedTasksRate,
       currentPhaseIndex: currentPhaseIndex,
       remainingSeconds: remainingSeconds,
       mood: mood,
@@ -37,7 +39,7 @@ extension SessionInstanceToModelMapper on SessionInstance {
       return list.map((item) {
         final map = item as Map<String, dynamic>;
         return FocusCheck(
-          timestamp: DateTime.parse(map['timestamp'] as String),
+          atElapsedSeconds: map['atElapsedSeconds'] as int,
           level: FocusLevel.values.firstWhere(
             (e) => e.name == map['level'],
           ),
@@ -69,13 +71,16 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
       totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),
       totalBreakSecondsElapsed: Value<int>(totalBreakSecondsElapsed),
       totalCompletedGoals: Value<int>(totalCompletedGoals),
+      totalCompletedTasks: Value<int>(totalCompletedTasks),
+      completedGoalsRate: Value<double>(completedGoalsRate),
+      completedTasksRate: Value<double>(completedTasksRate),
       currentPhaseIndex: Value<int>(currentPhaseIndex),
       remainingSeconds: Value<int?>(remainingSeconds),
       mood: mood != null ? Value<int>(mood!) : const Value<int>.absent(),
       notes: notes != null
           ? Value<String>(notes!)
           : const Value<String>.absent(),
-      totalCompletedTasks: Value<int>(totalCompletedTasks),
+
       focusChecksJson: Value<String>(_focusChecksToJson(focusChecks)),
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
     );
@@ -94,13 +99,16 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
       totalFocusSecondsElapsed: Value<int>(totalFocusSecondsElapsed),
       totalBreakSecondsElapsed: Value<int>(totalBreakSecondsElapsed),
       totalCompletedGoals: Value<int>(totalCompletedGoals),
+      totalCompletedTasks: Value<int>(totalCompletedTasks),
+      completedGoalsRate: Value<double>(completedGoalsRate),
+      completedTasksRate: Value<double>(completedTasksRate),
       currentPhaseIndex: Value<int>(currentPhaseIndex),
       remainingSeconds: Value<int?>(remainingSeconds),
       mood: mood != null ? Value<int>(mood!) : const Value<int>.absent(),
       notes: notes != null
           ? Value<String>(notes!)
           : const Value<String>.absent(),
-      totalCompletedTasks: Value<int>(totalCompletedTasks),
+
       focusChecksJson: Value<String>(_focusChecksToJson(focusChecks)),
     );
   }
@@ -110,7 +118,7 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
       focusChecks
           .map(
             (check) => {
-              'timestamp': check.timestamp.toIso8601String(),
+              'atElapsedSeconds': check.atElapsedSeconds,
               'level': check.level.name,
             },
           )

@@ -66,4 +66,9 @@ abstract class AddSessionState with _$AddSessionState {
     if (focusTimeMin > 0) return true;
     return false;
   }
+
+  int get totalPages {
+    if (isEditMode) return 3;
+    return 5;
+  }
 }

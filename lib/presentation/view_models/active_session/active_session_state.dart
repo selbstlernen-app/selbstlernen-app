@@ -12,29 +12,60 @@ abstract class ActiveSessionState with _$ActiveSessionState {
   const factory ActiveSessionState({
     SessionModel? session,
     SessionInstanceModel? instance,
+
+    // Goals and tasks that are displayed in the session
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,
-    // Timer related data
-    @Default(SessionPhase.focus) SessionPhase currentPhase,
-    @Default(TimerStatus.initial) TimerStatus timerStatus,
-    @Default(0) int remainingSeconds,
-    @Default(0) int totalFocusSecondsElapsed,
-    @Default(0) int totalBreakSecondsElapsed,
-    @Default(0) int totalLongBreakSecondsElapsed,
-    @Default(0) int totalFocusPhases,
-    @Default(0) int completedBlocks,
-    @Default(0) int currentPhaseElapsed, // Used for counting upwards
-    DateTime? sessionStartTime,
 
+    // Original goals and tasks to be compared at the end of a session
+    @Default(<GoalModel>[]) List<GoalModel> allOriginalGoals,
+    @Default(<TaskModel>[]) List<TaskModel> allOriginalTasks,
+
+    // Current session phase
+    @Default(SessionPhase.focus) SessionPhase currentPhase,
+
+    // Current timer status
+    @Default(TimerStatus.initial) TimerStatus timerStatus,
+
+    // Remaining seconds of the current phase
+    @Default(0) int remainingSeconds,
+
+    // Total focus seconds that have currently elapsed
+    @Default(0) int totalFocusSecondsElapsed,
+
+    // Total short break seconds that have currently elapsed
+    @Default(0) int totalBreakSecondsElapsed,
+
+    // Total long break seconds that have currently elapsed
+    @Default(0) int totalLongBreakSecondsElapsed,
+
+    // Total focus phases that were completed
+    @Default(0) int totalFocusPhases,
+
+    // Total blocks that were completed
+    @Default(0) int completedBlocks,
+
+    // The current phase seconds elaphsed; used for counting upwards
+    @Default(0) int currentPhaseElapsed,
+
+    // Index of a current phase; used for visual display
     @Default(0) int currentPhaseIndex,
 
-    // Goal and task tracking
     // Check which goal is currently expanded if any
     @Default(null) String? expandedGoalId,
+
+    // Goal and task completion tracking
     @Default(<String>{}) Set<String> completedGoalIds,
     @Default(<String>{}) Set<String> completedTaskIds,
 
+    // Keep track of ids to delete
+    @Default(<String>[]) List<String> goalIdsToDelete,
+    @Default(<String>[]) List<String> taskIdsToDelete,
+
+    // Flag to enable edit mode
     @Default(false) bool isEditMode,
+
+    // Flag to change the visual timer count
     @Default(false) bool countUpwards,
 
     // Toggle focus prompt
@@ -47,9 +78,6 @@ abstract class ActiveSessionState with _$ActiveSessionState {
 
   List<TaskModel> get ungroupedTasks =>
       tasks.where((TaskModel task) => task.goalId == null).toList();
-
-  List<TaskModel> tasksForGoal(String goalId) =>
-      tasks.where((TaskModel task) => task.goalId == goalId).toList();
 
   List<TaskModel> get newlyAddedTasks =>
       tasks.where((TaskModel task) => !task.keptForFutureSessions).toList();
@@ -68,7 +96,14 @@ abstract class ActiveSessionState with _$ActiveSessionState {
               goal.keptForFutureSessions == goalIds.contains(goal.id),
         )
         .toList();
-
     return existingGoalsWithNewTasks;
   }
+
+  List<TaskModel> get deleteTasks => allOriginalTasks
+      .where((TaskModel task) => taskIdsToDelete.contains(task.id))
+      .toList();
+
+  List<GoalModel> get deleteGoals => allOriginalGoals
+      .where((GoalModel goal) => goalIdsToDelete.contains(goal.id))
+      .toList();
 }

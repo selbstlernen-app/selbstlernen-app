@@ -32,14 +32,11 @@ class MainLayout extends StatelessWidget {
         0.3,
       ),
       floatingActionButton: showFloatingActionButton
-          ? Padding(
-              padding: const EdgeInsets.only(top: 70),
-              child: FloatingActionButton(
-                backgroundColor: AppPalette.orange,
-                onPressed: onPressedFAB,
-                tooltip: 'Änderungen speichern',
-                child: const Icon(Icons.save_rounded),
-              ),
+          ? FloatingActionButton(
+              backgroundColor: AppPalette.orange,
+              onPressed: onPressedFAB,
+              tooltip: 'Änderungen speichern',
+              child: const Icon(Icons.save_rounded),
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,

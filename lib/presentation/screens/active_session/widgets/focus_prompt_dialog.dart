@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/focus_check.dart';
 
 class FocusPromptDialog extends StatelessWidget {
@@ -30,44 +31,40 @@ class FocusPromptDialog extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _FocusOption(
-                emoji: '🎯',
-                label: 'Gut',
-                onTap: () {
-                  Navigator.of(context).pop();
-                  onFocusLevelSelected(FocusLevel.good);
-                },
+              Expanded(
+                child: _FocusOption(
+                  emoji: '🎯',
+                  label: 'Gut',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onFocusLevelSelected(FocusLevel.good);
+                  },
+                ),
               ),
-              _FocusOption(
-                emoji: '😐',
-                label: 'Geht so',
-                onTap: () {
-                  Navigator.of(context).pop();
-                  onFocusLevelSelected(FocusLevel.okay);
-                },
+              Expanded(
+                child: _FocusOption(
+                  emoji: '😐',
+                  label: 'Geht so',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onFocusLevelSelected(FocusLevel.okay);
+                  },
+                ),
               ),
-              _FocusOption(
-                emoji: '😴',
-                label: 'Abgelenkt',
-                onTap: () {
-                  Navigator.of(context).pop();
-                  onFocusLevelSelected(FocusLevel.distracted);
-                },
+              Expanded(
+                child: _FocusOption(
+                  emoji: '😴',
+                  label: 'Abgelenkt',
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    onFocusLevelSelected(FocusLevel.distracted);
+                  },
+                ),
               ),
             ],
           ),
         ],
       ),
-      actionsAlignment: MainAxisAlignment.center,
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            onFocusLevelSelected(FocusLevel.skipped);
-          },
-          child: const Text('Weiter arbeiten'),
-        ),
-      ],
     );
   }
 }
@@ -85,17 +82,24 @@ class _FocusOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 32)),
-            const VerticalSpace(size: SpaceSize.xsmall),
-            Text(label, style: const TextStyle(fontSize: 12)),
-          ],
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 2),
+      decoration: BoxDecoration(
+        color: context.colorScheme.secondary.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: [
+              Text(emoji, style: const TextStyle(fontSize: 32)),
+              const VerticalSpace(size: SpaceSize.xsmall),
+              Text(label, style: const TextStyle(fontSize: 12)),
+            ],
+          ),
         ),
       ),
     );

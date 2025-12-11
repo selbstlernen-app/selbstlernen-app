@@ -24,13 +24,12 @@ The project uses the following packages:
 - drift for database management.
 - riverpod for state management.
 - freezed for code generation of models.
-- async, rxdart & collection for stream management.
+- async & rxdart for stream management.
 - intl for language formatting.
 - fl_chart for charts.
 - mocktail for writing tests.
 - very_good_analysis for linting.
-- permission_handler for permission handling. 
-
+- permission_handler for permission handling.
 
 💄 UI Packages
 

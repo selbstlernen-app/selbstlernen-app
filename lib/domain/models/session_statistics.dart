@@ -30,7 +30,6 @@ abstract class SessionStatistics with _$SessionStatistics {
   const SessionStatistics._();
 
   /// How much progress has been done already;
-  /// TODO: check for non-repeating sessions!
   double get completionRate =>
       totalInstances > 0 ? completedInstances / totalInstances : 0.0;
 
@@ -41,6 +40,10 @@ abstract class SessionStatistics with _$SessionStatistics {
       totalInstances > 0 ? missedInstances / totalInstances : 0.0;
 
   double get combinedRate => completionRate + skipRate + missRate;
+
+  int get openInstances =>
+      totalInstances -
+      (completedInstances + missedInstances + skippedInstances);
 
   double get averageFocusMinutesPerSession =>
       completedInstances > 0 ? totalFocusMinutes / completedInstances : 0.0;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 /// Text field used on multiple pages and screens
@@ -14,6 +15,7 @@ class CustomTextField extends StatelessWidget {
     this.readOnly,
     this.maxLines,
     this.maxLength,
+    this.markEditMode = false,
   });
 
   final TextEditingController controller;
@@ -25,6 +27,21 @@ class CustomTextField extends StatelessWidget {
   final bool? readOnly;
   final int? maxLines;
   final int? maxLength;
+  final bool markEditMode;
+
+  Color _getBorderColor(
+    bool hasError,
+    bool markEditMode,
+    BuildContext context,
+  ) {
+    if (hasError) {
+      return context.colorScheme.error;
+    } else if (markEditMode) {
+      return AppPalette.amber;
+    } else {
+      return context.colorScheme.tertiary;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +61,7 @@ class CustomTextField extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: hasError
-                ? context.colorScheme.error
-                : context.colorScheme.tertiary,
+            color: _getBorderColor(hasError, markEditMode, context),
           ),
         ),
         hintText: hintText,

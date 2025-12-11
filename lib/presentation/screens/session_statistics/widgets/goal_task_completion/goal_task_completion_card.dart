@@ -5,12 +5,13 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion/completion_line_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
-class GoalTaskCompletionCard extends StatelessWidget {
+class GoalTaskCompletionCard extends StatefulWidget {
   const GoalTaskCompletionCard({
     required this.stats,
-    required this.currentInstance,
     required this.totalGoals,
     required this.totalTasks,
     required this.pastInstances,
@@ -18,14 +19,43 @@ class GoalTaskCompletionCard extends StatelessWidget {
   });
 
   final SessionStatistics stats;
-  final SessionInstanceModel currentInstance;
   final List<SessionInstanceModel> pastInstances;
 
   final int totalGoals;
   final int totalTasks;
 
   @override
+  State<GoalTaskCompletionCard> createState() => _GoalTaskCompletionCardState();
+}
+
+class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
+  bool showAllInstances = false;
+
+  double _calcAverageGoalCompletion(List<SessionInstanceModel> instances) {
+    final avgGoalCompletion = instances.fold<double>(
+      0,
+      (double sum, SessionInstanceModel i) => sum + i.completedGoalsRate,
+    );
+
+    return avgGoalCompletion / instances.length;
+  }
+
+  double _calcAverageTaskCompletion(List<SessionInstanceModel> instances) {
+    final avgTaskCompletion = instances.fold<double>(
+      0,
+      (double sum, SessionInstanceModel i) => sum + i.completedTasksRate,
+    );
+
+    return avgTaskCompletion / instances.length;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final allDoneInstances = [
+      ...widget.pastInstances.where(
+        (instance) => instance.status != SessionStatus.skipped,
+      ),
+    ];
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,11 +72,7 @@ class GoalTaskCompletionCard extends StatelessWidget {
                 ),
                 onPressed: () => showHistoryBottomSheet(
                   context,
-                  pastInstances
-                      .where(
-                        (instance) => instance.status != SessionStatus.skipped,
-                      )
-                      .toList(),
+                  allDoneInstances,
                   'Ziele und Aufgaben',
                   (instance) =>
                       '''${instance.totalCompletedGoals} Ziele erledigt\n${instance.totalCompletedTasks} Aufgaben erledigt''',
@@ -55,52 +81,55 @@ class GoalTaskCompletionCard extends StatelessWidget {
             ],
           ),
 
-          Text(
-            'Heutige Lerneinheit',
-            style: context.textTheme.bodySmall!.copyWith(
-              color: AppPalette.grey,
-            ),
+          // LINE CHART BUTTON AND AVG STATS
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ToggleShowAllButton(
+                showAll: showAllInstances,
+                thresholdExceeded: allDoneInstances.length > 4,
+                onToggle: () {
+                  setState(() => showAllInstances = !showAllInstances);
+                },
+              ),
+
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Ø ${_calcAverageGoalCompletion(
+                      allDoneInstances,
+                    ).toStringAsFixed(1)}% Ziele',
+                    style: context.textTheme.bodyMedium,
+                  ),
+                  Text(
+                    'Ø ${_calcAverageTaskCompletion(
+                      allDoneInstances,
+                    ).toStringAsFixed(1)}% Aufgaben',
+                    style: context.textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ],
           ),
 
           const VerticalSpace(size: SpaceSize.small),
-          // TODAY'S SESSION INSTANCE
-          if (totalGoals > 0) ...<Widget>[
-            _ProductivityProgressBar(
-              label: 'Ziele',
-              value: currentInstance.totalCompletedGoals,
-              totalValue: totalGoals,
-              color: AppPalette.sky,
-            ),
-            const VerticalSpace(size: SpaceSize.small),
-          ],
 
-          if (totalTasks > 0) ...<Widget>[
-            _ProductivityProgressBar(
-              label: 'Aufgaben',
-              value: currentInstance.totalCompletedTasks,
-              totalValue: totalTasks,
-              color: AppPalette.emerald,
-            ),
-          ],
+          CompletionLineChart(
+            instances: allDoneInstances,
+            showAllInstances: showAllInstances,
+          ),
 
-          // DIVIDER
-          if (totalGoals > 0 || totalTasks > 0) ...<Widget>[
-            const VerticalSpace(size: SpaceSize.small),
-            Divider(
-              color: context.colorScheme.tertiary,
-              thickness: 4,
-            ),
-            const VerticalSpace(size: SpaceSize.small),
-          ],
-
-          // ALL-TIME STATISTICS - Show second (context)
           Text(
             'Abgeschlossene Aufgaben und Ziele über alle Sitzungen hinweg',
             style: context.textTheme.bodySmall!.copyWith(
               color: AppPalette.grey,
             ),
           ),
-          const VerticalSpace(size: SpaceSize.small),
+
+          const VerticalSpace(
+            size: SpaceSize.small,
+          ),
 
           IntrinsicHeight(
             child: Row(
@@ -110,8 +139,8 @@ class GoalTaskCompletionCard extends StatelessWidget {
                     icon: Icons.flag,
                     iconColor: AppPalette.sky,
                     label: 'Ziele erreicht',
-                    total: stats.totalGoalsCompleted,
-                    average: stats.averageGoalsPerSession,
+                    total: widget.stats.totalGoalsCompleted,
+                    average: widget.stats.averageGoalsPerSession,
                   ),
                 ),
                 const HorizontalSpace(size: SpaceSize.small),
@@ -120,12 +149,15 @@ class GoalTaskCompletionCard extends StatelessWidget {
                     icon: Icons.task_alt,
                     iconColor: AppPalette.emerald,
                     label: 'Aufgaben erledigt',
-                    total: stats.totalTasksCompleted,
-                    average: stats.averageTasksPerSession,
+                    total: widget.stats.totalTasksCompleted,
+                    average: widget.stats.averageTasksPerSession,
                   ),
                 ),
               ],
             ),
+          ),
+          const VerticalSpace(
+            size: SpaceSize.xsmall,
           ),
         ],
       ),
@@ -184,44 +216,6 @@ class _ProductivitySquare extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _ProductivityProgressBar extends StatelessWidget {
-  const _ProductivityProgressBar({
-    required this.label,
-    required this.value,
-    required this.totalValue,
-    required this.color,
-  });
-
-  final String label;
-  final int value;
-  final int totalValue;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text(label, style: context.textTheme.bodyMedium),
-            Text('$value/$totalValue', style: context.textTheme.bodyMedium),
-          ],
-        ),
-        const VerticalSpace(size: SpaceSize.xsmall),
-        LinearProgressIndicator(
-          value: totalValue == 0 ? 0 : value / totalValue,
-          backgroundColor: context.colorScheme.tertiary,
-          valueColor: AlwaysStoppedAnimation<Color>(color),
-          minHeight: 10,
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ],
     );
   }
 }

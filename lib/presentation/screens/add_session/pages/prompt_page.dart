@@ -246,8 +246,8 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
               child: CustomButton(
                 verticalPadding: 8,
                 label: state.isEditMode
-                    ? 'Lerneinheit mit Änderungen starten'
-                    : 'Lerneinheit sofort starten',
+                    ? 'Mit Änderungen starten'
+                    : 'Sofort starten',
                 onPressed: () => _startSession(state.isEditMode),
               ),
             ),

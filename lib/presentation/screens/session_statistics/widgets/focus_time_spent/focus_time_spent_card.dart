@@ -1,6 +1,5 @@
-import 'package:collection/collection.dart';
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
@@ -8,48 +7,67 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/stats_bar_chart.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/focus_time_bar_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
-class FocusTimeSpentCard extends ConsumerWidget {
+class FocusTimeSpentCard extends StatefulWidget {
   const FocusTimeSpentCard({
     required this.stats,
-    required this.pastInstances,
+    required this.completedInstances,
     required this.targetFocusMinutes,
     super.key,
   });
 
   final SessionStatistics stats;
-  final List<SessionInstanceModel> pastInstances;
+  final List<SessionInstanceModel> completedInstances;
   final double targetFocusMinutes;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final totalMinutes = stats.totalFocusMinutes;
+  State<FocusTimeSpentCard> createState() => _FocusTimeSpentCardState();
+}
 
-    final hours = totalMinutes ~/ 60;
-    final minutes = totalMinutes % 60;
+class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
+  late SessionInstanceModel todaysInstance;
 
-    final averageFocus = stats.averageFocusMinutesPerSession.floor();
-    final averageHours = averageFocus ~/ 60;
-    final averageMinutes = averageFocus % 60;
+  late TimeString timeString;
+  late TimeString averageTimeString;
+  late TimeString expectedTimeString;
 
-    final expectedTime = targetFocusMinutes;
-    final expectedHours = expectedTime ~/ 60;
-    final expectedMinutes = expectedTime % 60;
+  bool showAllInstances = false;
 
-    final lastInstances = pastInstances
-        .where((i) => i.completedAt != null)
-        .sorted(
-          (a, b) => b.completedAt!.compareTo(a.completedAt!),
-        ) // Sort descending; most current one on top
-        .take(5) // Take up to 5 (if fewer, takes fewer)
-        .toList();
+  @override
+  void initState() {
+    super.initState();
+
+    todaysInstance = widget.completedInstances.last;
+
+    timeString = TimeUtils.formatTimeString(
+      totalSeconds: todaysInstance.totalFocusSecondsElapsed,
+    );
+
+    averageTimeString = TimeUtils.formatTimeString(
+      totalSeconds: widget.stats.averageFocusMinutesPerSession.floor() * 60,
+    );
+
+    expectedTimeString = TimeUtils.formatTimeString(
+      totalSeconds: widget.targetFocusMinutes.floor() * 60,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final chartHeight =
+        (showAllInstances
+                ? min(widget.completedInstances.length * 45, 400)
+                : 200)
+            .toDouble();
 
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          // Header
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -59,77 +77,80 @@ class FocusTimeSpentCard extends ConsumerWidget {
                 icon: const Icon(Icons.history_rounded),
                 onPressed: () => showHistoryBottomSheet(
                   context,
-                  pastInstances
-                      .where(
-                        (instance) => instance.status != SessionStatus.skipped,
-                      )
-                      .toList(),
+                  widget.completedInstances,
                   'Fokuszeit',
-                  (instance) => TimeUtils.formatBarChartTime(
-                    instance.totalFocusSecondsElapsed.toDouble(),
-                  ),
+                  (instance) {
+                    final timeString = TimeUtils.formatTimeString(
+                      totalSeconds: instance.totalFocusSecondsElapsed,
+                    );
+                    return timeString.hours != null
+                        ? '${timeString.hours} h ${timeString.minutes} min'
+                        : '${timeString.minutes} min ${timeString.seconds} sec';
+                  },
                 ),
               ),
             ],
           ),
 
-          Text(
-            'Deine Fokuszeit der zuletzt abgeschlossenen Einheiten',
-            style: context.textTheme.bodySmall!.copyWith(
-              color: AppPalette.grey,
-            ),
-          ),
-
-          const VerticalSpace(size: SpaceSize.xsmall),
-          Divider(
-            color: context.colorScheme.tertiary,
-            thickness: 4,
-            radius: BorderRadius.circular(10),
-          ),
-          const VerticalSpace(size: SpaceSize.xsmall),
-
-          // Some info in three columns
-          Row(
-            children: <Widget>[
-              _StatColumn(
-                label: 'Gesamtzeit',
-                value: hours > 0 ? '$hours h $minutes min' : '$minutes min',
+          // Key stats
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _TimeStatChip(
+                label: 'Heute',
+                timeString: timeString,
+                color: AppPalette.pink,
               ),
-
-              _StatDivider(),
-
-              if (stats.averageFocusMinutesPerSession > 0) ...<Widget>[
-                _StatColumn(
+              if (widget.stats.averageFocusMinutesPerSession > 0)
+                _TimeStatChip(
                   label: 'Ø Fokuszeit',
-                  value: averageHours > 0
-                      ? '$averageHours h $averageMinutes min'
-                      : '$averageMinutes min',
-                  coloredPoint: AppPalette.orange,
+                  timeString: averageTimeString,
+                  color: AppPalette.orange,
                 ),
-                _StatDivider(),
-              ],
-
-              if (expectedTime > 0) ...<Widget>[
-                _StatColumn(
-                  label: 'Erwartet',
-                  value: expectedHours > 0
-                      ? '$expectedHours h ${expectedMinutes.toInt()} min'
-                      : '${expectedMinutes.toInt()} min',
-                  coloredPoint: AppPalette.rose,
-                ),
-              ],
+              _TimeStatChip(
+                label: 'Erwartet',
+                timeString: expectedTimeString,
+                color: AppPalette.teal,
+              ),
             ],
           ),
 
-          const VerticalSpace(size: SpaceSize.xlarge),
+          const VerticalSpace(
+            size: SpaceSize.small,
+          ),
+
+          // Reusable toggle button
+          ToggleShowAllButton(
+            showAll: showAllInstances,
+            thresholdExceeded: widget.completedInstances.length > 4,
+            onToggle: () {
+              setState(() => showAllInstances = !showAllInstances);
+            },
+          ),
+
+          const VerticalSpace(size: SpaceSize.small),
 
           // Bar chart
-          SizedBox(
-            height: 200,
-            child: StatsBarChart(
-              lastInstances: lastInstances,
-              targetFocusMinutes: targetFocusMinutes,
-              averageFocusMinutes: stats.averageFocusMinutesPerSession,
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+            height: showAllInstances ? chartHeight : 200,
+            child: FocusTimeBarChart(
+              lastInstances: showAllInstances
+                  ? widget.completedInstances
+                  : widget.completedInstances.take(5).toList(),
+              dates: showAllInstances
+                  ? widget.completedInstances
+                        .map((i) => i.completedAt!)
+                        .toList()
+                  : widget.completedInstances
+                        .take(5)
+                        .toList()
+                        .map((i) => i.completedAt!)
+                        .toList(),
+              targetFocusMinutes: widget.targetFocusMinutes,
+              averageFocusMinutes: widget.stats.averageFocusMinutesPerSession,
             ),
           ),
         ],
@@ -138,63 +159,50 @@ class FocusTimeSpentCard extends ConsumerWidget {
   }
 }
 
-class _StatDivider extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 20,
-      child: VerticalDivider(
-        thickness: 2,
-        color: context.colorScheme.tertiary,
-        radius: BorderRadius.circular(10),
-      ),
-    );
-  }
-}
-
-/// Visualizes the three columns at the top
-class _StatColumn extends StatelessWidget {
-  const _StatColumn({
-    required this.value,
+class _TimeStatChip extends StatelessWidget {
+  const _TimeStatChip({
     required this.label,
-    this.coloredPoint,
+    required this.timeString,
+    required this.color,
   });
 
-  final String value;
   final String label;
-  final Color? coloredPoint;
+  final TimeString timeString;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    final displayTime = timeString.hours != null
+        ? '${timeString.hours} h ${timeString.minutes} min'
+        : '${timeString.minutes} min';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              if (coloredPoint != null)
-                Container(
-                  height: 5,
-                  width: 5,
-                  decoration: BoxDecoration(
-                    color: coloredPoint,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
               Text(
-                value,
-                textAlign: TextAlign.center,
-                style: context.textTheme.headlineSmall,
+                displayTime,
+                style: context.textTheme.titleMedium?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ],
           ),
-
+          const VerticalSpace(
+            size: SpaceSize.xsmall,
+          ),
           Text(
             label,
-            textAlign: TextAlign.center,
-            softWrap: true,
-            maxLines: 2,
             style: context.textTheme.bodySmall?.copyWith(
               color: AppPalette.grey,
             ),

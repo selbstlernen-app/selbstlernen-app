@@ -60,8 +60,6 @@ dependencies:
   vibration: ^3.1.4
   google_fonts: ^6.3.2
 
-  collection: ^1.19.1
-
   very_good_analysis: ^10.0.0
 
   auto_size_text: ^3.0.0

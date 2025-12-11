@@ -86,13 +86,28 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       _goalsSubscription = _manageGoalUseCase
           .watchGoalsBySessionIdAndDate(sessionId, DateTime.now())
           .listen((List<GoalModel> goals) {
-            state = state.copyWith(goals: goals);
+            // Filter out deleted goals
+            final filteredGoals = goals
+                .where((goal) => !state.goalIdsToDelete.contains(goal.id))
+                .toList();
+
+            state = state.copyWith(
+              goals: filteredGoals,
+              allOriginalGoals: goals,
+            );
           });
 
       _tasksSubscription = _manageTasksUseCase
           .watchTasksBySessionIdAndDate(sessionId, DateTime.now())
           .listen((List<TaskModel> tasks) {
-            state = state.copyWith(tasks: tasks);
+            // Filter out deleted tasks
+            final filteredTasks = tasks
+                .where((task) => !state.taskIdsToDelete.contains(task.id))
+                .toList();
+            state = state.copyWith(
+              tasks: filteredTasks,
+              allOriginalTasks: tasks,
+            );
           });
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString(), isLoading: false);
@@ -144,7 +159,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> recordFocusLevel(FocusLevel level) async {
     if (state.instance == null) return;
 
-    final focusCheck = FocusCheck(timestamp: DateTime.now(), level: level);
+    final focusCheck = FocusCheck(
+      atElapsedSeconds: state.totalFocusSecondsElapsed,
+      level: level,
+    );
 
     final updatedInstance = state.instance!.copyWith(
       focusChecks: [...state.instance!.focusChecks, focusCheck],
@@ -191,9 +209,11 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
   }
 
-  Future<void> deleteTask({required String taskId}) async {
+  Future<void> deleteTasks(List<String> taskIds) async {
     try {
-      await _manageTasksUseCase.deleteTask(int.parse(taskId));
+      for (final taskId in taskIds) {
+        await _manageTasksUseCase.deleteTask(int.parse(taskId));
+      }
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -215,17 +235,34 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
   }
 
-  Future<void> deleteGoal({required String goalId}) async {
+  Future<void> deleteGoals(List<String> goalIds) async {
     try {
-      await _manageGoalUseCase.deleteGoal(int.parse(goalId));
-      state = state.copyWith(
-        expandedGoalId: state.expandedGoalId == goalId
-            ? null
-            : state.expandedGoalId,
-      );
+      for (final goalId in goalIds) {
+        await _manageGoalUseCase.deleteGoal(int.parse(goalId));
+      }
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString());
     }
+  }
+
+  void removeGoalById({required String goalId}) {
+    final newGoals = state.goals.where((g) => g.id != goalId).toList();
+    // Remove goal and its expanded section
+    state = state.copyWith(
+      goals: newGoals,
+      goalIdsToDelete: [...state.goalIdsToDelete, goalId],
+      expandedGoalId: state.expandedGoalId == goalId
+          ? null
+          : state.expandedGoalId,
+    );
+  }
+
+  void removeTaskById({required String taskId}) {
+    final newTasks = state.tasks.where((g) => g.id != taskId).toList();
+    state = state.copyWith(
+      tasks: newTasks,
+      taskIdsToDelete: [...state.taskIdsToDelete, taskId],
+    );
   }
 
   void toggleExpandedGoal(String id) {
@@ -238,10 +275,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   void startTimer() {
     if (state.timerStatus == TimerStatus.initial) {
       state = state.copyWith(
-        sessionStartTime: DateTime.now(),
         timerStatus: TimerStatus.running,
       );
-
       // Start focus prompt when timer has been started
       startFocusPrompting();
     } else if (state.timerStatus == TimerStatus.paused) {
@@ -440,12 +475,16 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         totalCompletedBlocks: state.completedBlocks,
         totalCompletedGoals: state.completedGoalIds.length,
         totalCompletedTasks: state.completedTaskIds.length,
+        completedGoalsRate: state.goals.isNotEmpty
+            ? (state.completedGoalIds.length / state.goals.length) * 100
+            : 0.0,
+        completedTasksRate: state.tasks.isNotEmpty
+            ? (state.completedTaskIds.length / state.tasks.length) * 100
+            : 0.0,
         status: SessionStatus.inProgress,
         currentPhaseIndex: state.currentPhaseIndex,
         remainingSeconds: state.remainingSeconds,
       );
-
-      print('saving: $updatedInstance');
 
       await _manangeInstanceUseCase.updateInstance(updatedInstance);
     } on Exception catch (e) {
@@ -458,10 +497,16 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<SessionInstanceModel> completeSession({
     required List<String> goalIdsToKeep,
     required List<String> taskIdsToKeep,
+    required List<String> goalIdsToDelete,
+    required List<String> taskIdsToDelete,
   }) async {
     if (state.instance == null) return state.instance!;
 
     try {
+      // Delete selected tasks and goals
+      await deleteGoals(goalIdsToDelete);
+      await deleteTasks(taskIdsToDelete);
+
       final updatedInstance = state.instance!.copyWith(
         completedAt: DateTime.now(),
         status: SessionStatus.completed,
@@ -471,6 +516,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         totalCompletedBlocks: state.completedBlocks,
         totalCompletedGoals: state.completedGoalIds.length,
         totalCompletedTasks: state.completedTaskIds.length,
+        completedGoalsRate: state.goals.isNotEmpty
+            ? (state.completedGoalIds.length / state.goals.length) * 100
+            : 0.0,
+        completedTasksRate: state.tasks.isNotEmpty
+            ? (state.completedTaskIds.length / state.tasks.length) * 100
+            : 0.0,
       );
 
       await _completeInstanceUseCase.call(updatedInstance);

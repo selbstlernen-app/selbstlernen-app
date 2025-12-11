@@ -186,6 +186,7 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                   const VerticalSpace(size: SpaceSize.small),
 
                   InputList<TaskModel>(
+                    markEditMode: state.isEditMode,
                     controller: _goalController,
                     onEnter: _groupTasksTo,
                     isBigGoal: true,

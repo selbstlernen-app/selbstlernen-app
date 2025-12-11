@@ -46,25 +46,3 @@ abstract class SessionModel with _$SessionModel {
     return (focusTimeMin + breakTimeMin) * focusPhases + longBreakTimeMin;
   }
 }
-
-extension SessionExtensions on SessionModel {
-  /// Function to determine if a session is scheduled for today or not
-  /// @returns true if its not repeating, and false if not scheduled for the day
-  bool isScheduledForDate(DateTime date) {
-    if (isArchived) return false;
-
-    // One-time session: always shown
-    if (!isRepeating) {
-      return true;
-    }
-
-    final start = startDate ?? date;
-    final end = endDate ?? date;
-
-    if (date.isBefore(start) || date.isAfter(end)) return false;
-
-    if (selectedDays.isEmpty) return false;
-    // Since weekdays are from 1 to 7 -> We have 0 to 6
-    return selectedDays.contains(date.weekday - 1);
-  }
-}

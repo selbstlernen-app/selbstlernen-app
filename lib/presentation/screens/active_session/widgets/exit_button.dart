@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:srl_app/common_widgets/show_custom_dialog.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
-import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/goal_model.dart';
 import 'package:srl_app/domain/models/task_model.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/dialogs/session_selection_dialog.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/dialogs/stop_session_dialog.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
 
@@ -62,306 +61,30 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
     if (state.timerStatus != TimerStatus.initial) {
       await viewModel.pauseTimer();
 
-      // Filter to only show items that are NEW to this session
+      if (!mounted) return;
+
       final newGoals = state.newlyAddedGoals;
-      final newGoalIds = newGoals.map((g) => g.id).toSet();
       final newTasks = state.newlyAddedTasks;
+      final totalEdits = newGoals.length + newTasks.length;
 
-      // Group tasks by goalId
-      final tasksByGoal = <String, List<TaskModel>>{};
-      for (final task in newTasks) {
-        if (task.goalId != null) {
-          tasksByGoal.putIfAbsent(task.goalId!, () => <TaskModel>[]).add(task);
-        }
-      }
-
-      // Get all existing goals that have new tasks (for context)
-      final nonDuplicateExistingGoals = state
-          .getExistingGoalsWithNewTasks()
-          .where((g) => !newGoalIds.contains(g.id))
-          .toList();
-
-      // Display new goals + existing goals (that have new tasks under them)
-      final allDisplayedGoals = <GoalModel>[
-        ...newGoals,
-        ...nonDuplicateExistingGoals,
-      ];
-
-      // Separate ungrouped tasks
-      final ungroupedTasks = newTasks
-          .where((TaskModel t) => t.goalId == null)
-          .toList();
-
-      // Track selection - only for items to decide
-      final goalSelection = <String, bool>{
-        for (final GoalModel g in newGoals) g.id!: false,
-      };
-      final taskSelection = <String, bool>{
-        for (final TaskModel t in newTasks) t.id!: false,
-      };
-
-      await showCustomDialog(
+      await StopSessionDialog.show(
         context: context,
-        title: 'Lerneinheit beenden',
-        content: StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    'Willst du diese Lerneinheit wirklich beenden?',
-                    style: context.textTheme.bodyMedium,
-                  ),
-                  if (state.session!.isRepeating &&
-                      (newGoals.isNotEmpty || newTasks.isNotEmpty)) ...<Widget>[
-                    const VerticalSpace(),
-                    Text(
-                      'Neue Elemente für diese Einheit:',
-                      style: context.textTheme.labelMedium,
-                    ),
-                    const VerticalSpace(size: SpaceSize.xsmall),
-                    Text(
-                      '''Wähle die Elemente aus, die du für zukünftige Sitzungen behalten möchtest:''',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                        color: AppPalette.grey,
-                      ),
-                    ),
-
-                    const VerticalSpace(size: SpaceSize.small),
-
-                    // Goals with their tasks
-                    ...allDisplayedGoals.map((GoalModel goal) {
-                      final goalTasks = tasksByGoal[goal.id!] ?? <TaskModel>[];
-                      final isNewGoal = !goal.keptForFutureSessions;
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          // Goal row
-                          Row(
-                            children: <Widget>[
-                              // Show checkbox only for NEW goals
-                              if (isNewGoal) ...<Widget>[
-                                Icon(
-                                  Icons.flag_outlined,
-                                  size: 16,
-                                  color: AppPalette.grey,
-                                ),
-                                Checkbox(
-                                  value: goalSelection[goal.id!] ?? false,
-                                  onChanged: (bool? value) {
-                                    setState(() {
-                                      goalSelection[goal.id!] = value ?? false;
-                                      // Toggle all tasks under this goal
-                                      for (final task in goalTasks) {
-                                        taskSelection[task.id!] =
-                                            value ?? false;
-                                      }
-                                    });
-                                  },
-                                ),
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        final newValue =
-                                            !(goalSelection[goal.id!] ?? false);
-                                        goalSelection[goal.id!] = newValue;
-                                        for (final task in goalTasks) {
-                                          taskSelection[task.id!] = newValue;
-                                        }
-                                      });
-                                    },
-                                    child: Text(
-                                      goal.title,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              // Show plain text for EXISTING goals
-                              // (context only)
-                              if (!isNewGoal)
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 12,
-                                    ),
-                                    child: Row(
-                                      children: <Widget>[
-                                        Icon(
-                                          Icons.flag_outlined,
-                                          size: 16,
-                                          color: AppPalette.grey,
-                                        ),
-                                        const HorizontalSpace(
-                                          size: SpaceSize.small,
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            goal.title,
-                                            style: TextStyle(
-                                              color: AppPalette.grey,
-                                              fontStyle: FontStyle.italic,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-
-                          // Tasks under this goal
-                          if (goalTasks.isNotEmpty)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 32),
-                              child: Column(
-                                children: goalTasks.map((TaskModel task) {
-                                  return Row(
-                                    children: <Widget>[
-                                      Checkbox(
-                                        value: taskSelection[task.id!] ?? false,
-                                        onChanged: (bool? value) {
-                                          setState(() {
-                                            taskSelection[task.id!] =
-                                                value ?? false;
-                                          });
-                                        },
-                                      ),
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              taskSelection[task.id!] =
-                                                  !(taskSelection[task.id!] ??
-                                                      false);
-                                            });
-                                          },
-                                          child: Text(task.title),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }).toList(),
-                              ),
-                            ),
-                        ],
-                      );
-                    }),
-
-                    // Ungrouped tasks
-                    if (ungroupedTasks.isNotEmpty) ...<Widget>[
-                      const VerticalSpace(),
-                      Text(
-                        'Sonstige Aufgaben',
-                        style: context.textTheme.labelMedium?.copyWith(
-                          color: AppPalette.grey,
-                        ),
-                      ),
-                      ...ungroupedTasks.map((TaskModel task) {
-                        return Row(
-                          children: <Widget>[
-                            Checkbox(
-                              value: taskSelection[task.id!] ?? false,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  taskSelection[task.id!] = value ?? false;
-                                });
-                              },
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    taskSelection[task.id!] =
-                                        !(taskSelection[task.id!] ?? false);
-                                  });
-                                },
-                                child: Text(task.title),
-                              ),
-                            ),
-                          ],
-                        );
-                      }),
-                    ],
-
-                    const VerticalSpace(),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: context.colorScheme.tertiary,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        '''Markierte Elemente werden für zukünftige Sitzungen behalten''',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontStyle: FontStyle.italic,
-                          color: AppPalette.grey,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            );
-          },
+        totalEdits: totalEdits,
+        isRepeating: state.session!.isRepeating,
+        onStartTimer: viewModel.startTimer,
+        onDiscardAll: () => _completeSessionAndNavigate(
+          viewModel: viewModel,
+          goalIdsToKeep: [],
+          taskIdsToKeep: [],
+          goalIdsToDelete: [],
+          taskIdsToDelete: [],
         ),
-        confirmLabel: 'Bestätigen',
-        cancelLabel: 'Abbrechen',
-        onCancel: viewModel.startTimer,
-        onConfirm: () async {
-          final goalIdsToKeep = goalSelection.entries
-              .where((MapEntry<String, bool> e) => e.value)
-              .map((MapEntry<String, bool> e) => e.key)
-              .toList();
-          final taskIdsToKeep = taskSelection.entries
-              .where((MapEntry<String, bool> e) => e.value)
-              .map((MapEntry<String, bool> e) => e.key)
-              .toList();
-
-          // IDs of goals that have NOT been clicked in this session
-          final goalIdsBeingRemoved = goalSelection.entries
-              .where(
-                (MapEntry<String, bool> e) => !e.value,
-              ) // Goals NOT selected
-              .map((MapEntry<String, bool> e) => e.key)
-              .toSet();
-
-          for (final taskId in taskIdsToKeep) {
-            final task = state.newlyAddedTasks.firstWhere(
-              (TaskModel t) => t.id == taskId,
-            );
-
-            // If task has a goalId and that goal is NOT being kept,
-            // set its goalId to null and "orphan" it
-            if (task.goalId != null &&
-                goalIdsBeingRemoved.contains(task.goalId)) {
-              await viewModel.orphanTask(task);
-            }
-          }
-
-          final updatedInstance = await viewModel.completeSession(
-            goalIdsToKeep: goalIdsToKeep,
-            taskIdsToKeep: taskIdsToKeep,
-          );
-
-          if (!mounted) return;
-          await Navigator.pushReplacementNamed(
-            context,
-            AppRoutes.reflection,
-            arguments: updatedInstance,
-          );
-        },
+        onShowDetailedSelection: () => _showDetailedSelection(
+          state: state,
+          viewModel: viewModel,
+          newGoals: newGoals,
+          newTasks: newTasks,
+        ),
       );
     }
   }
@@ -412,6 +135,103 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _showDetailedSelection({
+    required ActiveSessionState state,
+    required ActiveSessionViewModel viewModel,
+    required List<GoalModel> newGoals,
+    required List<TaskModel> newTasks,
+  }) async {
+    final newGoalIds = newGoals.map((g) => g.id).toSet();
+    final existingGoalsWithNewTasks = state
+        .getExistingGoalsWithNewTasks()
+        .where((g) => !newGoalIds.contains(g.id))
+        .toList();
+
+    final deleteGoals = state.deleteGoals;
+    final deleteTasks = state.deleteTasks;
+
+    await SessionSelectionDialog.show(
+      context: context,
+      newGoals: newGoals,
+      newTasks: newTasks,
+      deleteGoals: deleteGoals,
+      deleteTasks: deleteTasks,
+      existingGoalsWithNewTasks: existingGoalsWithNewTasks,
+      onConfirm: (goalIds, taskIds, deletedGoalIds, deletedTaskIds) =>
+          _handleSelectionConfirm(
+            state: state,
+            viewModel: viewModel,
+            goalIdsToKeep: goalIds,
+            taskIdsToKeep: taskIds,
+            goalIdsToDelete: deletedGoalIds,
+            taskIdsToDelete: deletedTaskIds,
+          ),
+      onDiscardAll: () => _completeSessionAndNavigate(
+        viewModel: viewModel,
+        goalIdsToKeep: [],
+        taskIdsToKeep: [],
+        goalIdsToDelete: [],
+        taskIdsToDelete: [],
+      ),
+    );
+  }
+
+  Future<void> _handleSelectionConfirm({
+    required ActiveSessionState state,
+    required ActiveSessionViewModel viewModel,
+    required List<String> goalIdsToKeep,
+    required List<String> taskIdsToKeep,
+    required List<String> goalIdsToDelete,
+    required List<String> taskIdsToDelete,
+  }) async {
+    // Close selection dialog before navigating
+    if (mounted) Navigator.of(context).pop();
+
+    // Orphan tasks whose goals are being removed
+    final goalIdsBeingRemoved = state.newlyAddedGoals
+        .where((g) => !goalIdsToKeep.contains(g.id))
+        .map((g) => g.id!)
+        .toSet();
+
+    for (final taskId in taskIdsToKeep) {
+      final task = state.newlyAddedTasks.firstWhere((t) => t.id == taskId);
+      if (task.goalId != null && goalIdsBeingRemoved.contains(task.goalId)) {
+        await viewModel.orphanTask(task);
+      }
+    }
+
+    await _completeSessionAndNavigate(
+      viewModel: viewModel,
+      goalIdsToKeep: goalIdsToKeep,
+      taskIdsToKeep: taskIdsToKeep,
+      goalIdsToDelete: goalIdsToDelete,
+      taskIdsToDelete: taskIdsToDelete,
+    );
+  }
+
+  Future<void> _completeSessionAndNavigate({
+    required ActiveSessionViewModel viewModel,
+    required List<String> goalIdsToKeep,
+    required List<String> taskIdsToKeep,
+    required List<String> goalIdsToDelete,
+    required List<String> taskIdsToDelete,
+  }) async {
+    final updatedInstance = await viewModel.completeSession(
+      goalIdsToKeep: goalIdsToKeep,
+      taskIdsToKeep: taskIdsToKeep,
+      goalIdsToDelete: goalIdsToDelete,
+      taskIdsToDelete: taskIdsToDelete,
+    );
+
+    if (!mounted) return;
+
+    await Navigator.pushReplacementNamed(
+      context,
+      AppRoutes.reflection,
+      arguments: updatedInstance,
     );
   }
 }

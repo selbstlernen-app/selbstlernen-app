@@ -27,6 +27,9 @@ abstract class SessionInstanceModel with _$SessionInstanceModel {
     // Checked off goals/tasks
     @Default(0) int totalCompletedGoals,
     @Default(0) int totalCompletedTasks,
+    // Rate as relative measure
+    @Default(0) double completedGoalsRate,
+    @Default(0) double completedTasksRate,
 
     // Focus measure
     @Default([]) List<FocusCheck> focusChecks,

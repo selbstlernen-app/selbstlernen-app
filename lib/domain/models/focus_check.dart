@@ -5,7 +5,10 @@ part 'focus_check.freezed.dart';
 @freezed
 abstract class FocusCheck with _$FocusCheck {
   const factory FocusCheck({
-    required DateTime timestamp,
+    // Tracks the time that has elapsed when the prompt appeared
+    required int atElapsedSeconds,
+
+    // The focus level
     required FocusLevel level,
   }) = _FocusCheck;
 }
@@ -17,6 +20,4 @@ enum FocusLevel {
   okay,
   // Abgelenkt
   distracted,
-  // User clicked on "Weiter arbeiten" without clicking any of the three options
-  skipped,
 }
