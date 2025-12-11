@@ -53,137 +53,132 @@ class CompletionLineChart extends StatelessWidget {
       dayCounts[key] = (dayCounts[key] ?? 0) + 1;
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            height: 200,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(
-                  drawVerticalLine: false,
-                  horizontalInterval: 25,
-                  getDrawingHorizontalLine: (value) {
-                    return FlLine(
-                      color: AppPalette.grey.withValues(alpha: 0.3),
-                      strokeWidth: 1,
+    return SizedBox(
+      height: 200,
+      child: Padding(
+        padding: const EdgeInsets.all(8),
+        child: LineChart(
+          LineChartData(
+            gridData: FlGridData(
+              drawVerticalLine: false,
+              horizontalInterval: 25,
+              getDrawingHorizontalLine: (value) {
+                return FlLine(
+                  color: AppPalette.grey.withValues(alpha: 0.3),
+                  strokeWidth: 1,
+                );
+              },
+            ),
+            titlesData: FlTitlesData(
+              rightTitles: const AxisTitles(),
+              topTitles: const AxisTitles(),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 32,
+                  interval: 1,
+                  getTitlesWidget: (value, meta) {
+                    final index = value.toInt();
+                    if (index < 0 || index >= displayInstances.length) {
+                      return const SizedBox.shrink();
+                    }
+                    final date = displayInstances[index].completedAt!;
+                    return SideTitleWidget(
+                      meta: meta,
+                      child: Transform.rotate(
+                        angle: showAllInstances ? -20 : 0,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            DateFormat('dd.MM').format(date),
+                            style: StatisticsUiUtils.styleBottomBar,
+                          ),
+                        ),
+                      ),
                     );
                   },
                 ),
-                titlesData: FlTitlesData(
-                  rightTitles: const AxisTitles(),
-                  topTitles: const AxisTitles(),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 32,
-                      interval: 1,
-                      getTitlesWidget: (value, meta) {
-                        final index = value.toInt();
-                        if (index < 0 || index >= displayInstances.length) {
-                          return const SizedBox.shrink();
-                        }
-                        final date = displayInstances[index].completedAt!;
-                        return SideTitleWidget(
-                          meta: meta,
-                          child: Transform.rotate(
-                            angle: showAllInstances ? -20 : 0,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Text(
-                                DateFormat('dd.MM').format(date),
-                                style: StatisticsUiUtils.styleBottomBar,
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      interval: 25,
-                      reservedSize: 40,
-                      getTitlesWidget: (value, meta) {
-                        return Text(
-                          '${value.toStringAsFixed(0)} %',
-                          style: context.textTheme.bodySmall,
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                borderData: FlBorderData(
-                  show: true,
-                  border: Border(
-                    bottom: BorderSide(
-                      color: AppPalette.grey,
-                    ),
-                    left: BorderSide(
-                      color: AppPalette.grey,
-                    ),
-                  ),
-                ),
-                minX: 0,
-                maxX: (displayInstances.length - 1).toDouble(),
-                minY: 0,
-                maxY: 100,
-                lineBarsData: [
-                  buildLineChartData(
-                    context: context,
-                    instances: displayInstances,
-                    valueSelector: (m) => m.completedGoalsRate,
-                    color: AppPalette.sky,
-                  ),
-                  buildLineChartData(
-                    context: context,
-                    instances: displayInstances,
-                    valueSelector: (m) => m.completedTasksRate,
-                    color: AppPalette.emerald,
-                  ),
-                ],
-                lineTouchData: LineTouchData(
-                  touchTooltipData: LineTouchTooltipData(
-                    fitInsideHorizontally: true,
-                    getTooltipColor: (touchedSpot) =>
-                        context.colorScheme.inverseSurface,
-                    getTooltipItems: (touchedSpots) {
-                      if (touchedSpots.isEmpty) return [];
-
-                      final x = touchedSpots.first.x.toInt();
-                      final instance = displayInstances[x];
-
-                      final key = DateFormat(
-                        'yyyyMMdd',
-                      ).format(instance.completedAt!);
-
-                      final tooltip = LineTooltipItem(
-                        '''${dayCounts[key]! > 1 ? DateFormat('dd.MM HH:mm').format(instance.completedAt!) : DateFormat('dd.MM').format(instance.completedAt!)}\n'''
-                        '''Ziele: ${instance.completedGoalsRate.toStringAsFixed(1)}%\n'''
-                        '''Aufgaben: ${instance.completedTasksRate.toStringAsFixed(1)}%''',
-                        TextStyle(
-                          color: context.colorScheme.onInverseSurface,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      );
-
-                      // Returns list matching number of touched spots
-                      // Dince there are two points; first one is shown
-                      // other is null
-                      return [
-                        tooltip,
-                        ...List.filled(touchedSpots.length - 1, null),
-                      ];
-                    },
-                  ),
+              ),
+              leftTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  interval: 25,
+                  reservedSize: 40,
+                  getTitlesWidget: (value, meta) {
+                    return Text(
+                      '${value.toStringAsFixed(0)} %',
+                      style: context.textTheme.bodySmall,
+                    );
+                  },
                 ),
               ),
             ),
+            borderData: FlBorderData(
+              show: true,
+              border: Border(
+                bottom: BorderSide(
+                  color: AppPalette.grey,
+                ),
+                left: BorderSide(
+                  color: AppPalette.grey,
+                ),
+              ),
+            ),
+            minX: 0,
+            maxX: (displayInstances.length - 1).toDouble(),
+            minY: 0,
+            maxY: 100,
+            lineBarsData: [
+              buildLineChartData(
+                context: context,
+                instances: displayInstances,
+                valueSelector: (m) => m.completedGoalsRate,
+                color: AppPalette.sky,
+              ),
+              buildLineChartData(
+                context: context,
+                instances: displayInstances,
+                valueSelector: (m) => m.completedTasksRate,
+                color: AppPalette.emerald,
+              ),
+            ],
+            lineTouchData: LineTouchData(
+              touchTooltipData: LineTouchTooltipData(
+                fitInsideHorizontally: true,
+                getTooltipColor: (touchedSpot) =>
+                    context.colorScheme.inverseSurface,
+                getTooltipItems: (touchedSpots) {
+                  if (touchedSpots.isEmpty) return [];
+
+                  final x = touchedSpots.first.x.toInt();
+                  final instance = displayInstances[x];
+
+                  final key = DateFormat(
+                    'yyyyMMdd',
+                  ).format(instance.completedAt!);
+
+                  final tooltip = LineTooltipItem(
+                    '''${dayCounts[key]! > 1 ? DateFormat('dd.MM HH:mm').format(instance.completedAt!) : DateFormat('dd.MM').format(instance.completedAt!)}\n'''
+                    '''Ziele: ${instance.completedGoalsRate.toStringAsFixed(1)}%\n'''
+                    '''Aufgaben: ${instance.completedTasksRate.toStringAsFixed(1)}%''',
+                    TextStyle(
+                      color: context.colorScheme.onInverseSurface,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+
+                  // Returns list matching number of touched spots
+                  // Dince there are two points; first one is shown
+                  // other is null
+                  return [
+                    tooltip,
+                    ...List.filled(touchedSpots.length - 1, null),
+                  ];
+                },
+              ),
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
