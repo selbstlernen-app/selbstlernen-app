@@ -41,18 +41,27 @@ class _MainNavigationState extends State<MainNavigation> {
         showSelectedLabels: true,
         showUnselectedLabels: true,
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_outlined),
-            label: 'Neue Einheit',
+            icon: _selectedIndex == 0
+                ? const Icon(Icons.home)
+                : const Icon(Icons.home_outlined),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
+            icon: _selectedIndex == 1
+                ? const Icon(Icons.add_box_rounded)
+                : const Icon(Icons.add_box_outlined),
+            label: 'Neue Einheit',
+          ),
+          const BottomNavigationBarItem(
             icon: Icon(Icons.bar_chart_rounded),
             label: 'Statistik',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
+            icon: _selectedIndex == 3
+                ? const Icon(Icons.settings)
+                : const Icon(Icons.settings_outlined),
             label: 'Einstellungen',
           ),
         ],

@@ -57,7 +57,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                 spacing: 8,
                 children: <Widget>[
                   CustomButton(
-                    verticalPadding: 8,
+                    verticalPadding: 4,
                     borderRadius: 10,
                     isActive: homeState.filter == SessionFilter.all,
                     onPressed: () => ref
@@ -66,7 +66,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                     label: 'Alle',
                   ),
                   CustomButton(
-                    verticalPadding: 8,
+                    verticalPadding: 4,
                     borderRadius: 10,
                     isActive: homeState.filter == SessionFilter.open,
                     onPressed: () => ref
@@ -75,7 +75,16 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                     label: 'Offen',
                   ),
                   CustomButton(
-                    verticalPadding: 8,
+                    verticalPadding: 4,
+                    borderRadius: 10,
+                    isActive: homeState.filter == SessionFilter.skipped,
+                    onPressed: () => ref
+                        .read(homeViewModelProvider.notifier)
+                        .setFilter(SessionFilter.skipped),
+                    label: 'Übersprungen',
+                  ),
+                  CustomButton(
+                    verticalPadding: 4,
                     borderRadius: 10,
                     isActive: homeState.filter == SessionFilter.done,
                     onPressed: () => ref
@@ -122,11 +131,11 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                 ],
               ],
 
-              // List of all completed or skipped sessions of the day
+              // List of completed sessions
               if (homeState.filter == SessionFilter.done ||
                   homeState.filter == SessionFilter.all) ...[
                 Text(
-                  'Erledigt',
+                  'Erledigte Lerneinheiten',
                   style: context.textTheme.labelLarge!.copyWith(
                     color: AppPalette.grey,
                   ),
@@ -139,14 +148,43 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                           sessionWithInstance: sessionWithInstance,
                         ),
                   ),
+                  const VerticalSpace(),
                 ],
-
                 if (homeState.completedSessionsForToday.isEmpty) ...[
                   const VerticalSpace(
                     size: SpaceSize.xsmall,
                   ),
                   Text(
-                    'Noch keine Lerneinheiten für heute abgeschlossen',
+                    'Noch keine Lerneinheiten für heute erledigt',
+                    style: context.textTheme.bodyMedium!.copyWith(
+                      color: AppPalette.grey.withValues(alpha: 0.8),
+                    ),
+                  ),
+                  const VerticalSpace(),
+                ],
+              ],
+
+              // List of skipped sessions
+              if (homeState.filter == SessionFilter.skipped) ...[
+                Text(
+                  'Übersprungen',
+                  style: context.textTheme.labelLarge!.copyWith(
+                    color: AppPalette.grey,
+                  ),
+                ),
+                if (homeState.skippedSessionsForToday.isNotEmpty) ...[
+                  const VerticalSpace(),
+                  ...homeState.skippedSessionsForToday.map(
+                    (SessionWithInstanceModel sessionWithInstance) =>
+                        CompletedSessionTile(
+                          sessionWithInstance: sessionWithInstance,
+                        ),
+                  ),
+                ],
+                if (homeState.skippedSessionsForToday.isEmpty) ...[
+                  const VerticalSpace(size: SpaceSize.xsmall),
+                  Text(
+                    'Keine übersprungenen Lerneinheiten für heute',
                     style: context.textTheme.bodyMedium!.copyWith(
                       color: AppPalette.grey.withValues(alpha: 0.8),
                     ),
