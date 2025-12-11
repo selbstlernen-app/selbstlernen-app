@@ -22,6 +22,7 @@ class SessionInstances extends Table with AutoIncrementingPrimaryKey {
       integer().withDefault(const Constant<int>(0))();
   IntColumn get totalCompletedTasks =>
       integer().withDefault(const Constant<int>(0))();
+
   RealColumn get completedGoalsRate =>
       real().withDefault(const Constant<double>(0))();
   RealColumn get completedTasksRate =>

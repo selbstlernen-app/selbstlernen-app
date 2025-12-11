@@ -135,7 +135,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       const HorizontalSpace(),
                       Expanded(
                         child: Text(
-                          'Momentan befindest du dich Editier-Modus',
+                          'Momentan befindest du dich im Editier-Modus',
                           style: context.textTheme.labelLarge!.copyWith(
                             color: AppPalette.amber,
                             fontSize: 20,

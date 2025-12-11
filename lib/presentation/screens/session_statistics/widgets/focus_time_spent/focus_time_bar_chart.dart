@@ -248,8 +248,6 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
     return List<BarChartGroupData>.generate(
       widget.lastInstances.length,
       (int index) {
-        final instance = widget.lastInstances[index];
-
         final minutes =
             widget.lastInstances[index].totalFocusSecondsElapsed / 60.0;
 

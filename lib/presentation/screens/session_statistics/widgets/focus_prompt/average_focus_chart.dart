@@ -146,6 +146,7 @@ class AverageFocusChart extends StatelessWidget {
             ],
             lineTouchData: LineTouchData(
               touchTooltipData: LineTouchTooltipData(
+                fitInsideHorizontally: true,
                 getTooltipItems: (touchedSpots) {
                   return touchedSpots.map((spot) {
                     final index = spot.spotIndex;
