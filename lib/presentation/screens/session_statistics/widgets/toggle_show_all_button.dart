@@ -7,8 +7,8 @@ class ToggleShowAllButton extends StatelessWidget {
     required this.showAll,
     required this.onToggle,
     required this.thresholdExceeded,
-    this.expandedLabel = "Alle anzeigen",
-    this.collapsedLabel = "Weniger",
+    this.expandedLabel = 'Alle anzeigen',
+    this.collapsedLabel = 'Weniger',
     super.key,
   });
 

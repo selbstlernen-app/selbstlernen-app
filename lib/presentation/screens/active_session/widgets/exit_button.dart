@@ -38,27 +38,6 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
 
     _timer?.cancel();
 
-    final state = ref.read(
-      activeSessionViewModelProvider(widget.instanceId),
-    );
-    final newGoals = state.newlyAddedGoals;
-    final newTasks = state.newlyAddedTasks;
-    final deleteGoals = state.deleteGoals;
-    final deleteTasks = state.deleteTasks;
-    final totalEdits =
-        newGoals.length +
-        newTasks.length +
-        deleteTasks.length +
-        deleteGoals.length;
-
-    // Debug: Check what we're passing to the dialog
-    print('=== DEBUG ===');
-    print('Deleted goals: ${deleteGoals.length}');
-    print('Deleted tasks: ${deleteTasks.length}');
-    print('Goal IDs to delete: ${state.goalIdsToDelete}');
-    print('Task IDs to delete: ${state.taskIdsToDelete}');
-    print('=============');
-
     // If not clicked again after 5 seconds, close the button
     _timer = Timer(const Duration(seconds: 5), () {
       if (mounted) {

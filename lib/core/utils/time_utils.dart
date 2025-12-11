@@ -64,13 +64,4 @@ class TimeUtils {
       return '${hours.toStringAsFixed(1)} h';
     }
   }
-
-  static String formatToolTipTime(double time) {
-    if (time < 60) {
-      return '${time.toStringAsFixed(1)} min';
-    } else {
-      final hours = time / 60;
-      return '${hours.toStringAsFixed(1)} h';
-    }
-  }
 }

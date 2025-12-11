@@ -16,16 +16,6 @@ class CompletionLineChart extends StatelessWidget {
   final List<SessionInstanceModel> instances;
   final bool showAllInstances;
 
-  double getMaxRate(List<SessionInstanceModel> instances) {
-    final maxGoals = instances
-        .map((e) => e.completedGoalsRate)
-        .fold<double>(0, (p, c) => c > p ? c : p);
-    final maxTasks = instances
-        .map((e) => e.completedTasksRate)
-        .fold<double>(0, (p, c) => c > p ? c : p);
-    return maxGoals > maxTasks ? maxGoals : maxTasks;
-  }
-
   @override
   Widget build(BuildContext context) {
     // Filter and sort instances with mood ratings

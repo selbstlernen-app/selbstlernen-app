@@ -23,10 +23,6 @@ class ReflectionViewModel extends _$ReflectionViewModel {
     state = state.copyWith(mood: mood);
   }
 
-  void setNotes(String notes) {
-    state = state.copyWith(notes: notes);
-  }
-
   Future<void> complete({required String notes, int? mood}) async {
     final updated = state.instance.copyWith(
       notes: state.notes,

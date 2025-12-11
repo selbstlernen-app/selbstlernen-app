@@ -97,19 +97,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  // Marks goals and associated tasks for deletion
-  void markGoalForDeletion(String goalId) {
-    final associatedTaskIds = state.tasks
-        .where((TaskModel task) => task.goalId == goalId && task.id != null)
-        .map((TaskModel task) => task.id!)
-        .toList();
-
-    state = state.copyWith(
-      goalIdsToDelete: <String>[...state.goalIdsToDelete, goalId],
-      taskIdsToDelete: <String>[...state.taskIdsToDelete, ...associatedTaskIds],
-    );
-  }
-
   // Creates a task directly linked to a goal
   void addTaskToGoal(TaskModel task, String? goalId) {
     final taskWithGoal = task.copyWith(goalId: goalId);

@@ -164,9 +164,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       level: level,
     );
 
-    print("---FOCUS CHECK AT: ---");
-    print(focusCheck);
-
     final updatedInstance = state.instance!.copyWith(
       focusChecks: [...state.instance!.focusChecks, focusCheck],
     );

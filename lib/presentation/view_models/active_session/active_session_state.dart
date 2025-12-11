@@ -79,9 +79,6 @@ abstract class ActiveSessionState with _$ActiveSessionState {
   List<TaskModel> get ungroupedTasks =>
       tasks.where((TaskModel task) => task.goalId == null).toList();
 
-  List<TaskModel> tasksForGoal(String goalId) =>
-      tasks.where((TaskModel task) => task.goalId == goalId).toList();
-
   List<TaskModel> get newlyAddedTasks =>
       tasks.where((TaskModel task) => !task.keptForFutureSessions).toList();
 
@@ -109,8 +106,4 @@ abstract class ActiveSessionState with _$ActiveSessionState {
   List<GoalModel> get deleteGoals => allOriginalGoals
       .where((GoalModel goal) => goalIdsToDelete.contains(goal.id))
       .toList();
-
-  bool hasEditedItems() {
-    return newlyAddedGoals.isNotEmpty || newlyAddedTasks.isNotEmpty;
-  }
 }
