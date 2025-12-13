@@ -42,10 +42,12 @@ abstract class StatisticsState with _$StatisticsState {
 
   // Helper
   List<SessionModel> get activeSessions =>
-      activeOrArchivedSessions!.where((s) => !s.isArchived).toList();
+      activeOrArchivedSessions!.where((s) => !s.isArchived).toList()
+        ..sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
 
   List<SessionModel> get archivedSessions =>
-      activeOrArchivedSessions!.where((s) => s.isArchived).toList();
+      activeOrArchivedSessions!.where((s) => s.isArchived).toList()
+        ..sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
 }
 
 enum StatisticsFilter { archived, running }

@@ -73,4 +73,9 @@ class SessionRepositoryImp implements SessionRepository {
       updatedSession.toUpdateCompanion(),
     );
   }
+
+  @override
+  Future<int> touchSession(int sessionId) {
+    return sessionDao.touchSession(sessionId);
+  }
 }

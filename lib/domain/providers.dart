@@ -81,7 +81,10 @@ GetInstanceUseCase getInstanceUseCase(Ref ref) {
 
 @riverpod
 ManangeInstanceUseCase manangeInstanceUseCase(Ref ref) {
-  return ManangeInstanceUseCase(ref.watch(sessionInstanceRepositoryProvider));
+  return ManangeInstanceUseCase(
+    ref.watch(sessionInstanceRepositoryProvider),
+    ref.watch(sessionRepositoryProvider),
+  );
 }
 
 @riverpod

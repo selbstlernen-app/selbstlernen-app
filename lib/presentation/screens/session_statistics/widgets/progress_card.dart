@@ -120,12 +120,13 @@ class ProgressCard extends StatelessWidget {
                   color: getColor(SessionStatus.skipped),
                   textStyle: context.textTheme.bodySmall,
                 ),
-              _StatChip(
-                label: 'Noch offen',
-                value: stats.openInstances,
-                color: context.colorScheme.onTertiary,
-                textStyle: context.textTheme.bodySmall,
-              ),
+              if (stats.completionRate < 1)
+                _StatChip(
+                  label: 'Noch offen',
+                  value: stats.openInstances,
+                  color: context.colorScheme.onTertiary,
+                  textStyle: context.textTheme.bodySmall,
+                ),
             ],
           ),
         ],
