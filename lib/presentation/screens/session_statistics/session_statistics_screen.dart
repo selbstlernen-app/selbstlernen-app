@@ -141,7 +141,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
                           allDoneInstances: allCompletedInstances,
                           currentInstance: allCompletedInstances.first,
                           showGeneralStatsOnly: showGeneralStatsOnly,
-                          focusChecks: allCompletedInstances.last.focusChecks,
+                          focusChecks: allCompletedInstances.first.focusChecks,
                         ),
                         const VerticalSpace(),
                       ],

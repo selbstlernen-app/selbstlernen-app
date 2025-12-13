@@ -44,7 +44,7 @@ class ProgressCard extends StatelessWidget {
           // Progress summary text
           Text(
             stats.totalInstances == 1
-                ? '''Abgeschlossen'''
+                ? '''Abgeschlossen (100%)'''
                 : '''${stats.completedInstances + stats.skippedInstances + stats.missedInstances} von ${stats.totalInstances} Einheiten abgeschlossen (${(stats.combinedRate * 100).toStringAsFixed(1)} %)''',
             style: context.textTheme.bodySmall,
           ),
