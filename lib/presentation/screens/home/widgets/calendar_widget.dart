@@ -13,7 +13,8 @@ class CalendarWidget extends ConsumerWidget {
     var startOfTheWeek = today.subtract(Duration(days: today.weekday - 1));
     var daysToDisplay = <DateTime>[];
     if (today.weekday < 3) {
-      // If we did not have Wednesday yet; generate five days starting from Monday
+      // If we did not have Wednesday yet;
+      // generate five days starting from Monday
       daysToDisplay = List<DateTime>.generate(
         6,
         (int i) => startOfTheWeek.add(Duration(days: i)),

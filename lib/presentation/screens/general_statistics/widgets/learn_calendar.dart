@@ -56,7 +56,7 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
             Text('Aktivität', style: context.textTheme.headlineMedium),
             const VerticalSpace(size: SpaceSize.xsmall),
             Text(
-              'Markiert die Tage, an denen du gelernt hast.',
+              '''Überblicke, wann du welche Lerneinheit abgeschlossen hast.''',
               style: context.textTheme.bodySmall?.copyWith(
                 color: AppPalette.grey,
               ),

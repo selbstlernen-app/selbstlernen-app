@@ -114,7 +114,7 @@ class SessionDetailScreen extends ConsumerWidget {
                             icon: Icons.psychology,
                             label: 'Fokuszeit',
                             value:
-                                '${TimeUtils.formatTime(session.focusTimeMin * 60)} Min',
+                                '''${TimeUtils.formatTime(session.focusTimeMin * 60)} Min''',
                             color: AppPalette.pink,
                           ),
 
@@ -122,7 +122,7 @@ class SessionDetailScreen extends ConsumerWidget {
                             icon: Icons.coffee,
                             label: 'Pausenzeit',
                             value:
-                                '${TimeUtils.formatTime(session.breakTimeMin * 60)} Min',
+                                '''${TimeUtils.formatTime(session.breakTimeMin * 60)} Min''',
                             color: AppPalette.orange,
                           ),
                         ],
@@ -218,7 +218,11 @@ class SessionDetailScreen extends ConsumerWidget {
                     },
                     icon: const Icon(Icons.delete_forever_rounded),
                   ),
-                  if (!session.isArchived)
+
+                  // If the session has more than 1 item
+                  // Able to archive it
+                  if (!session.isArchived &&
+                      detailState.pastInstances!.length > 1)
                     IconButton(
                       color: AppPalette.orange,
                       onPressed: () async {

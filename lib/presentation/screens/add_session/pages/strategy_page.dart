@@ -53,7 +53,8 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                 Text('Lernstrategien', style: context.textTheme.headlineMedium),
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
-                  'Strategien, die du anwenden willst, um deine Ziele oder Aufgaben zu erreichen.',
+                  '''Strategien, die du anwenden willst,'''
+                  ''' um deine Ziele oder Aufgaben zu erreichen.''',
                   style: context.textTheme.bodyMedium,
                 ),
 

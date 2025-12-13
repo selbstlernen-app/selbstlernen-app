@@ -74,7 +74,8 @@ void main() {
     expect(isValid, false);
     expect(
       vm.state.dateError,
-      'Start- und Enddatum können nicht am selben Tag sein. Wähle einmalig stattdessen.',
+      '''Start- und Enddatum können nicht am selben Tag sein.'''
+      ''' Wähle einmalig stattdessen.''',
     );
 
     // 4) End before start (invalid)

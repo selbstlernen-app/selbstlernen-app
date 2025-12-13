@@ -110,8 +110,10 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
                     const HorizontalSpace(size: SpaceSize.small),
                     Text(
                       showAllInstances
-                          ? 'Ø ${calculateOverallAverageFocus(widget.allDoneInstances).toStringAsFixed(1)}'
-                          : 'Ø ${calculateSessionAverageFocus(widget.currentInstance)}',
+                          ? '''Ø '''
+                                '''${calculateOverallAverageFocus(widget.allDoneInstances).toStringAsFixed(1)}'''
+                          : '''Ø '''
+                                ''' ${calculateSessionAverageFocus(widget.currentInstance)}''',
                       style: context.textTheme.bodyLarge,
                     ),
                   ],

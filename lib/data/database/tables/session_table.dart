@@ -28,6 +28,7 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
       boolean().withDefault(const Constant<bool>(false))();
 
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
 mixin AutoIncrementingPrimaryKey on Table {

@@ -77,7 +77,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                 Text('Timer (in min)', style: context.textTheme.headlineMedium),
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
-                  'Lege die Zeit fest, die du in dieser Lerneinheit verbringen willst.',
+                  '''Lege die Zeit fest, die du in dieser Lerneinheit verbringen willst.''',
                   style: context.textTheme.bodyMedium,
                 ),
 

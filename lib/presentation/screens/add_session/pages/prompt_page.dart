@@ -163,7 +163,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
                   children: <Widget>[
                     Expanded(
                       child: Text(
-                        'Konfiguriere eine Abfrage, die während der Lerneinheit deine Aufmerksamkeit testet.',
+                        '''Konfiguriere eine Abfrage, die während der Lerneinheit deine Aufmerksamkeit testet.''',
                         style: context.textTheme.bodyMedium!.copyWith(
                           color: state.hasFocusPrompt
                               ? context.colorScheme.onSurface

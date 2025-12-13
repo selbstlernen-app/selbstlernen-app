@@ -41,12 +41,12 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
               _buildHeading(context),
 
               // TODO: remove for production
-              ElevatedButton(
-                onPressed: () async {
-                  await ref.read(testDataProvider.notifier).insertTestData();
-                },
-                child: const Text('Insert Test Data'),
-              ),
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     await ref.read(testDataProvider.notifier).insertTestData();
+              //   },
+              //   child: const Text('Insert Test Data'),
+              // ),
               const VerticalSpace(),
 
               const CalendarWidget(),
@@ -57,7 +57,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                 spacing: 8,
                 children: <Widget>[
                   CustomButton(
-                    verticalPadding: 4,
+                    verticalPadding: 2,
                     borderRadius: 10,
                     isActive: homeState.filter == SessionFilter.all,
                     onPressed: () => ref

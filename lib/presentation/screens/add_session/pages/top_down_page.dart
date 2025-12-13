@@ -105,7 +105,8 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
                 ),
                 const VerticalSpace(size: SpaceSize.small),
                 Text(
-                  'Erstelle zusätzliche Aufgaben, die dir beim Erreichen deiner Ziele helfen. Du kannst diesen Schritt auch vorerst überspringen.',
+                  '''Erstelle zusätzliche Aufgaben, die dir beim Erreichen deiner Ziele helfen.'''
+                  ''' Du kannst diesen Schritt auch vorerst überspringen.''',
                   style: context.textTheme.bodyMedium,
                 ),
 

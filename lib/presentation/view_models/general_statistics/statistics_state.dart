@@ -12,6 +12,7 @@ abstract class StatisticsState with _$StatisticsState {
     List<SessionModel>? activeOrArchivedSessions,
     List<EnrichedSessionInstance>? enrichedInstances,
     @Default(true) bool isLoading,
+    @Default(StatisticsFilter.running) filter,
     String? error,
   }) = _StatisticsState;
 
@@ -46,3 +47,5 @@ abstract class StatisticsState with _$StatisticsState {
   List<SessionModel> get archivedSessions =>
       activeOrArchivedSessions!.where((s) => s.isArchived).toList();
 }
+
+enum StatisticsFilter { archived, running }

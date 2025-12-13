@@ -22,6 +22,7 @@ extension SessionToModelMapper on Session {
       hasFreetextPrompt: hasFreetextPrompt,
       isArchived: isArchived,
       createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 
@@ -53,6 +54,7 @@ extension SessionToCompanionMapper on SessionModel {
       hasFreetextPrompt: Value<bool>(hasFreetextPrompt),
       isArchived: Value<bool>(isArchived),
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
+      updatedAt: Value<DateTime>(updatedAt ?? DateTime.now()),
     );
   }
 
@@ -78,6 +80,7 @@ extension SessionToCompanionMapper on SessionModel {
       showFocusPromptAlways: Value<bool>(showFocusPromptAlways),
       hasFreetextPrompt: Value<bool>(hasFreetextPrompt),
       isArchived: Value<bool>(isArchived),
+      updatedAt: Value<DateTime>(DateTime.now()),
     );
   }
 }
