@@ -280,7 +280,13 @@ class SessionDetailScreen extends ConsumerWidget {
                     onPressed: () async {
                       await Navigator.of(
                         context,
-                      ).pushNamed(AppRoutes.stats, arguments: sessionId);
+                      ).pushNamed(
+                        AppRoutes.stats,
+                        arguments: SessionStatisticsArgs(
+                          sessionId: sessionId,
+                          showGeneralStatsOnly: false,
+                        ),
+                      );
                     },
                     label: 'Zur statistischen Auswertung',
                   ),

@@ -17,19 +17,21 @@ class FocusPromptCard extends StatefulWidget {
     required this.allDoneInstances,
     required this.focusChecks,
     required this.currentInstance,
+    required this.showGeneralStatsOnly,
     super.key,
   });
 
   final List<SessionInstanceModel> allDoneInstances;
   final SessionInstanceModel currentInstance;
   final List<FocusCheck> focusChecks;
+  final bool showGeneralStatsOnly;
 
   @override
   State<FocusPromptCard> createState() => _FocusPromptCardState();
 }
 
 class _FocusPromptCardState extends State<FocusPromptCard> {
-  bool showAllInstances = false;
+  late bool showAllInstances = widget.showGeneralStatsOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -74,15 +76,17 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ToggleShowAllButton(
-                showAll: showAllInstances,
-                thresholdExceeded: widget.allDoneInstances.length > 4,
-                onToggle: () {
-                  setState(() => showAllInstances = !showAllInstances);
-                },
-                collapsedLabel: 'Heutige',
-                expandedLabel: 'Trends anzeigen',
-              ),
+              // Do not show toggle button in case of general stats
+              if (!widget.showGeneralStatsOnly)
+                ToggleShowAllButton(
+                  showAll: showAllInstances,
+                  thresholdExceeded: widget.allDoneInstances.length > 4,
+                  onToggle: () {
+                    setState(() => showAllInstances = !showAllInstances);
+                  },
+                  collapsedLabel: 'Heutige',
+                  expandedLabel: 'Trends anzeigen',
+                ),
 
               // Average mood
               if (widget.allDoneInstances.length > 4 && averageMoodIndex != -1)

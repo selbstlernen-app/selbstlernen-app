@@ -16,9 +16,14 @@ import 'package:srl_app/presentation/view_models/session_statistics/session_stat
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
 
 class SessionStatisticsScreen extends ConsumerWidget {
-  const SessionStatisticsScreen({required this.sessionId, super.key});
+  const SessionStatisticsScreen({
+    required this.sessionId,
+    required this.showGeneralStatsOnly,
+    super.key,
+  });
 
   final int sessionId;
+  final bool showGeneralStatsOnly;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -135,6 +140,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
                         FocusPromptCard(
                           allDoneInstances: allCompletedInstances,
                           currentInstance: allCompletedInstances.first,
+                          showGeneralStatsOnly: showGeneralStatsOnly,
                           focusChecks: allCompletedInstances.last.focusChecks,
                         ),
                         const VerticalSpace(),
