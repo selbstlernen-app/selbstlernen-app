@@ -10,29 +10,39 @@ class CustomTheme {
     useMaterial3: true,
     brightness: Brightness.light,
     colorScheme: ColorScheme.light(
-      primary: AppPalette.sky, //Color(0xff00BCFF)
-      secondary: AppPalette.skyLight, //Color(0xff74d4ff),
-      onSecondary: Colors.white, // Texts/Icons on secondary
-      tertiary: const Color(0xffF5F5F5), // grey used for inputs etc
+      primary: AppPalette.sky,
+      secondary: AppPalette.skyLight,
+      onSecondary: Colors.white,
+      tertiary: const Color(0xffF5F5F5),
       onTertiary: const Color(0xffA1A1A1),
       onSurface: const Color(0xff1E1E1E), // Main text color
       error: const Color(0xffFF2056),
       tertiaryContainer: const Color(0xffE5E5E5),
     ),
-    // Background of all general items in off-white (#FAFAFA)
     scaffoldBackgroundColor: const Color(0xffFAFAFA),
     appBarTheme: const AppBarTheme(backgroundColor: Color(0xffFAFAFA)),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: Color(0xffFAFAFA),
     ),
-    textTheme: GoogleFonts.urbanistTextTheme(CustomTextTheme.lightTextTheme),
+    textTheme: GoogleFonts.urbanistTextTheme(CustomTextTheme.customTextTheme),
   );
 
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    primaryColor: Colors.blue,
-    scaffoldBackgroundColor: Colors.black,
-    textTheme: CustomTextTheme.darkTextTheme,
+    colorScheme: ColorScheme.dark(
+      primary: AppPalette.sky,
+      secondary: AppPalette.skyLight,
+      tertiary: const Color(0xffF5F5F5),
+      onTertiary: const Color(0xffA1A1A1),
+      error: const Color(0xffFF2056),
+      tertiaryContainer: const Color(0xffE5E5E5),
+    ),
+    scaffoldBackgroundColor: const Color(0xFF121212),
+    appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF121212)),
+    bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      backgroundColor: Color(0xFF121212),
+    ),
+    textTheme: GoogleFonts.urbanistTextTheme(CustomTextTheme.customTextTheme),
   );
 }

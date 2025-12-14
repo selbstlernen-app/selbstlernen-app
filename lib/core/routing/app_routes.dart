@@ -16,7 +16,7 @@ class AppRoutes {
   static const String reflection = '/reflection';
   static const String stats = '/stats';
   static const String addSession = '/add-session';
-  static const String statistics = '/statistics';
+  static const String overallStatistics = '/overall-statistics';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -54,9 +54,13 @@ class AppRoutes {
         );
 
       case stats:
-        final sessionId = settings.arguments! as int;
+        final args = settings.arguments! as SessionStatisticsArgs;
+
         return MaterialPageRoute<dynamic>(
-          builder: (_) => SessionStatisticsScreen(sessionId: sessionId),
+          builder: (_) => SessionStatisticsScreen(
+            sessionId: args.sessionId,
+            showGeneralStatsOnly: args.showGeneralStatsOnly,
+          ),
           settings: const RouteSettings(name: AppRoutes.stats),
         );
 
@@ -67,10 +71,10 @@ class AppRoutes {
           settings: const RouteSettings(name: AppRoutes.addSession),
         );
 
-      case statistics:
+      case overallStatistics:
         return MaterialPageRoute<dynamic>(
           builder: (_) => const StatisticsScreen(),
-          settings: const RouteSettings(name: AppRoutes.statistics),
+          settings: const RouteSettings(name: AppRoutes.overallStatistics),
         );
       default:
         return MaterialPageRoute<dynamic>(
@@ -93,4 +97,13 @@ class DetailSessionArgs {
   DetailSessionArgs({required this.sessionId, this.instanceId});
   final int sessionId;
   final int? instanceId;
+}
+
+class SessionStatisticsArgs {
+  SessionStatisticsArgs({
+    required this.sessionId,
+    required this.showGeneralStatsOnly,
+  });
+  final int sessionId;
+  final bool showGeneralStatsOnly;
 }

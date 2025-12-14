@@ -16,9 +16,14 @@ import 'package:srl_app/presentation/view_models/session_statistics/session_stat
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
 
 class SessionStatisticsScreen extends ConsumerWidget {
-  const SessionStatisticsScreen({required this.sessionId, super.key});
+  const SessionStatisticsScreen({
+    required this.sessionId,
+    required this.showGeneralStatsOnly,
+    super.key,
+  });
 
   final int sessionId;
+  final bool showGeneralStatsOnly;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,9 +60,31 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
     // No data
     if (state.stats == null || state.stats!.totalInstances == 0) {
-      return const Center(
-        child: Text(
-          '''Noch keine Statistiken verfügbar, beginne, indem du eine Lerneinheit anlegst''',
+      return Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          toolbarHeight: 70,
+          title: AutoSizeText(
+            'Statistik für ${state.session!.title}',
+            style: context.textTheme.headlineLarge,
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            minFontSize: 14,
+          ),
+        ),
+        body: const SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Text(
+                    '''Noch keine Statistiken verfügbar, starte, indem du eine Lerneinheit beginnst!''',
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
@@ -135,7 +162,8 @@ class SessionStatisticsScreen extends ConsumerWidget {
                         FocusPromptCard(
                           allDoneInstances: allCompletedInstances,
                           currentInstance: allCompletedInstances.first,
-                          focusChecks: allCompletedInstances.last.focusChecks,
+                          showGeneralStatsOnly: showGeneralStatsOnly,
+                          focusChecks: allCompletedInstances.first.focusChecks,
                         ),
                         const VerticalSpace(),
                       ],
@@ -155,9 +183,12 @@ class SessionStatisticsScreen extends ConsumerWidget {
               SizedBox(
                 width: context.mediaQuery.size.width,
                 child: CustomButton(
-                  onPressed: () =>
-                      Navigator.of(context).pushNamed(AppRoutes.home),
-                  label: 'Zurück zum Startbildschirm',
+                  onPressed: () => showGeneralStatsOnly
+                      ? Navigator.of(context).pop()
+                      : Navigator.of(context).pushNamed(AppRoutes.home),
+                  label: showGeneralStatsOnly
+                      ? 'Zurück'
+                      : 'Zurück zum Startbildschirm',
                 ),
               ),
             ],

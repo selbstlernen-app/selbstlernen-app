@@ -73,7 +73,7 @@ class MainLayout extends StatelessWidget {
         ),
 
         child: Container(
-          color: Colors.white,
+          color: context.colorScheme.surface,
           width: context.mediaQuery.size.width,
           child: SafeArea(
             child: Padding(padding: const EdgeInsets.all(24), child: content),

@@ -63,7 +63,8 @@ class GoalWithTasksCard extends ConsumerWidget {
                           ),
                           if (tasksForGoal.isNotEmpty)
                             Text(
-                              '${tasksForGoal.length} ${tasksForGoal.length == 1 ? "Aufgabe" : "Aufgaben"}',
+                              '''${tasksForGoal.length} '''
+                              '''${tasksForGoal.length == 1 ? 'Aufgabe' : 'Aufgaben'}''',
                               style: context.textTheme.bodyMedium!.copyWith(
                                 color: AppPalette.grey,
                                 fontSize: 13,

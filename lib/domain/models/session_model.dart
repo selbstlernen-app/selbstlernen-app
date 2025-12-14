@@ -27,6 +27,7 @@ abstract class SessionModel with _$SessionModel {
     @Default(false) bool isArchived,
 
     DateTime? createdAt,
+    DateTime? updatedAt,
   }) = _SessionModel;
   const SessionModel._();
 

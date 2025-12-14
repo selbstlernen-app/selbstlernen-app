@@ -44,8 +44,8 @@ class ProgressCard extends StatelessWidget {
           // Progress summary text
           Text(
             stats.totalInstances == 1
-                ? '''Abgeschlossen'''
-                : '''${stats.completedInstances + stats.skippedInstances + stats.missedInstances} von ${stats.totalInstances} Einheiten abgeschlossen''',
+                ? '''Abgeschlossen (100%)'''
+                : '''${stats.completedInstances + stats.skippedInstances + stats.missedInstances} von ${stats.totalInstances} Einheiten abgeschlossen (${(stats.combinedRate * 100).toStringAsFixed(1)} %)''',
             style: context.textTheme.bodySmall,
           ),
 
@@ -120,12 +120,13 @@ class ProgressCard extends StatelessWidget {
                   color: getColor(SessionStatus.skipped),
                   textStyle: context.textTheme.bodySmall,
                 ),
-              _StatChip(
-                label: 'Noch offen',
-                value: stats.openInstances,
-                color: context.colorScheme.onTertiary,
-                textStyle: context.textTheme.bodySmall,
-              ),
+              if (stats.completionRate < 1)
+                _StatChip(
+                  label: 'Noch offen',
+                  value: stats.openInstances,
+                  color: context.colorScheme.onTertiary,
+                  textStyle: context.textTheme.bodySmall,
+                ),
             ],
           ),
         ],

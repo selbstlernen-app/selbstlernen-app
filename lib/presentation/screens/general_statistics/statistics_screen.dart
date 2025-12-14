@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/card_layout.dart';
+import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
-import 'package:srl_app/presentation/screens/general_statistics/widgets/goal_task_completion_card.dart';
+import 'package:srl_app/presentation/screens/general_statistics/widgets/archived_session_tile.dart';
 import 'package:srl_app/presentation/screens/general_statistics/widgets/learn_calendar.dart';
-import 'package:srl_app/presentation/view_models/statistics/statistics_view_model.dart';
+import 'package:srl_app/presentation/view_models/general_statistics/statistics_state.dart';
+import 'package:srl_app/presentation/view_models/general_statistics/statistics_view_model.dart';
 
 class StatisticsScreen extends ConsumerWidget {
   const StatisticsScreen({super.key});
@@ -62,6 +64,10 @@ class StatisticsScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            LearnCalendar(enrichedInstances: state.enrichedInstances!),
+
+            const VerticalSpace(),
+
             if (state.stats!.totalInstances > 0)
               IntrinsicHeight(
                 child: Row(
@@ -87,15 +93,53 @@ class StatisticsScreen extends ConsumerWidget {
                 ),
               ),
 
-            const VerticalSpace(),
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+            // Filter buttons
+            Row(
+              children: [
+                CustomButton(
+                  verticalPadding: 4,
+                  borderRadius: 10,
+                  isActive: state.filter == StatisticsFilter.running,
+                  onPressed: () => ref
+                      .read(statisticsViewModelProvider.notifier)
+                      .setFilter(
+                        StatisticsFilter.running,
+                      ),
+                  label: 'Aktuell',
+                ),
+                const HorizontalSpace(
+                  size: SpaceSize.small,
+                ),
+                CustomButton(
+                  verticalPadding: 4,
+                  borderRadius: 10,
+                  isActive: state.filter == StatisticsFilter.archived,
+                  onPressed: () => ref
+                      .read(statisticsViewModelProvider.notifier)
+                      .setFilter(StatisticsFilter.archived),
+                  label: 'Archiviert',
+                ),
+              ],
+            ),
 
-            LearnCalendar(enrichedInstances: state.enrichedInstances!),
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
 
-            const VerticalSpace(),
+            if (state.activeOrArchivedSessions!.isNotEmpty &&
+                state.filter == StatisticsFilter.running)
+              ...state.activeSessions.map(
+                (e) => ArchivedSessionTile(session: e),
+              ),
 
-            if (state.stats!.avgGoalsPerInstance > 0 ||
-                state.stats!.avgTasksPerInstance > 0)
-              GoalTaskCompletionCard(stats: state.stats!),
+            if (state.activeOrArchivedSessions!.isNotEmpty &&
+                state.filter == StatisticsFilter.archived)
+              ...state.archivedSessions.map(
+                (e) => ArchivedSessionTile(session: e),
+              ),
           ],
         ),
       ),

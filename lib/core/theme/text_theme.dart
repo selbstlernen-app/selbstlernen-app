@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomTextTheme {
   CustomTextTheme._();
 
-  static TextTheme lightTextTheme = const TextTheme(
+  static TextTheme customTextTheme = const TextTheme(
     // Used for any large display texts like on appBars
     headlineLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
     headlineMedium: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
@@ -19,6 +19,4 @@ class CustomTextTheme {
     labelMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
     labelSmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
   );
-
-  static TextTheme darkTextTheme = const TextTheme();
 }

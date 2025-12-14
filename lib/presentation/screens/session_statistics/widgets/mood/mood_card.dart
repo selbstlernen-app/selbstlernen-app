@@ -58,14 +58,15 @@ class _MoodCardState extends State<MoodCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ToggleShowAllButton(
-                showAll: showAllInstances,
-                thresholdExceeded:
-                    widget.instances.where((i) => i.mood != null).length > 4,
-                onToggle: () {
-                  setState(() => showAllInstances = !showAllInstances);
-                },
-              ),
+              if (widget.instances.where((i) => i.mood != null).length > 4)
+                ToggleShowAllButton(
+                  showAll: showAllInstances,
+                  thresholdExceeded:
+                      widget.instances.where((i) => i.mood != null).length > 4,
+                  onToggle: () {
+                    setState(() => showAllInstances = !showAllInstances);
+                  },
+                ),
 
               // Average mood
               if (widget.stats.averageMood != null)

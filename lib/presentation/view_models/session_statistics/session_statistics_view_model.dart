@@ -40,6 +40,7 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
       final session = await _manageSessionUseCase.getSessionById(
         _sessionId,
       );
+
       final goals = await _manageGoalUseCase.getAllGoalsBySessionId(sessionId);
       final tasks = await _manageTasksUseCase.getAllTasksBySessionId(sessionId);
 
@@ -51,6 +52,7 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
         stats: statistics,
         session: session,
         instances: instances,
+
         goals: goals,
         tasks: tasks,
         isLoading: false,

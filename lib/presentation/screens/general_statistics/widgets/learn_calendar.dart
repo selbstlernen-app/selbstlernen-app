@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/session_status_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/common_widgets/card_layout.dart';
-import 'package:srl_app/presentation/view_models/statistics/statistics_view_model.dart';
-import 'package:srl_app/presentation/view_models/statistics/ui_model/enriched_session_instance.dart';
+import 'package:srl_app/presentation/view_models/general_statistics/statistics_view_model.dart';
+import 'package:srl_app/presentation/view_models/general_statistics/ui_model/enriched_session_instance.dart';
 
 /// Shows on which days one has learned;
 /// How many sessions were conducted on that particular day
@@ -56,7 +56,7 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
             Text('Aktivität', style: context.textTheme.headlineMedium),
             const VerticalSpace(size: SpaceSize.xsmall),
             Text(
-              'Markiert die Tage, an denen du gelernt hast.',
+              '''Überblicke, wann du welche Lerneinheit abgeschlossen hast.''',
               style: context.textTheme.bodySmall?.copyWith(
                 color: AppPalette.grey,
               ),
@@ -165,7 +165,8 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
 
     // Group instances by date
     for (final enrichedInstance in widget.enrichedInstances) {
-      if (enrichedInstance.instance.status == SessionStatus.completed) {
+      if (enrichedInstance.instance.status == SessionStatus.completed ||
+          enrichedInstance.instance.status == SessionStatus.skipped) {
         // Normalize to start of day
         final date = DateTime(
           enrichedInstance.instance.scheduledAt.year,

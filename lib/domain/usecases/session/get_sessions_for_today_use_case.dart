@@ -14,7 +14,7 @@ class GetSessionsForTodayUseCase {
   final SessionInstanceRepository _instanceRepo;
 
   Stream<List<SessionWithInstanceModel>> call(DateTime date) {
-    // Stream active (non-archived) sessions
+    // Stream all active (non-archived) sessions
     final sessionsStream = _sessionRepo.watchAllActiveSessions();
 
     // Stream instances for given date

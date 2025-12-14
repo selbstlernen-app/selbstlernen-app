@@ -17,9 +17,13 @@ abstract class HomeState with _$HomeState {
 
     String? error,
   }) = _HomeState;
+
   const HomeState._();
+
+  List<SessionWithInstanceModel> get skippedSessionsForToday =>
+      completedSessionsForToday.where((i) => i.isSkipped).toList();
 }
 
 /// Enum for filtering the session according to
 /// the buttons on the home screen
-enum SessionFilter { open, done, all }
+enum SessionFilter { open, done, skipped, all }

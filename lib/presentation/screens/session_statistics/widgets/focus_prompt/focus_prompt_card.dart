@@ -17,31 +17,43 @@ class FocusPromptCard extends StatefulWidget {
     required this.allDoneInstances,
     required this.focusChecks,
     required this.currentInstance,
+    required this.showGeneralStatsOnly,
     super.key,
   });
 
   final List<SessionInstanceModel> allDoneInstances;
   final SessionInstanceModel currentInstance;
   final List<FocusCheck> focusChecks;
+  final bool showGeneralStatsOnly;
 
   @override
   State<FocusPromptCard> createState() => _FocusPromptCardState();
 }
 
 class _FocusPromptCardState extends State<FocusPromptCard> {
-  bool showAllInstances = false;
+  late bool showAllInstances = widget.showGeneralStatsOnly;
 
   @override
   Widget build(BuildContext context) {
-    final averageMoodIndex = (showAllInstances
-        ? calculateOverallAverageFocus(
-                widget.allDoneInstances,
-              ).toInt() -
-              1
-        : calculateSessionAverageFocus(
-                widget.currentInstance,
-              ).toInt() -
-              1);
+    // Check if current session has any focus checks before calculating
+    final hasCurrentFocusChecks = widget.currentInstance.focusChecks.isNotEmpty;
+    final hasAnyFocusChecks = widget.allDoneInstances.any(
+      (instance) => instance.focusChecks.isNotEmpty,
+    );
+
+    // Only calculate if data is given
+    int? averageMoodIndex;
+    if (showAllInstances && hasAnyFocusChecks) {
+      final avg = calculateOverallAverageFocus(widget.allDoneInstances);
+      if (!avg.isNaN && !avg.isInfinite) {
+        averageMoodIndex = avg.toInt() - 1;
+      }
+    } else if (!showAllInstances && hasCurrentFocusChecks) {
+      final avg = calculateSessionAverageFocus(widget.currentInstance);
+      if (!avg.isNaN && !avg.isInfinite) {
+        averageMoodIndex = avg.toInt() - 1;
+      }
+    }
 
     return CardLayout(
       content: Column(
@@ -74,33 +86,34 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              ToggleShowAllButton(
-                showAll: showAllInstances,
-                thresholdExceeded: widget.allDoneInstances.length > 4,
-                onToggle: () {
-                  setState(() => showAllInstances = !showAllInstances);
-                },
-                collapsedLabel: 'Heutige',
-                expandedLabel: 'Trends anzeigen',
-              ),
+              // Do not show toggle button in case of general stats
+              if (!widget.showGeneralStatsOnly)
+                ToggleShowAllButton(
+                  showAll: showAllInstances,
+                  thresholdExceeded: widget.allDoneInstances.length > 4,
+                  onToggle: () {
+                    setState(() => showAllInstances = !showAllInstances);
+                  },
+                  collapsedLabel: 'Heutige',
+                  expandedLabel: 'Trends anzeigen',
+                ),
 
-              // Average mood
-              if (widget.allDoneInstances.length > 4 && averageMoodIndex != -1)
+              if (widget.allDoneInstances.length > 4 &&
+                  averageMoodIndex != null &&
+                  averageMoodIndex >= 0)
                 Row(
                   children: [
                     Text(
                       Constants.focusEmojis[averageMoodIndex],
-                      style: const TextStyle(
-                        fontSize: 28,
-                      ),
+                      style: const TextStyle(fontSize: 28),
                     ),
-
-                    const HorizontalSpace(
-                      size: SpaceSize.small,
-                    ),
-
+                    const HorizontalSpace(size: SpaceSize.small),
                     Text(
-                      '''Ø ${showAllInstances ? calculateOverallAverageFocus(widget.allDoneInstances).toStringAsFixed(1) : calculateSessionAverageFocus(widget.currentInstance)}''',
+                      showAllInstances
+                          ? '''Ø '''
+                                '''${calculateOverallAverageFocus(widget.allDoneInstances).toStringAsFixed(1)}'''
+                          : '''Ø '''
+                                ''' ${calculateSessionAverageFocus(widget.currentInstance)}''',
                       style: context.textTheme.bodyLarge,
                     ),
                   ],

@@ -63,4 +63,10 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
       sessions,
     )..where(($SessionsTable s) => s.id.equals(id))).go();
   }
+
+  Future<int> touchSession(int id) async {
+    return (update(sessions)..where((s) => s.id.equals(id))).write(
+      SessionsCompanion(updatedAt: Value(DateTime.now())),
+    );
+  }
 }

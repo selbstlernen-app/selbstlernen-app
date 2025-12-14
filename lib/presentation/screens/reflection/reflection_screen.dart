@@ -52,7 +52,10 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
     await Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.stats,
-      arguments: int.parse(widget.instance.sessionId),
+      arguments: SessionStatisticsArgs(
+        sessionId: int.parse(widget.instance.sessionId),
+        showGeneralStatsOnly: false,
+      ),
       (Route<dynamic> route) => false,
     );
   }
