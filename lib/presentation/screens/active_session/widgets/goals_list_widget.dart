@@ -120,7 +120,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
               final isExpanded = state.expandedGoalId == goal.id;
 
               return Card(
-                elevation: 0.5,
+                elevation: 0,
                 child: Column(
                   children: <Widget>[
                     // Heading

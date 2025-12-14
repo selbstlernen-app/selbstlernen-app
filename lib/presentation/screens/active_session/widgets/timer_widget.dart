@@ -60,7 +60,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
         : (state.remainingSeconds / totalDuration);
 
     return Card(
-      elevation: 0.5,
+      elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       child: Padding(
         padding: const EdgeInsets.all(16),

@@ -5,8 +5,8 @@ class CustomTextTheme {
 
   static TextTheme customTextTheme = const TextTheme(
     // Used for any large display texts like on appBars
-    headlineLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
-    headlineMedium: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+    headlineLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    headlineMedium: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
     headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
 
     // Used for any text not headline

@@ -27,7 +27,7 @@ class PendingSessionTile extends ConsumerWidget {
         children: <Widget>[
           const Positioned.fill(
             child: Card(
-              elevation: 0.5,
+              elevation: 0,
               color: AppPalette.amber,
             ),
           ),
@@ -48,17 +48,17 @@ class PendingSessionTile extends ConsumerWidget {
                 ],
               ),
               child: Card(
-                elevation: 0.5,
+                elevation: 0,
                 clipBehavior: Clip.hardEdge,
                 child: InkWell(
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.detail,
-                    arguments: DetailSessionArgs(
-                      sessionId: int.parse(session.id!),
-                    ),
-                  ),
                   child: ListTile(
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.detail,
+                      arguments: DetailSessionArgs(
+                        sessionId: int.parse(session.id!),
+                      ),
+                    ),
                     title: Text(
                       session.title,
                       style: context.textTheme.headlineSmall,
@@ -78,16 +78,9 @@ class PendingSessionTile extends ConsumerWidget {
                           ? SessionStatus.inProgress
                           : SessionStatus.scheduled,
                     ),
-                    trailing: IconButton(
-                      onPressed: () => Navigator.pushNamed(
-                        context,
-                        AppRoutes.detail,
-                        arguments: DetailSessionArgs(
-                          sessionId: int.parse(session.id!),
-                        ),
-                      ),
-                      icon: const Icon(Icons.arrow_forward_ios_rounded),
-                      color: context.colorScheme.onTertiary,
+                    trailing: Icon(
+                      Icons.chevron_right,
+                      color: context.colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ),

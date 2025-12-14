@@ -58,89 +58,91 @@ class StatisticsScreen extends ConsumerWidget {
         ),
         automaticallyImplyLeading: false,
       ),
-      body: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            LearnCalendar(enrichedInstances: state.enrichedInstances!),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              LearnCalendar(enrichedInstances: state.enrichedInstances!),
 
-            const VerticalSpace(),
+              const VerticalSpace(),
 
-            if (state.stats!.totalInstances > 0)
-              IntrinsicHeight(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: buildStatColumn(
-                        context,
-                        'Fokuszeit\ninsgesamt',
-                        TimeUtils.formatBarChartTime(
-                          state.stats!.totalFocusMinutes.toDouble(),
+              if (state.stats!.totalInstances > 0)
+                IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: buildStatColumn(
+                          context,
+                          'Fokuszeit\ninsgesamt',
+                          TimeUtils.formatBarChartTime(
+                            state.stats!.totalFocusMinutes.toDouble(),
+                          ),
                         ),
                       ),
-                    ),
 
-                    Expanded(
-                      child: buildStatColumn(
-                        context,
-                        'Durchgeführte Einheiten',
-                        state.stats!.totalInstances.toString(),
+                      Expanded(
+                        child: buildStatColumn(
+                          context,
+                          'Durchgeführte Einheiten',
+                          state.stats!.totalInstances.toString(),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+
+              const VerticalSpace(
+                size: SpaceSize.small,
+              ),
+              // Filter buttons
+              Row(
+                children: [
+                  CustomButton(
+                    verticalPadding: 4,
+                    borderRadius: 10,
+                    isActive: state.filter == StatisticsFilter.running,
+                    onPressed: () => ref
+                        .read(statisticsViewModelProvider.notifier)
+                        .setFilter(
+                          StatisticsFilter.running,
+                        ),
+                    label: 'Aktuell',
+                  ),
+                  const HorizontalSpace(
+                    size: SpaceSize.small,
+                  ),
+                  CustomButton(
+                    verticalPadding: 4,
+                    borderRadius: 10,
+                    isActive: state.filter == StatisticsFilter.archived,
+                    onPressed: () => ref
+                        .read(statisticsViewModelProvider.notifier)
+                        .setFilter(StatisticsFilter.archived),
+                    label: 'Archiviert',
+                  ),
+                ],
               ),
 
-            const VerticalSpace(
-              size: SpaceSize.small,
-            ),
-            // Filter buttons
-            Row(
-              children: [
-                CustomButton(
-                  verticalPadding: 4,
-                  borderRadius: 10,
-                  isActive: state.filter == StatisticsFilter.running,
-                  onPressed: () => ref
-                      .read(statisticsViewModelProvider.notifier)
-                      .setFilter(
-                        StatisticsFilter.running,
-                      ),
-                  label: 'Aktuell',
-                ),
-                const HorizontalSpace(
-                  size: SpaceSize.small,
-                ),
-                CustomButton(
-                  verticalPadding: 4,
-                  borderRadius: 10,
-                  isActive: state.filter == StatisticsFilter.archived,
-                  onPressed: () => ref
-                      .read(statisticsViewModelProvider.notifier)
-                      .setFilter(StatisticsFilter.archived),
-                  label: 'Archiviert',
-                ),
-              ],
-            ),
-
-            const VerticalSpace(
-              size: SpaceSize.small,
-            ),
-
-            if (state.activeOrArchivedSessions!.isNotEmpty &&
-                state.filter == StatisticsFilter.running)
-              ...state.activeSessions.map(
-                (e) => ArchivedSessionTile(session: e),
+              const VerticalSpace(
+                size: SpaceSize.small,
               ),
 
-            if (state.activeOrArchivedSessions!.isNotEmpty &&
-                state.filter == StatisticsFilter.archived)
-              ...state.archivedSessions.map(
-                (e) => ArchivedSessionTile(session: e),
-              ),
-          ],
+              if (state.activeOrArchivedSessions!.isNotEmpty &&
+                  state.filter == StatisticsFilter.running)
+                ...state.activeSessions.map(
+                  (e) => ArchivedSessionTile(session: e),
+                ),
+
+              if (state.activeOrArchivedSessions!.isNotEmpty &&
+                  state.filter == StatisticsFilter.archived)
+                ...state.archivedSessions.map(
+                  (e) => ArchivedSessionTile(session: e),
+                ),
+            ],
+          ),
         ),
       ),
     );

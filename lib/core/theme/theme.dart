@@ -19,10 +19,10 @@ class CustomTheme {
       error: const Color(0xffFF2056),
       tertiaryContainer: const Color(0xffE5E5E5),
     ),
-    scaffoldBackgroundColor: const Color(0xffFAFAFA),
-    appBarTheme: const AppBarTheme(backgroundColor: Color(0xffFAFAFA)),
+    scaffoldBackgroundColor: const Color(0xffF5F5F5),
+    appBarTheme: const AppBarTheme(backgroundColor: Color(0xffF5F5F5)),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-      backgroundColor: Color(0xffFAFAFA),
+      backgroundColor: Color(0xffF5F5F5),
     ),
     textTheme: GoogleFonts.urbanistTextTheme(CustomTextTheme.customTextTheme),
   );

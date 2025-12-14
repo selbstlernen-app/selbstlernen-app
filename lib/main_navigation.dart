@@ -3,6 +3,7 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/add_session/add_session_screen.dart';
 import 'package:srl_app/presentation/screens/general_statistics/statistics_screen.dart';
 import 'package:srl_app/presentation/screens/home/home_screen.dart';
+import 'package:srl_app/presentation/screens/settings/settings_screen.dart';
 
 /// Main navigation bar of the application
 class MainNavigation extends StatefulWidget {
@@ -19,7 +20,7 @@ class _MainNavigationState extends State<MainNavigation> {
     HomeScreen(),
     AddSessionScreen(),
     StatisticsScreen(),
-    Placeholder(),
+    SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
