@@ -1,8 +1,14 @@
 import 'package:drift/drift.dart';
-import 'package:srl_app/data/database/tables/session_table.dart';
 
-class Settings extends Table with AutoIncrementingPrimaryKey {
-  TextColumn get key => text().withLength(min: 1, max: 50)();
-  TextColumn get value => text()();
-  DateTimeColumn get updatedAt => dateTime()();
+class Settings extends Table {
+  IntColumn get id => integer().withDefault(const Constant(0))();
+
+  BoolColumn get isDarkMode => boolean().withDefault(const Constant(false))();
+
+  IntColumn get primaryColor =>
+      integer().withDefault(const Constant(4278238463))(); // sky in argb32
+
+  // Id is always 0, cannot increase
+  @override
+  Set<Column> get primaryKey => {id};
 }

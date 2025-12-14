@@ -8,7 +8,7 @@ part 'settings_state.freezed.dart';
 abstract class SettingsState with _$SettingsState {
   const factory SettingsState({
     @Default(false) bool isDarkMode,
-    Color? primaryColor,
+    @Default(Color(0xFF00BCFF)) Color primaryColor,
     @Default(false) bool isLoading,
     String? error,
   }) = _SettingsState;

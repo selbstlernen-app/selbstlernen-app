@@ -10,66 +10,46 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
     with _$SettingsDaoMixin {
   SettingsDao(super.attachedDatabase);
 
-  // Settings keys
-  static const String keyDarkMode = 'dark_mode';
-  static const String keyPrimaryColor = 'primary_color';
-
   // Get setting by key
-  Future<String?> getSetting(String key) async {
-    final query = select(settings)..where((t) => t.key.equals(key));
-    final result = await query.getSingleOrNull();
-    return result?.value;
-  }
+  Future<Setting> getSetting() async {
+    final row = await select(settings).getSingleOrNull();
+    if (row != null) return row;
 
-  // Set or update setting
-  Future<void> setSetting(String key, String value) async {
-    await into(settings).insertOnConflictUpdate(
-      SettingsCompanion.insert(
-        key: key,
-        value: value,
-        updatedAt: DateTime.now(),
-      ),
+    // Insert defaults ONCE if no row is given
+    final defaultRow = SettingsCompanion.insert(
+      id: const Value(0),
+      isDarkMode: const Value(false),
+      primaryColor: Value(AppPalette.sky.toARGB32()),
     );
-  }
 
-  // Get dark mode setting
-  Future<bool> getDarkMode() async {
-    final value = await getSetting(keyDarkMode);
-    return value == 'true';
+    await into(settings).insert(defaultRow);
+    return select(settings).getSingle();
   }
 
   // Set dark mode setting
-  Future<void> setDarkMode({required bool isDark}) async {
-    await setSetting(keyDarkMode, isDark.toString());
+  Future<void> saveDarkMode({required bool isDark}) async {
+    await into(settings).insert(
+      SettingsCompanion(
+        id: const Value(0),
+        isDarkMode: Value(isDark),
+      ),
+      mode: InsertMode.insertOrReplace,
+    );
   }
 
-  // Get primary color setting
-  Future<int> getPrimaryColor() async {
-    final value = await getSetting(keyPrimaryColor);
-    return value != null ? int.parse(value) : AppPalette.sky.toARGB32();
+  // Save primary color
+  Future<void> savePrimaryColor(int colorValue) async {
+    await into(settings).insert(
+      SettingsCompanion(
+        id: const Value(0),
+        primaryColor: Value(colorValue),
+      ),
+      mode: InsertMode.insertOrReplace,
+    );
   }
 
-  // Set primary color setting
-  Future<void> setPrimaryColor(int colorValue) async {
-    await setSetting(keyPrimaryColor, colorValue.toString());
-  }
-
-  // Watch dark mode changes
-  Stream<bool> watchDarkMode() {
-    return (select(settings)..where((t) => t.key.equals(keyDarkMode)))
-        .watchSingleOrNull()
-        .map((setting) => setting?.value == 'true');
-  }
-
-  // Watch primary color changes
-  Stream<int> watchPrimaryColor() {
-    return (select(settings)..where((t) => t.key.equals(keyPrimaryColor)))
-        .watchSingleOrNull()
-        .map((setting) {
-          if (setting?.value != null) {
-            return int.parse(setting!.value);
-          }
-          return AppPalette.sky.toARGB32();
-        });
+  // Watch settings
+  Stream<Setting> watchSettings() {
+    return (select(settings)..where((t) => t.id.equals(0))).watchSingle();
   }
 }
