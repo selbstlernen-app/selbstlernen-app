@@ -1,111 +1,100 @@
-// Theme Settings Detail Screen
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
-class ThemeSettingsScreen extends StatefulWidget {
+class ThemeSettingsScreen extends ConsumerWidget {
   const ThemeSettingsScreen({super.key});
 
   @override
-  State<ThemeSettingsScreen> createState() => _ThemeSettingsScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(settingsViewModelProvider);
+    final notifier = ref.read(settingsViewModelProvider.notifier);
 
-class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
-  bool _isDarkMode = false;
-  Color _selectedColor = Colors.blue;
-
-  final List<Color> _colorOptions = [
-    Colors.blue,
-    Colors.purple,
-    Colors.green,
-    Colors.orange,
-    Colors.red,
-    Colors.teal,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Theme'),
+        title: Text(
+          'Aussehen',
+          style: context.textTheme.headlineLarge,
+        ),
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
             _buildSection(
-              title: 'Darstellungsmodus',
-              child: Container(
-                decoration: BoxDecoration(
-                  color: context.colorScheme.surfaceContainerHighest
-                      .withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: SwitchListTile(
-                  title: const Text('Dunkler Modus'),
-                  subtitle: const Text('Dunkles Farbschema verwenden'),
-                  value: _isDarkMode,
-                  onChanged: (value) {
-                    setState(() {
-                      _isDarkMode = value;
-                    });
-                    // TODO: Implement theme change logic
-                    // You might want to use a state management solution
-                  },
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            _buildSection(
+              context: context,
               title: 'Akzentfarbe',
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: context.colorScheme.surfaceContainerHighest
-                      .withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  children: _colorOptions.map((color) {
-                    final isSelected = _selectedColor == color;
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedColor = color;
-                        });
-                        // TODO: Implement color change logic
-                      },
-                      child: Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                          border: isSelected
-                              ? Border.all(
-                                  color: context.colorScheme.onSurface,
-                                  width: 3,
-                                )
-                              : null,
-                          boxShadow: [
-                            BoxShadow(
-                              color: color.withOpacity(0.4),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: isSelected
-                            ? Icon(
-                                Icons.check,
-                                color: Colors.white,
-                                size: 28,
+              child: Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: AppPalette.themeColors.map((color) {
+                  final isSelected =
+                      state.primaryColor!.toARGB32() == color.toARGB32();
+                  return GestureDetector(
+                    onTap: state.isLoading
+                        ? null
+                        : () => notifier.changePrimaryColor(color),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        border: isSelected
+                            ? Border.all(
+                                color: context.colorScheme.surface,
+                                width: 4,
                               )
                             : null,
                       ),
-                    );
-                  }).toList(),
+                      child: isSelected
+                          ? Icon(
+                              Icons.check_rounded,
+                              color: context.colorScheme.surface,
+                              size: 28,
+                            )
+                          : null,
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+
+            const VerticalSpace(
+              size: SpaceSize.large,
+            ),
+
+            _buildSection(
+              context: context,
+              title: 'Darstellungsmodus',
+              child: Theme(
+                data: ThemeData(useMaterial3: true).copyWith(
+                  colorScheme: context.colorScheme.copyWith(
+                    outline: context.colorScheme.onTertiary,
+                  ),
+                ),
+                child: SwitchListTile(
+                  inactiveThumbColor: context.colorScheme.onTertiary,
+                  tileColor: context.colorScheme.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(10),
+                  ),
+                  title: Text(
+                    'Dunkler Modus',
+                    style: context.textTheme.headlineSmall,
+                  ),
+                  subtitle: Text(
+                    'Dunkles Farbschema verwenden',
+                    style: context.textTheme.bodySmall,
+                  ),
+                  value: state.isDarkMode,
+                  onChanged: (value) =>
+                      notifier.toggleDarkMode(darkMode: value),
                 ),
               ),
             ),
@@ -115,19 +104,18 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen> {
     );
   }
 
-  Widget _buildSection({required String title, required Widget child}) {
+  Widget _buildSection({
+    required String title,
+    required Widget child,
+    required BuildContext context,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 12),
-          child: Text(
-            title,
-            style: context.textTheme.titleMedium!.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
+        Text(title, style: context.textTheme.headlineSmall),
+
+        const VerticalSpace(),
+
         child,
       ],
     );

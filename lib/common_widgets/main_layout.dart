@@ -29,7 +29,7 @@ class MainLayout extends StatelessWidget {
       backgroundColor: Color.lerp(
         context.colorScheme.secondary,
         Colors.white,
-        0.3,
+        0.2,
       ),
       floatingActionButton: showFloatingActionButton
           ? FloatingActionButton(
@@ -46,7 +46,11 @@ class MainLayout extends StatelessWidget {
         toolbarHeight: 80,
         title: AutoSizeText(
           appBarTitle,
-          style: context.textTheme.headlineLarge,
+          style: context.textTheme.headlineLarge!.copyWith(
+            color: context.colorScheme.brightness == Brightness.dark
+                ? context.colorScheme.surface
+                : context.colorScheme.onSurface,
+          ),
           maxLines: 2,
           textAlign: TextAlign.center,
           minFontSize: 14,
@@ -54,7 +58,7 @@ class MainLayout extends StatelessWidget {
         backgroundColor: Color.lerp(
           context.colorScheme.secondary,
           Colors.white,
-          0.3,
+          0.2,
         ),
         actions: actions,
         leading: navigateBack != null
@@ -73,7 +77,7 @@ class MainLayout extends StatelessWidget {
         ),
 
         child: Container(
-          color: context.colorScheme.surface,
+          color: Theme.of(context).scaffoldBackgroundColor,
           width: context.mediaQuery.size.width,
           child: SafeArea(
             child: Padding(padding: const EdgeInsets.all(24), child: content),

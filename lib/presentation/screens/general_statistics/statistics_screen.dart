@@ -30,10 +30,9 @@ class StatisticsScreen extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const SizedBox(height: 16),
+            const Icon(Icons.error_outline, size: 64, color: AppPalette.rose),
+            const VerticalSpace(),
             Text('Fehler: ${state.error}'),
-            const SizedBox(height: 16),
           ],
         ),
       );

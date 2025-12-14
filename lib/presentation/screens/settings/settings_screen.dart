@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
-import 'package:srl_app/common_widgets/vertical_space.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/settings/pages/theme_settings_screen.dart';
 
@@ -28,11 +27,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const VerticalSpace(),
 
               _buildSettingsSection(
-                title: 'Darstellung',
+                title: 'Aussehen',
                 items: [
                   _SettingsItem(
                     icon: Icons.palette_outlined,
-                    title: 'Theme',
+                    title: 'Aussehen',
                     subtitle: 'Farbe und Darstellung anpassen',
                     onTap: () => _navigateToThemeSettings(context),
                   ),
@@ -90,8 +89,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       title: Text(
         item.title,
-        style: context.textTheme.bodyLarge!.copyWith(
-          fontWeight: FontWeight.w500,
+        style: context.textTheme.bodyMedium!.copyWith(
+          fontWeight: FontWeight.w600,
         ),
       ),
       subtitle: item.subtitle != null
@@ -119,15 +118,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 }
 
 class _SettingsItem {
+  _SettingsItem({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.subtitle,
+  });
+
   final IconData icon;
   final String title;
   final String? subtitle;
   final VoidCallback onTap;
-
-  _SettingsItem({
-    required this.icon,
-    required this.title,
-    this.subtitle,
-    required this.onTap,
-  });
 }
