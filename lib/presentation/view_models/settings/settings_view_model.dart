@@ -36,8 +36,7 @@ class SettingsViewModel extends _$SettingsViewModel {
   }
 
   Future<void> toggleDarkMode({required bool darkMode}) async {
-    state = state.copyWith(isLoading: true);
-
+    state = state.copyWith(isLoading: true, followSystem: false);
     try {
       await _manageSettingsUseCase.saveDarkMode(isDarkMode: darkMode);
       state = state.copyWith(
@@ -74,7 +73,7 @@ class SettingsViewModel extends _$SettingsViewModel {
 
   // Reset to defaults
   Future<void> resetToDefaults() async {
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, followSystem: true);
 
     try {
       await _manageSettingsUseCase.resetDefault();

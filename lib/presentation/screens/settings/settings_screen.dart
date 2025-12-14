@@ -1,18 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/settings/pages/theme_settings_screen.dart';
+import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(settingsViewModelProvider);
+
+    if (state.isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: LoadingIndicator(),
+        ),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         child: Padding(

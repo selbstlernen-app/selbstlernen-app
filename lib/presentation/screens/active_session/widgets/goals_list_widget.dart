@@ -82,7 +82,14 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text('Ziele & Aufgaben', style: context.textTheme.headlineSmall),
+            Text(
+              'Ziele & Aufgaben',
+              style: context.textTheme.headlineSmall!.copyWith(
+                color: context.colorScheme.brightness == Brightness.dark
+                    ? context.colorScheme.surface
+                    : context.colorScheme.onSurface,
+              ),
+            ),
             CustomIconButton(
               isActive: state.isEditMode,
               onPressed: viewModel.toggleEditMode,

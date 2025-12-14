@@ -6,46 +6,31 @@ import 'package:srl_app/core/theme/text_theme.dart';
 class CustomTheme {
   CustomTheme._();
 
-  static ThemeData getTheme({
-    required bool isDark,
-    required Color primaryColor,
-  }) {
-    final brightness = isDark ? Brightness.dark : Brightness.light;
+  static ThemeData lightTheme({required Color primaryColor}) {
     final secondaryColor = AppPalette.getLightVariant(primaryColor);
 
+    /// Returns the dark theme with no surface tint enabled
     return ThemeData(
       useMaterial3: true,
-      brightness: brightness,
-
+      brightness: Brightness.light,
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
-        brightness: brightness,
         primary: primaryColor,
         secondary: secondaryColor,
         onSecondary: Colors.white,
-        tertiary: isDark ? const Color(0xff2A2A2A) : const Color(0xffF5F5F5),
+        tertiary: const Color(0xffF5F5F5),
         onTertiary: const Color(0xffA1A1A1),
-        // TODO: fix issue with this not applying correctly
-        surfaceTint: isDark ? null : Colors.transparent,
-        onSurface: isDark ? const Color(0xffE5E5E5) : const Color(0xff1E1E1E),
+        surfaceTint: Colors.transparent, // NO tint in light mode
+        onSurface: const Color(0xff1E1E1E),
         error: const Color(0xffFF2056),
-        tertiaryContainer: isDark
-            ? const Color(0xff3A3A3A)
-            : const Color(0xffE5E5E5),
+        tertiaryContainer: const Color(0xffE5E5E5),
       ),
-      scaffoldBackgroundColor: isDark
-          ? const Color(0xFF121212)
-          : const Color(0xffF5F5F5),
-      appBarTheme: AppBarTheme(
-        backgroundColor: isDark
-            ? const Color(0xFF121212)
-            : const Color(0xffF5F5F5),
+      scaffoldBackgroundColor: const Color(0xffF5F5F5),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xffF5F5F5),
       ),
-
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: isDark
-            ? const Color(0xFF121212)
-            : const Color(0xffF5F5F5),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(0xffF5F5F5),
       ),
       textTheme: GoogleFonts.urbanistTextTheme(
         CustomTextTheme.customTextTheme,
@@ -53,12 +38,35 @@ class CustomTheme {
     );
   }
 
-  // Helper to adjust color brightness
-  static Color _adjustColor(Color color, double amount) {
-    final hsl = HSLColor.fromColor(color);
-    final adjusted = hsl.withLightness(
-      (hsl.lightness + amount).clamp(0.0, 1.0),
+  /// Returns the dark theme with surface tint enabled
+  static ThemeData darkTheme({required Color primaryColor}) {
+    final secondaryColor = AppPalette.getLightVariant(primaryColor);
+
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: primaryColor,
+        brightness: Brightness.dark,
+        primary: primaryColor,
+        secondary: secondaryColor,
+        onSecondary: Colors.white,
+        tertiary: const Color(0xff2A2A2A),
+        onTertiary: const Color(0xffA1A1A1),
+        onSurface: const Color(0xffE5E5E5),
+        error: const Color(0xffFF2056),
+        tertiaryContainer: const Color(0xff3A3A3A),
+      ),
+      scaffoldBackgroundColor: const Color(0xFF121212),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF121212),
+      ),
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: Color(0xFF121212),
+      ),
+      textTheme: GoogleFonts.urbanistTextTheme(
+        CustomTextTheme.customTextTheme,
+      ),
     );
-    return adjusted.toColor();
   }
 }
