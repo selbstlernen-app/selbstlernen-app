@@ -1,7 +1,4 @@
 import 'dart:ui';
-
-import 'package:srl_app/core/theme/app_palette.dart';
-import 'package:srl_app/data/repositories/settings_repository_imp.dart';
 import 'package:srl_app/domain/settings_repository.dart';
 
 class ManageSettingsUseCase {
@@ -9,24 +6,29 @@ class ManageSettingsUseCase {
 
   final SettingsRepository _repository;
 
-  Future<SettingsData> getSettings() async {
-    return _repository.getSettings();
-  }
+  bool getDarkMode() => _repository.isDarkMode;
+  bool getFollowSystem() => _repository.followSystem;
+  Color? getPrimaryColor() => _repository.primaryColor;
 
   // Toggle dark mode
-  Future<void> saveDarkMode({required bool isDarkMode}) async {
-    await _repository.saveDarkMode(isDarkMode: isDarkMode);
+  Future<void> toggleDarkMode() async {
+    final current = _repository.isDarkMode;
+
+    await _repository.setDarkMode(value: !current);
+  }
+
+  // Set follow system
+  Future<void> setFollowSystem({required bool followSystem}) async {
+    await _repository.setFollowSystem(value: followSystem);
   }
 
   // Change primary color
-  Future<void> savePrimaryColor(Color color) async {
-    final colorValue = color.toARGB32();
-    await _repository.savePrimaryColor(colorValue);
+  Future<void> setPrimaryColor(Color color) async {
+    await _repository.setPrimaryColor(color);
   }
 
-  // Reset to defaults
-  Future<void> resetDefault() async {
-    await _repository.saveDarkMode(isDarkMode: false);
-    await _repository.savePrimaryColor(AppPalette.sky.toARGB32());
+  // Clear all settings
+  Future<void> clearAllSettings() async {
+    await _repository.clearAll();
   }
 }

@@ -32,11 +32,9 @@ class ThemeSettingsScreen extends ConsumerWidget {
                 runSpacing: 16,
                 children: AppPalette.themeColors.map((color) {
                   final isSelected =
-                      state.primaryColor!.toARGB32() == color.toARGB32();
+                      state.primaryColor.toARGB32() == color.toARGB32();
                   return GestureDetector(
-                    onTap: state.isLoading
-                        ? null
-                        : () => notifier.changePrimaryColor(color),
+                    onTap: () => notifier.setPrimaryColor(color),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       width: 40,
@@ -77,23 +75,47 @@ class ThemeSettingsScreen extends ConsumerWidget {
                     outline: context.colorScheme.onTertiary,
                   ),
                 ),
-                child: SwitchListTile(
-                  inactiveThumbColor: context.colorScheme.onTertiary,
-                  tileColor: context.colorScheme.surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(10),
-                  ),
-                  title: Text(
-                    'Dunkler Modus',
-                    style: context.textTheme.headlineSmall,
-                  ),
-                  subtitle: Text(
-                    'Dunkles Farbschema verwenden',
-                    style: context.textTheme.bodySmall,
-                  ),
-                  value: state.isDarkMode,
-                  onChanged: (value) =>
-                      notifier.toggleDarkMode(darkMode: value),
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      title: Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          'System Modus',
+                          style: context.textTheme.headlineSmall,
+                        ),
+                      ),
+                      subtitle: Text(
+                        state.followSystem
+                            ? 'Geräte-Einstellung benutzen'
+                            : 'Manuelle Einstellung benutzen',
+                      ),
+                      value: state.followSystem,
+                      onChanged: (value) async {
+                        await notifier.setFollowSystem(value: value);
+                      },
+                    ),
+
+                    SwitchListTile(
+                      inactiveThumbColor: context.colorScheme.onTertiary,
+                      tileColor: context.colorScheme.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.circular(10),
+                      ),
+                      title: Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          'Dunkler Modus',
+                          style: context.textTheme.headlineSmall,
+                        ),
+                      ),
+                      subtitle: const Text(
+                        'Dunkles Farbschema verwenden',
+                      ),
+                      value: state.isDarkMode,
+                      onChanged: (_) => notifier.toggleDarkMode(),
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -18,13 +18,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     final state = ref.watch(settingsViewModelProvider);
 
-    if (state.isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: LoadingIndicator(),
-        ),
-      );
-    }
     return Scaffold(
       body: SafeArea(
         child: Padding(

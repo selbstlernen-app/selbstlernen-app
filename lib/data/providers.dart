@@ -72,5 +72,6 @@ GoalRepository goalRepository(Ref ref) {
 
 @riverpod
 SettingsRepository settingsRepository(Ref ref) {
-  return SettingsRepositoryImp(ref.watch(settingsDaoProvider));
+  // Overriden in main.dart!
+  throw UnimplementedError();
 }

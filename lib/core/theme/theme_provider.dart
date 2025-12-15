@@ -1,8 +1,5 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/theme/theme.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
@@ -21,7 +18,7 @@ Color? primaryColor(Ref ref) {
 @riverpod
 ThemeData theme(Ref ref) {
   final settings = ref.watch(settingsViewModelProvider);
-  final primaryColor = settings.primaryColor ?? AppPalette.sky;
+  final primaryColor = settings.primaryColor;
 
   // Decide brightness either on system or customized
   final isDark = settings.followSystem

@@ -1,56 +1,51 @@
 import 'dart:ui';
 
-import 'package:srl_app/data/database/daos/settings_dao.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:srl_app/domain/settings_repository.dart';
 
 class SettingsRepositoryImp implements SettingsRepository {
-  SettingsRepositoryImp(this._dao);
+  SettingsRepositoryImp(this._prefs);
 
-  final SettingsDao _dao;
+  final SharedPreferences _prefs;
+  static const _darkModeKey = 'dark_mode';
+  static const _followSystemKey = 'follow_system';
+  static const _primaryColorKey = 'primary_color';
 
-  // Get current settings
+  // Getters
   @override
-  Future<SettingsData> getSettings() async {
-    final row = await _dao.getSetting();
+  bool get isDarkMode => _prefs.getBool(_darkModeKey) ?? false;
 
-    return SettingsData(
-      isDarkMode: row.isDarkMode,
-      primaryColor: Color(row.primaryColor),
-    );
+  @override
+  bool get followSystem => _prefs.getBool(_followSystemKey) ?? true;
+
+  @override
+  Color? get primaryColor {
+    final colorValue = _prefs.getInt(_primaryColorKey);
+    return colorValue != null ? Color(colorValue) : null;
   }
 
-  // Save dark mode
+  // Setters
   @override
-  Future<void> saveDarkMode({required bool isDarkMode}) async {
-    await _dao.saveDarkMode(isDark: isDarkMode);
+  Future<void> setDarkMode({required bool value}) async {
+    await _prefs.setBool(_darkModeKey, value);
   }
 
-  // Save primary color
   @override
-  Future<void> savePrimaryColor(int color) async {
-    await _dao.savePrimaryColor(color);
+  Future<void> setFollowSystem({required bool value}) async {
+    await _prefs.setBool(_followSystemKey, value);
   }
 
-  // Watch settings changes
   @override
-  @override
-  Stream<SettingsData> watchSettings() {
-    return _dao.watchSettings().map(
-      (row) => SettingsData(
-        isDarkMode: row.isDarkMode,
-        primaryColor: Color(row.primaryColor),
-      ),
-    );
+  Future<void> setPrimaryColor(Color? color) async {
+    if (color != null) {
+      await _prefs.setInt(_primaryColorKey, color.toARGB32());
+    } else {
+      await _prefs.remove(_primaryColorKey);
+    }
   }
-}
 
-// Helper class to get data in readable form
-class SettingsData {
-  SettingsData({
-    required this.isDarkMode,
-    required this.primaryColor,
-  });
-
-  final bool isDarkMode;
-  final Color primaryColor;
+  @override
+  Future<void> clearAll() async {
+    await _prefs.clear();
+  }
 }
