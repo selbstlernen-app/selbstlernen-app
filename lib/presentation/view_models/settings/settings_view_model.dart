@@ -31,9 +31,11 @@ class SettingsViewModel extends _$SettingsViewModel {
     state = state.copyWith(isDarkMode: _manageSettingsUseCase.getDarkMode());
   }
 
-  Future<void> setFollowSystem({required bool value}) async {
-    await _manageSettingsUseCase.setFollowSystem(followSystem: value);
-    state = state.copyWith(followSystem: value);
+  Future<void> toggleFollowSystem() async {
+    await _manageSettingsUseCase.toggleFollowSystem();
+    state = state.copyWith(
+      followSystem: _manageSettingsUseCase.getFollowSystem(),
+    );
   }
 
   Future<void> setPrimaryColor(Color color) async {

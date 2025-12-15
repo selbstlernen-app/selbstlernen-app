@@ -18,8 +18,9 @@ class ManageSettingsUseCase {
   }
 
   // Set follow system
-  Future<void> setFollowSystem({required bool followSystem}) async {
-    await _repository.setFollowSystem(value: followSystem);
+  Future<void> toggleFollowSystem() async {
+    final current = _repository.followSystem;
+    await _repository.setFollowSystem(value: !current);
   }
 
   // Change primary color

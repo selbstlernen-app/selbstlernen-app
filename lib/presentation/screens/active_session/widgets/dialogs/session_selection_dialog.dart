@@ -156,7 +156,7 @@ class _SelectionDialogContentState extends State<_SelectionDialogContent> {
             'Neue Elemente',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppPalette.sky,
+              color: context.colorScheme.primary,
             ),
           ),
           const VerticalSpace(size: SpaceSize.xsmall),

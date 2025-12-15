@@ -94,10 +94,13 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
     // Filter out any null instances for safety
     final allCompletedInstances =
-        state.instances!
+        state.instances!.where((e) => e.completedAt != null).toList()
+          ..sort((a, b) => b.completedAt!.compareTo(a.completedAt!));
+
+    final allNoneSkippedInstances =
+        allCompletedInstances
             .where(
-              (e) =>
-                  e.completedAt != null && e.status == SessionStatus.completed,
+              (i) => i.status != SessionStatus.skipped,
             )
             .toList()
           ..sort((a, b) => b.completedAt!.compareTo(a.completedAt!));
@@ -128,9 +131,9 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       /// Goals and Task Progress
                       GoalTaskCompletionCard(
                         stats: stats,
-                        pastInstances: allCompletedInstances,
-                        totalGoals: state.goals!.length,
-                        totalTasks: state.tasks!.length,
+                        pastInstances: state.allInstances,
+                        totalGoals: state.totalGoals!,
+                        totalTasks: state.totalTasks!,
                       ),
 
                       const VerticalSpace(),
@@ -160,7 +163,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       if (state.session!.hasFocusPrompt) ...[
                         // Shows how often what focus prompt has been clicked
                         FocusPromptCard(
-                          allDoneInstances: allCompletedInstances,
+                          allDoneInstances: allNoneSkippedInstances,
                           currentInstance: allCompletedInstances.first,
                           showGeneralStatsOnly: showGeneralStatsOnly,
                           focusChecks: allCompletedInstances.first.focusChecks,

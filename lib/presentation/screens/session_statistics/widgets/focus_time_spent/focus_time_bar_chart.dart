@@ -212,10 +212,10 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
           y: widget.targetFocusMinutes,
           color: AppPalette.tealLight,
           strokeWidth: 3,
-          dashArray: [10, 7],
+          dashArray: [6, 7],
           label: HorizontalLineLabel(
             show: true,
-            padding: const EdgeInsets.all(4),
+            alignment: Alignment.topRight,
             style: const TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -259,7 +259,8 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
                 topRight: Radius.circular(5),
                 topLeft: Radius.circular(5),
               ),
-              toY: minutes,
+              // if no minutes were completed, still show a bar
+              toY: minutes == 0 ? 0.1 : minutes,
               color: touchedGroupIndex == index
                   ? AppPalette.pink
                   : AppPalette.pinkLight,

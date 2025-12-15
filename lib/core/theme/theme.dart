@@ -20,7 +20,6 @@ class CustomTheme {
         onSecondary: Colors.white,
         tertiary: const Color(0xffF5F5F5),
         onTertiary: const Color(0xffA1A1A1),
-        surfaceTint: Colors.transparent, // NO tint in light mode
         onSurface: const Color(0xff1E1E1E),
         error: const Color(0xffFF2056),
         tertiaryContainer: const Color(0xffE5E5E5),
@@ -28,6 +27,18 @@ class CustomTheme {
       scaffoldBackgroundColor: const Color(0xffF5F5F5),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xffF5F5F5),
+      ),
+      cardTheme: const CardThemeData(
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        color: Colors.white,
+      ),
+      listTileTheme: const ListTileThemeData(
+        tileColor: Colors.white,
+      ),
+      dialogTheme: const DialogThemeData(
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: Colors.white,
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xffF5F5F5),
@@ -38,7 +49,7 @@ class CustomTheme {
     );
   }
 
-  /// Returns the dark theme with surface tint enabled
+  /// Returns the dark theme
   static ThemeData darkTheme({required Color primaryColor}) {
     final secondaryColor = AppPalette.getLightVariant(primaryColor);
 
@@ -60,6 +71,9 @@ class CustomTheme {
       scaffoldBackgroundColor: const Color(0xFF121212),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF121212),
+      ),
+      cardTheme: const CardThemeData(
+        elevation: 0,
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: Color(0xFF121212),

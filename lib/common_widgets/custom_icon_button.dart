@@ -42,7 +42,7 @@ class CustomIconButton extends StatelessWidget {
             ? context.colorScheme.primary
             : context.colorScheme.surface,
         foregroundColor: isActive
-            ? Colors.white
+            ? context.colorScheme.onPrimary
             : context.colorScheme.onTertiary,
       ),
       child: label != null

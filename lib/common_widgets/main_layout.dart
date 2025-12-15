@@ -65,7 +65,9 @@ class MainLayout extends StatelessWidget {
             ? IconButton(
                 onPressed: navigateBack,
                 icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                color: context.colorScheme.onSurface,
+                color: context.colorScheme.brightness == Brightness.dark
+                    ? context.colorScheme.surface
+                    : context.colorScheme.onSurface,
               )
             : null,
         bottom: bottomBarWidget,
@@ -77,7 +79,9 @@ class MainLayout extends StatelessWidget {
         ),
 
         child: Container(
-          color: Theme.of(context).scaffoldBackgroundColor,
+          color: context.colorScheme.brightness == Brightness.dark
+              ? Theme.of(context).scaffoldBackgroundColor
+              : context.colorScheme.surface,
           width: context.mediaQuery.size.width,
           child: SafeArea(
             child: Padding(padding: const EdgeInsets.all(24), child: content),

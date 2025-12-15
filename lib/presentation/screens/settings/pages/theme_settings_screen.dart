@@ -69,15 +69,14 @@ class ThemeSettingsScreen extends ConsumerWidget {
             _buildSection(
               context: context,
               title: 'Darstellungsmodus',
-              child: Theme(
-                data: ThemeData(useMaterial3: true).copyWith(
-                  colorScheme: context.colorScheme.copyWith(
-                    outline: context.colorScheme.onTertiary,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    SwitchListTile(
+              child: Column(
+                children: [
+                  Card(
+                    child: ListTile(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+
                       title: Padding(
                         padding: const EdgeInsets.only(bottom: 4),
                         child: Text(
@@ -90,17 +89,23 @@ class ThemeSettingsScreen extends ConsumerWidget {
                             ? 'Geräte-Einstellung benutzen'
                             : 'Manuelle Einstellung benutzen',
                       ),
-                      value: state.followSystem,
-                      onChanged: (value) async {
-                        await notifier.setFollowSystem(value: value);
-                      },
-                    ),
 
-                    SwitchListTile(
-                      inactiveThumbColor: context.colorScheme.onTertiary,
-                      tileColor: context.colorScheme.surface,
+                      trailing: Switch(
+                        value: state.followSystem,
+                        onChanged: (_) => notifier.toggleFollowSystem(),
+                      ),
+                      onTap: notifier.toggleFollowSystem,
+                    ),
+                  ),
+
+                  const VerticalSpace(
+                    size: SpaceSize.small,
+                  ),
+
+                  Card(
+                    child: ListTile(
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.circular(10),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       title: Padding(
                         padding: const EdgeInsets.only(bottom: 4),
@@ -109,14 +114,15 @@ class ThemeSettingsScreen extends ConsumerWidget {
                           style: context.textTheme.headlineSmall,
                         ),
                       ),
-                      subtitle: const Text(
-                        'Dunkles Farbschema verwenden',
+                      subtitle: const Text('Dunkles Farbschema verwenden'),
+                      trailing: Switch(
+                        value: state.isDarkMode,
+                        onChanged: (_) => notifier.toggleDarkMode(),
                       ),
-                      value: state.isDarkMode,
-                      onChanged: (_) => notifier.toggleDarkMode(),
+                      onTap: notifier.toggleDarkMode,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ],

@@ -29,30 +29,31 @@ class ArchivedSessionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      tileColor: context.colorScheme.surface,
-      onTap: () =>
-          Navigator.of(
-            context,
-          ).pushNamed(
-            AppRoutes.stats,
-            arguments: SessionStatisticsArgs(
-              sessionId: int.parse(session.id!),
-              showGeneralStatsOnly: true,
+    return Card(
+      child: ListTile(
+        onTap: () =>
+            Navigator.of(
+              context,
+            ).pushNamed(
+              AppRoutes.stats,
+              arguments: SessionStatisticsArgs(
+                sessionId: int.parse(session.id!),
+                showGeneralStatsOnly: true,
+              ),
             ),
-          ),
-      title: Text(session.title, style: context.textTheme.headlineSmall),
-      subtitle: Text(
-        session.isArchived ? 'Archiviert' : 'Aktuell laufend',
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      leading: _getIconBox(context),
+        title: Text(session.title, style: context.textTheme.headlineSmall),
+        subtitle: Text(
+          session.isArchived ? 'Archiviert' : 'Aktuell laufend',
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        leading: _getIconBox(context),
 
-      trailing: Icon(
-        Icons.chevron_right,
-        color: context.colorScheme.onSurfaceVariant,
+        trailing: Icon(
+          Icons.chevron_right,
+          color: context.colorScheme.onSurfaceVariant,
+        ),
       ),
     );
   }

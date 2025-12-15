@@ -25,7 +25,7 @@ Color getColor(SessionStatus status) {
     case SessionStatus.skipped:
       return AppPalette.yellow;
     case SessionStatus.scheduled:
-      return AppPalette.fuchsia;
+      return AppPalette.blue;
     case SessionStatus.inProgress:
       return AppPalette.blue;
     case SessionStatus.missed:

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/settings/pages/theme_settings_screen.dart';
@@ -83,32 +82,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Widget _buildSettingsTile(_SettingsItem item) {
-    return ListTile(
-      tileColor: context.colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      leading: Icon(
-        item.icon,
-        color: context.colorScheme.primary,
-      ),
-      title: Text(
-        item.title,
-        style: context.textTheme.bodyMedium!.copyWith(
-          fontWeight: FontWeight.w600,
+    return Card(
+      child: ListTile(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
         ),
+        leading: Icon(
+          item.icon,
+          color: context.colorScheme.primary,
+        ),
+        title: Text(
+          item.title,
+          style: context.textTheme.bodyMedium!.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        subtitle: item.subtitle != null
+            ? Text(
+                item.subtitle!,
+                style: context.textTheme.bodySmall,
+              )
+            : null,
+        trailing: Icon(
+          Icons.chevron_right,
+          color: context.colorScheme.onSurfaceVariant,
+        ),
+        onTap: item.onTap,
       ),
-      subtitle: item.subtitle != null
-          ? Text(
-              item.subtitle!,
-              style: context.textTheme.bodySmall,
-            )
-          : null,
-      trailing: Icon(
-        Icons.chevron_right,
-        color: context.colorScheme.onSurfaceVariant,
-      ),
-      onTap: item.onTap,
     );
   }
 
