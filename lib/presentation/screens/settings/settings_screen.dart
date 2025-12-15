@@ -58,7 +58,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       children: [
         Text(
           title,
-          style: context.textTheme.headlineSmall!.copyWith(
+          style: context.textTheme.headlineMedium!.copyWith(
             color: context.colorScheme.primary,
           ),
         ),
@@ -93,14 +93,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         title: Text(
           item.title,
-          style: context.textTheme.bodyMedium!.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: context.textTheme.headlineSmall,
         ),
         subtitle: item.subtitle != null
             ? Text(
                 item.subtitle!,
-                style: context.textTheme.bodySmall,
               )
             : null,
         trailing: Icon(
