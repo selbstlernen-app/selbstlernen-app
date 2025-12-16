@@ -71,6 +71,7 @@ FullSessionUseCase fullSessionUseCase(Ref ref) {
     ref.watch(sessionRepositoryProvider),
     ref.watch(goalRepositoryProvider),
     ref.watch(taskRepositoryProvider),
+    ref.watch(sessionInstanceRepositoryProvider),
   );
 }
 

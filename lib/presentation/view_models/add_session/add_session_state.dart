@@ -17,6 +17,8 @@ abstract class AddSessionState with _$AddSessionState {
     // Goals and tasks
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,
+
+    // In edit mode we may delete some tasks/goals
     @Default(<String>[]) List<String> taskIdsToDelete,
     @Default(<String>[]) List<String> goalIdsToDelete,
 

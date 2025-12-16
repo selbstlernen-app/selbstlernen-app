@@ -183,9 +183,8 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                               state.isEditMode &&
                               goal.id != ungroupedGoalId)
                             IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                color: context.colorScheme.error,
+                              icon: const Icon(
+                                Icons.delete_forever_rounded,
                               ),
                               onPressed: () =>
                                   viewModel.removeGoalById(goalId: goal.id!),
@@ -303,7 +302,9 @@ class _TaskItem extends StatelessWidget {
       trailing: isEditMode
           ? IconButton(
               onPressed: onDelete,
-              icon: Icon(Icons.delete, color: context.colorScheme.error),
+              icon: const Icon(
+                Icons.delete_forever_rounded,
+              ),
             )
           : null,
     );

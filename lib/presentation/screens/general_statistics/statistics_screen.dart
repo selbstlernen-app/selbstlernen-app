@@ -96,32 +96,36 @@ class StatisticsScreen extends ConsumerWidget {
               const VerticalSpace(
                 size: SpaceSize.small,
               ),
+
               // Filter buttons
               Row(
                 children: [
-                  CustomButton(
-                    verticalPadding: 4,
-                    borderRadius: 10,
-                    isActive: state.filter == StatisticsFilter.running,
-                    onPressed: () => ref
-                        .read(statisticsViewModelProvider.notifier)
-                        .setFilter(
-                          StatisticsFilter.running,
-                        ),
-                    label: 'Aktuell',
-                  ),
-                  const HorizontalSpace(
-                    size: SpaceSize.small,
-                  ),
-                  CustomButton(
-                    verticalPadding: 4,
-                    borderRadius: 10,
-                    isActive: state.filter == StatisticsFilter.archived,
-                    onPressed: () => ref
-                        .read(statisticsViewModelProvider.notifier)
-                        .setFilter(StatisticsFilter.archived),
-                    label: 'Archiviert',
-                  ),
+                  if (state.activeSessions.isNotEmpty) ...[
+                    CustomButton(
+                      verticalPadding: 4,
+                      borderRadius: 10,
+                      isActive: state.filter == StatisticsFilter.running,
+                      onPressed: () => ref
+                          .read(statisticsViewModelProvider.notifier)
+                          .setFilter(
+                            StatisticsFilter.running,
+                          ),
+                      label: 'Aktuell',
+                    ),
+                    const HorizontalSpace(
+                      size: SpaceSize.small,
+                    ),
+                  ],
+                  if (state.archivedSessions.isNotEmpty)
+                    CustomButton(
+                      verticalPadding: 4,
+                      borderRadius: 10,
+                      isActive: state.filter == StatisticsFilter.archived,
+                      onPressed: () => ref
+                          .read(statisticsViewModelProvider.notifier)
+                          .setFilter(StatisticsFilter.archived),
+                      label: 'Archiviert',
+                    ),
                 ],
               ),
 
