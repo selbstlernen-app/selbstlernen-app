@@ -136,7 +136,11 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
             switchInCurve: Curves.fastEaseInToSlowEaseOut,
             switchOutCurve: Curves.fastEaseInToSlowEaseOut,
             child: showAllInstances
-                ? AverageFocusChart(instances: widget.allDoneInstances)
+                ? AverageFocusChart(
+                    instances: widget.allDoneInstances
+                        .where((i) => i.focusChecks.isNotEmpty)
+                        .toList(),
+                  )
                 : FocusLevelChart(instance: widget.currentInstance),
           ),
         ],
