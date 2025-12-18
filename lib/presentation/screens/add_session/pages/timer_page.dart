@@ -31,6 +31,8 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
 
     // Initialize after build; if in edit mode
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
       final state = ref.read(addSessionViewModelProvider);
 
       _focusController.text = state.focusTimeMin.toString();
