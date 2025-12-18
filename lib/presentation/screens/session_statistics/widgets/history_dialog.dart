@@ -14,72 +14,81 @@ Future<void> showHistoryBottomSheet(
 ) async {
   await showModalBottomSheet<void>(
     context: context,
+    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
-    builder: (context) => DraggableScrollableSheet(
-      initialChildSize: 0.7,
-      minChildSize: 0.5,
-      maxChildSize: 0.95,
-      expand: false,
-      builder: (context, scrollController) => Column(
-        children: [
-          // Handle bar
-          Container(
-            margin: const EdgeInsets.only(top: 16, bottom: 8),
-            width: 50,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppPalette.grey.withValues(
-                alpha: 0.4,
+    builder: (context) => Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.7,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        expand: false,
+        builder: (context, scrollController) => Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 16, bottom: 8),
+              width: 50,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppPalette.grey.withValues(
+                  alpha: 0.4,
+                ),
+                borderRadius: BorderRadius.circular(2),
               ),
-              borderRadius: BorderRadius.circular(2),
             ),
-          ),
-          // Title
-          Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Session-Verlauf für \n$attributeLabel',
-                      style: context.textTheme.headlineLarge,
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        color: AppPalette.grey.withValues(alpha: 0.5),
+            // Title
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Session-Verlauf für \n$attributeLabel',
+                        style: context.textTheme.headlineLarge,
                       ),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: AppPalette.grey.withValues(alpha: 0.5),
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
 
-                const VerticalSpace(size: SpaceSize.small),
-                Divider(
-                  color: context.colorScheme.tertiary,
-                  thickness: 4,
-                  radius: BorderRadius.circular(10),
-                ),
-              ],
-            ),
-          ),
-
-          // Content with scroll controller
-          Expanded(
-            child: SingleChildScrollView(
-              controller: scrollController,
-              child: _HistorySection(
-                instances: instances,
-                getAttributeValue: getAttributeValue,
+                  const VerticalSpace(size: SpaceSize.small),
+                  Divider(
+                    color: context.colorScheme.tertiary,
+                    thickness: 4,
+                    radius: BorderRadius.circular(10),
+                  ),
+                ],
               ),
             ),
-          ),
-        ],
+
+            // Content with scroll controller
+            Expanded(
+              child: SingleChildScrollView(
+                controller: scrollController,
+                child: _HistorySection(
+                  instances: instances,
+                  getAttributeValue: getAttributeValue,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     ),
   );
