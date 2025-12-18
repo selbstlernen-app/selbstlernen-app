@@ -25,6 +25,30 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <!-- Handles triggering scheduled notification -->
+        <receiver
+        android:exported="false"
+        android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+
+        <!-- Reschedules notifications after a reboot -->
+        <receiver
+        android:exported="false"
+        android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+        <intent-filter>
+        <action android:name="android.intent.action.BOOT_COMPLETED"/>
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+        <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+        </intent-filter>
+        </receiver>
+
+        <!-- Showing notifications immediately -->
+        <receiver
+        android:exported="false"
+        android:name="com.dexterous.flutterlocalnotifications.FlutterLocalNotificationsReceiver"/>
+
+
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
@@ -42,4 +66,14 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
+    <!-- Permissions -->
+    <!-- Allow app to show notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- Lets app run code after device has restarted -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Allows app to vibrate -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- Lets app read or change "Do not Disturb" settings -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 </manifest>

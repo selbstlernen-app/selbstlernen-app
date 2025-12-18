@@ -11,8 +11,11 @@ android {
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+            // Flag to enable support for the new language APIs
+            isCoreLibraryDesugaringEnabled = true
+            // Sets Java compatibility to Java 11
+            sourceCompatibility = JavaVersion.VERSION_11
+            targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
@@ -30,6 +33,8 @@ android {
         versionName = flutter.versionName
     }
 
+   
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -37,6 +42,10 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
 flutter {

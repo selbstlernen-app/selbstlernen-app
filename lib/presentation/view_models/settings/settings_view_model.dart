@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/domain/providers.dart';
@@ -19,11 +20,19 @@ class SettingsViewModel extends _$SettingsViewModel {
       manageSettingsUseCaseProvider,
     );
 
+    unawaited(_checkPermission());
+
     return SettingsState(
       isDarkMode: _manageSettingsUseCase.getDarkMode(),
       followSystem: _manageSettingsUseCase.getFollowSystem(),
       primaryColor: _manageSettingsUseCase.getPrimaryColor() ?? AppPalette.sky,
     );
+  }
+
+  Future<void> _checkPermission() async {
+    final hasPermission = await Permission.notification.isGranted;
+
+    state = state.copyWith(hasNotificationPermission: hasPermission);
   }
 
   Future<void> toggleDarkMode() async {

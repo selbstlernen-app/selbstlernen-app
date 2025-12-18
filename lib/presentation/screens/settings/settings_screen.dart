@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/presentation/screens/settings/pages/notification_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/theme_settings_screen.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
@@ -35,9 +36,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 items: [
                   _SettingsItem(
                     icon: Icons.palette_outlined,
-                    title: 'Aussehen',
+                    title: 'Farben anpassen',
                     subtitle: 'Farbe und Darstellung anpassen',
                     onTap: () => _navigateToThemeSettings(context),
+                  ),
+                ],
+              ),
+
+              const VerticalSpace(),
+
+              _buildSettingsSection(
+                title: 'Benachrichtigungen',
+                items: [
+                  _SettingsItem(
+                    icon: Icons.notifications_active_outlined,
+                    title: 'Benachrichtigungen',
+                    subtitle: 'Benachrichtigungen anpassen und konfigurieren',
+                    onTap: () => _navigateToNotificationSettings(context),
                   ),
                 ],
               ),
@@ -112,8 +127,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   void _navigateToThemeSettings(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<dynamic>(
         builder: (context) => const ThemeSettingsScreen(),
+      ),
+    );
+  }
+
+  void _navigateToNotificationSettings(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (context) => const NotificationSettingsScreen(),
       ),
     );
   }
