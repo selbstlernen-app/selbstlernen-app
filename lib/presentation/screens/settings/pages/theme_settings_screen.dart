@@ -117,9 +117,13 @@ class ThemeSettingsScreen extends ConsumerWidget {
                       subtitle: const Text('Dunkles Farbschema verwenden'),
                       trailing: Switch(
                         value: state.isDarkMode,
-                        onChanged: (_) => notifier.toggleDarkMode(),
+                        onChanged: state.followSystem
+                            ? null
+                            : (_) => notifier.toggleDarkMode(),
                       ),
-                      onTap: notifier.toggleDarkMode,
+                      onTap: state.followSystem
+                          ? null
+                          : notifier.toggleDarkMode,
                     ),
                   ),
                 ],

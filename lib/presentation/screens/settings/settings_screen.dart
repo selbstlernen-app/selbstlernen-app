@@ -109,10 +109,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  void _navigateToThemeSettings(BuildContext context) {
-    Navigator.push(
+  Future<void> _navigateToThemeSettings(BuildContext context) async {
+    await Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<dynamic>(
         builder: (context) => const ThemeSettingsScreen(),
       ),
     );
