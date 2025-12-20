@@ -1,3 +1,4 @@
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -56,6 +57,7 @@ class NotificationService {
 
   /// Opens the settings to allow  notifications
   Future<void> openNotificationSettings() async {
-    await openAppSettings();
+    // Opens notifications menu; on iOS this brings one only to settings page
+    await AppSettings.openAppSettings(type: AppSettingsType.notification);
   }
 }
