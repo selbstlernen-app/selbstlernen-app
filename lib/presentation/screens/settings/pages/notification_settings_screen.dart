@@ -31,55 +31,39 @@ class _NotificationSettingsScreenState
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            if (!state.hasNotificationPermission!)
-              Column(
+            _buildSection(
+              context: context,
+              title: 'Benachrichtigungen',
+              child: Column(
                 children: [
-                  const Text(
-                    '''Deine Benachrichtigungen sind deaktiviert. Erlaube Benachrichtigungen, um keine Lerneinheit zu verpassen.''',
-                  ),
-                  const VerticalSpace(
-                    size: SpaceSize.xsmall,
+                  Card(
+                    child: ListTile(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      title: Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          'Benarichtigungen erlauben',
+                          style: context.textTheme.headlineSmall,
+                        ),
+                      ),
+                      subtitle: const Text(
+                        'Deine Benachrichtigungen sind deaktiviert. Aktiviere sie und passe sie an deinen Bedarf an',
+                      ),
+                      trailing: Switch(
+                        value: state.hasNotificationPermission!,
+                        onChanged: (_) =>
+                            NotificationService().openNotificationSettings,
+                      ),
+                      onTap: NotificationService().openNotificationSettings,
+                    ),
                   ),
 
-                  ElevatedButton(
-                    onPressed: NotificationService().openNotificationSettings,
-                    child: const Text('Benachrichtigungen aktivieren'),
-                  ),
+                  ...state.notificationSettings!.map((e) => Text(e.type.name)),
                 ],
               ),
-
-            if (state.hasNotificationPermission!)
-              _buildSection(
-                context: context,
-                title: 'Benachrichtigungen',
-                child: Column(
-                  children: [
-                    Card(
-                      child: ListTile(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        title: Padding(
-                          padding: const EdgeInsets.only(bottom: 4),
-                          child: Text(
-                            'Benarichtigungen erlauben',
-                            style: context.textTheme.headlineSmall,
-                          ),
-                        ),
-                        subtitle: const Text(
-                          'Erlaube Benachrichtigungen, angepasst an deinen Bedarf',
-                        ),
-                        trailing: Switch(
-                          value: state.hasNotificationPermission!,
-                          onChanged: (_) =>
-                              NotificationService().openNotificationSettings,
-                        ),
-                        onTap: NotificationService().openNotificationSettings,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            ),
           ],
         ),
       ),

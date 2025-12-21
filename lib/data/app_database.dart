@@ -5,11 +5,13 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:srl_app/data/database/daos/goal_dao.dart';
+import 'package:srl_app/data/database/daos/notification_dao.dart';
 import 'package:srl_app/data/database/daos/session_dao.dart';
 import 'package:srl_app/data/database/daos/session_instance_dao.dart';
 import 'package:srl_app/data/database/daos/settings_dao.dart';
 import 'package:srl_app/data/database/daos/task_dao.dart';
 import 'package:srl_app/data/database/tables/goal_table.dart';
+import 'package:srl_app/data/database/tables/notifications_table.dart';
 import 'package:srl_app/data/database/tables/session_instance_table.dart';
 import 'package:srl_app/data/database/tables/session_table.dart';
 import 'package:srl_app/data/database/tables/settings_table.dart';
@@ -19,8 +21,22 @@ import 'package:srl_app/domain/models/session_instance_model.dart';
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: <Type>[Sessions, Goals, Tasks, SessionInstances, Settings],
-  daos: <Type>[SessionDao, GoalDao, TaskDao, SessionInstanceDao, SettingsDao],
+  tables: <Type>[
+    Sessions,
+    Goals,
+    Tasks,
+    SessionInstances,
+    Settings,
+    Notifications,
+  ],
+  daos: <Type>[
+    SessionDao,
+    GoalDao,
+    TaskDao,
+    SessionInstanceDao,
+    SettingsDao,
+    NotificationDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -36,7 +52,7 @@ LazyDatabase _openConnection() {
 
     // if (await file.exists()) {
     //   await file.delete();
-    //   print("Drift database deleted!");
+    //   print('Drift database deleted!');
     // }
 
     return NativeDatabase(file);

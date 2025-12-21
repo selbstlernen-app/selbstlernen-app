@@ -13,6 +13,6 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
 
   // Get settings
   Future<Setting> getSetting() async {
-    return await select(settings).getSingle();
+    return select(settings).getSingle();
   }
 }

@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:srl_app/domain/models/general_statistics.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/view_models/general_statistics/ui_model/enriched_session_instance.dart';
 

@@ -1,5 +1,4 @@
 import 'package:srl_app/domain/goal_repository.dart';
-import 'package:srl_app/domain/models/general_statistics.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
