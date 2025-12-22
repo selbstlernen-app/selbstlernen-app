@@ -1,5 +1,6 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
@@ -15,45 +16,75 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   late final ManageSessionUseCase _manageSessionUseCase;
   late final GetInstanceUseCase _getInstancesUseCase;
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
-
   late final ManangeInstanceUseCase _manangeInstanceUseCase;
-  late final int _sessionId;
+
+  late int _sessionId;
+  StreamSubscription<FullSessionModel>? _fullSessionSubscription;
+  int? _instanceId;
 
   @override
-  Stream<DetailSessionState> build(int sessionId) {
+  DetailSessionState build(int sessionId, {int? instanceId}) {
     _sessionId = sessionId;
+    _instanceId = instanceId;
+
     _fullSessionUseCase = ref.watch(fullSessionUseCaseProvider);
     _getInstancesUseCase = ref.watch(getInstanceUseCaseProvider);
     _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
     _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
     _manangeInstanceUseCase = ref.watch(manangeInstanceUseCaseProvider);
 
-    final fullSession$ = _fullSessionUseCase.watchFullSession(sessionId);
-    final instances$ = _getInstancesUseCase.watchInstancesBySessionId(
-      sessionId,
-    );
+    unawaited(_initializeDetailSession());
 
-    return Rx.combineLatest2(fullSession$, instances$, (
-      FullSessionModel fullSession,
-      List<SessionInstanceModel> instances,
-    ) {
-      return DetailSessionState(
-        fullSession: fullSession,
+    ref.onDispose(() async {
+      unawaited(_fullSessionSubscription?.cancel());
+    });
+
+    return const DetailSessionState();
+  }
+
+  Future<void> _initializeDetailSession() async {
+    try {
+      _fullSessionSubscription = _fullSessionUseCase
+          .watchFullSession(_sessionId)
+          .listen((fullSession) {
+            state = state.copyWith(fullSession: fullSession, isLoading: false);
+          });
+
+      // Fetch specific instance if given
+      SessionInstanceModel? instance;
+      if (_instanceId != null) {
+        instance = await _getInstancesUseCase.getInstanceById(_instanceId!);
+      }
+
+      // Fetch all instances to get the length
+      final instances = await _getInstancesUseCase.getInstancesBySessionId(
+        _sessionId,
+      );
+
+      state = state.copyWith(
+        instance: instance,
         pastInstancesLength: instances.length,
         isLoading: false,
       );
-    }).handleError((dynamic error) {
-      return DetailSessionState(error: error.toString(), isLoading: false);
-    });
+    } on Exception catch (e) {
+      state = DetailSessionState(
+        error: e.toString(),
+        isLoading: false,
+      );
+    }
   }
 
   Future<void> deleteSession() async {
     await _fullSessionUseCase.deleteFullModel(_sessionId);
   }
 
+  Future<void> deleteInstance(int instanceId) async {
+    await _manangeInstanceUseCase.deleteInstanceById(instanceId);
+  }
+
   Future<void> archiveSession() async {
     // Archive session, so that past session data still persists
-    final currentFullSession = state.value?.fullSession;
+    final currentFullSession = state.fullSession;
 
     if (currentFullSession == null) {
       throw Exception('No session loaded');

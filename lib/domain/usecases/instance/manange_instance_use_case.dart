@@ -30,4 +30,8 @@ class ManangeInstanceUseCase {
   // Delete
   Future<void> deleteInstanceBySessionId(int sessionId) =>
       repository.deleteInstanceBySessionId(sessionId);
+
+  // Delete
+  Future<void> deleteInstanceById(int instanceId) =>
+      repository.deleteInstanceById(instanceId);
 }

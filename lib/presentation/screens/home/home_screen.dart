@@ -41,20 +41,20 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
             children: <Widget>[
               _buildHeading(context),
 
-              ElevatedButton(
-                onPressed: () async {
-                  await NotificationService().showNotification();
-                },
-                child: const Text('Show Notification'),
-              ),
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     await NotificationService().showNotification();
+              //   },
+              //   child: const Text('Show Notification'),
+              // ),
 
               // TODO: remove for production
-              ElevatedButton(
-                onPressed: () async {
-                  await ref.read(testDataProvider.notifier).insertTestData();
-                },
-                child: const Text('Insert Test Data'),
-              ),
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     await ref.read(testDataProvider.notifier).insertTestData();
+              //   },
+              //   child: const Text('Insert Test Data'),
+              // ),
               const VerticalSpace(),
 
               const CalendarWidget(),
