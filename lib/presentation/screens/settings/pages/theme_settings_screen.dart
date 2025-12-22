@@ -29,7 +29,7 @@ class ThemeSettingsScreen extends ConsumerWidget {
               context: context,
               title: 'Akzentfarbe',
               child: Wrap(
-                spacing: 16,
+                spacing: 20,
                 runSpacing: 16,
                 children: AppPalette.themeColors.map((color) {
                   final isSelected =
