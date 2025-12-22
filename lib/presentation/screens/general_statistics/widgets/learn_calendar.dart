@@ -128,9 +128,10 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
           return Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: context.colorScheme.surfaceContainerHighest,
+              color: context.colorScheme.surface,
               borderRadius: BorderRadius.circular(8),
             ),
+            margin: const EdgeInsets.only(bottom: 8),
             child: Row(
               children: [
                 getIconBox(status: enrichedInstance.instance.status, size: 16),

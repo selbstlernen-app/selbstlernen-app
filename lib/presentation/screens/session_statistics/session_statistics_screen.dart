@@ -131,7 +131,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       /// Goals and Task Progress
                       GoalTaskCompletionCard(
                         stats: stats,
-                        pastInstances: state.allInstances,
+                        pastInstances: allNoneSkippedInstances,
                         totalGoals: state.totalGoals!,
                         totalTasks: state.totalTasks!,
                       ),
