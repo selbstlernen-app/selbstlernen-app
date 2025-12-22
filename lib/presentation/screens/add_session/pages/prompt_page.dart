@@ -241,25 +241,31 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         ),
         // Navigation buttons
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Expanded(
-              child: CustomButton(
-                verticalPadding: 8,
-                label: state.isEditMode
-                    ? 'Mit Änderungen starten'
-                    : 'Sofort starten',
-                onPressed: () => _startSession(state.isEditMode),
+              child: IntrinsicHeight(
+                child: CustomButton(
+                  verticalPadding: 8,
+                  label: state.isEditMode
+                      ? 'Mit Änderungen starten'
+                      : 'Sofort starten',
+                  onPressed: () => _startSession(state.isEditMode),
+                ),
               ),
             ),
+
             const HorizontalSpace(size: SpaceSize.small),
             Expanded(
-              child: CustomButton(
-                verticalPadding: 8,
-                label: state.isEditMode
-                    ? 'Änderungen speichern'
-                    : 'Lerneinheit erstellen',
-                onPressed: () =>
-                    state.isEditMode ? _updateSession() : _saveSession(),
+              child: IntrinsicHeight(
+                child: CustomButton(
+                  verticalPadding: 8,
+                  label: state.isEditMode
+                      ? 'Änderungen speichern'
+                      : 'Einheit erstellen',
+                  onPressed: () =>
+                      state.isEditMode ? _updateSession() : _saveSession(),
+                ),
               ),
             ),
           ],
