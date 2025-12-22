@@ -23,13 +23,36 @@ class _NotificationSettingsScreenState
   @override
   void initState() {
     super.initState();
-    _customMessageController.text = 
+
+    // Initialize after build; if in edit mode
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final state = ref.read(settingsViewModelProvider);
+      final motivationNotification = state.notificationSettings!
+          .where(
+            (n) => n.type == NotificationType.motivationalReminder,
+          )
+          .first;
+
+      final newText = motivationNotification.customMessage ?? '';
+      _customMessageController.text = newText;
+    });
   }
 
   @override
   void dispose() {
     _customMessageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _addCustomMessage(NotificationTypeSetting setting) async {
+    if (_customMessageController.text.trim().isEmpty) return;
+
+    final notifier = ref.read(settingsViewModelProvider.notifier);
+
+    await notifier.updateNotification(
+      setting.type,
+      setting.copyWith(customMessage: _customMessageController.text.trim()),
+    );
   }
 
   @override
@@ -145,9 +168,13 @@ class _NotificationSettingsScreenState
                               size: SpaceSize.small,
                             ),
                             CustomTextField(
+                              onSubmitted: (_) async {
+                                await _addCustomMessage(setting);
+                              },
                               hintText:
                                   '''Eigene Erinnerung, z.B. "Lass dich nicht unterkriegen 🧠"''',
                               controller: _customMessageController,
+                              maxLength: 70,
                             ),
                           ],
                         ],

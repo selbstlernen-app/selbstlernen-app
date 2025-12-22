@@ -18,6 +18,7 @@ extension NotificationToModelMapper on Notification {
       preferredTime: preferredTimeHour != null && preferredTimeMinute != null
           ? TimeOfDay(hour: preferredTimeHour!, minute: preferredTimeMinute!)
           : null,
+      customMessage: customMessage,
     );
   }
 
@@ -36,6 +37,7 @@ extension NotificationTypeSettingsToCompanion on NotificationTypeSetting {
       frequency: frequency.name,
       preferredTimeHour: Value(preferredTime?.hour),
       preferredTimeMinute: Value(preferredTime?.minute),
+      customMessage: Value<String?>(customMessage),
     );
   }
 
@@ -46,6 +48,7 @@ extension NotificationTypeSettingsToCompanion on NotificationTypeSetting {
       frequency: Value(frequency.name),
       preferredTimeHour: Value(preferredTime?.hour),
       preferredTimeMinute: Value(preferredTime?.minute),
+      customMessage: Value<String?>(customMessage),
     );
   }
 }

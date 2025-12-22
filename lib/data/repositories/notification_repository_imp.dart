@@ -60,9 +60,6 @@ class NotificationRepositoryImp implements NotificationRepository {
         frequency: NotificationFrequency.daily,
         enabled: false,
         preferredTime: const TimeOfDay(hour: 9, minute: 0),
-        customMessage: type == NotificationType.motivationalReminder
-            ? 'Vergiss nicht weiterzuarbeiten! Wir schaffen das 💪😤'
-            : null,
       );
       await notificationDao.addSetting(notification.toCompanion());
     }

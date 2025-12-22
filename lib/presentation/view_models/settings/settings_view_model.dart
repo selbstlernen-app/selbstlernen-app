@@ -8,6 +8,7 @@ import 'package:srl_app/domain/models/notification_type_setting.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/manage_notifications_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_settings_use_case.dart';
+import 'package:srl_app/notification_service.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_state.dart';
 
 part 'settings_view_model.g.dart';
@@ -46,6 +47,8 @@ class SettingsViewModel extends _$SettingsViewModel {
         .watchPreferences()
         .listen(
           (List<NotificationTypeSetting> notifications) {
+            print("--current notifications--");
+            print(notifications);
             state = state.copyWith(
               notificationSettings: notifications,
               isLoading: false,
@@ -107,5 +110,24 @@ class SettingsViewModel extends _$SettingsViewModel {
     NotificationTypeSetting settings,
   ) async {
     await _manageNotificationsUseCase.updatePreference(type, settings);
+
+    // After update, check and adapt scheduling
+    await _scheduleNotification(settings);
+  }
+
+  // Schedule notifications
+  Future<void> _scheduleNotification(NotificationTypeSetting setting) async {
+    if (!setting.enabled) {
+      // Cancel any notification types if disabled
+      await NotificationService().cancelNotificationsForType(setting.type);
+      return;
+    }
+
+    await NotificationService().scheduleNotification(
+      type: setting.type,
+      frequency: setting.frequency,
+      preferredTime: setting.preferredTime,
+      customMessage: setting.customMessage,
+    );
   }
 }

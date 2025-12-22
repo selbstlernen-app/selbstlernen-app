@@ -81,6 +81,7 @@ class NotificationService {
     required NotificationType type,
     required NotificationFrequency frequency,
     TimeOfDay? preferredTime,
+    String? customMessage,
   }) async {
     // Cancel existing notifications for this type
     await cancelNotificationsForType(type);
@@ -127,7 +128,7 @@ class NotificationService {
     // Schedule notification
     await flutterLocalNotificationsPlugin.zonedSchedule(
       notificationId,
-      _getNotificationTitle(type),
+      _getNotificationTitle(type, customMessage),
       _getNotificationBody(type),
       scheduledDate,
       notificationDetails,
@@ -160,15 +161,14 @@ class NotificationService {
   }
 
   // Helper methods
-  String _getNotificationTitle(NotificationType type) {
+  String _getNotificationTitle(NotificationType type, [String? customMessage]) {
     switch (type) {
       case NotificationType.dailyReminder:
         return 'Zeit zum Lernen! 📚';
       case NotificationType.weeklyProgress:
         return 'Dein Wochenfortschritt';
       case NotificationType.motivationalReminder:
-        return 'Halte deinen Streak am Leben! 🔥';
-      //  TOOD: update with actual motivational message
+        return customMessage ?? 'Bleib dran und gib alles! 🔥';
     }
   }
 
@@ -179,7 +179,7 @@ class NotificationService {
       case NotificationType.weeklyProgress:
         return 'Schau dir an, wie weit du diese Woche gekommen bist!';
       case NotificationType.motivationalReminder:
-        return 'Du bist auf einem guten Weg! Mach weiter so!';
+        return '';
     }
   }
 
