@@ -47,8 +47,6 @@ class SettingsViewModel extends _$SettingsViewModel {
         .watchPreferences()
         .listen(
           (List<NotificationTypeSetting> notifications) {
-            print("--current notifications--");
-            print(notifications);
             state = state.copyWith(
               notificationSettings: notifications,
               isLoading: false,
@@ -82,16 +80,6 @@ class SettingsViewModel extends _$SettingsViewModel {
   Future<void> setPrimaryColor(Color color) async {
     await _manageSettingsUseCase.setPrimaryColor(color);
     state = state.copyWith(primaryColor: color);
-  }
-
-  Future<void> clearAllSettings() async {
-    await _manageSettingsUseCase.clearAllSettings();
-    // Reload state from repository
-    state = SettingsState(
-      isDarkMode: _manageSettingsUseCase.getDarkMode(),
-      followSystem: _manageSettingsUseCase.getFollowSystem(),
-      primaryColor: _manageSettingsUseCase.getPrimaryColor() ?? AppPalette.sky,
-    );
   }
 
   // Notification Settings

@@ -9,7 +9,7 @@ part 'detail_session_state.freezed.dart';
 abstract class DetailSessionState with _$DetailSessionState {
   const factory DetailSessionState({
     FullSessionModel? fullSession,
-    List<SessionInstanceModel>? pastInstances,
+    int? pastInstancesLength,
     SessionStatistics? stats,
     @Default(true) bool isLoading,
     String? error,

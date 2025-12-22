@@ -222,7 +222,7 @@ class SessionDetailScreen extends ConsumerWidget {
                   // If the session has more than 1 item
                   // Able to archive it
                   if (!session.isArchived &&
-                      detailState.pastInstances!.length > 1)
+                      detailState.pastInstancesLength! > 1)
                     IconButton(
                       color: AppPalette.orange,
                       onPressed: () async {

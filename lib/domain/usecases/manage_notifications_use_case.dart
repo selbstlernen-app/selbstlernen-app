@@ -6,10 +6,6 @@ class ManageNotificationsUseCase {
 
   final NotificationRepository notificationRepository;
 
-  Future<List<NotificationTypeSetting>> getPreferences() async {
-    return notificationRepository.getPreferences();
-  }
-
   Stream<List<NotificationTypeSetting>> watchPreferences() {
     return notificationRepository.watchPreferences();
   }

@@ -432,7 +432,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       if (await Vibration.hasCustomVibrationsSupport()) {
         await Vibration.vibrate(duration: 300);
       } else if (await Vibration.hasVibrator()) {
-        // Fallback: short vibration
         await Vibration.vibrate(duration: 300);
       }
     } on Exception catch (_) {

@@ -11,14 +11,10 @@ part 'add_session_view_model.g.dart';
 @riverpod
 class AddSessionViewModel extends _$AddSessionViewModel {
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
-  late final ManageGoalUseCase _manageGoalUseCase;
-  late final ManageTasksUseCase _manageTasksUseCase;
 
   @override
   AddSessionState build() {
     _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
-    _manageGoalUseCase = ref.watch(manageGoalUseCaseProvider);
-    _manageTasksUseCase = ref.watch(manageTasksUseCaseProvider);
 
     return const AddSessionState();
   }
@@ -134,6 +130,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(tasks: tasks);
   }
 
+  // TODO: needs re-work!!
   void addStrategy(String strategy) {
     if (state.learningStrategies.contains(strategy)) return;
 

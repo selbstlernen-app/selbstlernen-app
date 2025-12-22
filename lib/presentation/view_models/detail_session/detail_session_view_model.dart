@@ -39,7 +39,7 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
     ) {
       return DetailSessionState(
         fullSession: fullSession,
-        pastInstances: instances,
+        pastInstancesLength: instances.length,
         isLoading: false,
       );
     }).handleError((dynamic error) {
@@ -73,7 +73,7 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
     );
   }
 
-  /// Creates a new session to be re-done
+  /// Creates a new session instance that can be re-done
   Future<SessionInstanceModel> redoSession() async {
     var newInstance = SessionInstanceModel(
       scheduledAt: DateTime.now(),
