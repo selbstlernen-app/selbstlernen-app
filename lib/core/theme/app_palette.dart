@@ -39,4 +39,36 @@ class AppPalette {
 
   static Color grey = Colors.grey[600]!;
   static Color darkGrey = Colors.grey[800]!;
+
+  // List of all available theme colors in the settings
+  static List<Color> themeColors = [
+    sky,
+    blue,
+    emerald,
+    teal,
+    indigo,
+    purple,
+    fuchsia,
+    pink,
+    rose,
+    orange,
+    amber,
+    yellow,
+  ];
+
+  static Color getLightVariant(Color primary) {
+    if (primary == sky) return skyLight;
+    if (primary == blue) return blueLight;
+    if (primary == emerald) return emeraldLight;
+    if (primary == teal) return tealLight;
+    if (primary == indigo) return indigoLight;
+    if (primary == purple) return purpleLight;
+    if (primary == fuchsia) return fuchsiaLight;
+    if (primary == pink) return pinkLight;
+    if (primary == rose) return roseLight;
+    if (primary == amber) return amberLight;
+    if (primary == yellow) return yellowLight;
+    if (primary == orange) return orangeLight;
+    return skyLight;
+  }
 }

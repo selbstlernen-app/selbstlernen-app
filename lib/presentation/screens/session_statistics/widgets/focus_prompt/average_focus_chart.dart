@@ -14,6 +14,7 @@ class AverageFocusChart extends StatelessWidget {
     super.key,
   });
 
+  // List of instances where focus checks is not empty
   final List<SessionInstanceModel> instances;
 
   @override

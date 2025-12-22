@@ -73,7 +73,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
         backgroundColor: Color.lerp(
           context.colorScheme.secondary,
           Colors.white,
-          0.3,
+          0.1,
         ),
         body: SafeArea(
           child: Padding(

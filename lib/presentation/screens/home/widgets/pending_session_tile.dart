@@ -20,82 +20,68 @@ class PendingSessionTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: Stack(
-        clipBehavior: Clip.antiAlias,
-        children: <Widget>[
-          const Positioned.fill(
-            child: Card(
-              elevation: 0.5,
-              color: AppPalette.amber,
-            ),
+    return Stack(
+      clipBehavior: Clip.antiAlias,
+      children: <Widget>[
+        const Positioned.fill(
+          child: Card(
+            color: AppPalette.amber,
           ),
-          ClipRRect(
-            child: Slidable(
-              key: ValueKey<int>(int.parse(session.id!)),
-              endActionPane: ActionPane(
-                motion: const BehindMotion(),
-                children: <Widget>[
-                  SlidableAction(
-                    onPressed: (BuildContext slidableContext) async {
-                      await _showSkipDialog(context, ref);
-                    },
-                    backgroundColor: Colors.transparent,
-                    icon: Icons.skip_next,
-                    label: 'Überspringen',
+        ),
+        ClipRRect(
+          child: Slidable(
+            key: ValueKey<int>(int.parse(session.id!)),
+            endActionPane: ActionPane(
+              motion: const BehindMotion(),
+              children: <Widget>[
+                SlidableAction(
+                  onPressed: (BuildContext slidableContext) async {
+                    await _showSkipDialog(context, ref);
+                  },
+                  backgroundColor: Colors.transparent,
+                  icon: Icons.skip_next,
+                  label: 'Überspringen',
+                ),
+              ],
+            ),
+            child: Card(
+              clipBehavior: Clip.hardEdge,
+              child: ListTile(
+                onTap: () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.detail,
+                  arguments: DetailSessionArgs(
+                    sessionId: int.parse(session.id!),
                   ),
-                ],
-              ),
-              child: Card(
-                elevation: 0.5,
-                clipBehavior: Clip.hardEdge,
-                child: InkWell(
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.detail,
-                    arguments: DetailSessionArgs(
-                      sessionId: int.parse(session.id!),
-                    ),
+                ),
+                title: Text(
+                  session.title,
+                  style: context.textTheme.headlineSmall,
+                ),
+                subtitle: Text(
+                  getSubtitle(
+                    hasInstance
+                        ? SessionStatus.inProgress
+                        : SessionStatus.scheduled,
                   ),
-                  child: ListTile(
-                    title: Text(
-                      session.title,
-                      style: context.textTheme.headlineSmall,
-                    ),
-                    subtitle: Text(
-                      getSubtitle(
-                        hasInstance
-                            ? SessionStatus.inProgress
-                            : SessionStatus.scheduled,
-                      ),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    leading: getIconBox(
-                      status: hasInstance
-                          ? SessionStatus.inProgress
-                          : SessionStatus.scheduled,
-                    ),
-                    trailing: IconButton(
-                      onPressed: () => Navigator.pushNamed(
-                        context,
-                        AppRoutes.detail,
-                        arguments: DetailSessionArgs(
-                          sessionId: int.parse(session.id!),
-                        ),
-                      ),
-                      icon: const Icon(Icons.arrow_forward_ios_rounded),
-                      color: context.colorScheme.onTertiary,
-                    ),
-                  ),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                leading: getIconBox(
+                  status: hasInstance
+                      ? SessionStatus.inProgress
+                      : SessionStatus.scheduled,
+                ),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: context.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

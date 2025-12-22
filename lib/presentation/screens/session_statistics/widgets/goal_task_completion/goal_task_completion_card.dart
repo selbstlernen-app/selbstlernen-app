@@ -19,6 +19,8 @@ class GoalTaskCompletionCard extends StatefulWidget {
   });
 
   final SessionStatistics stats;
+
+  /// list of all instances; skipped, missed and completed
   final List<SessionInstanceModel> pastInstances;
 
   final int totalGoals;
@@ -30,6 +32,20 @@ class GoalTaskCompletionCard extends StatefulWidget {
 
 class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
   bool showAllInstances = false;
+  late List<SessionInstanceModel> allDoneInstances;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Only display such that were actually completed;
+    // and thus have goals/tasks possibly checked off during session
+    allDoneInstances = [
+      ...widget.pastInstances.where(
+        (instance) => instance.status == SessionStatus.completed,
+      ),
+    ];
+  }
 
   double _calcAverageGoalCompletion(List<SessionInstanceModel> instances) {
     final avgGoalCompletion = instances.fold<double>(
@@ -51,11 +67,6 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
 
   @override
   Widget build(BuildContext context) {
-    final allDoneInstances = [
-      ...widget.pastInstances.where(
-        (instance) => instance.status != SessionStatus.skipped,
-      ),
-    ];
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +83,7 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
                 ),
                 onPressed: () => showHistoryBottomSheet(
                   context,
-                  allDoneInstances,
+                  widget.pastInstances,
                   'Ziele und Aufgaben',
                   (instance) =>
                       '''${instance.totalCompletedGoals} Ziele erledigt\n${instance.totalCompletedTasks} Aufgaben erledigt''',

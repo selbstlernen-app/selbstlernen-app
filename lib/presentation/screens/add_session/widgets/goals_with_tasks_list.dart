@@ -27,7 +27,7 @@ class GoalWithTasksCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
-      elevation: 0.5,
+      elevation: 0,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
@@ -133,9 +133,8 @@ class GoalWithTasksCard extends ConsumerWidget {
 
                               // Delete button
                               IconButton(
-                                icon: Icon(
-                                  Icons.delete_outline,
-                                  color: context.colorScheme.error,
+                                icon: const Icon(
+                                  Icons.delete_forever_rounded,
                                   size: 20,
                                 ),
                                 onPressed: () {
@@ -145,9 +144,6 @@ class GoalWithTasksCard extends ConsumerWidget {
                                   final state = ref.read(
                                     addSessionViewModelProvider,
                                   );
-                                  if (state.isEditMode && task.id != null) {
-                                    notifier.markTaskIdForDeletion(task.id!);
-                                  }
                                   notifier.removeTask(
                                     state.tasks.indexOf(task),
                                   );

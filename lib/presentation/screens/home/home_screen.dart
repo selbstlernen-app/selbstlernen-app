@@ -222,14 +222,13 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
           children: <Widget>[
             Text(
               'Guten ',
-              style: context.textTheme.titleLarge!.copyWith(
-                fontWeight: FontWeight.w600,
+              style: context.textTheme.headlineLarge!.copyWith(
                 fontSize: 26,
               ),
             ),
             Text(
               _getGreeting(),
-              style: context.textTheme.titleLarge!.copyWith(
+              style: context.textTheme.headlineLarge!.copyWith(
                 color: context.colorScheme.primary,
                 fontWeight: FontWeight.w600,
                 fontSize: 26,

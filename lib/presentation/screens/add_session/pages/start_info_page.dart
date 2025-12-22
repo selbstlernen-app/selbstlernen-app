@@ -216,15 +216,28 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
 
                 if (state.isRepeating) const DateInputFields(),
 
-                const VerticalSpace(),
+                const VerticalSpace(
+                  size: SpaceSize.large,
+                ),
 
                 // Set goals/tasks
-                Text(
-                  state.setGoals
-                      ? 'Ziele für diese Lerneinheit'
-                      : 'Aufgaben für diese Lerneinheit',
-                  style: context.textTheme.headlineSmall,
+                Row(
+                  children: <Widget>[
+                    Icon(
+                      state.setGoals
+                          ? Icons.emoji_flags_rounded
+                          : Icons.check_circle_rounded,
+                    ),
+                    const HorizontalSpace(size: SpaceSize.small),
+                    Text(
+                      state.setGoals
+                          ? 'Ziele für diese Lerneinheit'
+                          : 'Aufgaben für diese Lerneinheit',
+                      style: context.textTheme.headlineSmall,
+                    ),
+                  ],
                 ),
+
                 const VerticalSpace(size: SpaceSize.small),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -263,6 +276,17 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       ? _bigGoalController
                       : _smallGoalController,
                   onEnter: state.setGoals ? _handleAddGoal : _handleAddTask,
+                  onDelete: (index) {
+                    final notifier = ref.read(
+                      addSessionViewModelProvider.notifier,
+                    );
+
+                    if (state.setGoals) {
+                      notifier.removeGoal(index);
+                    } else {
+                      notifier.removeTask(index);
+                    }
+                  },
                   isBigGoal: state.setGoals,
                   items: state.setGoals ? state.goals : state.tasks,
                   toolTip: state.setGoals

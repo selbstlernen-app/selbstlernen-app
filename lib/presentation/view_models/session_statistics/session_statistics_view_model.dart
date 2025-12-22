@@ -53,8 +53,8 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
         session: session,
         instances: instances,
 
-        goals: goals,
-        tasks: tasks,
+        totalGoals: goals.length,
+        totalTasks: tasks.length,
         isLoading: false,
       );
     } on Exception catch (e) {

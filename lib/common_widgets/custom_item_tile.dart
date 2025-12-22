@@ -7,11 +7,15 @@ class CustomItemTile extends StatelessWidget {
     required this.text,
     required this.isLargeGoal,
     this.iconSize = 28,
+    this.hasDelete = false,
+    this.onDelete,
     super.key,
   });
   final String text;
   final bool isLargeGoal;
   final double? iconSize;
+  final bool hasDelete;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +46,12 @@ class CustomItemTile extends StatelessWidget {
               ),
             ),
           ),
+
+          if (hasDelete)
+            IconButton(
+              onPressed: onDelete,
+              icon: const Icon(Icons.delete_forever_rounded),
+            ),
         ],
       ),
     );

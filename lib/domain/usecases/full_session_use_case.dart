@@ -2,6 +2,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:srl_app/domain/goal_repository.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
+import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 import 'package:srl_app/domain/task_repository.dart';
 
@@ -10,11 +11,13 @@ class FullSessionUseCase {
     this.repository,
     this.goalRepository,
     this.taskRepository,
+    this.instanceRepository,
   );
 
   final SessionRepository repository;
   final TaskRepository taskRepository;
   final GoalRepository goalRepository;
+  final SessionInstanceRepository instanceRepository;
 
   Future<FullSessionModel> getFullModel(int sessionId) async {
     final session = await repository.getSessionById(sessionId);
@@ -56,6 +59,7 @@ class FullSessionUseCase {
 
   Future<void> deleteFullModel(int sessionId) async {
     await repository.deleteSession(sessionId);
+    await instanceRepository.deleteInstanceBySessionId(sessionId);
     await goalRepository.deleteGoalsBySessionId(sessionId);
     await taskRepository.deleteTasksBySessionId(sessionId);
   }

@@ -82,7 +82,14 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text('Ziele & Aufgaben', style: context.textTheme.headlineSmall),
+            Text(
+              'Ziele & Aufgaben',
+              style: context.textTheme.headlineSmall!.copyWith(
+                color: context.colorScheme.brightness == Brightness.dark
+                    ? context.colorScheme.surface
+                    : context.colorScheme.onSurface,
+              ),
+            ),
             CustomIconButton(
               isActive: state.isEditMode,
               onPressed: viewModel.toggleEditMode,
@@ -120,7 +127,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
               final isExpanded = state.expandedGoalId == goal.id;
 
               return Card(
-                elevation: 0.5,
+                elevation: 0,
                 child: Column(
                   children: <Widget>[
                     // Heading
@@ -176,9 +183,8 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                               state.isEditMode &&
                               goal.id != ungroupedGoalId)
                             IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                color: context.colorScheme.error,
+                              icon: const Icon(
+                                Icons.delete_forever_rounded,
                               ),
                               onPressed: () =>
                                   viewModel.removeGoalById(goalId: goal.id!),
@@ -296,7 +302,9 @@ class _TaskItem extends StatelessWidget {
       trailing: isEditMode
           ? IconButton(
               onPressed: onDelete,
-              icon: Icon(Icons.delete, color: context.colorScheme.error),
+              icon: const Icon(
+                Icons.delete_forever_rounded,
+              ),
             )
           : null,
     );

@@ -21,9 +21,17 @@ class FocusPromptCard extends StatefulWidget {
     super.key,
   });
 
+  /// List of all completed sessions, where focus checks were possibly done
   final List<SessionInstanceModel> allDoneInstances;
+
+  /// Current instance; may be a skipped one
   final SessionInstanceModel currentInstance;
+
+  /// Current instance's focus checks, may be empty
   final List<FocusCheck> focusChecks;
+
+  /// Flag to show only trends or not
+  /// (when showing stats for no specific instance)
   final bool showGeneralStatsOnly;
 
   @override
@@ -128,7 +136,11 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
             switchInCurve: Curves.fastEaseInToSlowEaseOut,
             switchOutCurve: Curves.fastEaseInToSlowEaseOut,
             child: showAllInstances
-                ? AverageFocusChart(instances: widget.allDoneInstances)
+                ? AverageFocusChart(
+                    instances: widget.allDoneInstances
+                        .where((i) => i.focusChecks.isNotEmpty)
+                        .toList(),
+                  )
                 : FocusLevelChart(instance: widget.currentInstance),
           ),
         ],

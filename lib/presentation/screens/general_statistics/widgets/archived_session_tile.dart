@@ -30,9 +30,7 @@ class ArchivedSessionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 0.5,
-      clipBehavior: Clip.hardEdge,
-      child: InkWell(
+      child: ListTile(
         onTap: () =>
             Navigator.of(
               context,
@@ -43,29 +41,18 @@ class ArchivedSessionTile extends StatelessWidget {
                 showGeneralStatsOnly: true,
               ),
             ),
-        child: ListTile(
-          title: Text(session.title, style: context.textTheme.headlineSmall),
-          subtitle: Text(
-            session.isArchived ? 'Archiviert' : 'Aktuell laufend',
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          leading: _getIconBox(context),
-          trailing: IconButton(
-            onPressed: () =>
-                Navigator.of(
-                  context,
-                ).pushNamed(
-                  AppRoutes.stats,
-                  arguments: SessionStatisticsArgs(
-                    sessionId: int.parse(session.id!),
-                    showGeneralStatsOnly: true,
-                  ),
-                ),
-            icon: const Icon(Icons.arrow_forward_ios_rounded),
-            color: context.colorScheme.onTertiary,
-          ),
+        title: Text(session.title, style: context.textTheme.headlineSmall),
+        subtitle: Text(
+          session.isArchived ? 'Archiviert' : 'Aktuell laufend',
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        leading: _getIconBox(context),
+
+        trailing: Icon(
+          Icons.chevron_right,
+          color: context.colorScheme.onSurfaceVariant,
         ),
       ),
     );

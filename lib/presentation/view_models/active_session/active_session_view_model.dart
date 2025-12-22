@@ -297,36 +297,41 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   Future<void> _tick() async {
-    if (state.remainingSeconds > 0) {
-      state = state.copyWith(remainingSeconds: state.remainingSeconds - 1);
+    if (state.remainingSeconds <= 0) {
+      await _handlePhaseComplete();
+      return;
+    }
+    // Update time and phase once
+    final newRemaining = state.remainingSeconds - 1;
+    state = state.copyWith(
+      remainingSeconds: newRemaining,
+      currentPhaseElapsed: state.currentPhaseElapsed + 1,
+    );
 
-      // Auto-save to DB every min
-      if (state.remainingSeconds % 60 == 0) {
-        await _autoSave();
-      }
+    // Auto-save to DB every min
+    if (newRemaining % 60 == 0) {
+      await _autoSave();
+    }
 
-      // Track elapsed time based on phase
-      if (state.currentPhase == SessionPhase.focus) {
+    // Save elapsed time fitting to current phase
+    switch (state.currentPhase) {
+      case SessionPhase.focus:
         state = state.copyWith(
           totalFocusSecondsElapsed: state.totalFocusSecondsElapsed + 1,
-          currentPhaseElapsed: state.currentPhaseElapsed + 1,
-          remainingSeconds: state.remainingSeconds - 1,
         );
-      } else if (state.currentPhase == SessionPhase.shortBreak) {
+        return;
+
+      case SessionPhase.shortBreak:
         state = state.copyWith(
           totalBreakSecondsElapsed: state.totalBreakSecondsElapsed + 1,
-          currentPhaseElapsed: state.currentPhaseElapsed + 1,
-          remainingSeconds: state.remainingSeconds - 1,
         );
-      } else {
+        return;
+
+      case SessionPhase.longBreak:
         state = state.copyWith(
           totalLongBreakSecondsElapsed: state.totalLongBreakSecondsElapsed + 1,
-          currentPhaseElapsed: state.currentPhaseElapsed + 1,
-          remainingSeconds: state.remainingSeconds - 1,
         );
-      }
-    } else {
-      await _handlePhaseComplete();
+        return;
     }
   }
 
@@ -365,6 +370,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
             currentPhaseIndex: state.currentPhaseIndex + 1,
           );
         }
+        return;
 
       // After short break, start next focus phase and increase total
       // focus phase
@@ -376,6 +382,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           totalFocusPhases: newTotalFocusPhases,
           currentPhaseIndex: state.currentPhaseIndex + 1,
         );
+        return;
 
       // After long break, increment block and start new focus phase
       case SessionPhase.longBreak:
@@ -387,6 +394,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           completedBlocks: state.completedBlocks + 1,
           currentPhaseIndex: 0,
         );
+        return;
     }
   }
 

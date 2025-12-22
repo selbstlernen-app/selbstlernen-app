@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/services/add_session_service.dart';
+import 'package:srl_app/domain/usecases/manage_settings_use_case.dart';
 import 'package:srl_app/domain/usecases/session/get_general_statistics_use_case.dart';
 import 'package:srl_app/domain/usecases/session/get_session_statistics_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
@@ -70,6 +71,7 @@ FullSessionUseCase fullSessionUseCase(Ref ref) {
     ref.watch(sessionRepositoryProvider),
     ref.watch(goalRepositoryProvider),
     ref.watch(taskRepositoryProvider),
+    ref.watch(sessionInstanceRepositoryProvider),
   );
 }
 
@@ -110,5 +112,13 @@ AddSessionService addSessionService(Ref ref) {
     manageSessionUseCase: ref.read(manageSessionUseCaseProvider),
     manageGoalUseCase: ref.read(manageGoalUseCaseProvider),
     manageTasksUseCase: ref.read(manageTasksUseCaseProvider),
+  );
+}
+
+/// --- Settings ---
+@riverpod
+ManageSettingsUseCase manageSettingsUseCase(Ref ref) {
+  return ManageSettingsUseCase(
+    ref.watch(settingsRepositoryProvider),
   );
 }

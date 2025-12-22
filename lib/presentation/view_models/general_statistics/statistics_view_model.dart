@@ -26,6 +26,10 @@ class StatisticsViewModel extends _$StatisticsViewModel {
       getGeneralStatisticsUseCaseProvider,
     );
 
+    ref.onDispose(() {
+      unawaited(_sessionsSubscription?.cancel());
+    });
+
     unawaited(_loadData());
     return const StatisticsState();
   }

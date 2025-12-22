@@ -58,9 +58,7 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
   @override
   Widget build(BuildContext context) {
     final chartHeight =
-        (showAllInstances
-                ? min(widget.completedInstances.length * 45, 400)
-                : 200)
+        (showAllInstances ? (widget.completedInstances.length * 36) : 200)
             .toDouble();
 
     return CardLayout(

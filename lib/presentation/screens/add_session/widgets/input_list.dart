@@ -17,6 +17,7 @@ class InputList<T> extends StatelessWidget {
     this.toolTip,
     this.errorText,
     this.markEditMode = false,
+    this.onDelete,
   });
 
   final TextEditingController controller;
@@ -27,6 +28,7 @@ class InputList<T> extends StatelessWidget {
   final String? toolTip;
   final String? errorText;
   final bool markEditMode;
+  final void Function(int index)? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -72,9 +74,18 @@ class InputList<T> extends StatelessWidget {
   }
 
   List<Widget> _buildItemsList() {
-    return items.map((T item) {
+    return items.asMap().entries.map((entry) {
+      final index = entry.key;
+      final item = entry.value;
+
       final title = item is TaskModel ? item.title : (item as GoalModel).title;
-      return CustomItemTile(isLargeGoal: isBigGoal, text: title);
+
+      return CustomItemTile(
+        isLargeGoal: isBigGoal,
+        text: title,
+        hasDelete: true,
+        onDelete: onDelete == null ? null : () => onDelete!(index),
+      );
     }).toList();
   }
 }

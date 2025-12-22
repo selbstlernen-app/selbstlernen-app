@@ -31,19 +31,18 @@ class CompletedSessionTile extends StatelessWidget {
     final session = sessionWithInstance.session;
     final instance = sessionWithInstance.instance!;
 
-    return Card(
-      elevation: 0.5,
-      clipBehavior: Clip.hardEdge,
-      child: InkWell(
-        onTap: () => Navigator.pushNamed(
-          context,
-          AppRoutes.detail,
-          arguments: DetailSessionArgs(
-            sessionId: int.parse(session.id!),
-            instanceId: int.parse(instance.id!),
-          ),
-        ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Card(
         child: ListTile(
+          onTap: () => Navigator.pushNamed(
+            context,
+            AppRoutes.detail,
+            arguments: DetailSessionArgs(
+              sessionId: int.parse(session.id!),
+              instanceId: int.parse(instance.id!),
+            ),
+          ),
           title: Text(session.title, style: context.textTheme.headlineSmall),
           subtitle: Text(
             instance.status == SessionStatus.skipped
@@ -54,17 +53,9 @@ class CompletedSessionTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           ),
           leading: _getIconBox(context),
-          trailing: IconButton(
-            onPressed: () => Navigator.pushNamed(
-              context,
-              AppRoutes.detail,
-              arguments: DetailSessionArgs(
-                sessionId: int.parse(session.id!),
-                instanceId: int.parse(instance.id!),
-              ),
-            ),
-            icon: const Icon(Icons.arrow_forward_ios_rounded),
-            color: context.colorScheme.onTertiary,
+          trailing: Icon(
+            Icons.chevron_right,
+            color: context.colorScheme.onSurfaceVariant,
           ),
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/instance/get_or_create_instance_use_case.dart';
+import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/screens/add_session/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
@@ -11,10 +12,15 @@ part 'add_session_view_model.g.dart';
 @riverpod
 class AddSessionViewModel extends _$AddSessionViewModel {
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
+  late final ManageGoalUseCase _manageGoalUseCase;
+  late final ManageTasksUseCase _manageTasksUseCase;
 
   @override
   AddSessionState build() {
     _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
+    _manageGoalUseCase = ref.watch(manageGoalUseCaseProvider);
+    _manageTasksUseCase = ref.watch(manageTasksUseCaseProvider);
+
     return const AddSessionState();
   }
 
@@ -77,24 +83,40 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(goals: <GoalModel>[...state.goals, goal]);
   }
 
-  void removeGoal(int index) {
-    final goals = List<GoalModel>.from(state.goals)..removeAt(index);
-    state = state.copyWith(goals: goals);
-  }
-
   void addTask(TaskModel task) {
     state = state.copyWith(tasks: <TaskModel>[...state.tasks, task]);
   }
 
-  void removeTask(int index) {
-    final tasks = List<TaskModel>.from(state.tasks)..removeAt(index);
-    state = state.copyWith(tasks: tasks);
+  void removeGoal(int index) {
+    final goal = state.goals[index];
+    // If in edit mode, mark for deletion
+    // Only if not just newly created goal (invalid id)
+    if (state.isEditMode && int.tryParse(goal.id!) != null) {
+      state = state.copyWith(
+        goalIdsToDelete: [
+          ...state.goalIdsToDelete,
+          goal.id!,
+        ],
+      );
+    }
+    final goals = [...state.goals]..removeAt(index);
+    state = state.copyWith(goals: goals);
   }
 
-  void markTaskIdForDeletion(String index) {
-    state = state.copyWith(
-      taskIdsToDelete: <String>[...state.taskIdsToDelete, index],
-    );
+  void removeTask(int index) {
+    final task = state.tasks[index];
+    // If in edit mode, mark for deletion
+    // Only if not just newly created task (invalid id)
+    if (state.isEditMode && int.tryParse(task.id!) != null) {
+      state = state.copyWith(
+        taskIdsToDelete: [
+          ...state.taskIdsToDelete,
+          task.id!,
+        ],
+      );
+    }
+    final tasks = [...state.tasks]..removeAt(index);
+    state = state.copyWith(tasks: tasks);
   }
 
   // Creates a task directly linked to a goal
@@ -248,6 +270,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Update session info
   Future<void> updateSession() async {
+    if (!validateAll()) {
+      throw Exception('Bitte fülle alle Felder korrekt aus!');
+    }
+
     final service = ref.read(addSessionServiceProvider);
     final session = _stateToSessionModel(state);
 
@@ -262,6 +288,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   Future<void> updateSessionAndReset() async {
+    if (!validateAll()) {
+      throw Exception('Bitte fülle alle Felder korrekt aus!');
+    }
+
     final service = ref.read(addSessionServiceProvider);
     final session = _stateToSessionModel(state);
 
