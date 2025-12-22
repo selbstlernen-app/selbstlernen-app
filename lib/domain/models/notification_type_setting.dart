@@ -10,6 +10,7 @@ abstract class NotificationTypeSetting with _$NotificationTypeSetting {
     required NotificationFrequency frequency,
     required bool enabled,
     TimeOfDay? preferredTime,
+    String? customMessage,
   }) = _NotificationTypeSetting;
 }
 

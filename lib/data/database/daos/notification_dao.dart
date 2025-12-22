@@ -10,6 +10,13 @@ class NotificationDao extends DatabaseAccessor<AppDatabase>
     with _$NotificationDaoMixin {
   NotificationDao(super.attachedDatabase);
 
+  /// Add notification type settings
+  Future<int> addSetting(
+    NotificationsCompanion notification,
+  ) {
+    return into(notifications).insert(notification);
+  }
+
   /// Get all notification type settings
   Future<List<Notification>> getAllSettings() {
     return select(notifications).get();

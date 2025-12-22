@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/common_widgets/custom_text_field.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/domain/models/notification_type_setting.dart';
 import 'package:srl_app/notification_service.dart';
+import 'package:srl_app/presentation/screens/settings/widgets/settings_tile.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
 class NotificationSettingsScreen extends ConsumerStatefulWidget {
@@ -15,6 +18,20 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 
 class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen> {
+  late final _customMessageController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _customMessageController.text = 
+  }
+
+  @override
+  void dispose() {
+    _customMessageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(settingsViewModelProvider);
@@ -36,31 +53,107 @@ class _NotificationSettingsScreenState
               title: 'Benachrichtigungen',
               child: Column(
                 children: [
-                  Card(
-                    child: ListTile(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      title: Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          'Benarichtigungen erlauben',
-                          style: context.textTheme.headlineSmall,
-                        ),
-                      ),
-                      subtitle: const Text(
-                        'Deine Benachrichtigungen sind deaktiviert. Aktiviere sie und passe sie an deinen Bedarf an',
-                      ),
-                      trailing: Switch(
-                        value: state.hasNotificationPermission!,
-                        onChanged: (_) =>
-                            NotificationService().openNotificationSettings,
-                      ),
-                      onTap: NotificationService().openNotificationSettings,
-                    ),
+                  SettingsTile(
+                    title: 'Benachrichtigungen erlauben',
+                    subtitle: state.hasNotificationPermission!
+                        ? 'Benachrichtigungen sind aktiviert'
+                        : '''Benachrichtigungen sind deaktiviert. Aktiviere sie und passe sie an deinen Bedarf an''',
+                    isEnabled: state.hasNotificationPermission!,
+                    onToggle: NotificationService().openNotificationSettings,
                   ),
 
-                  ...state.notificationSettings!.map((e) => Text(e.type.name)),
+                  ...state.notificationSettings!.map(
+                    (setting) => SettingsTile(
+                      title: setting.type.displayName,
+                      subtitle: setting.type.description,
+                      isEnabled: setting.enabled,
+                      onToggle: () async {
+                        await notifier.toggleNotificationSetting(
+                          type: setting.type,
+                          isEnabled: !setting.enabled,
+                        );
+                      },
+                      // Expansion to set frequency and preferred time
+                      // of notification
+                      expandedChild: Column(
+                        children: [
+                          // Dropdown
+                          DropdownButtonFormField<NotificationFrequency>(
+                            initialValue: setting.frequency,
+                            decoration: const InputDecoration(
+                              labelText: 'Häufigkeit',
+                              border: OutlineInputBorder(),
+                            ),
+                            items: NotificationFrequency.values
+                                .where((f) => f != NotificationFrequency.never)
+                                .map(
+                                  (f) => DropdownMenuItem(
+                                    value: f,
+                                    child: Text(f.displayName),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (value) async {
+                              if (value == null) return;
+                              await notifier.updateNotification(
+                                setting.type,
+                                setting.copyWith(
+                                  frequency: value,
+                                ),
+                              );
+                            },
+                          ),
+                          const VerticalSpace(
+                            size: SpaceSize.small,
+                          ),
+                          // Time Setting
+                          ListTile(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                            ),
+                            title: Text(
+                              'Bevorzugte Uhrzeit',
+                              style: context.textTheme.headlineSmall,
+                            ),
+                            subtitle: Text(
+                              setting.preferredTime?.format(context) ??
+                                  'Keine Uhrzeit gewählt',
+                            ),
+                            trailing: const Icon(Icons.access_time),
+                            onTap: () async {
+                              final time = await showTimePicker(
+                                context: context,
+                                initialTime:
+                                    setting.preferredTime ?? TimeOfDay.now(),
+                              );
+                              if (time != null) {
+                                await notifier.updateNotification(
+                                  setting.type,
+                                  setting.copyWith(preferredTime: time),
+                                );
+                              }
+                            },
+                          ),
+
+                          // Custom message setter
+                          if (setting.type ==
+                              NotificationType.motivationalReminder) ...[
+                            const VerticalSpace(
+                              size: SpaceSize.small,
+                            ),
+                            CustomTextField(
+                              hintText:
+                                  '''Eigene Erinnerung, z.B. "Lass dich nicht unterkriegen 🧠"''',
+                              controller: _customMessageController,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -78,7 +171,7 @@ class _NotificationSettingsScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: context.textTheme.headlineSmall),
+        Text(title, style: context.textTheme.headlineMedium),
 
         const VerticalSpace(),
 
