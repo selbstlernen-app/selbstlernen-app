@@ -203,6 +203,14 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       goals: fullSessionModel.goals,
       tasks: fullSessionModel.tasks,
       learningStrategies: session.learningStrategies,
+      availableStrategies: [
+        // Get all strategies we have typed and available ones
+        // With our ones shown first; then the default ones
+        ...{
+          ...session.learningStrategies,
+          ...state.availableStrategies,
+        },
+      ],
       focusTimeMin: session.focusTimeMin,
       breakTimeMin: session.breakTimeMin,
       longBreakTimeMin: session.longBreakTimeMin,

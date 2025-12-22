@@ -145,12 +145,15 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
             TopDownPage(navigateForward: _navigateForward)
           else
             BottomUpPage(navigateForward: _navigateForward),
-          // Do not show these pages in edit mode, since nothing can
+
+          StrategyPage(navigateForward: _navigateForward),
+
+          // Do not show this page in edit mode, since nothing should
           // be changed here anyway
           if (!state.isEditMode) ...[
-            StrategyPage(navigateForward: _navigateForward),
             TimerPage(navigateForward: _navigateForward),
           ],
+
           PromptPage(navigateForward: _navigateForward),
         ],
       ),
