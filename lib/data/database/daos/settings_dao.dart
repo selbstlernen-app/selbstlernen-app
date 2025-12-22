@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/tables/settings_table.dart';
 
