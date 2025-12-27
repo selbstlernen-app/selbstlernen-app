@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/presentation/screens/settings/pages/notification_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/theme_settings_screen.dart';
-import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -13,10 +13,26 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+  Future<void> _navigateToThemeSettings(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (context) => const ThemeSettingsScreen(),
+      ),
+    );
+  }
+
+  Future<void> _navigateToNotificationSettings(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (context) => const NotificationSettingsScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(settingsViewModelProvider);
-
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -28,20 +44,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 textAlign: TextAlign.center,
                 style: context.textTheme.headlineLarge,
               ),
+
               const VerticalSpace(),
 
-              _buildSettingsSection(
+              _buildSectionTile(
                 title: 'Aussehen',
-                items: [
-                  _SettingsItem(
-                    icon: Icons.palette_outlined,
-                    title: 'Aussehen',
-                    subtitle: 'Farbe und Darstellung anpassen',
-                    onTap: () => _navigateToThemeSettings(context),
-                  ),
-                ],
+                icon: Icons.palette_outlined,
+                subtitle: 'Farbe und Darstellung anpassen',
+                onTap: () => _navigateToThemeSettings(context),
               ),
-              const VerticalSpace(),
+
+              // const VerticalSpace(
+              //   size: SpaceSize.xsmall,
+              // ),
+
+              // _buildSectionTile(
+              //   title: 'Benachrichtigungen',
+              //   icon: Icons.notifications_active_outlined,
+              //   subtitle: 'Benachrichtigungen anpassen und konfigurieren',
+              //   onTap: () => _navigateToNotificationSettings(context),
+              // ),
+              // const VerticalSpace(),
             ],
           ),
         ),
@@ -49,86 +72,36 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  Widget _buildSettingsSection({
+  // Tile for all settings leading to their respective page
+  Widget _buildSectionTile({
     required String title,
-    required List<_SettingsItem> items,
+    required IconData icon,
+    required VoidCallback onTap,
+    required String subtitle,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: context.textTheme.headlineMedium!.copyWith(
-            color: context.colorScheme.primary,
-          ),
-        ),
-
-        const VerticalSpace(
-          size: SpaceSize.small,
-        ),
-
-        // Setting items
-        Column(
-          children: items.map((item) {
-            return Column(
-              children: [
-                _buildSettingsTile(item),
-              ],
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsTile(_SettingsItem item) {
     return Card(
       child: ListTile(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         leading: Icon(
-          item.icon,
+          icon,
           color: context.colorScheme.primary,
         ),
         title: Text(
-          item.title,
+          title,
           style: context.textTheme.headlineSmall,
         ),
-        subtitle: item.subtitle != null
-            ? Text(
-                item.subtitle!,
-              )
-            : null,
+        subtitle: Text(
+          subtitle,
+          style: context.textTheme.bodySmall,
+        ),
         trailing: Icon(
           Icons.chevron_right,
           color: context.colorScheme.onSurfaceVariant,
         ),
-        onTap: item.onTap,
+        onTap: onTap,
       ),
     );
   }
-
-  Future<void> _navigateToThemeSettings(BuildContext context) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute<dynamic>(
-        builder: (context) => const ThemeSettingsScreen(),
-      ),
-    );
-  }
-}
-
-class _SettingsItem {
-  _SettingsItem({
-    required this.icon,
-    required this.title,
-    required this.onTap,
-    this.subtitle,
-  });
-
-  final IconData icon;
-  final String title;
-  final String? subtitle;
-  final VoidCallback onTap;
 }

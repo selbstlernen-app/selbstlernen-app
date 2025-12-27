@@ -70,7 +70,7 @@ abstract class AddSessionState with _$AddSessionState {
   }
 
   int get totalPages {
-    if (isEditMode) return 3;
+    if (isEditMode) return 4;
     return 5;
   }
 }

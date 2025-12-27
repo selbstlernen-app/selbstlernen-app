@@ -28,9 +28,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
   @override
   void initState() {
     super.initState();
-    _titleController = TextEditingController(
-      text: ref.read(addSessionViewModelProvider).title,
-    );
+    _titleController = TextEditingController();
     _bigGoalController = TextEditingController();
     _smallGoalController = TextEditingController();
 
@@ -135,7 +133,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                       const HorizontalSpace(),
                       Expanded(
                         child: Text(
-                          'Momentan befindest du dich im Editier-Modus',
+                          'Editier-Modus',
                           style: context.textTheme.labelLarge!.copyWith(
                             color: AppPalette.amber,
                             fontSize: 20,
@@ -148,7 +146,7 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                   const VerticalSpace(size: SpaceSize.xsmall),
 
                   Text(
-                    'In diesem Modus kannst du nur beschränkt Elemente verändern',
+                    'In diesem Modus kannst du nur gelb-hervorgehobene Elemente verändern',
                     style: context.textTheme.bodyMedium!.copyWith(
                       color: AppPalette.amber,
                     ),

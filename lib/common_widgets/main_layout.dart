@@ -36,7 +36,10 @@ class MainLayout extends StatelessWidget {
               backgroundColor: AppPalette.orange,
               onPressed: onPressedFAB,
               tooltip: 'Änderungen speichern',
-              child: const Icon(Icons.save_rounded),
+              child: Icon(
+                Icons.save_rounded,
+                color: context.colorScheme.onPrimary,
+              ),
             )
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,

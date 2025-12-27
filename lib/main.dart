@@ -7,12 +7,14 @@ import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/theme_provider.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/data/repositories/settings_repository_imp.dart';
+import 'package:srl_app/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final sharedPreferences = await SharedPreferences.getInstance();
 
+  await NotificationService().init();
   await initializeDateFormatting('de_DE');
 
   runApp(

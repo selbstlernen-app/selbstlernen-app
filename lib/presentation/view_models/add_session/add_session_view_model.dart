@@ -2,7 +2,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/usecases/instance/get_or_create_instance_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/screens/add_session/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
@@ -12,14 +11,10 @@ part 'add_session_view_model.g.dart';
 @riverpod
 class AddSessionViewModel extends _$AddSessionViewModel {
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
-  late final ManageGoalUseCase _manageGoalUseCase;
-  late final ManageTasksUseCase _manageTasksUseCase;
 
   @override
   AddSessionState build() {
     _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
-    _manageGoalUseCase = ref.watch(manageGoalUseCaseProvider);
-    _manageTasksUseCase = ref.watch(manageTasksUseCaseProvider);
 
     return const AddSessionState();
   }
@@ -135,6 +130,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(tasks: tasks);
   }
 
+  // TODO: needs re-work!!
   void addStrategy(String strategy) {
     if (state.learningStrategies.contains(strategy)) return;
 
@@ -207,6 +203,14 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       goals: fullSessionModel.goals,
       tasks: fullSessionModel.tasks,
       learningStrategies: session.learningStrategies,
+      availableStrategies: [
+        // Get all strategies we have typed and available ones
+        // With our ones shown first; then the default ones
+        ...{
+          ...session.learningStrategies,
+          ...state.availableStrategies,
+        },
+      ],
       focusTimeMin: session.focusTimeMin,
       breakTimeMin: session.breakTimeMin,
       longBreakTimeMin: session.longBreakTimeMin,

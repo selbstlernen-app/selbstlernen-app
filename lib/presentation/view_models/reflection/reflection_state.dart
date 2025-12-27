@@ -6,7 +6,6 @@ part 'reflection_state.freezed.dart';
 
 @freezed
 abstract class ReflectionState with _$ReflectionState {
-
   const factory ReflectionState({
     required SessionInstanceModel instance,
     String? notes,
@@ -14,6 +13,7 @@ abstract class ReflectionState with _$ReflectionState {
   }) = _ReflectionState;
   const ReflectionState._();
 
+  // Helper
   String get totalTimeFocused =>
       TimeUtils.formatTime(instance.totalFocusSecondsElapsed);
 

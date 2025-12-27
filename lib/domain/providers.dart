@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/services/add_session_service.dart';
+import 'package:srl_app/domain/usecases/manage_notifications_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_settings_use_case.dart';
 import 'package:srl_app/domain/usecases/session/get_general_statistics_use_case.dart';
 import 'package:srl_app/domain/usecases/session/get_session_statistics_use_case.dart';
@@ -120,5 +121,12 @@ AddSessionService addSessionService(Ref ref) {
 ManageSettingsUseCase manageSettingsUseCase(Ref ref) {
   return ManageSettingsUseCase(
     ref.watch(settingsRepositoryProvider),
+  );
+}
+
+@riverpod
+ManageNotificationsUseCase manageNotificationsUseCase(Ref ref) {
+  return ManageNotificationsUseCase(
+    ref.watch(notificationsRepositoryProvider),
   );
 }

@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/tables/settings_table.dart';
 
@@ -13,6 +12,6 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
 
   // Get settings
   Future<Setting> getSetting() async {
-    return await select(settings).getSingle();
+    return select(settings).getSingle();
   }
 }

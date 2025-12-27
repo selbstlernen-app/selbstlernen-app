@@ -16,7 +16,12 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
 
   @override
   Future<void> deleteInstanceBySessionId(int sessionId) {
-    return sessionInstanceDao.deleteInstance(sessionId);
+    return sessionInstanceDao.deleteInstancesBySessionId(sessionId);
+  }
+
+  @override
+  Future<void> deleteInstanceById(int instanceId) {
+    return sessionInstanceDao.deleteInstance(instanceId);
   }
 
   @override

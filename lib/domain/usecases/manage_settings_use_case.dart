@@ -27,9 +27,4 @@ class ManageSettingsUseCase {
   Future<void> setPrimaryColor(Color color) async {
     await _repository.setPrimaryColor(color);
   }
-
-  // Clear all settings
-  Future<void> clearAllSettings() async {
-    await _repository.clearAll();
-  }
 }

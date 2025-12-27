@@ -19,6 +19,7 @@ abstract class SessionInstanceRepository {
     SessionInstanceModel updatedSessionInstance,
   );
   Future<void> deleteInstanceBySessionId(int sessionId);
+  Future<void> deleteInstanceById(int instanceId);
 
   // Date-related queries
   Future<SessionInstanceModel?> getInstanceForDate(

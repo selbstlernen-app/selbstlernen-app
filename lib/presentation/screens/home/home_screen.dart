@@ -6,7 +6,6 @@ import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/data/test_data.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
 import 'package:srl_app/presentation/screens/home/widgets/calendar_widget.dart';
 import 'package:srl_app/presentation/screens/home/widgets/completed_tile.dart';
@@ -39,6 +38,13 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               _buildHeading(context),
+
+              // ElevatedButton(
+              //   onPressed: () async {
+              //     await NotificationService().showNotification();
+              //   },
+              //   child: const Text('Show Notification'),
+              // ),
 
               // TODO: remove for production
               // ElevatedButton(

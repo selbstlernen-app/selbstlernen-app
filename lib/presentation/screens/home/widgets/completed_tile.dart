@@ -3,7 +3,6 @@ import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/session_status_utils.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/models/session_with_instance_model.dart';
 
 class CompletedSessionTile extends StatelessWidget {
   const CompletedSessionTile({required this.sessionWithInstance, super.key});

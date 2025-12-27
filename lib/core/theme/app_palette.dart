@@ -7,6 +7,12 @@ class AppPalette {
   static Color blueLight = const Color(0xFF8EC5FF);
   static Color blue = const Color(0xFF51A2FF);
 
+  static Color limeLight = const Color(0xFFBBF451);
+  static Color lime = const Color(0xFF9AE600);
+
+  static Color greenLight = const Color(0xFF7BF1A8);
+  static Color green = const Color(0xFF05DF72);
+
   static Color emeraldLight = const Color(0xFF5EE9B5); // Emerald 300
   static Color emerald = const Color(0xFF00D492); // Emerald 400
 
@@ -28,6 +34,9 @@ class AppPalette {
   static const Color roseLight = Color(0xFFffa1ad);
   static const Color rose = Color(0xFFff637e);
 
+  static Color redLight = const Color(0xFFFFA2A2);
+  static Color red = const Color(0xFFFF6467);
+
   static const Color orangeLight = Color(0xFFffb86a);
   static const Color orange = Color(0xFFff8904);
 
@@ -44,6 +53,8 @@ class AppPalette {
   static List<Color> themeColors = [
     sky,
     blue,
+    green,
+    lime,
     emerald,
     teal,
     indigo,
@@ -51,9 +62,7 @@ class AppPalette {
     fuchsia,
     pink,
     rose,
-    orange,
-    amber,
-    yellow,
+    red,
   ];
 
   static Color getLightVariant(Color primary) {
@@ -66,9 +75,12 @@ class AppPalette {
     if (primary == fuchsia) return fuchsiaLight;
     if (primary == pink) return pinkLight;
     if (primary == rose) return roseLight;
+    if (primary == red) return redLight;
     if (primary == amber) return amberLight;
     if (primary == yellow) return yellowLight;
     if (primary == orange) return orangeLight;
+    if (primary == green) return greenLight;
+    if (primary == lime) return limeLight;
     return skyLight;
   }
 }

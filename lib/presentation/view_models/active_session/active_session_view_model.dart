@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/domain/models/focus_check.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
@@ -433,7 +432,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       if (await Vibration.hasCustomVibrationsSupport()) {
         await Vibration.vibrate(duration: 300);
       } else if (await Vibration.hasVibrator()) {
-        // Fallback: short vibration
         await Vibration.vibrate(duration: 300);
       }
     } on Exception catch (_) {
