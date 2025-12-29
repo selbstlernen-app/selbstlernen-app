@@ -12,6 +12,7 @@ import 'package:srl_app/presentation/screens/active_session/widgets/goals_list_w
 import 'package:srl_app/presentation/screens/active_session/widgets/timer_widget.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
+import 'package:wakelock/wakelock.dart';
 
 class ActiveSessionScreen extends ConsumerStatefulWidget {
   const ActiveSessionScreen({
@@ -32,6 +33,30 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   late SessionInstanceModel sessionInstance;
 
   @override
+  void initState() {
+    super.initState();
+    _updateWakeLock();
+  }
+
+  void _updateWakeLock() {
+    final state = ref.read(activeSessionViewModelProvider(widget.instanceId));
+
+    if (state.timerStatus == TimerStatus.running ||
+        state.timerStatus == TimerStatus.initial) {
+      Wakelock.enable();
+    } else {
+      Wakelock.disable();
+    }
+  }
+
+  @override
+  void dispose() {
+    // Disable wake lock when screen is disposed
+    Wakelock.disable();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final state = ref.watch(
       activeSessionViewModelProvider(widget.instanceId),
@@ -47,6 +72,9 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
         // Show dialog when showFocusPrompt becomes true
         if (next.showFocusPrompt && !(previous?.showFocusPrompt ?? false)) {
           _showFocusPromptDialog(viewModel);
+        }
+        if (previous?.timerStatus != next.timerStatus) {
+          _updateWakeLock();
         }
       },
     );

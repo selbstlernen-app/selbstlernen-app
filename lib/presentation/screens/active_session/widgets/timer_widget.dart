@@ -71,6 +71,14 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
               style: context.textTheme.headlineLarge,
               textAlign: TextAlign.center,
             ),
+            Text(
+              'Bildschirm bleibt immer an, wenn die Lerneinheit läuft',
+              style: context.textTheme.labelSmall!.copyWith(
+                color: AppPalette.grey,
+                fontSize: 10,
+              ),
+              textAlign: TextAlign.center,
+            ),
             const VerticalSpace(),
 
             Stack(
