@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
@@ -12,7 +14,7 @@ import 'package:srl_app/presentation/screens/active_session/widgets/goals_list_w
 import 'package:srl_app/presentation/screens/active_session/widgets/timer_widget.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class ActiveSessionScreen extends ConsumerStatefulWidget {
   const ActiveSessionScreen({
@@ -35,24 +37,24 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   @override
   void initState() {
     super.initState();
-    _updateWakeLock();
+    unawaited(_updateWakeLock());
   }
 
-  void _updateWakeLock() {
+  Future<void> _updateWakeLock() async {
     final state = ref.read(activeSessionViewModelProvider(widget.instanceId));
 
     if (state.timerStatus == TimerStatus.running ||
         state.timerStatus == TimerStatus.initial) {
-      Wakelock.enable();
+      await WakelockPlus.enable();
     } else {
-      Wakelock.disable();
+      await WakelockPlus.disable();
     }
   }
 
   @override
   void dispose() {
     // Disable wake lock when screen is disposed
-    Wakelock.disable();
+    unawaited(WakelockPlus.disable());
     super.dispose();
   }
 
