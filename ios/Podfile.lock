@@ -4,6 +4,8 @@ PODS:
   - device_info_plus (0.0.1):
     - Flutter
   - Flutter (1.0.0)
+  - flutter_background_service_ios (0.0.3):
+    - Flutter
   - flutter_local_notifications (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
@@ -50,6 +52,7 @@ DEPENDENCIES:
   - app_settings (from `.symlinks/plugins/app_settings/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
+  - flutter_background_service_ios (from `.symlinks/plugins/flutter_background_service_ios/ios`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
@@ -70,6 +73,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/device_info_plus/ios"
   Flutter:
     :path: Flutter
+  flutter_background_service_ios:
+    :path: ".symlinks/plugins/flutter_background_service_ios/ios"
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
   package_info_plus:
@@ -91,6 +96,7 @@ SPEC CHECKSUMS:
   app_settings: 0341ec6daa4f0c50f5a421bf0ad7c36084db6e90
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_background_service_ios: 00d31bdff7b4bfe06d32375df358abe0329cf87e
   flutter_local_notifications: a5a732f069baa862e728d839dd2ebb904737effb
   package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
   path_provider_foundation: bb55f6dbba17d0dccd6737fe6f7f34fbd0376880

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
@@ -18,6 +19,42 @@ class TimerWidget extends ConsumerStatefulWidget {
 }
 
 class _$TimerWidgetState extends ConsumerState<TimerWidget> {
+  late final AppLifecycleListener _lifecycleListener;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _lifecycleListener = AppLifecycleListener(
+      onStateChange: (state) {
+        final backgroundService = FlutterBackgroundService();
+
+        // Check if the timer is actually running before bothering the service
+        final timerStatus = ref
+            .read(activeSessionViewModelProvider(widget.instanceId))
+            .timerStatus;
+
+        // Only check when the user is also running the timer;
+        // if paused no notifications are shown
+        if (timerStatus == TimerStatus.running) {
+          if (state == AppLifecycleState.paused) {
+            // User left the app (show notification)
+            backgroundService.invoke('showNotification');
+          } else if (state == AppLifecycleState.resumed) {
+            // User came back (hide notification)
+            backgroundService.invoke('hideNotification');
+          }
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycleListener.dispose();
+    super.dispose();
+  }
+
   // Get the total time to calculate progress percentage
   int _getPhaseDuration(ActiveSessionState state) {
     switch (state.currentPhase) {

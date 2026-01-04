@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
@@ -271,13 +272,40 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   // ---- TIMER RELATED ----
-  void startTimer() {
+  void _setupBackgroundListeners() {
+    FlutterBackgroundService().on('update').listen((event) {
+      if (event != null && state.timerStatus == TimerStatus.running) {
+        // Sync background time to UI state
+        final bgSeconds = event['remainingSeconds'] as int;
+
+        // Only update if there is a discrepancy to avoid loop jitters
+        if ((state.remainingSeconds - bgSeconds).abs() > 1) {
+          state = state.copyWith(remainingSeconds: bgSeconds);
+        }
+      }
+    });
+
+    FlutterBackgroundService().on('finished').listen((_) {
+      _handlePhaseComplete();
+    });
+  }
+
+  Future<void> startTimer() async {
+    final service = FlutterBackgroundService();
+    if (!(await service.isRunning())) {
+      await service.startService();
+    }
+
+    // Tells background service the remaining seconds to start with
+    service
+      ..invoke('setTimer', {'seconds': state.remainingSeconds})
+      ..invoke('start');
+
     if (state.timerStatus == TimerStatus.initial) {
       state = state.copyWith(
         timerStatus: TimerStatus.running,
       );
-      // Start focus prompt when timer has been started
-      startFocusPrompting();
+      startFocusPrompting(); // Start focus prompt when timer has been started
     } else if (state.timerStatus == TimerStatus.paused) {
       state = state.copyWith(timerStatus: TimerStatus.running);
     }
@@ -290,6 +318,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   Future<void> pauseTimer() async {
     _timer?.cancel();
+    FlutterBackgroundService().invoke('stop'); // Stop background task
     _focusPrompter?.stopPrompting();
     state = state.copyWith(timerStatus: TimerStatus.paused);
     await _autoSave();
@@ -424,6 +453,18 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       case SessionPhase.shortBreak:
         _focusPrompter?.stopPrompting();
     }
+
+    // Sync the background notification label
+    final label = _getPhaseLabel(phase);
+    final subtitle = _getSubtitle(phase);
+    FlutterBackgroundService().invoke('updatePhase', {
+      'title': label,
+      'subtitle': subtitle,
+    });
+
+    // Reset background timer to the new phase duration
+    FlutterBackgroundService().invoke('setTimer', {'seconds': durationSeconds});
+
     await _autoSave();
   }
 
@@ -553,6 +594,28 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString());
       rethrow;
+    }
+  }
+
+  String _getPhaseLabel(SessionPhase phase) {
+    switch (phase) {
+      case SessionPhase.focus:
+        return "🧠 Fokuszeit";
+      case SessionPhase.shortBreak:
+        return "☕️ Kurze Pause";
+      case SessionPhase.longBreak:
+        return "😌 Lange Pause";
+    }
+  }
+
+  String _getSubtitle(SessionPhase phase) {
+    switch (phase) {
+      case SessionPhase.focus:
+        return "Bleib fokussiert!";
+      case SessionPhase.shortBreak:
+        return "Zeit zum Aufstehen und kurz Durchatmen";
+      case SessionPhase.longBreak:
+        return "Lass die Arbeit kurz hinter dir und entspann dich";
     }
   }
 }
