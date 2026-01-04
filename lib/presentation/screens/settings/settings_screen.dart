@@ -54,17 +54,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 onTap: () => _navigateToThemeSettings(context),
               ),
 
-              // const VerticalSpace(
-              //   size: SpaceSize.xsmall,
-              // ),
+              const VerticalSpace(
+                size: SpaceSize.xsmall,
+              ),
 
-              // _buildSectionTile(
-              //   title: 'Benachrichtigungen',
-              //   icon: Icons.notifications_active_outlined,
-              //   subtitle: 'Benachrichtigungen anpassen und konfigurieren',
-              //   onTap: () => _navigateToNotificationSettings(context),
-              // ),
-              // const VerticalSpace(),
+              _buildSectionTile(
+                title: 'Benachrichtigungen',
+                icon: Icons.notifications_active_outlined,
+                subtitle: 'Benachrichtigungen anpassen und konfigurieren',
+                onTap: () => _navigateToNotificationSettings(context),
+              ),
             ],
           ),
         ),

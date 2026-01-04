@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -53,6 +55,15 @@ class NotificationService {
   /// Request notification permission
   Future<bool> requestPermission() async {
     final status = await Permission.notification.request();
+
+    // For Android 13+, specifically need to check for exact alarms
+    if (Platform.isAndroid) {
+      final alarmStatus = await Permission.scheduleExactAlarm.status;
+      if (alarmStatus.isDenied) {
+        await openNotificationSettings();
+      }
+    }
+
     return status.isGranted;
   }
 
@@ -158,6 +169,32 @@ class NotificationService {
   /// Opens the settings to allow notifications
   Future<void> openNotificationSettings() async {
     await AppSettings.openAppSettings(type: AppSettingsType.notification);
+  }
+
+  Future<void> scheduleTimerEnd(int secondsRemaining, String phaseTitle) async {
+    // Calculate the exact finish time
+    final now = tz.TZDateTime.now(tz.local);
+    final scheduledDate = now.add(Duration(seconds: secondsRemaining));
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: true,
+    );
+
+    // Schedule alarm for phase end on iOS
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      999,
+      'Phase beendet! 🔔',
+      '$phaseTitle ist vorbei. Die nächste Phase wird eingeleitet.',
+      scheduledDate,
+      const NotificationDetails(iOS: iosDetails),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+  }
+
+  Future<void> cancelTimerEnd() async {
+    await flutterLocalNotificationsPlugin.cancel(999);
   }
 
   // Helper methods

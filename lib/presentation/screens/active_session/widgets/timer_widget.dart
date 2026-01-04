@@ -6,6 +6,8 @@ import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
+import 'package:srl_app/domain/models/notification_type_setting.dart';
+import 'package:srl_app/notification_service.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
@@ -26,23 +28,34 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
     super.initState();
 
     _lifecycleListener = AppLifecycleListener(
-      onStateChange: (state) {
+      onStateChange: (state) async {
         final backgroundService = FlutterBackgroundService();
 
         // Check if the timer is actually running before bothering the service
-        final timerStatus = ref
-            .read(activeSessionViewModelProvider(widget.instanceId))
-            .timerStatus;
+        final timerState = ref.read(
+          activeSessionViewModelProvider(widget.instanceId),
+        );
 
         // Only check when the user is also running the timer;
         // if paused no notifications are shown
-        if (timerStatus == TimerStatus.running) {
+        if (timerState.timerStatus == TimerStatus.running) {
           if (state == AppLifecycleState.paused) {
             // User left the app (show notification)
+            // This is Android ONLY
             backgroundService.invoke('showNotification');
+
+            // iOS needs to schedule a phase ending alarm instead as
+            // iOS has no option for a live reminder
+            await NotificationService().scheduleTimerEnd(
+              timerState.remainingSeconds,
+              _getPhaseLabel(timerState.currentPhase),
+            );
           } else if (state == AppLifecycleState.resumed) {
             // User came back (hide notification)
             backgroundService.invoke('hideNotification');
+
+            // Cancel the reminder
+            await NotificationService().cancelTimerEnd();
           }
         }
       },

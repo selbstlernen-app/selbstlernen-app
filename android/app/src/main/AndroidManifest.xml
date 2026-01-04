@@ -75,12 +75,19 @@
     </queries>
 
     <!-- Permissions -->
+    
     <!-- Allow app to show notifications -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" 
+                 android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    
     <!-- Lets app run code after device has restarted -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    
     <!-- Allows app to vibrate -->
     <uses-permission android:name="android.permission.VIBRATE"/>
+
     <!-- Lets app read or change "Do not Disturb" settings -->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 

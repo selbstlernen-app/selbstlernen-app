@@ -88,6 +88,9 @@ Future<void> onStart(ServiceInstance service) async {
       if (remainingSeconds > 0) {
         remainingSeconds--;
 
+        // Send data back so UI is in sync
+        service.invoke('update', {'remainingSeconds': remainingSeconds});
+
         // Update notification (Android)
         if (service is AndroidServiceInstance) {
           if (await service.isForegroundService()) {
@@ -98,9 +101,6 @@ Future<void> onStart(ServiceInstance service) async {
             );
           }
         }
-
-        // Send data back so UI is in sync
-        service.invoke('update', {'remainingSeconds': remainingSeconds});
       } else {
         service.invoke('finished');
         timer?.cancel();
