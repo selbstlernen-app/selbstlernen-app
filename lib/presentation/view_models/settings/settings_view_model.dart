@@ -91,6 +91,16 @@ class SettingsViewModel extends _$SettingsViewModel {
       type: type,
       isEnabled: isEnabled,
     );
+
+    // Schedule notification if toggled
+    final updatedSetting = state.notificationSettings?.firstWhere(
+      (s) => s.type == type,
+    );
+    // Update the setting so notification is sent
+    if (updatedSetting != null) {
+      final settingToSchedule = updatedSetting.copyWith(enabled: isEnabled);
+      await _scheduleNotification(settingToSchedule);
+    }
   }
 
   Future<void> updateNotification(

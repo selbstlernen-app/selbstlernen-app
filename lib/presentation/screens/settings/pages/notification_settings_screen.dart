@@ -24,7 +24,7 @@ class _NotificationSettingsScreenState
   void initState() {
     super.initState();
 
-    // Initialize after build; if in edit mode
+    // Initialize custom motivational reminder if given
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final state = ref.read(settingsViewModelProvider);
       final motivationNotification = state.notificationSettings!
@@ -82,7 +82,24 @@ class _NotificationSettingsScreenState
                         ? 'Benachrichtigungen sind aktiviert'
                         : '''Benachrichtigungen sind deaktiviert. Aktiviere sie und passe sie an deinen Bedarf an''',
                     isEnabled: state.hasNotificationPermission!,
-                    onToggle: NotificationService().openNotificationSettings,
+                    onToggle: () async {
+                      if (state.hasNotificationPermission ?? false) {
+                        // If user has permissions on and want to toggle
+                        // turn them off in settings of device:
+                        await NotificationService().openNotificationSettings();
+                        await NotificationService().cancelAllNotifications();
+                      } else {
+                        // If they are off enable request
+                        final granted = await NotificationService()
+                            .requestPermission();
+                        if (!granted) {
+                          // If not granted (user clicked deny)
+                          // open settings on device
+                          await NotificationService()
+                              .openNotificationSettings();
+                        }
+                      }
+                    },
                   ),
 
                   ...state.notificationSettings!.map(

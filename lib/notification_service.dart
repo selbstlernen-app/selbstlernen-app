@@ -67,26 +67,6 @@ class NotificationService {
     return status.isGranted;
   }
 
-  // Show immediate test notification
-  Future<void> showNotification() async {
-    const androidDetails = AndroidNotificationDetails(
-      'default_channel',
-      'Default Notifications',
-      channelDescription: 'General notifications',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-
-    const notificationDetails = NotificationDetails(android: androidDetails);
-
-    await flutterLocalNotificationsPlugin.show(
-      0,
-      'Hello!',
-      'This notification works 🎉',
-      notificationDetails,
-    );
-  }
-
   // Schedule a notification based on type, frequency, and preferred time
   Future<void> scheduleNotification({
     required NotificationType type,
@@ -203,7 +183,7 @@ class NotificationService {
       case NotificationType.dailyReminder:
         return 'Zeit zum Lernen! 📚';
       case NotificationType.weeklyProgress:
-        return 'Dein Wochenfortschritt';
+        return 'Dein Wochenfortschritt 📍';
       case NotificationType.motivationalReminder:
         return customMessage ?? 'Bleib dran und gib alles! 🔥';
     }
