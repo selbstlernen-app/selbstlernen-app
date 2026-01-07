@@ -465,6 +465,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     // Reset background timer to the new phase duration
     FlutterBackgroundService().invoke('setTimer', {'seconds': durationSeconds});
 
+    // Start the timer again; not only once per phase
+    FlutterBackgroundService().invoke('start');
+
     await _autoSave();
   }
 

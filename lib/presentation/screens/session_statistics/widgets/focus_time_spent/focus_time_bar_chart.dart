@@ -54,9 +54,8 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
   /// Returns visually fitting interval depending on the max y value
   double _calculateInterval(double maxY) {
     if (maxY <= 60) return 10;
-    if (maxY <= 120) return 20;
+    if (maxY <= 120) return 30;
     if (maxY <= 300) return 60;
-    if (maxY <= 600) return 120;
     return 180;
   }
 
@@ -137,9 +136,14 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
             totalSeconds: instance.totalFocusSecondsElapsed,
           );
 
+          var seconds = '';
+          if (timeString.seconds != '00') {
+            seconds = '\n${timeString.seconds} sec';
+          }
+
           return BarTooltipItem(
             '${dateTitle != null ? '$dateTitle\n' : ''}'
-            '''${timeString.hours != null ? '${timeString.hours} h ${timeString.minutes} min' : '${timeString.minutes} min\n ${timeString.seconds} sec'}''',
+            '''${timeString.hours != null ? '${timeString.hours} h ${timeString.minutes} min' : '${timeString.minutes} min${seconds}'}''',
             TextStyle(
               color: context.colorScheme.onInverseSurface,
               fontWeight: FontWeight.bold,
@@ -186,14 +190,16 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
               return const SizedBox.shrink();
             }
 
-            final formatted = TimeUtils.formatTimeString(
-              totalSeconds: (value * 60).toInt(),
-              zeroPadding: false,
-            );
+            final totalMinutes = value.toInt();
+            final hours = totalMinutes ~/ 60;
+            final mins = totalMinutes % 60;
 
-            final text = formatted.hours != null
-                ? '${formatted.hours} h'
-                : '${formatted.minutes} min';
+            String text;
+            if (hours > 0) {
+              text = mins > 0 ? '$hours h $mins min' : '$hours h';
+            } else {
+              text = '$mins min';
+            }
 
             return SideTitleWidget(
               meta: meta,

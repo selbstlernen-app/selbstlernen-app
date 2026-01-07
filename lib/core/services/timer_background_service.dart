@@ -34,7 +34,6 @@ Future<void> initializeBackgroundService() async {
       notificationChannelId: 'timer_service',
       initialNotificationTitle: '',
       initialNotificationContent: '',
-
       foregroundServiceNotificationId: 888,
       foregroundServiceTypes: [AndroidForegroundType.specialUse],
     ),

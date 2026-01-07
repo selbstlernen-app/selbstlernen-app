@@ -20,7 +20,7 @@ class FocusLevelChart extends StatelessWidget {
     if (maxY <= 10) return 1;
     if (maxY <= 30) return 5;
     if (maxY <= 60) return 10;
-    if (maxY <= 120) return 20;
+    if (maxY <= 120) return 30;
     if (maxY <= 300) return 60;
     if (maxY <= 600) return 120;
     return 180;
@@ -46,7 +46,9 @@ class FocusLevelChart extends StatelessWidget {
       );
     }).toList();
 
-    final maxMinutes = focusData.last.minutesIntoSession;
+    final lastCheck = focusData.last.minutesIntoSession.toDouble();
+    // Round to nearest multiple of 10 for max x
+    final maxX = (lastCheck / 10).ceilToDouble() * 10;
 
     return SizedBox(
       height: 160,
@@ -56,7 +58,7 @@ class FocusLevelChart extends StatelessWidget {
           LineChartData(
             minX: 0,
             minY: 0,
-            maxX: maxMinutes.toDouble(),
+            maxX: maxX,
             maxY: 3,
             borderData: FlBorderData(
               show: true,
@@ -70,7 +72,7 @@ class FocusLevelChart extends StatelessWidget {
               ),
             ),
             gridData: FlGridData(
-              verticalInterval: _calculateInterval(maxMinutes.toDouble()),
+              verticalInterval: _calculateInterval(maxX),
               horizontalInterval: 1,
               getDrawingHorizontalLine: (value) {
                 return FlLine(
@@ -103,12 +105,26 @@ class FocusLevelChart extends StatelessWidget {
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  reservedSize: 30,
-                  interval: _calculateInterval(maxMinutes.toDouble()),
+                  reservedSize: 20,
+                  interval: _calculateInterval(maxX),
                   getTitlesWidget: (value, meta) {
-                    return Text(
-                      '${value.toInt()} min',
-                      style: StatisticsUiUtils.styleBottomBar,
+                    final totalMinutes = value.toInt();
+                    final hours = totalMinutes ~/ 60;
+                    final mins = totalMinutes % 60;
+
+                    String text;
+                    if (hours > 0) {
+                      text = mins > 0 ? '$hours h $mins min' : '$hours h';
+                    } else {
+                      text = '$mins min';
+                    }
+
+                    return SideTitleWidget(
+                      meta: meta,
+                      child: Text(
+                        text,
+                        style: StatisticsUiUtils.styleBottomBar,
+                      ),
                     );
                   },
                 ),
