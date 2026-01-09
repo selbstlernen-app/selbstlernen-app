@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
+import 'package:srl_app/common_widgets/custom_filter_chip.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
@@ -101,30 +102,26 @@ class StatisticsScreen extends ConsumerWidget {
               Row(
                 children: [
                   if (state.activeSessions.isNotEmpty) ...[
-                    CustomButton(
-                      verticalPadding: 4,
-                      borderRadius: 10,
+                    CustomFilterChip(
+                      label: 'Aktuell',
                       isActive: state.filter == StatisticsFilter.running,
                       onPressed: () => ref
                           .read(statisticsViewModelProvider.notifier)
                           .setFilter(
                             StatisticsFilter.running,
                           ),
-                      label: 'Aktuell',
                     ),
                     const HorizontalSpace(
                       size: SpaceSize.small,
                     ),
                   ],
                   if (state.archivedSessions.isNotEmpty)
-                    CustomButton(
-                      verticalPadding: 4,
-                      borderRadius: 10,
+                    CustomFilterChip(
+                      label: 'Archiviert',
                       isActive: state.filter == StatisticsFilter.archived,
                       onPressed: () => ref
                           .read(statisticsViewModelProvider.notifier)
                           .setFilter(StatisticsFilter.archived),
-                      label: 'Archiviert',
                     ),
                 ],
               ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/custom_filter_chip.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
@@ -27,7 +28,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
     if (homeState.isLoading) return const LoadingIndicator();
 
     if (homeState.error != null) {
-      return Scaffold(body: Center(child: Text('Error: ${homeState.error}')));
+      return Scaffold(body: Center(child: Text('Fehler: ${homeState.error}')));
     }
 
     return Scaffold(
@@ -59,149 +60,136 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
 
               const VerticalSpace(),
 
+              _buildProgressBar(homeState),
+
+              const VerticalSpace(),
+
               Wrap(
                 spacing: 8,
                 children: <Widget>[
-                  CustomButton(
-                    verticalPadding: 2,
-                    borderRadius: 10,
+                  CustomFilterChip(
+                    label: 'Alle',
                     isActive: homeState.filter == SessionFilter.all,
                     onPressed: () => ref
                         .read(homeViewModelProvider.notifier)
                         .setFilter(SessionFilter.all),
-                    label: 'Alle',
                   ),
-                  CustomButton(
-                    verticalPadding: 4,
-                    borderRadius: 10,
+                  CustomFilterChip(
+                    label: 'Offen',
                     isActive: homeState.filter == SessionFilter.open,
                     onPressed: () => ref
                         .read(homeViewModelProvider.notifier)
                         .setFilter(SessionFilter.open),
-                    label: 'Offen',
                   ),
-                  CustomButton(
-                    verticalPadding: 4,
-                    borderRadius: 10,
+                  CustomFilterChip(
+                    label: 'Übersprungen',
                     isActive: homeState.filter == SessionFilter.skipped,
                     onPressed: () => ref
                         .read(homeViewModelProvider.notifier)
                         .setFilter(SessionFilter.skipped),
-                    label: 'Übersprungen',
                   ),
-                  CustomButton(
-                    verticalPadding: 4,
-                    borderRadius: 10,
+                  CustomFilterChip(
+                    label: 'Erledigt',
                     isActive: homeState.filter == SessionFilter.done,
                     onPressed: () => ref
                         .read(homeViewModelProvider.notifier)
                         .setFilter(SessionFilter.done),
-                    label: 'Erledigt',
                   ),
                 ],
               ),
 
               const VerticalSpace(size: SpaceSize.small),
 
-              // List todays open sessions
-              if (homeState.filter == SessionFilter.open ||
-                  homeState.filter == SessionFilter.all) ...[
-                Text(
-                  'Anstehende Lerneinheiten',
-                  style: context.textTheme.labelLarge!.copyWith(
-                    color: AppPalette.grey,
-                  ),
-                ),
-                if (homeState.todaysSessions.isNotEmpty) ...[
-                  const VerticalSpace(),
-                  ...homeState.todaysSessions.map(
-                    (SessionWithInstanceModel sessionWithInstance) =>
-                        PendingSessionTile(
-                          session: sessionWithInstance.session,
-                          hasInstance: sessionWithInstance.instance != null,
-                        ),
-                  ),
-                  const VerticalSpace(),
-                ],
-                if (homeState.todaysSessions.isEmpty) ...[
-                  const VerticalSpace(
-                    size: SpaceSize.xsmall,
-                  ),
-                  Text(
-                    'Keine Lerneinheiten mehr offen für heute',
-                    style: context.textTheme.bodyMedium!.copyWith(
-                      color: AppPalette.grey.withValues(alpha: 0.8),
-                    ),
-                  ),
-                  const VerticalSpace(),
-                ],
-              ],
-
               // List of completed sessions
-              if (homeState.filter == SessionFilter.done ||
-                  homeState.filter == SessionFilter.all) ...[
-                Text(
-                  'Erledigte Lerneinheiten',
-                  style: context.textTheme.labelLarge!.copyWith(
-                    color: AppPalette.grey,
+              if (homeState.filter == SessionFilter.all ||
+                  homeState.filter == SessionFilter.open)
+                _SessionSection(
+                  title: 'Anstehende Lerneinheiten',
+                  items: homeState.todaysSessions,
+                  emptyLabel: 'Keine Lerneinheiten mehr offen',
+                  itemBuilder: (data) => PendingSessionTile(
+                    session: data.session,
+                    hasInstance: data.instance != null,
                   ),
                 ),
-                if (homeState.completedSessionsForToday.isNotEmpty) ...[
-                  const VerticalSpace(),
-                  ...homeState.completedSessionsForToday.map(
-                    (SessionWithInstanceModel sessionWithInstance) =>
-                        CompletedSessionTile(
-                          sessionWithInstance: sessionWithInstance,
-                        ),
-                  ),
-                  const VerticalSpace(),
-                ],
-                if (homeState.completedSessionsForToday.isEmpty) ...[
-                  const VerticalSpace(
-                    size: SpaceSize.xsmall,
-                  ),
-                  Text(
-                    'Noch keine Lerneinheiten für heute erledigt',
-                    style: context.textTheme.bodyMedium!.copyWith(
-                      color: AppPalette.grey.withValues(alpha: 0.8),
-                    ),
-                  ),
-                  const VerticalSpace(),
-                ],
-              ],
 
-              // List of skipped sessions
-              if (homeState.filter == SessionFilter.skipped) ...[
-                Text(
-                  'Übersprungen',
-                  style: context.textTheme.labelLarge!.copyWith(
-                    color: AppPalette.grey,
+              if (homeState.filter == SessionFilter.all ||
+                  homeState.filter == SessionFilter.done)
+                _SessionSection(
+                  title: 'Erledigte Lerneinheiten',
+                  items: homeState.completedSessionsForToday,
+                  emptyLabel: 'Noch nichts erledigt',
+                  itemBuilder: (data) =>
+                      CompletedSessionTile(sessionWithInstance: data),
+                ),
+
+              if (homeState.filter == SessionFilter.skipped)
+                _SessionSection(
+                  title: 'Übersprungene Lerneinheiten',
+                  items: homeState.skippedSessionsForToday,
+                  emptyLabel: 'Noch keine Lerneinheiten heute übersprungen',
+                  itemBuilder: (data) => PendingSessionTile(
+                    session: data.session,
+                    hasInstance: data.instance != null,
                   ),
                 ),
-                if (homeState.skippedSessionsForToday.isNotEmpty) ...[
-                  const VerticalSpace(),
-                  ...homeState.skippedSessionsForToday.map(
-                    (SessionWithInstanceModel sessionWithInstance) =>
-                        CompletedSessionTile(
-                          sessionWithInstance: sessionWithInstance,
-                        ),
-                  ),
-                ],
-                if (homeState.skippedSessionsForToday.isEmpty) ...[
-                  const VerticalSpace(size: SpaceSize.xsmall),
-                  Text(
-                    'Keine übersprungenen Lerneinheiten für heute',
-                    style: context.textTheme.bodyMedium!.copyWith(
-                      color: AppPalette.grey.withValues(alpha: 0.8),
-                    ),
-                  ),
-                  const VerticalSpace(),
-                ],
-              ],
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildProgressBar(HomeState homeState) {
+    final total =
+        homeState.todaysSessions.length +
+        homeState.completedSessionsForToday.length;
+
+    final percent = total > 0
+        ? (homeState.completedSessionsForToday.length / total)
+        : 0.0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Tagesziel',
+              style: context.textTheme.labelMedium?.copyWith(
+                color: AppPalette.grey,
+              ),
+            ),
+            Text(
+              '${(percent * 100).toInt()}%',
+              style: context.textTheme.labelMedium?.copyWith(
+                color: context.colorScheme.primary,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const VerticalSpace(size: SpaceSize.xsmall),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: percent,
+            minHeight: 8,
+            backgroundColor: AppPalette.grey.withValues(alpha: 0.1),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              context.colorScheme.primary,
+            ),
+          ),
+        ),
+        const VerticalSpace(
+          size: SpaceSize.small,
+        ),
+        Text(
+          _getMotivationalSubtext(homeState),
+          style: context.textTheme.bodyMedium!.copyWith(color: AppPalette.grey),
+        ),
+      ],
     );
   }
 
@@ -212,6 +200,17 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
     if (hour < 15) return 'Tag ⛅️';
     if (hour < 18) return 'Nachmittag ⛅️';
     return 'Abend 🌙';
+  }
+
+  String _getMotivationalSubtext(HomeState state) {
+    final remaining = state.todaysSessions.length;
+    if (remaining == 0 && state.completedSessionsForToday.isNotEmpty) {
+      return 'Du hast alles erledigt! Zeit zum Entspannen. ✨';
+    }
+    if (remaining > 0) {
+      return 'Du hast heute noch $remaining Einheiten vor dir.';
+    }
+    return 'Bereit für deine erste Einheit?';
   }
 
   String _getSubHeading() {
@@ -247,6 +246,48 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
           _getSubHeading(),
           style: context.textTheme.bodyMedium,
         ),
+      ],
+    );
+  }
+}
+
+class _SessionSection extends StatelessWidget {
+  const _SessionSection({
+    required this.title,
+    required this.items,
+    required this.emptyLabel,
+    required this.itemBuilder,
+  });
+  final String title;
+  final List<SessionWithInstanceModel> items;
+  final String emptyLabel;
+  final Widget Function(SessionWithInstanceModel) itemBuilder;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: context.textTheme.labelLarge!.copyWith(
+            color: AppPalette.grey,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const VerticalSpace(size: SpaceSize.xsmall),
+        if (items.isEmpty)
+          Text(
+            emptyLabel,
+            style: context.textTheme.bodyMedium!.copyWith(
+              color: AppPalette.grey.withValues(alpha: 0.6),
+            ),
+          )
+        else
+          ...items.map(
+            itemBuilder,
+          ),
+        const VerticalSpace(),
       ],
     );
   }
