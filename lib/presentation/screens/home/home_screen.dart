@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_filter_chip.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
@@ -40,20 +39,6 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
             children: <Widget>[
               _buildHeading(context),
 
-              // ElevatedButton(
-              //   onPressed: () async {
-              //     await NotificationService().showNotification();
-              //   },
-              //   child: const Text('Show Notification'),
-              // ),
-
-              // TODO: remove for production
-              // ElevatedButton(
-              //   onPressed: () async {
-              //     await ref.read(testDataProvider.notifier).insertTestData();
-              //   },
-              //   child: const Text('Insert Test Data'),
-              // ),
               const VerticalSpace(),
 
               const CalendarWidget(),
@@ -64,6 +49,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
 
               const VerticalSpace(),
 
+              // Filter buttons
               Wrap(
                 spacing: 8,
                 children: <Widget>[
@@ -104,7 +90,9 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
               if (homeState.filter == SessionFilter.all ||
                   homeState.filter == SessionFilter.open)
                 _SessionSection(
-                  title: 'Anstehende Lerneinheiten',
+                  title: homeState.filter == SessionFilter.all
+                      ? 'Anstehende Lerneinheiten'
+                      : null,
                   items: homeState.todaysSessions,
                   emptyLabel: 'Keine Lerneinheiten mehr offen',
                   itemBuilder: (data) => PendingSessionTile(
@@ -116,7 +104,9 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
               if (homeState.filter == SessionFilter.all ||
                   homeState.filter == SessionFilter.done)
                 _SessionSection(
-                  title: 'Erledigte Lerneinheiten',
+                  title: homeState.filter != SessionFilter.done
+                      ? 'Erledigte Lerneinheiten'
+                      : null,
                   items: homeState.completedSessionsForToday,
                   emptyLabel: 'Noch nichts erledigt',
                   itemBuilder: (data) =>
@@ -125,7 +115,9 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
 
               if (homeState.filter == SessionFilter.skipped)
                 _SessionSection(
-                  title: 'Übersprungene Lerneinheiten',
+                  title: homeState.filter != SessionFilter.skipped
+                      ? 'Übersprungene Lerneinheiten'
+                      : null,
                   items: homeState.skippedSessionsForToday,
                   emptyLabel: 'Noch keine Lerneinheiten heute übersprungen',
                   itemBuilder: (data) => PendingSessionTile(
@@ -141,6 +133,17 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
   }
 
   Widget _buildProgressBar(HomeState homeState) {
+    String getMotivationalSubtext() {
+      final remaining = homeState.todaysSessions.length;
+      if (remaining == 0 && homeState.completedSessionsForToday.isNotEmpty) {
+        return 'Du hast alles erledigt! Zeit zum Entspannen. ✨';
+      }
+      if (remaining > 0) {
+        return 'Du hast heute noch $remaining Einheiten vor dir.';
+      }
+      return 'Bereit für deine erste Einheit?';
+    }
+
     final total =
         homeState.todaysSessions.length +
         homeState.completedSessionsForToday.length;
@@ -186,39 +189,22 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
           size: SpaceSize.small,
         ),
         Text(
-          _getMotivationalSubtext(homeState),
+          getMotivationalSubtext(),
           style: context.textTheme.bodyMedium!.copyWith(color: AppPalette.grey),
         ),
       ],
     );
   }
 
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-
-    if (hour < 12) return 'Morgen ☀️';
-    if (hour < 15) return 'Tag ⛅️';
-    if (hour < 18) return 'Nachmittag ⛅️';
-    return 'Abend 🌙';
-  }
-
-  String _getMotivationalSubtext(HomeState state) {
-    final remaining = state.todaysSessions.length;
-    if (remaining == 0 && state.completedSessionsForToday.isNotEmpty) {
-      return 'Du hast alles erledigt! Zeit zum Entspannen. ✨';
-    }
-    if (remaining > 0) {
-      return 'Du hast heute noch $remaining Einheiten vor dir.';
-    }
-    return 'Bereit für deine erste Einheit?';
-  }
-
-  String _getSubHeading() {
-    final now = DateTime.now();
-    return DateFormat('EEEE, d. MMMM', 'de_DE').format(now);
-  }
-
   Widget _buildHeading(BuildContext context) {
+    String getGreeting() {
+      final hour = DateTime.now().hour;
+      if (hour < 12) return 'Morgen ☀️';
+      if (hour < 15) return 'Tag ⛅️';
+      if (hour < 18) return 'Nachmittag ⛅️';
+      return 'Abend 🌙';
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -232,7 +218,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
               ),
             ),
             Text(
-              _getGreeting(),
+              getGreeting(),
               style: context.textTheme.headlineLarge!.copyWith(
                 color: context.colorScheme.primary,
                 fontWeight: FontWeight.w600,
@@ -243,7 +229,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
         ),
 
         Text(
-          _getSubHeading(),
+          DateFormat('EEEE, d. MMMM', 'de_DE').format(DateTime.now()),
           style: context.textTheme.bodyMedium,
         ),
       ],
@@ -258,7 +244,7 @@ class _SessionSection extends StatelessWidget {
     required this.emptyLabel,
     required this.itemBuilder,
   });
-  final String title;
+  final String? title;
   final List<SessionWithInstanceModel> items;
   final String emptyLabel;
   final Widget Function(SessionWithInstanceModel) itemBuilder;
@@ -268,13 +254,13 @@ class _SessionSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: context.textTheme.labelLarge!.copyWith(
-            color: AppPalette.grey,
-            fontWeight: FontWeight.bold,
+        if (title != null)
+          Text(
+            title!,
+            style: context.textTheme.labelMedium!.copyWith(
+              color: AppPalette.grey,
+            ),
           ),
-        ),
         const VerticalSpace(size: SpaceSize.xsmall),
         if (items.isEmpty)
           Text(
