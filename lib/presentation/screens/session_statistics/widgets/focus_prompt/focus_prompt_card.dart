@@ -63,6 +63,11 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
       }
     }
 
+    // Determine if any data given for the current view mode
+    final bool hasDataToShow = showAllInstances
+        ? hasAnyFocusChecks
+        : hasCurrentFocusChecks;
+
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +90,7 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
                   widget.allDoneInstances,
                   'Fokus-Verlauf',
                   (instance) =>
-                      '''Ø ${calculateSessionAverageFocus(instance)} Fokus''',
+                      '''Ø ${calculateSessionAverageFocus(instance).toStringAsFixed(2)} Fokus''',
                 ),
               ),
             ],
@@ -131,20 +136,59 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
 
           const VerticalSpace(size: SpaceSize.small),
 
-          AnimatedSwitcher(
-            duration: const Duration(seconds: 2),
-            switchInCurve: Curves.fastEaseInToSlowEaseOut,
-            switchOutCurve: Curves.fastEaseInToSlowEaseOut,
-            child: showAllInstances
-                ? AverageFocusChart(
-                    instances: widget.allDoneInstances
-                        .where((i) => i.focusChecks.isNotEmpty)
-                        .toList(),
-                  )
-                : FocusLevelChart(instance: widget.currentInstance),
-          ),
+          if (!hasDataToShow)
+            const _EmptyFocusState()
+          else
+            AnimatedSwitcher(
+              duration: const Duration(seconds: 2),
+              switchInCurve: Curves.fastEaseInToSlowEaseOut,
+              switchOutCurve: Curves.fastEaseInToSlowEaseOut,
+              child:
+                  (showAllInstances // show average chart if clicked; else not
+                  ? AverageFocusChart(
+                      key: const ValueKey('avg_chart'),
+                      instances: widget.allDoneInstances
+                          .where((i) => i.focusChecks.isNotEmpty)
+                          .toList(),
+                    )
+                  : FocusLevelChart(
+                      key: const ValueKey('level_chart'),
+                      instance: widget.currentInstance,
+                    )),
+            ),
         ],
       ),
+    );
+  }
+}
+
+class _EmptyFocusState extends StatelessWidget {
+  const _EmptyFocusState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(
+          Icons.insights_rounded,
+          size: 48,
+          color: AppPalette.grey.withValues(alpha: 0.3),
+        ),
+        const VerticalSpace(size: SpaceSize.small),
+        Text(
+          'Noch keine Fokus-Daten',
+          style: context.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          '''Beantworte Fokus-Abfragen während deiner Lerneinheit, um deinen Verlauf zu sehen.''',
+          textAlign: TextAlign.center,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: AppPalette.grey,
+          ),
+        ),
+      ],
     );
   }
 }

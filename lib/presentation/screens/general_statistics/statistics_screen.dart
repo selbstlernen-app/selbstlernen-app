@@ -66,7 +66,9 @@ class StatisticsScreen extends ConsumerWidget {
             children: <Widget>[
               LearnCalendar(enrichedInstances: state.enrichedInstances!),
 
-              const VerticalSpace(),
+              const VerticalSpace(
+                size: SpaceSize.small,
+              ),
 
               if (state.stats!.totalInstances > 0)
                 IntrinsicHeight(
@@ -93,9 +95,7 @@ class StatisticsScreen extends ConsumerWidget {
                   ),
                 ),
 
-              const VerticalSpace(
-                size: SpaceSize.small,
-              ),
+              const VerticalSpace(),
 
               // Filter buttons
               Row(

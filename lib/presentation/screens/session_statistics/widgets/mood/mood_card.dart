@@ -55,6 +55,8 @@ class _MoodCardState extends State<MoodCard> {
             ],
           ),
 
+          if (widget.stats.averageMood == null) const _EmptyMoodState(),
+
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -106,6 +108,38 @@ class _MoodCardState extends State<MoodCard> {
             ),
         ],
       ),
+    );
+  }
+}
+
+class _EmptyMoodState extends StatelessWidget {
+  const _EmptyMoodState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const VerticalSpace(size: SpaceSize.small),
+        Icon(
+          Icons.emoji_emotions_outlined,
+          size: 48,
+          color: AppPalette.grey.withValues(alpha: 0.3),
+        ),
+        const VerticalSpace(size: SpaceSize.small),
+        Text(
+          'Noch keine Stimmungs-Daten',
+          style: context.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          '''Bewerte am Ende deiner nächsten Einheit deine Stimmung, um deinen Verlauf zu sehen.''',
+          textAlign: TextAlign.center,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: AppPalette.grey,
+          ),
+        ),
+      ],
     );
   }
 }

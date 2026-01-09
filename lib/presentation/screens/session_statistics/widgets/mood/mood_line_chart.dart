@@ -159,7 +159,7 @@ class MoodLineChart extends StatelessWidget {
                 dotData: FlDotData(
                   getDotPainter: (spot, percent, barData, index) {
                     return FlDotCirclePainter(
-                      radius: 4,
+                      radius: showAllInstances ? 4 : 8,
                       color: AppPalette.amber,
                       strokeWidth: 2,
                       strokeColor: context.colorScheme.surface,

@@ -67,6 +67,14 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
 
   @override
   Widget build(BuildContext context) {
+    // If we actually have goals and tasks completed at any time;
+    final bool showData =
+        _calcAverageTaskCompletion(
+              allDoneInstances,
+            ) >
+            0 &&
+        _calcAverageGoalCompletion(allDoneInstances) > 0;
+
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,84 +100,85 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
             ],
           ),
 
-          // LINE CHART BUTTON AND AVG STATS
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ToggleShowAllButton(
-                showAll: showAllInstances,
-                thresholdExceeded: allDoneInstances.length > 4,
-                onToggle: () {
-                  setState(() => showAllInstances = !showAllInstances);
-                },
-              ),
-
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'Ø ${_calcAverageGoalCompletion(
-                      allDoneInstances,
-                    ).toStringAsFixed(1)}% Ziele',
-                    style: context.textTheme.bodyMedium,
-                  ),
-                  Text(
-                    'Ø ${_calcAverageTaskCompletion(
-                      allDoneInstances,
-                    ).toStringAsFixed(1)}% Aufgaben',
-                    style: context.textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-            ],
-          ),
-
-          const VerticalSpace(size: SpaceSize.small),
-
-          CompletionLineChart(
-            instances: allDoneInstances,
-            showAllInstances: showAllInstances,
-          ),
-
-          Text(
-            'Abgeschlossene Aufgaben und Ziele über alle Sitzungen hinweg',
-            style: context.textTheme.bodySmall!.copyWith(
-              color: AppPalette.grey,
-            ),
-          ),
-
-          const VerticalSpace(
-            size: SpaceSize.small,
-          ),
-
-          IntrinsicHeight(
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: _ProductivitySquare(
-                    icon: Icons.flag,
-                    iconColor: AppPalette.sky,
-                    label: 'Ziele erreicht',
-                    total: widget.stats.totalGoalsCompleted,
-                    average: widget.stats.averageGoalsPerSession,
-                  ),
+          if (!showData)
+            const _EmptyState()
+          else ...[
+            // LINE CHART BUTTON AND AVG STATS
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ToggleShowAllButton(
+                  showAll: showAllInstances,
+                  thresholdExceeded: allDoneInstances.length > 4,
+                  onToggle: () {
+                    setState(() => showAllInstances = !showAllInstances);
+                  },
                 ),
-                const HorizontalSpace(size: SpaceSize.small),
-                Expanded(
-                  child: _ProductivitySquare(
-                    icon: Icons.task_alt,
-                    iconColor: AppPalette.emerald,
-                    label: 'Aufgaben erledigt',
-                    total: widget.stats.totalTasksCompleted,
-                    average: widget.stats.averageTasksPerSession,
-                  ),
+
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      'Ø ${_calcAverageGoalCompletion(
+                        allDoneInstances,
+                      ).toStringAsFixed(1)}% Ziele',
+                      style: context.textTheme.bodyMedium,
+                    ),
+                    Text(
+                      'Ø ${_calcAverageTaskCompletion(
+                        allDoneInstances,
+                      ).toStringAsFixed(1)}% Aufgaben',
+                      style: context.textTheme.bodyMedium,
+                    ),
+                  ],
                 ),
               ],
             ),
-          ),
-          const VerticalSpace(
-            size: SpaceSize.xsmall,
-          ),
+
+            const VerticalSpace(size: SpaceSize.small),
+
+            CompletionLineChart(
+              instances: allDoneInstances,
+              showAllInstances: showAllInstances,
+            ),
+
+            Text(
+              'Abgeschlossene Aufgaben und Ziele über alle Sitzungen hinweg',
+              style: context.textTheme.bodySmall!.copyWith(
+                color: AppPalette.grey,
+              ),
+            ),
+
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+
+            IntrinsicHeight(
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: _ProductivitySquare(
+                      icon: Icons.flag,
+                      iconColor: AppPalette.sky,
+                      label: 'Ziele erreicht',
+                      total: widget.stats.totalGoalsCompleted,
+                      average: widget.stats.averageGoalsPerSession,
+                    ),
+                  ),
+                  const HorizontalSpace(size: SpaceSize.small),
+                  Expanded(
+                    child: _ProductivitySquare(
+                      icon: Icons.task_alt,
+                      iconColor: AppPalette.emerald,
+                      label: 'Aufgaben erledigt',
+                      total: widget.stats.totalTasksCompleted,
+                      average: widget.stats.averageTasksPerSession,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -227,6 +236,38 @@ class _ProductivitySquare extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const VerticalSpace(size: SpaceSize.small),
+        Icon(
+          Icons.task_alt_rounded,
+          size: 48,
+          color: AppPalette.grey.withValues(alpha: 0.3),
+        ),
+        const VerticalSpace(size: SpaceSize.small),
+        Text(
+          'Noch keine Ziel oder Aufgaben-Daten',
+          style: context.textTheme.bodyLarge?.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          '''Hake Ziele oder Aufgaben in deiner nächsten Einheit ab, um deinen Verlauf zu sehen.''',
+          textAlign: TextAlign.center,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: AppPalette.grey,
+          ),
+        ),
+      ],
     );
   }
 }

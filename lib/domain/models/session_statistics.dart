@@ -13,8 +13,6 @@ abstract class SessionStatistics with _$SessionStatistics {
     // Time Measurements
     required int totalFocusMinutes,
     required int totalBreakMinutes,
-    required int totalFocusPhases,
-    required int totalCompletedBlocks,
 
     // Goal/Task Productivity
     /// All goals ever completed, across session instances

@@ -45,8 +45,6 @@ class GetSessionStatisticsUseCase {
         missedInstances: 0,
         totalFocusMinutes: 0,
         totalBreakMinutes: 0,
-        totalFocusPhases: 0,
-        totalCompletedBlocks: 0,
         totalGoalsCompleted: 0,
         totalTasksCompleted: 0,
       );
@@ -105,14 +103,6 @@ class GetSessionStatisticsUseCase {
       0,
       (int sum, SessionInstanceModel i) => sum + i.totalCompletedTasks,
     );
-    final totalPhases = completed.fold<int>(
-      0,
-      (int sum, SessionInstanceModel i) => sum + i.totalFocusPhases,
-    );
-    final totalBlocks = completed.fold<int>(
-      0,
-      (int sum, SessionInstanceModel i) => sum + i.totalCompletedBlocks,
-    );
 
     // Calculate average mood
     final completedWithMood = completed
@@ -145,8 +135,6 @@ class GetSessionStatisticsUseCase {
       missedInstances: missedInstances,
       totalFocusMinutes: totalFocusSeconds ~/ 60,
       totalBreakMinutes: totalBreakSeconds ~/ 60,
-      totalFocusPhases: totalPhases,
-      totalCompletedBlocks: totalBlocks,
       totalGoalsCompleted: totalGoals,
       totalTasksCompleted: totalTasks,
       averageMood: averageMood,

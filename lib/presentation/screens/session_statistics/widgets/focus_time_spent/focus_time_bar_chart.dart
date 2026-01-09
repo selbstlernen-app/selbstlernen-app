@@ -119,6 +119,7 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
       },
       touchTooltipData: BarTouchTooltipData(
         fitInsideVertically: true,
+        fitInsideHorizontally: true,
         tooltipMargin: 16,
         getTooltipColor: (_) => context.colorScheme.inverseSurface,
         getTooltipItem: (group, groupIndex, rod, rodIndex) {
