@@ -115,7 +115,9 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        const VerticalSpace(),
+        const VerticalSpace(
+          size: SpaceSize.small,
+        ),
 
         // Pick weekdays
         Row(
@@ -171,7 +173,9 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
         if (state.selectedDaysError != null)
           CustomErrorText(errorText: state.selectedDaysError!),
 
-        const VerticalSpace(),
+        const VerticalSpace(
+          size: SpaceSize.small,
+        ),
 
         // Pick start and end dates
         Row(

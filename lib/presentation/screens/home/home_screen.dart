@@ -84,7 +84,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                 ],
               ),
 
-              const VerticalSpace(size: SpaceSize.small),
+              const VerticalSpace(),
 
               // List of completed sessions
               if (homeState.filter == SessionFilter.all ||

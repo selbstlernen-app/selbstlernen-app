@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_error_text.dart';
+import 'package:srl_app/common_widgets/custom_filter_chip.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -177,37 +178,36 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                 // Date and days
                 Row(
                   children: <Widget>[
-                    const Icon(Icons.event_repeat_rounded),
+                    const Icon(
+                      Icons.event_repeat_rounded,
+                    ),
                     const HorizontalSpace(size: SpaceSize.small),
                     Text('Häufigkeit', style: context.textTheme.headlineSmall),
                   ],
                 ),
-                const VerticalSpace(size: SpaceSize.small),
+                const VerticalSpace(),
                 Row(
                   children: <Widget>[
-                    CustomButton(
+                    CustomFilterChip(
+                      label: 'Einmalig',
+                      isActive: !state.isRepeating,
                       onPressed: () => state.isEditMode
                           ? null
                           : ref
                                 .read(addSessionViewModelProvider.notifier)
                                 .setIsRepeating(isRepeating: false),
-                      isActive: !state.isRepeating,
-                      borderRadius: 10,
-                      verticalPadding: 8,
-                      label: 'Einmalig',
                     ),
+
                     const HorizontalSpace(size: SpaceSize.small),
 
-                    CustomButton(
+                    CustomFilterChip(
+                      label: 'Wiederholend',
                       isActive: state.isRepeating,
                       onPressed: () => state.isEditMode
                           ? null
                           : ref
                                 .read(addSessionViewModelProvider.notifier)
                                 .setIsRepeating(isRepeating: true),
-                      borderRadius: 10,
-                      verticalPadding: 8,
-                      label: 'Wiederholend',
                     ),
                   ],
                 ),
