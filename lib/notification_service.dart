@@ -221,7 +221,6 @@ class NotificationService {
         return DateTimeComponents
             .dayOfWeekAndTime; // Same day and time every week
       case NotificationFrequency.everyOtherDay:
-      case NotificationFrequency.biweekly:
       case NotificationFrequency.never:
         return null; // Handle manually with rescheduling
     }
