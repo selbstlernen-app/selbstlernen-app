@@ -64,7 +64,7 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
     }
 
     // Determine if any data given for the current view mode
-    final bool hasDataToShow = showAllInstances
+    final hasDataToShow = showAllInstances
         ? hasAnyFocusChecks
         : hasCurrentFocusChecks;
 

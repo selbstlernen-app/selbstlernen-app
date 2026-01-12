@@ -68,7 +68,7 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
   @override
   Widget build(BuildContext context) {
     // If we actually have goals and tasks completed at any time;
-    final bool showData =
+    final showData =
         _calcAverageTaskCompletion(
               allDoneInstances,
             ) >

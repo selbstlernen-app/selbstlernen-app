@@ -603,22 +603,22 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   String _getPhaseLabel(SessionPhase phase) {
     switch (phase) {
       case SessionPhase.focus:
-        return "🧠 Fokuszeit";
+        return '🧠 Fokuszeit';
       case SessionPhase.shortBreak:
-        return "☕️ Kurze Pause";
+        return '☕️ Kurze Pause';
       case SessionPhase.longBreak:
-        return "😌 Lange Pause";
+        return '😌 Lange Pause';
     }
   }
 
   String _getSubtitle(SessionPhase phase) {
     switch (phase) {
       case SessionPhase.focus:
-        return "Bleib fokussiert!";
+        return 'Bleib fokussiert!';
       case SessionPhase.shortBreak:
-        return "Zeit zum Aufstehen und kurz Durchatmen";
+        return 'Zeit zum Aufstehen und kurz Durchatmen';
       case SessionPhase.longBreak:
-        return "Lass die Arbeit kurz hinter dir und entspann dich";
+        return 'Lass die Arbeit kurz hinter dir und entspann dich';
     }
   }
 }

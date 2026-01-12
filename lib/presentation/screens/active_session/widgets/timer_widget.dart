@@ -6,7 +6,6 @@ import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
-import 'package:srl_app/domain/models/notification_type_setting.dart';
 import 'package:srl_app/notification_service.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';

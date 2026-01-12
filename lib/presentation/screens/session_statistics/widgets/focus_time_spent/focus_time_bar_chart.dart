@@ -144,7 +144,7 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
 
           return BarTooltipItem(
             '${dateTitle != null ? '$dateTitle\n' : ''}'
-            '''${timeString.hours != null ? '${timeString.hours} h ${timeString.minutes} min' : '${timeString.minutes} min${seconds}'}''',
+            '''${timeString.hours != null ? '${timeString.hours} h ${timeString.minutes} min' : '${timeString.minutes} min$seconds'}''',
             TextStyle(
               color: context.colorScheme.onInverseSurface,
               fontWeight: FontWeight.bold,
