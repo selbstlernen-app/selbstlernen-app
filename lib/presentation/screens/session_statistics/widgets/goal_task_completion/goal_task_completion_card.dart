@@ -72,7 +72,7 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
         _calcAverageTaskCompletion(
               allDoneInstances,
             ) >
-            0 &&
+            0 ||
         _calcAverageGoalCompletion(allDoneInstances) > 0;
 
     return CardLayout(
