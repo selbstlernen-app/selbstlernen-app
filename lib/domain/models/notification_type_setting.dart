@@ -26,7 +26,7 @@ enum NotificationType {
   String get displayName {
     switch (this) {
       case NotificationType.dailyReminder:
-        return 'Tägliche Erinnerung';
+        return 'Lerneinheit Erinnerung';
       case NotificationType.weeklyProgress:
         return 'Wöchentlicher Fortschritt';
       case NotificationType.motivationalReminder:
@@ -37,7 +37,7 @@ enum NotificationType {
   String get description {
     switch (this) {
       case NotificationType.dailyReminder:
-        return 'Erinnere mich an meine tägliche Lerneinheit';
+        return 'Erinnere mich an meine Lerneinheiten für den Tag';
       case NotificationType.weeklyProgress:
         return 'Zeige mir meinen Wochenfortschritt';
       case NotificationType.motivationalReminder:
