@@ -42,13 +42,6 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
             // User left the app (show notification)
             // This is Android ONLY
             backgroundService.invoke('showNotification');
-
-            // iOS needs to schedule a phase ending alarm instead as
-            // iOS has no option for a live reminder
-            await NotificationService().scheduleTimerEnd(
-              timerState.remainingSeconds,
-              _getPhaseLabel(timerState.currentPhase),
-            );
           } else if (state == AppLifecycleState.resumed) {
             // User came back (hide notification)
             backgroundService.invoke('hideNotification');
