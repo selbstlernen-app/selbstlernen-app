@@ -9,11 +9,11 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
+  NotificationService._internal();
+
   factory NotificationService() {
     return _notificationService;
   }
-
-  NotificationService._internal();
 
   static final NotificationService _notificationService =
       NotificationService._internal();
@@ -151,28 +151,6 @@ class NotificationService {
     await AppSettings.openAppSettings(type: AppSettingsType.notification);
   }
 
-  Future<void> scheduleTimerEnd(int secondsRemaining, String phaseTitle) async {
-    // Calculate the exact finish time
-    final now = tz.TZDateTime.now(tz.local);
-    final scheduledDate = now.add(Duration(seconds: secondsRemaining));
-
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentBadge: true,
-      presentSound: true,
-    );
-
-    // Schedule alarm for phase end on iOS
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      999,
-      'Phase beendet! 🔔',
-      '$phaseTitle ist vorbei. Die nächste Phase wird eingeleitet.',
-      scheduledDate,
-      const NotificationDetails(iOS: iosDetails),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    );
-  }
-
   Future<void> cancelTimerEnd() async {
     await flutterLocalNotificationsPlugin.cancel(999);
   }
@@ -221,7 +199,6 @@ class NotificationService {
         return DateTimeComponents
             .dayOfWeekAndTime; // Same day and time every week
       case NotificationFrequency.everyOtherDay:
-      case NotificationFrequency.biweekly:
       case NotificationFrequency.never:
         return null; // Handle manually with rescheduling
     }

@@ -2,9 +2,12 @@ import 'dart:async';
 
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:srl_app/core/utils/notification_utils.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
+import 'package:srl_app/live_activity_service.dart';
+import 'package:srl_app/notification_service.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/focus_prompter.dart';
 import 'package:vibration/vibration.dart';
@@ -292,6 +295,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   Future<void> startTimer() async {
     final service = FlutterBackgroundService();
+
     if (!(await service.isRunning())) {
       await service.startService();
     }
@@ -300,6 +304,14 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     service
       ..invoke('setTimer', {'seconds': state.remainingSeconds})
       ..invoke('start');
+
+    // Tell iOS live activity to start
+    await ref
+        .read(liveActivityServiceProvider.notifier)
+        .start(
+          secondsRemaining: state.remainingSeconds,
+          title: NotificationUtils.getPhaseLabel(state.currentPhase),
+        );
 
     if (state.timerStatus == TimerStatus.initial) {
       state = state.copyWith(
@@ -318,7 +330,11 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   Future<void> pauseTimer() async {
     _timer?.cancel();
-    FlutterBackgroundService().invoke('stop'); // Stop background task
+
+    // Stop background task
+    FlutterBackgroundService().invoke('stop');
+    await ref.read(liveActivityServiceProvider.notifier).stop();
+
     _focusPrompter?.stopPrompting();
     state = state.copyWith(timerStatus: TimerStatus.paused);
     await _autoSave();
@@ -455,18 +471,25 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
 
     // Sync the background notification label
-    final label = _getPhaseLabel(phase);
-    final subtitle = _getSubtitle(phase);
+    final label = NotificationUtils.getPhaseLabel(phase);
+    final subtitle = NotificationUtils.getSubtitle(phase);
+
     FlutterBackgroundService().invoke('updatePhase', {
       'title': label,
       'subtitle': subtitle,
     });
-
     // Reset background timer to the new phase duration
     FlutterBackgroundService().invoke('setTimer', {'seconds': durationSeconds});
-
     // Start the timer again; not only once per phase
     FlutterBackgroundService().invoke('start');
+
+    // Update the existing live activity with new phase info
+    await ref
+        .read(liveActivityServiceProvider.notifier)
+        .update(
+          secondsRemaining: durationSeconds,
+          title: NotificationUtils.getPhaseLabel(phase),
+        );
 
     await _autoSave();
   }
@@ -597,28 +620,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString());
       rethrow;
-    }
-  }
-
-  String _getPhaseLabel(SessionPhase phase) {
-    switch (phase) {
-      case SessionPhase.focus:
-        return '🧠 Fokuszeit';
-      case SessionPhase.shortBreak:
-        return '☕️ Kurze Pause';
-      case SessionPhase.longBreak:
-        return '😌 Lange Pause';
-    }
-  }
-
-  String _getSubtitle(SessionPhase phase) {
-    switch (phase) {
-      case SessionPhase.focus:
-        return 'Bleib fokussiert!';
-      case SessionPhase.shortBreak:
-        return 'Zeit zum Aufstehen und kurz Durchatmen';
-      case SessionPhase.longBreak:
-        return 'Lass die Arbeit kurz hinter dir und entspann dich';
     }
   }
 }

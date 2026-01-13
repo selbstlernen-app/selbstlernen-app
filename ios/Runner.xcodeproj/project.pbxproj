@@ -19,6 +19,9 @@
 		D401C2CF2F153D7E0092C0FF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CDB4732F15138A0033D038 /* WidgetKit.framework */; };
 		D401C2D02F153D7E0092C0FF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CDB4752F15138A0033D038 /* SwiftUI.framework */; };
 		D401C2DF2F153D7F0092C0FF /* TimerCountdownExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D401C2CE2F153D7E0092C0FF /* TimerCountdownExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D401C2CF2F153D7E0092C0FF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CDB4732F15138A0033D038 /* WidgetKit.framework */; };
+		D401C2D02F153D7E0092C0FF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CDB4752F15138A0033D038 /* SwiftUI.framework */; };
+		D401C2DF2F153D7F0092C0FF /* TimerCountdownExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D401C2CE2F153D7E0092C0FF /* TimerCountdownExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,11 +94,29 @@
 		D4CDB4732F15138A0033D038 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		D4CDB4752F15138A0033D038 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		D4CDB48C2F151E1F0033D038 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
+		D401C2CE2F153D7E0092C0FF /* TimerCountdownExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimerCountdownExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D401C2E52F153DD10092C0FF /* TimerCountdownExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimerCountdownExtension.entitlements; sourceTree = "<group>"; };
+		D4CDB4732F15138A0033D038 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		D4CDB4752F15138A0033D038 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		D4CDB48C2F151E1F0033D038 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		D401C2E02F153D7F0092C0FF /* Exceptions for "TimerCountdown" folder in "TimerCountdownExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = D401C2CD2F153D7E0092C0FF /* TimerCountdownExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		D401C2D12F153D7E0092C0FF /* TimerCountdown */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				D401C2E02F153D7F0092C0FF /* Exceptions for "TimerCountdown" folder in "TimerCountdownExtension" target */,
+			);
 			path = TimerCountdown;
 			sourceTree = "<group>";
 		};
