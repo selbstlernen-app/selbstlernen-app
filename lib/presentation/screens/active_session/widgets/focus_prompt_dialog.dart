@@ -83,7 +83,7 @@ class _FocusOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 2),
+      margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
         color: context.colorScheme.secondary.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(12),
@@ -92,12 +92,17 @@ class _FocusOption extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(6),
           child: Column(
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 32)),
-              const VerticalSpace(size: SpaceSize.xsmall),
-              Text(label, style: const TextStyle(fontSize: 12)),
+              Text(emoji, style: const TextStyle(fontSize: 40)),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
