@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,9 +16,6 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		D401C2CF2F153D7E0092C0FF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CDB4732F15138A0033D038 /* WidgetKit.framework */; };
-		D401C2D02F153D7E0092C0FF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CDB4752F15138A0033D038 /* SwiftUI.framework */; };
-		D401C2DF2F153D7F0092C0FF /* TimerCountdownExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D401C2CE2F153D7E0092C0FF /* TimerCountdownExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D401C2CF2F153D7E0092C0FF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CDB4732F15138A0033D038 /* WidgetKit.framework */; };
 		D401C2D02F153D7E0092C0FF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D4CDB4752F15138A0033D038 /* SwiftUI.framework */; };
 		D401C2DF2F153D7F0092C0FF /* TimerCountdownExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = D401C2CE2F153D7E0092C0FF /* TimerCountdownExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -89,11 +86,6 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1A806B6DE50B565A0B7E118 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		CDCFBC1D945AD2FC7D59769B /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
-		D401C2CE2F153D7E0092C0FF /* TimerCountdownExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimerCountdownExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		D401C2E52F153DD10092C0FF /* TimerCountdownExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimerCountdownExtension.entitlements; sourceTree = "<group>"; };
-		D4CDB4732F15138A0033D038 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		D4CDB4752F15138A0033D038 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		D4CDB48C2F151E1F0033D038 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		D401C2CE2F153D7E0092C0FF /* TimerCountdownExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = TimerCountdownExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		D401C2E52F153DD10092C0FF /* TimerCountdownExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TimerCountdownExtension.entitlements; sourceTree = "<group>"; };
 		D4CDB4732F15138A0033D038 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -420,13 +412,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -478,13 +466,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
