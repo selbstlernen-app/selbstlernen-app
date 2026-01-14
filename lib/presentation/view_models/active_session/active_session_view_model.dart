@@ -7,7 +7,6 @@ import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/live_activity_service.dart';
-import 'package:srl_app/notification_service.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/focus_prompter.dart';
 import 'package:vibration/vibration.dart';

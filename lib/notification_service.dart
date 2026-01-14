@@ -9,11 +9,10 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
-  NotificationService._internal();
-
   factory NotificationService() {
     return _notificationService;
   }
+  NotificationService._internal();
 
   static final NotificationService _notificationService =
       NotificationService._internal();
