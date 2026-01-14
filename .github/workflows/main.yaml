@@ -69,5 +69,5 @@ jobs:
         with:
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-          artifacts: artifacts/*
+          artifacts: Releases
           token: ${{ secrets.GITHUB_TOKEN }}
