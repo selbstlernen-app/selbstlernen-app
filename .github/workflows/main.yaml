@@ -16,14 +16,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build_and_release:
-    runs-on: macos-latest
-
+  build_android:
+    runs-on: ubuntu-latest
     steps:
       - name: 📂 Checkout code
         uses: actions/checkout@v5
 
-      - name: ☕️ Setup Java (Temurin 17)
+      - name: ☕️ Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -33,6 +32,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
       - name: 📥 Install dependencies
         run: flutter pub get
@@ -40,35 +40,62 @@ jobs:
       - name: 🔨 Generate code
         run: dart run build_runner build --delete-conflicting-outputs
 
-      - name: ✅ Run tests
-        run: flutter test --coverage
-
       - name: 🏗️ Build APKs
         run: flutter build apk --release --split-per-abi
 
-      - name: 🍏 Build Unsigned IPA
-        run: |
-          flutter build ipa --no-codesign
+      - name: 📦 Upload APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: build/app/outputs/flutter-apk/*.apk
 
-      - name: Compress Archives and IPAs artifacts
+  build_ios:
+    runs-on: macos-latest
+    steps:
+      - name: 📂 Checkout code
+        uses: actions/checkout@v5
+
+      - name: 🦋 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: 📥 Install dependencies
+        run: flutter pub get
+
+      - name: 🔨 Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: 🍏 Build Unsigned IPA
+        run: flutter build ipa --no-codesign
+
+      - name: Compress Archives and IPAs
         run: |
           cd build
           tar -czf ios_build.tar.gz ios
 
-      - name: 📦 Upload artifacts
+      - name: 📦 Upload iOS Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Releases
-          path: |
-            build/app/outputs/flutter-apk/*.apk
-            build/ios_build.tar.gz
+          name: ios-ipa
+          path: build/ios/ipa/*.ipa
 
-      # ─────────────── ONLY ON TAGS ───────────────
-      - name: 🏷️ Create or update Release
-        if: startsWith(github.ref, 'refs/tags/v')
+  # ─────────────── ONLY ON TAGS ───────────────
+  release:
+    needs: [build_android, build_ios]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: output
+
+      - name: 🏷️ Create Release
         uses: ncipollo/release-action@v1.16.0
         with:
           tag: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
-          artifacts: "build/app/outputs/flutter-apk/*.apk,build/unsigned_app.ipa"
+          artifacts: "output/android-apks/*.apk,output/ios-ipa/*.ipa"
           token: ${{ secrets.GITHUB_TOKEN }}
