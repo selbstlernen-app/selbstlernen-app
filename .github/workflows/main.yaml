@@ -60,7 +60,7 @@ jobs:
           name: Releases
           path: |
             build/app/outputs/flutter-apk/*.apk
-            build/ios_build.tar.g
+            build/ios_build.tar.gz
 
       # ─────────────── ONLY ON TAGS ───────────────
       - name: 🏷️ Create or update Release
