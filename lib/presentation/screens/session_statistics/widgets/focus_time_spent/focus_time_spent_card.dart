@@ -39,7 +39,7 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
   void initState() {
     super.initState();
 
-    todaysInstance = widget.completedInstances.last;
+    todaysInstance = widget.completedInstances.first;
 
     timeString = TimeUtils.formatTimeString(
       totalSeconds: todaysInstance.totalFocusSecondsElapsed,
