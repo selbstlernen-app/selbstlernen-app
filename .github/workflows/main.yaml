@@ -46,20 +46,22 @@ jobs:
       - name: 🏗️ Build APKs
         run: flutter build apk --release --split-per-abi
 
-      - name: 🍏 Create Unsigned IPA
+      - name: 🍏 Build Unsigned IPA
         run: |
-          mkdir -p build/ios/iphoneos/Payload
-          cp -r build/ios/iphoneos/Runner.app build/ios/iphoneos/Payload/
-          cd build/ios/iphoneos
-          zip -r ../../unsigned_app.ipa Payload
+          flutter build ipa --no-codesign
+
+      - name: Compress Archives and IPAs artifacts
+        run: |
+          cd build
+          tar -czf ios_build.tar.gz ios
 
       - name: 📦 Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: releases
+          name: Releases
           path: |
             build/app/outputs/flutter-apk/*.apk
-            build/unsigned_app.ipa
+            build/ios_build.tar.gz
 
       # ─────────────── ONLY ON TAGS ───────────────
       - name: 🏷️ Create or update Release
