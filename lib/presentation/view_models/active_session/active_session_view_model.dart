@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -305,12 +306,14 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       ..invoke('start');
 
     // Tell iOS live activity to start
-    await ref
-        .read(liveActivityServiceProvider.notifier)
-        .start(
-          secondsRemaining: state.remainingSeconds,
-          title: NotificationUtils.getPhaseLabel(state.currentPhase),
-        );
+    if (Platform.isIOS) {
+      await ref
+          .read(liveActivityServiceProvider.notifier)
+          .start(
+            secondsRemaining: state.remainingSeconds,
+            title: NotificationUtils.getPhaseLabel(state.currentPhase),
+          );
+    }
 
     if (state.timerStatus == TimerStatus.initial) {
       state = state.copyWith(
@@ -332,7 +335,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
     // Stop background task
     FlutterBackgroundService().invoke('stop');
-    await ref.read(liveActivityServiceProvider.notifier).stop();
+    if (Platform.isIOS) {
+      await ref.read(liveActivityServiceProvider.notifier).stop();
+    }
 
     _focusPrompter?.stopPrompting();
     state = state.copyWith(timerStatus: TimerStatus.paused);
@@ -483,12 +488,14 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     FlutterBackgroundService().invoke('start');
 
     // Update the existing live activity with new phase info
-    await ref
-        .read(liveActivityServiceProvider.notifier)
-        .update(
-          secondsRemaining: durationSeconds,
-          title: NotificationUtils.getPhaseLabel(phase),
-        );
+    if (Platform.isIOS) {
+      await ref
+          .read(liveActivityServiceProvider.notifier)
+          .update(
+            secondsRemaining: durationSeconds,
+            title: NotificationUtils.getPhaseLabel(phase),
+          );
+    }
 
     await _autoSave();
   }

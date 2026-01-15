@@ -199,7 +199,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                       if (state.timerStatus == TimerStatus.running) {
                         await viewModel.pauseTimer();
                       } else {
-                        viewModel.startTimer();
+                        await viewModel.startTimer();
                       }
                     },
                   ),

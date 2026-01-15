@@ -46,8 +46,6 @@ Future<void> initializeBackgroundService() async {
 
 @pragma('vm:entry-point')
 Future<void> onStart(ServiceInstance service) async {
-  DartPluginRegistrant.ensureInitialized();
-
   // Check if app is open or not
   if (service is AndroidServiceInstance) {
     // On start of app force the initial notification to go into background
