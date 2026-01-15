@@ -27,6 +27,10 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
     super.initState();
 
     _lifecycleListener = AppLifecycleListener(
+      onDetach: () {
+        //  When app is closed; stop background service as well
+        FlutterBackgroundService().invoke('stop');
+      },
       onStateChange: (state) async {
         final backgroundService = FlutterBackgroundService();
 
