@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.com.masterthesis.srl.app</string>
+		<string>group.com.selbstlernen.app.ios</string>
 	</array>
 </dict>
 </plist>
