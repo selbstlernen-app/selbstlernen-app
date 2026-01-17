@@ -58,15 +58,6 @@ class SettingsViewModel extends _$SettingsViewModel {
         );
   }
 
-  // Notification related
-  Future<void> checkPermission() async {
-    if (!ref.mounted) return;
-
-    final hasPermission = await Permission.notification.isGranted;
-
-    state = state.copyWith(hasNotificationPermission: hasPermission);
-  }
-
   // UI/Theming Settings
   Future<void> toggleDarkMode() async {
     await _manageSettingsUseCase.toggleDarkMode();
@@ -86,6 +77,39 @@ class SettingsViewModel extends _$SettingsViewModel {
   }
 
   // Notification Settings
+  Future<void> checkPermission() async {
+    if (!ref.mounted) return;
+
+    final hasPermission = await Permission.notification.isGranted;
+
+    if (!hasPermission) {
+      await _clearAllNotifications();
+    }
+
+    state = state.copyWith(hasNotificationPermission: hasPermission);
+  }
+
+  Future<void> _clearAllNotifications() async {
+    // Cancel all (pending) notifications
+    await NotificationService().cancelAllNotifications();
+
+    // Disable all notifications (visually -> since permissions already turned off anyway)
+    final disabledSettings = state.notificationSettings
+        ?.map(
+          (n) => n.copyWith(enabled: false),
+        )
+        .toList();
+
+    if (disabledSettings != null) {
+      for (final setting in disabledSettings) {
+        await _manageNotificationsUseCase.updatePreference(
+          setting.type,
+          setting,
+        );
+      }
+    }
+  }
+
   Future<void> toggleNotificationSetting({
     required NotificationType type,
     required bool isEnabled,
