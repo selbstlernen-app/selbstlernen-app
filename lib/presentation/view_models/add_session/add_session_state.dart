@@ -35,6 +35,7 @@ abstract class AddSessionState with _$AddSessionState {
     List<String> availableStrategies,
 
     // Time
+    @Default(false) bool isSimpleTimer,
     @Default(25) int focusTimeMin,
     @Default(5) int breakTimeMin,
     @Default(15) int longBreakTimeMin,

@@ -46,4 +46,7 @@ abstract class SessionModel with _$SessionModel {
   int get totalTimeForOneBlock {
     return (focusTimeMin + breakTimeMin) * focusPhases + longBreakTimeMin;
   }
+
+  // Check if the current session is of simple timer kind - or pomodoro like
+  bool get hasSimpleTimer => breakTimeMin == 0 && longBreakTimeMin == 0;
 }

@@ -69,6 +69,8 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
       reflectionViewModelProvider(widget.instance).notifier,
     );
 
+    print(reflectionState.totalTimeInBreak);
+
     return MainLayout(
       appBarTitle: 'Reflexion',
       content: Column(
@@ -96,12 +98,13 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                         color: AppPalette.pink,
                       ),
 
-                      TimeBreakdownItem(
-                        icon: Icons.coffee,
-                        label: 'Pausenzeit',
-                        value: '${reflectionState.totalTimeInBreak} Min',
-                        color: AppPalette.orange,
-                      ),
+                      if (reflectionState.totalTimeInBreak != '00:00')
+                        TimeBreakdownItem(
+                          icon: Icons.coffee,
+                          label: 'Pausenzeit',
+                          value: '${reflectionState.totalTimeInBreak} Min',
+                          color: AppPalette.orange,
+                        ),
 
                       const VerticalSpace(size: SpaceSize.small),
                       Divider(

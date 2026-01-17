@@ -401,24 +401,33 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     var nextBlocks = state.completedBlocks;
     var nextIndex = state.currentPhaseIndex + 1;
 
-    if (state.currentPhase == SessionPhase.focus) {
-      // Determine next break type
-      // E.g. we have 4 % 4 = 0, take long else short break
-      final isLongBreak =
-          (state.totalFocusPhases + 1) % session.focusPhases == 0;
-      nextPhase = isLongBreak
-          ? SessionPhase.longBreak
-          : SessionPhase.shortBreak;
-      duration =
-          (isLongBreak ? session.longBreakTimeMin : session.breakTimeMin) * 60;
-    } else {
-      // After either short or long break follows focus time
+    // If we only have focus timer, then we switch no phases visibly
+    if (state.session!.hasSimpleTimer) {
       nextPhase = SessionPhase.focus;
       duration = session.focusTimeMin * 60;
-      nextTotalFocus++;
-      if (state.currentPhase == SessionPhase.longBreak) {
-        nextBlocks++;
-        nextIndex = 0;
+      nextBlocks++;
+      nextIndex = 0;
+    } else {
+      if (state.currentPhase == SessionPhase.focus) {
+        // Determine next break type
+        // E.g. we have 4 % 4 = 0, take long else short break
+        final isLongBreak =
+            (state.totalFocusPhases + 1) % session.focusPhases == 0;
+        nextPhase = isLongBreak
+            ? SessionPhase.longBreak
+            : SessionPhase.shortBreak;
+        duration =
+            (isLongBreak ? session.longBreakTimeMin : session.breakTimeMin) *
+            60;
+      } else {
+        // After either short or long break follows focus time
+        nextPhase = SessionPhase.focus;
+        duration = session.focusTimeMin * 60;
+        nextTotalFocus++;
+        if (state.currentPhase == SessionPhase.longBreak) {
+          nextBlocks++;
+          nextIndex = 0;
+        }
       }
     }
 

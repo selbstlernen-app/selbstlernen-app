@@ -161,9 +161,11 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                     ),
 
                     Text(
-                      'Block ${state.completedBlocks + 1}',
+                      '${state.session!.hasSimpleTimer ? "Runde" : "Block"} ${state.completedBlocks + 1}',
                       style: context.textTheme.labelSmall!.copyWith(
-                        color: AppPalette.grey,
+                        color: context.colorScheme.onSurface.withValues(
+                          alpha: 0.5,
+                        ),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -174,7 +176,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
             const VerticalSpace(size: SpaceSize.large),
 
-            _buildPhaseIndicator(state),
+            if (!state.session!.hasSimpleTimer) _buildPhaseIndicator(state),
 
             const VerticalSpace(),
 

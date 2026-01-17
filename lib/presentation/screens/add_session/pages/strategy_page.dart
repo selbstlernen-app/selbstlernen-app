@@ -51,7 +51,7 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text('Lernstrategien', style: context.textTheme.headlineMedium),
-                const VerticalSpace(size: SpaceSize.small),
+                const VerticalSpace(size: SpaceSize.xsmall),
                 Text(
                   '''Strategien, die du anwenden willst,'''
                   ''' um deine Ziele oder Aufgaben zu erreichen.''',

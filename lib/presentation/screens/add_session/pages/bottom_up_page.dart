@@ -122,7 +122,7 @@ class _BottomUpPageState extends ConsumerState<BottomUpPage> {
                   'Aufgaben gruppieren',
                   style: context.textTheme.headlineMedium,
                 ),
-                const VerticalSpace(size: SpaceSize.small),
+                const VerticalSpace(size: SpaceSize.xsmall),
                 Text(
                   '''Gruppiere Aufgaben unter einem Ziel zusammen. Du kannst diesen Schritt auch vorerst überspringen.''',
                   style: context.textTheme.bodyMedium,

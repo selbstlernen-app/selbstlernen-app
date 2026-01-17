@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/segmented_toggle_button.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
@@ -53,14 +54,21 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   }
 
   void _saveSettings() {
-    ref
-        .watch(addSessionViewModelProvider.notifier)
-        .setPomodoroSettings(
-          focusTime: int.tryParse(_focusController.text) ?? 0,
-          breakTime: int.tryParse(_breakController.text) ?? 0,
-          longBreakTime: int.tryParse(_longBreakController.text) ?? 0,
-          focusPhases: int.tryParse(_focusPhaseController.text) ?? 1,
-        );
+    final notifier = ref.read(addSessionViewModelProvider.notifier);
+    final state = ref.read(addSessionViewModelProvider);
+    if (state.isSimpleTimer) {
+      notifier.setTimerSettings(
+        breakTime: 0,
+        longBreakTime: 0,
+        focusPhases: 1,
+      );
+    }
+
+    print(state.focusTimeMin);
+    print(state.breakTimeMin);
+    print(state.longBreakTimeMin);
+    print(state.focusPhases);
+
     // Then navigate forward
     widget.navigateForward();
   }
@@ -76,20 +84,42 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('Timer (in min)', style: context.textTheme.headlineMedium),
-                const VerticalSpace(size: SpaceSize.small),
+                Text('Zeit (in min)', style: context.textTheme.headlineMedium),
+                const VerticalSpace(size: SpaceSize.xsmall),
                 Text(
                   '''Lege die Zeit fest, die du in dieser Lerneinheit verbringen willst.''',
                   style: context.textTheme.bodyMedium,
                 ),
 
-                const VerticalSpace(),
+                const VerticalSpace(
+                  size: SpaceSize.small,
+                ),
 
-                _buildTimeSettings(),
+                SegmentedToggleButton(
+                  leftLabel: 'Fokus-Timer',
+                  rightLabel: 'Pomodoro-Timer',
+                  isLeftActive: state.isSimpleTimer,
+                  onLeftPressed: () => ref
+                      .read(addSessionViewModelProvider.notifier)
+                      .toggleTimerMode(isSimpleTimer: true),
+                  onRightPressed: () => ref
+                      .read(addSessionViewModelProvider.notifier)
+                      .toggleTimerMode(isSimpleTimer: false),
+                ),
+
+                const VerticalSpace(
+                  size: SpaceSize.small,
+                ),
+
+                if (!state.isSimpleTimer)
+                  _buildAdvancedTimeSettings()
+                else
+                  _buildSimpleTimeSettings(),
               ],
             ),
           ),
         ),
+
         SizedBox(
           width: context.mediaQuery.size.width,
           child: CustomButton(
@@ -102,7 +132,39 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
     );
   }
 
-  Widget _buildTimeSettings() {
+  Widget _buildSimpleTimeSettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: TimeInputField(
+                label: 'Fokuszeit',
+                controller: _focusController,
+                onChanged: (int value) {
+                  ref
+                      .read(addSessionViewModelProvider.notifier)
+                      .setTimerSettings(focusTime: value);
+                },
+              ),
+            ),
+          ],
+        ),
+        const VerticalSpace(size: SpaceSize.xsmall),
+
+        Divider(
+          color: context.colorScheme.tertiary,
+          thickness: 4,
+          radius: BorderRadius.circular(10),
+        ),
+
+        _calculateTotalTime(),
+      ],
+    );
+  }
+
+  Widget _buildAdvancedTimeSettings() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -115,7 +177,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                 onChanged: (int value) {
                   ref
                       .read(addSessionViewModelProvider.notifier)
-                      .setPomodoroSettings(focusTime: value);
+                      .setTimerSettings(focusTime: value);
                 },
               ),
             ),
@@ -125,7 +187,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
               onChanged: (int value) {
                 ref
                     .read(addSessionViewModelProvider.notifier)
-                    .setPomodoroSettings(breakTime: value);
+                    .setTimerSettings(breakTime: value);
               },
             ),
           ],
@@ -143,7 +205,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                 onChanged: (int value) {
                   ref
                       .read(addSessionViewModelProvider.notifier)
-                      .setPomodoroSettings(focusPhases: value);
+                      .setTimerSettings(focusPhases: value);
                 },
                 maxValue: 15,
               ),
@@ -155,7 +217,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
               onChanged: (int value) {
                 ref
                     .read(addSessionViewModelProvider.notifier)
-                    .setPomodoroSettings(longBreakTime: value);
+                    .setTimerSettings(longBreakTime: value);
               },
             ),
           ],
@@ -247,7 +309,13 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   Widget _calculateTotalTime() {
     final state = ref.read(addSessionViewModelProvider);
 
-    final focusPhases = state.focusPhases != 0 ? state.focusPhases : 1;
+    if (state.isSimpleTimer) {
+      return Text(
+        'Gesamtzeit: ${state.focusTimeMin} min',
+      );
+    }
+
+    final focusPhases = state.focusPhases > 0 ? state.focusPhases : 1;
 
     final totalMins =
         (state.focusTimeMin + state.breakTimeMin) * focusPhases +
@@ -257,9 +325,9 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
       final hours = totalMins ~/ 60;
       final mins = totalMins % 60;
 
-      return Text('Zeit insgesamt: ${hours}h ${mins}m');
+      return Text('Gesamtzeit: ${hours}h ${mins} min');
     } else {
-      return Text('Zeit insgesamt: ${totalMins}m');
+      return Text('Gesamtzeit: ${totalMins} min');
     }
   }
 }

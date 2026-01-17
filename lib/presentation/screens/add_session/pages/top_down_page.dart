@@ -103,7 +103,7 @@ class _TopDownPageState extends ConsumerState<TopDownPage> {
                   'Ziele aufbrechen',
                   style: context.textTheme.headlineMedium,
                 ),
-                const VerticalSpace(size: SpaceSize.small),
+                const VerticalSpace(size: SpaceSize.xsmall),
                 Text(
                   '''Erstelle zusätzliche Aufgaben, die dir beim Erreichen deiner Ziele helfen.'''
                   ''' Du kannst diesen Schritt auch vorerst überspringen.''',

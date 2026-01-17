@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_error_text.dart';
 import 'package:srl_app/common_widgets/custom_filter_chip.dart';
+import 'package:srl_app/common_widgets/segmented_toggle_button.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -237,32 +238,16 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                 ),
 
                 const VerticalSpace(size: SpaceSize.small),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      child: CustomButton(
-                        onPressed: () => ref
-                            .read(addSessionViewModelProvider.notifier)
-                            .setGoals(setGoals: true),
-                        label: 'Ziele',
-                        isActive: state.setGoals,
-                        borderLeft: true,
-                        verticalPadding: 8,
-                      ),
-                    ),
-                    Expanded(
-                      child: CustomButton(
-                        onPressed: () => ref
-                            .read(addSessionViewModelProvider.notifier)
-                            .setGoals(setGoals: false),
-                        label: 'Aufgaben',
-                        isActive: !state.setGoals,
-                        borderRight: true,
-                        verticalPadding: 8,
-                      ),
-                    ),
-                  ],
+                SegmentedToggleButton(
+                  leftLabel: 'Ziele',
+                  rightLabel: 'Aufgaben',
+                  isLeftActive: state.setGoals,
+                  onLeftPressed: () => ref
+                      .read(addSessionViewModelProvider.notifier)
+                      .setGoals(setGoals: true),
+                  onRightPressed: () => ref
+                      .read(addSessionViewModelProvider.notifier)
+                      .setGoals(setGoals: false),
                 ),
 
                 const VerticalSpace(),
