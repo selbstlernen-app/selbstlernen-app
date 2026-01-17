@@ -32,14 +32,16 @@ class CustomFilterChip extends StatelessWidget {
           border: Border.all(
             color: isActive
                 ? context.colorScheme.primary
-                : AppPalette.grey.withValues(alpha: 0.2),
+                : context.colorScheme.onSurface.withValues(alpha: 0.2),
             width: 1.5,
           ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isActive ? context.colorScheme.primary : AppPalette.grey,
+            color: isActive
+                ? context.colorScheme.primary
+                : context.colorScheme.onSurface,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
             fontSize: 14,
           ),

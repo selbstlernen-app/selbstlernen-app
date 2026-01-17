@@ -161,14 +161,13 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
             Text(
               'Tagesziel',
               style: context.textTheme.labelMedium?.copyWith(
-                color: AppPalette.grey,
+                color: context.colorScheme.primary,
               ),
             ),
             Text(
               '${(percent * 100).toInt()}%',
               style: context.textTheme.labelMedium?.copyWith(
                 color: context.colorScheme.primary,
-                fontWeight: FontWeight.bold,
               ),
             ),
           ],
@@ -179,7 +178,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
           child: LinearProgressIndicator(
             value: percent,
             minHeight: 8,
-            backgroundColor: AppPalette.grey.withValues(alpha: 0.1),
+            backgroundColor: AppPalette.grey.withValues(alpha: 0.3),
             valueColor: AlwaysStoppedAnimation<Color>(
               context.colorScheme.primary,
             ),
@@ -190,7 +189,9 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         Text(
           getMotivationalSubtext(),
-          style: context.textTheme.bodyMedium!.copyWith(color: AppPalette.grey),
+          style: context.textTheme.bodyMedium!.copyWith(
+            color: context.colorScheme.onSurface,
+          ),
         ),
       ],
     );
@@ -258,7 +259,7 @@ class _SessionSection extends StatelessWidget {
           Text(
             title!,
             style: context.textTheme.labelMedium!.copyWith(
-              color: AppPalette.grey,
+              color: context.colorScheme.onSurface,
             ),
           ),
         const VerticalSpace(size: SpaceSize.xsmall),
@@ -266,7 +267,7 @@ class _SessionSection extends StatelessWidget {
           Text(
             emptyLabel,
             style: context.textTheme.bodyMedium!.copyWith(
-              color: AppPalette.grey.withValues(alpha: 0.6),
+              color: context.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           )
         else

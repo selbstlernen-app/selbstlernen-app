@@ -66,7 +66,9 @@ class GoalWithTasksCard extends ConsumerWidget {
                               '''${tasksForGoal.length} '''
                               '''${tasksForGoal.length == 1 ? 'Aufgabe' : 'Aufgaben'}''',
                               style: context.textTheme.bodyMedium!.copyWith(
-                                color: AppPalette.grey,
+                                color: context.colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                                 fontSize: 13,
                               ),
                             ),
@@ -74,7 +76,9 @@ class GoalWithTasksCard extends ConsumerWidget {
                             Text(
                               'Noch keine Aufgaben',
                               style: context.textTheme.bodyMedium!.copyWith(
-                                color: AppPalette.grey,
+                                color: context.colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                                 fontSize: 13,
                               ),
                             ),

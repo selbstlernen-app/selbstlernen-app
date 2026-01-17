@@ -62,8 +62,8 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(<String>{}) Set<String> completedTaskIds,
 
     // Keep track of ids to delete
-    @Default(<String>[]) List<String> goalIdsToDelete,
-    @Default(<String>[]) List<String> taskIdsToDelete,
+    @Default(<String>{}) Set<String> goalIdsToDelete,
+    @Default(<String>{}) Set<String> taskIdsToDelete,
 
     // Flag to enable edit mode
     @Default(false) bool isEditMode,

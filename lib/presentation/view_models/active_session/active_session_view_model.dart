@@ -213,13 +213,11 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   Future<void> deleteTasks(List<String> taskIds) async {
-    try {
-      for (final taskId in taskIds) {
-        await _manageTasksUseCase.deleteTask(int.parse(taskId));
-      }
-    } on Exception catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await Future.wait(
+      taskIds.map(
+        (taskId) => _manageTasksUseCase.deleteTask(int.parse(taskId)),
+      ),
+    );
   }
 
   Future<void> addGoal(String title) async {
@@ -239,21 +237,20 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   Future<void> deleteGoals(List<String> goalIds) async {
-    try {
-      for (final goalId in goalIds) {
-        await _manageGoalUseCase.deleteGoal(int.parse(goalId));
-      }
-    } on Exception catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await Future.wait(
+      goalIds.map(
+        (goalId) => _manageGoalUseCase.deleteGoal(int.parse(goalId)),
+      ),
+    );
   }
 
   void removeGoalById({required String goalId}) {
     final newGoals = state.goals.where((g) => g.id != goalId).toList();
+
     // Remove goal and its expanded section
     state = state.copyWith(
       goals: newGoals,
-      goalIdsToDelete: [...state.goalIdsToDelete, goalId],
+      goalIdsToDelete: {...state.goalIdsToDelete, goalId},
       expandedGoalId: state.expandedGoalId == goalId
           ? null
           : state.expandedGoalId,
@@ -262,9 +259,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   void removeTaskById({required String taskId}) {
     final newTasks = state.tasks.where((g) => g.id != taskId).toList();
+
     state = state.copyWith(
       tasks: newTasks,
-      taskIdsToDelete: [...state.taskIdsToDelete, taskId],
+      taskIdsToDelete: {...state.taskIdsToDelete, taskId},
     );
   }
 
