@@ -139,7 +139,7 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
 
           var seconds = '';
           if (timeString.seconds != '00') {
-            seconds = '\n${timeString.seconds} sec';
+            seconds = '\n${timeString.seconds}s';
           }
 
           return BarTooltipItem(
