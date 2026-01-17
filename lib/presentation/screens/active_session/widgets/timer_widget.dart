@@ -57,7 +57,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
             backgroundService.invoke('hideNotification');
 
             // For iOS sync the timer with the timestamp last recorded
-            notifier.syncTimerAfterBackground();
+            await notifier.syncTimerAfterBackground();
 
             // Cancel the reminder
             await NotificationService().cancelTimerEnd();

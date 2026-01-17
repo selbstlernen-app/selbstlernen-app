@@ -514,6 +514,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       var remainingCatchup = secondsGone;
 
       while (remainingCatchup > 0) {
+        if (!ref.mounted) return;
+
         // Case 1: Time remaining is within current phase
         if (remainingCatchup < state.remainingSeconds) {
           _syncTotals(remainingCatchup);
