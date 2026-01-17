@@ -47,7 +47,7 @@ class AppPalette {
   static const Color yellow = Color(0xFFFDC700);
 
   static Color grey = Colors.grey[600]!;
-  static Color darkGrey = Colors.grey[800]!;
+  static Color darkGrey = Colors.grey[900]!;
 
   // List of all available theme colors in the settings
   static List<Color> themeColors = [

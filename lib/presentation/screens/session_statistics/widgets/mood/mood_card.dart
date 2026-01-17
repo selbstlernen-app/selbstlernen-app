@@ -29,6 +29,12 @@ class _MoodCardState extends State<MoodCard> {
 
   @override
   Widget build(BuildContext context) {
+    final ratedInstances = widget.instances
+        .where((i) => i.mood != null)
+        .toList();
+    final hasEnoughDataForChart = ratedInstances.length > 1;
+    final showToggle = ratedInstances.length > 5;
+
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,23 +61,23 @@ class _MoodCardState extends State<MoodCard> {
             ],
           ),
 
-          if (widget.stats.averageMood == null) const _EmptyMoodState(),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (widget.instances.where((i) => i.mood != null).length > 4)
-                ToggleShowAllButton(
-                  showAll: showAllInstances,
-                  thresholdExceeded:
-                      widget.instances.where((i) => i.mood != null).length > 4,
-                  onToggle: () {
-                    setState(() => showAllInstances = !showAllInstances);
-                  },
-                ),
-
-              // Average mood
-              if (widget.stats.averageMood != null)
+          if (widget.stats.averageMood == null)
+            const _EmptyMoodState()
+          else ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (showToggle)
+                  ToggleShowAllButton(
+                    showAll: showAllInstances,
+                    thresholdExceeded: true,
+                    onToggle: () {
+                      setState(() => showAllInstances = !showAllInstances);
+                    },
+                  )
+                else
+                  const Spacer(),
+                // Emoji Avg
                 Row(
                   children: [
                     Text(
@@ -95,17 +101,17 @@ class _MoodCardState extends State<MoodCard> {
                     ),
                   ],
                 ),
-            ],
-          ),
-
-          const VerticalSpace(size: SpaceSize.small),
-
-          // Chart
-          if (widget.instances.where((i) => i.mood != null).length > 1)
-            MoodLineChart(
-              instances: widget.instances,
-              showAllInstances: showAllInstances,
+              ],
             ),
+
+            const VerticalSpace(size: SpaceSize.small),
+
+            if (hasEnoughDataForChart)
+              MoodLineChart(
+                instances: ratedInstances,
+                showAllInstances: showAllInstances,
+              ),
+          ],
         ],
       ),
     );

@@ -40,84 +40,46 @@ class SessionStatisticsScreen extends ConsumerWidget {
     SessionStatisticsState state,
   ) {
     // Loading
-    if (state.isLoading && state.stats == null && state.instances == null) {
+    if (state.isLoading && state.instances == null) {
       return const LoadingIndicator();
     }
 
     // Error
-    if (state.error != null && state.stats == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
-            const VerticalSpace(),
-            Text('Fehler: ${state.error}'),
-          ],
-        ),
-      );
+    if (state.error != null) {
+      return Scaffold(body: Center(child: Text('Fehler: ${state.error}')));
     }
 
-    // No data
-    if (state.stats == null || state.stats!.totalInstances == 0) {
-      return Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          toolbarHeight: 70,
-          title: AutoSizeText(
-            'Statistik für ${state.session!.title}',
-            style: context.textTheme.headlineLarge,
-            maxLines: 2,
-            textAlign: TextAlign.center,
-            minFontSize: 14,
-          ),
-        ),
-        body: const SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              children: [
-                Expanded(
-                  child: Text(
-                    '''Noch keine Statistiken verfügbar, starte, indem du eine Lerneinheit beginnst!''',
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
+    final instances = state.instances ?? [];
 
-    final stats = state.stats!;
-    final session = state.session!;
-
-    // Filter out any null instances for safety
+    // Only include instances that are actually done or skipped
     final allCompletedInstances =
-        state.instances!.where((e) => e.completedAt != null).toList()
-          ..sort((a, b) => b.completedAt!.compareTo(a.completedAt!));
-
-    final allNoneSkippedInstances =
-        allCompletedInstances
+        instances
             .where(
-              (i) => i.status != SessionStatus.skipped,
+              (e) =>
+                  e.status == SessionStatus.completed ||
+                  e.status == SessionStatus.skipped,
             )
             .toList()
-          ..sort((a, b) => b.completedAt!.compareTo(a.completedAt!));
+          ..sort(
+            (a, b) => (b.completedAt ?? DateTime.now()).compareTo(
+              a.completedAt ?? DateTime.now(),
+            ),
+          );
+
+    final noneSkipped = allCompletedInstances
+        .where((i) => i.status != SessionStatus.skipped)
+        .toList();
+
+    if (allCompletedInstances.isEmpty) {
+      return _buildEmptyState(context, state.session?.title ?? 'Session');
+    }
+
+    // Current/Latest instance
+    final latestInstance = allCompletedInstances.first;
 
     // Data available
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        toolbarHeight: 70,
-        title: AutoSizeText(
-          'Statistik für ${state.session!.title}',
-          style: context.textTheme.headlineLarge,
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          minFontSize: 14,
-        ),
-      ),
+      appBar: _buildAppBar(context, state.session?.title ?? ''),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -130,19 +92,20 @@ class SessionStatisticsScreen extends ConsumerWidget {
                     children: <Widget>[
                       /// Goals and Task Progress
                       GoalTaskCompletionCard(
-                        stats: stats,
-                        pastInstances: allNoneSkippedInstances,
-                        totalGoals: state.totalGoals!,
-                        totalTasks: state.totalTasks!,
+                        stats: state.stats!,
+                        pastInstances: noneSkipped,
+                        totalGoals: state.totalGoals ?? 0,
+                        totalTasks: state.totalTasks ?? 0,
                       ),
 
                       const VerticalSpace(),
 
                       /// Focus time spent on last sessions
                       FocusTimeSpentCard(
-                        stats: stats,
+                        stats: state.stats!,
                         completedInstances: allCompletedInstances,
-                        targetFocusMinutes: session.focusTimeMin.toDouble(),
+                        targetFocusMinutes: state.session!.focusTimeMin
+                            .toDouble(),
                       ),
 
                       const VerticalSpace(),
@@ -150,30 +113,27 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       // Shows average mood; or course of mood for
                       // repeating session
                       MoodCard(
-                        stats: stats,
+                        stats: state.stats!,
                         instances: allCompletedInstances,
                       ),
 
                       const VerticalSpace(),
 
-                      // Only if the session was supposed
-                      // to have a focus prompt
-                      // Shows only the statistics of the
-                      // current session performed
-                      if (state.session!.hasFocusPrompt) ...[
-                        // Shows how often what focus prompt has been clicked
+                      // Only when prompter activated during session
+                      if (state.session!.hasFocusPrompt &&
+                          noneSkipped.isNotEmpty) ...[
                         FocusPromptCard(
-                          allDoneInstances: allNoneSkippedInstances,
-                          currentInstance: allCompletedInstances.first,
+                          allDoneInstances: noneSkipped,
+                          currentInstance: latestInstance,
                           showGeneralStatsOnly: showGeneralStatsOnly,
-                          focusChecks: allCompletedInstances.first.focusChecks,
+                          focusChecks: latestInstance.focusChecks,
                         ),
                         const VerticalSpace(),
                       ],
 
                       /// Progress so far (completed/skipped/missed)
                       ProgressCard(
-                        stats: stats,
+                        stats: state.stats!,
                         instances: state.allInstances,
                       ),
 
@@ -193,6 +153,55 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       ? 'Zurück'
                       : 'Zurück zum Startbildschirm',
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(BuildContext context, String title) {
+    return AppBar(
+      centerTitle: true,
+      toolbarHeight: 70,
+      title: AutoSizeText(
+        'Statistik für $title',
+        style: context.textTheme.headlineLarge,
+        maxLines: 2,
+        textAlign: TextAlign.center,
+        minFontSize: 14,
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context, String sessionTitle) {
+    return Scaffold(
+      appBar: _buildAppBar(context, sessionTitle),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.bar_chart_rounded,
+                size: 80,
+                color: context.colorScheme.primary.withValues(alpha: 0.2),
+              ),
+              const VerticalSpace(size: SpaceSize.large),
+              Text(
+                'Noch keine Daten verfügbar',
+                style: context.textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
+              const VerticalSpace(size: SpaceSize.small),
+              Text(
+                'Schließe deine erste Einheit ab, um detaillierte Statistiken und Analysen zu sehen.',
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: context.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+                textAlign: TextAlign.center,
               ),
             ],
           ),

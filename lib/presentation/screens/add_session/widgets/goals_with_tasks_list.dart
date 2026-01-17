@@ -27,7 +27,7 @@ class GoalWithTasksCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
-      elevation: 0,
+      elevation: 0.1,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
@@ -66,7 +66,9 @@ class GoalWithTasksCard extends ConsumerWidget {
                               '''${tasksForGoal.length} '''
                               '''${tasksForGoal.length == 1 ? 'Aufgabe' : 'Aufgaben'}''',
                               style: context.textTheme.bodyMedium!.copyWith(
-                                color: AppPalette.grey,
+                                color: context.colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                                 fontSize: 13,
                               ),
                             ),
@@ -74,7 +76,9 @@ class GoalWithTasksCard extends ConsumerWidget {
                             Text(
                               'Noch keine Aufgaben',
                               style: context.textTheme.bodyMedium!.copyWith(
-                                color: AppPalette.grey,
+                                color: context.colorScheme.onSurface.withValues(
+                                  alpha: 0.7,
+                                ),
                                 fontSize: 13,
                               ),
                             ),

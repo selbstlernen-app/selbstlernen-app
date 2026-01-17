@@ -125,15 +125,18 @@ class SessionDetailScreen extends ConsumerWidget {
                         const VerticalSpace(),
                       ],
 
-                      TimeBreakdownItem(
-                        icon: Icons.coffee,
-                        label: 'Pausenzeit',
-                        value:
-                            '''${TimeUtils.formatTime(session.breakTimeMin * 60)} Min''',
-                        color: AppPalette.orange,
-                      ),
+                      if (!session.hasSimpleTimer)
+                        TimeBreakdownItem(
+                          icon: Icons.coffee,
+                          label: 'Pausenzeit',
+                          value:
+                              '''${TimeUtils.formatTime((session.breakTimeMin + session.longBreakTimeMin) * 60)} Min''',
+                          color: AppPalette.orange,
+                        ),
 
-                      if (instanceId != null && instance != null) ...[
+                      if (instanceId != null &&
+                          instance != null &&
+                          !session.hasSimpleTimer) ...[
                         TimeBreakdownItem(
                           icon: Icons.coffee,
                           label: 'Durchgeführte Pausenzeit',

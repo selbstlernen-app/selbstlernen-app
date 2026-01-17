@@ -132,14 +132,17 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // TODO: needs re-work!!
   void addStrategy(String strategy) {
-    if (state.learningStrategies.contains(strategy)) return;
+    final cleanStrategy = strategy.trim();
+    if (cleanStrategy.isEmpty) return;
 
     state = state.copyWith(
-      learningStrategies: <String>[...state.learningStrategies, strategy],
-      // Add to available strategies if not already included
-      availableStrategies: state.availableStrategies.contains(strategy)
-          ? state.availableStrategies
-          : <String>[...state.availableStrategies, strategy],
+      // Adds to the selection if not there
+      learningStrategies: {...state.learningStrategies, cleanStrategy}.toList(),
+      // Adds to the history/available list
+      availableStrategies: {
+        ...state.availableStrategies,
+        cleanStrategy,
+      }.toList(),
     );
   }
 
@@ -155,7 +158,11 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(learningStrategies: updated);
   }
 
-  void setPomodoroSettings({
+  void toggleTimerMode({required bool isSimpleTimer}) {
+    state = state.copyWith(isSimpleTimer: isSimpleTimer);
+  }
+
+  void setTimerSettings({
     int? focusTime,
     int? breakTime,
     int? longBreakTime,
@@ -203,14 +210,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       goals: fullSessionModel.goals,
       tasks: fullSessionModel.tasks,
       learningStrategies: session.learningStrategies,
-      availableStrategies: [
-        // Get all strategies we have typed and available ones
-        // With our ones shown first; then the default ones
-        ...{
-          ...session.learningStrategies,
-          ...state.availableStrategies,
-        },
-      ],
+      availableStrategies: {
+        ...session.learningStrategies,
+        ...state.availableStrategies,
+      }.toList(),
       focusTimeMin: session.focusTimeMin,
       breakTimeMin: session.breakTimeMin,
       longBreakTimeMin: session.longBreakTimeMin,

@@ -213,13 +213,11 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   Future<void> deleteTasks(List<String> taskIds) async {
-    try {
-      for (final taskId in taskIds) {
-        await _manageTasksUseCase.deleteTask(int.parse(taskId));
-      }
-    } on Exception catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await Future.wait(
+      taskIds.map(
+        (taskId) => _manageTasksUseCase.deleteTask(int.parse(taskId)),
+      ),
+    );
   }
 
   Future<void> addGoal(String title) async {
@@ -239,21 +237,20 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   Future<void> deleteGoals(List<String> goalIds) async {
-    try {
-      for (final goalId in goalIds) {
-        await _manageGoalUseCase.deleteGoal(int.parse(goalId));
-      }
-    } on Exception catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await Future.wait(
+      goalIds.map(
+        (goalId) => _manageGoalUseCase.deleteGoal(int.parse(goalId)),
+      ),
+    );
   }
 
   void removeGoalById({required String goalId}) {
     final newGoals = state.goals.where((g) => g.id != goalId).toList();
+
     // Remove goal and its expanded section
     state = state.copyWith(
       goals: newGoals,
-      goalIdsToDelete: [...state.goalIdsToDelete, goalId],
+      goalIdsToDelete: {...state.goalIdsToDelete, goalId},
       expandedGoalId: state.expandedGoalId == goalId
           ? null
           : state.expandedGoalId,
@@ -262,9 +259,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   void removeTaskById({required String taskId}) {
     final newTasks = state.tasks.where((g) => g.id != taskId).toList();
+
     state = state.copyWith(
       tasks: newTasks,
-      taskIdsToDelete: [...state.taskIdsToDelete, taskId],
+      taskIdsToDelete: {...state.taskIdsToDelete, taskId},
     );
   }
 
@@ -294,6 +292,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   Future<void> startTimer() async {
+    // In case of double taps
+    if (state.timerStatus == TimerStatus.running) return;
+
     final service = FlutterBackgroundService();
 
     if (!(await service.isRunning())) {
@@ -325,8 +326,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
 
     _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) async {
-      await _tick();
+    _timer = null;
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      unawaited(_tick());
     });
   }
 
@@ -349,37 +352,30 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       await _handlePhaseComplete();
       return;
     }
-    // Update time and phase once
+    // Update times once
     final newRemaining = state.remainingSeconds - 1;
+    final newElapsed = state.currentPhaseElapsed + 1;
+
+    var focus = state.totalFocusSecondsElapsed;
+    var breakTime = state.totalBreakSecondsElapsed;
+
+    switch (state.currentPhase) {
+      case SessionPhase.focus:
+        focus++;
+      case (SessionPhase.shortBreak || SessionPhase.longBreak):
+        breakTime++;
+    }
+
     state = state.copyWith(
       remainingSeconds: newRemaining,
-      currentPhaseElapsed: state.currentPhaseElapsed + 1,
+      currentPhaseElapsed: newElapsed,
+      totalFocusSecondsElapsed: focus,
+      totalBreakSecondsElapsed: breakTime,
     );
 
     // Auto-save to DB every min
     if (newRemaining % 60 == 0) {
       await _autoSave();
-    }
-
-    // Save elapsed time fitting to current phase
-    switch (state.currentPhase) {
-      case SessionPhase.focus:
-        state = state.copyWith(
-          totalFocusSecondsElapsed: state.totalFocusSecondsElapsed + 1,
-        );
-        return;
-
-      case SessionPhase.shortBreak:
-        state = state.copyWith(
-          totalBreakSecondsElapsed: state.totalBreakSecondsElapsed + 1,
-        );
-        return;
-
-      case SessionPhase.longBreak:
-        state = state.copyWith(
-          totalLongBreakSecondsElapsed: state.totalLongBreakSecondsElapsed + 1,
-        );
-        return;
     }
   }
 
@@ -387,63 +383,58 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     await _handlePhaseComplete();
   }
 
-  /// Function to switch phase dependent
-  /// on the current one (focus -> short/long break)
-  Future<void> _handlePhaseComplete() async {
+  /// Handles logic behind moving from focus to either short or long break
+  Future<void> _handlePhaseComplete({bool isSynching = false}) async {
     // Vibrate when allowed
-    await _vibrateForPhaseChange();
+    if (!isSynching) {
+      await _vibrateForPhaseChange();
+    }
 
     final session = state.session!;
+    SessionPhase nextPhase;
+    int duration;
+    var nextTotalFocus = state.totalFocusPhases;
+    var nextBlocks = state.completedBlocks;
+    var nextIndex = state.currentPhaseIndex + 1;
 
-    switch (state.currentPhase) {
-      case SessionPhase.focus:
-        // say we have 4 focus phases, then 3 are FK last is FL
-        final nextFocusPhase = state.totalFocusPhases + 1;
-        final focusPhases = session.focusPhases;
-
-        // Determine next break type (if we have 4 % 4 = 0, take long break
-        // else short break)
-        if (nextFocusPhase % focusPhases == 0) {
-          // Just completed the last focus phase -> moving on to long break
-          await _startPhase(
-            phase: SessionPhase.longBreak,
-            durationSeconds: (session.longBreakTimeMin) * 60,
-            currentPhaseIndex: state.currentPhaseIndex + 1,
-          );
-        } else {
-          // Completed a regular focus phase
-          await _startPhase(
-            phase: SessionPhase.shortBreak,
-            durationSeconds: (session.breakTimeMin) * 60,
-            currentPhaseIndex: state.currentPhaseIndex + 1,
-          );
+    // If we only have focus timer, then we switch no phases visibly
+    if (state.session!.hasSimpleTimer) {
+      nextPhase = SessionPhase.focus;
+      duration = session.focusTimeMin * 60;
+      nextBlocks++;
+      nextIndex = 0;
+    } else {
+      if (state.currentPhase == SessionPhase.focus) {
+        // Determine next break type
+        // E.g. we have 4 % 4 = 0, take long else short break
+        final isLongBreak =
+            (state.totalFocusPhases + 1) % session.focusPhases == 0;
+        nextPhase = isLongBreak
+            ? SessionPhase.longBreak
+            : SessionPhase.shortBreak;
+        duration =
+            (isLongBreak ? session.longBreakTimeMin : session.breakTimeMin) *
+            60;
+      } else {
+        // After either short or long break follows focus time
+        nextPhase = SessionPhase.focus;
+        duration = session.focusTimeMin * 60;
+        nextTotalFocus++;
+        if (state.currentPhase == SessionPhase.longBreak) {
+          nextBlocks++;
+          nextIndex = 0;
         }
-        return;
-
-      // After short break, start next focus phase and increase total
-      // focus phase
-      case SessionPhase.shortBreak:
-        final newTotalFocusPhases = state.totalFocusPhases + 1;
-        await _startPhase(
-          phase: SessionPhase.focus,
-          durationSeconds: (session.focusTimeMin) * 60,
-          totalFocusPhases: newTotalFocusPhases,
-          currentPhaseIndex: state.currentPhaseIndex + 1,
-        );
-        return;
-
-      // After long break, increment block and start new focus phase
-      case SessionPhase.longBreak:
-        final newTotalFocusPhases = state.totalFocusPhases + 1;
-        await _startPhase(
-          phase: SessionPhase.focus,
-          durationSeconds: (session.focusTimeMin) * 60,
-          totalFocusPhases: newTotalFocusPhases,
-          completedBlocks: state.completedBlocks + 1,
-          currentPhaseIndex: 0,
-        );
-        return;
+      }
     }
+
+    return _startPhase(
+      phase: nextPhase,
+      durationSeconds: duration,
+      totalFocusPhases: nextTotalFocus,
+      completedBlocks: nextBlocks,
+      currentPhaseIndex: nextIndex,
+      isSyncMode: isSynching,
+    );
   }
 
   Future<void> _startPhase({
@@ -452,6 +443,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     int? totalFocusPhases,
     int? completedBlocks,
     int? currentPhaseIndex,
+    bool isSyncMode = false,
   }) async {
     state = state.copyWith(
       currentPhase: phase,
@@ -463,28 +455,23 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     );
 
     // Prompting
-    switch (phase) {
-      case SessionPhase.focus:
-        // Start focus prompting again when timer has been started
-        startFocusPrompting();
-      // Stop prompting in either long or short break
-      case SessionPhase.longBreak:
-        _focusPrompter?.stopPrompting();
-      case SessionPhase.shortBreak:
-        _focusPrompter?.stopPrompting();
+    final shouldPrompt = phase == SessionPhase.focus;
+    if (shouldPrompt) {
+      startFocusPrompting();
+    } else {
+      _focusPrompter?.stopPrompting();
     }
 
     // Sync the background notification label
     final label = NotificationUtils.getPhaseLabel(phase);
     final subtitle = NotificationUtils.getSubtitle(phase);
 
+    // Refresh background service with updated values; start again for new phase
     FlutterBackgroundService().invoke('updatePhase', {
       'title': label,
       'subtitle': subtitle,
     });
-    // Reset background timer to the new phase duration
     FlutterBackgroundService().invoke('setTimer', {'seconds': durationSeconds});
-    // Start the timer again; not only once per phase
     FlutterBackgroundService().invoke('start');
 
     // Update the existing live activity with new phase info
@@ -497,7 +484,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           );
     }
 
-    await _autoSave();
+    if (!isSyncMode) {
+      await _autoSave();
+    }
   }
 
   Future<void> _vibrateForPhaseChange() async {
@@ -510,6 +499,58 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     } on Exception catch (_) {
       // ignore errors silently (e.g., when in simulator / unsupported)
     }
+  }
+
+  void updateTimestamp(DateTime timestamp) {
+    state = state.copyWith(lastActiveTimestamp: timestamp);
+  }
+
+  Future<void> syncTimerAfterBackground() async {
+    if (state.lastActiveTimestamp != null &&
+        state.timerStatus == TimerStatus.running) {
+      final secondsGone = DateTime.now()
+          .difference(state.lastActiveTimestamp!)
+          .inSeconds;
+      var remainingCatchup = secondsGone;
+
+      while (remainingCatchup > 0) {
+        if (!ref.mounted) return;
+
+        // Case 1: Time remaining is within current phase
+        if (remainingCatchup < state.remainingSeconds) {
+          _syncTotals(remainingCatchup);
+
+          state = state.copyWith(
+            remainingSeconds: state.remainingSeconds - remainingCatchup,
+            currentPhaseElapsed: state.currentPhaseElapsed + remainingCatchup,
+            lastActiveTimestamp: null,
+          );
+
+          remainingCatchup = 0;
+        } else {
+          // Case 2: Time exceeds current phase, move to the next one(s)
+          remainingCatchup -= state.remainingSeconds;
+          _syncTotals(state.remainingSeconds);
+          await _handlePhaseComplete(isSynching: true);
+        }
+      }
+      // Perform a single save to the db after returning
+      await _autoSave();
+    }
+  }
+
+  // Helper to sync the total values and correct statistics
+  void _syncTotals(int seconds) {
+    state = state.copyWith(
+      totalFocusSecondsElapsed: state.currentPhase == SessionPhase.focus
+          ? state.totalFocusSecondsElapsed + seconds
+          : state.totalFocusSecondsElapsed,
+      totalBreakSecondsElapsed:
+          (state.currentPhase == SessionPhase.shortBreak ||
+              state.currentPhase == SessionPhase.longBreak)
+          ? state.totalBreakSecondsElapsed + seconds
+          : state.totalBreakSecondsElapsed,
+    );
   }
 
   // Complete a goal

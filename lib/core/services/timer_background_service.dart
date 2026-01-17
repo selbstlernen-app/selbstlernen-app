@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
@@ -84,9 +83,6 @@ Future<void> onStart(ServiceInstance service) async {
     timer = Timer.periodic(const Duration(seconds: 1), (t) async {
       if (remainingSeconds > 0) {
         remainingSeconds--;
-
-        // Send data back so UI is in sync
-        service.invoke('update', {'remainingSeconds': remainingSeconds});
 
         // Update notification (Android)
         if (service is AndroidServiceInstance) {

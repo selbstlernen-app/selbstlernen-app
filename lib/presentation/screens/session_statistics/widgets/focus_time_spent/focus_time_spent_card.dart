@@ -27,35 +27,27 @@ class FocusTimeSpentCard extends StatefulWidget {
 }
 
 class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
-  late SessionInstanceModel todaysInstance;
-
-  late TimeString timeString;
-  late TimeString averageTimeString;
-  late TimeString expectedTimeString;
-
   bool showAllInstances = false;
 
   @override
-  void initState() {
-    super.initState();
-
-    todaysInstance = widget.completedInstances.first;
-
-    timeString = TimeUtils.formatTimeString(
-      totalSeconds: todaysInstance.totalFocusSecondsElapsed,
-    );
-
-    averageTimeString = TimeUtils.formatTimeString(
-      totalSeconds: widget.stats.averageFocusMinutesPerSession.floor() * 60,
-    );
-
-    expectedTimeString = TimeUtils.formatTimeString(
-      totalSeconds: widget.targetFocusMinutes.floor() * 60,
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final latestInstance = widget.completedInstances.firstOrNull;
+    final todayFocusSeconds = latestInstance?.totalFocusSecondsElapsed ?? 0;
+
+    final todayStr = TimeUtils.formatTimeString(
+      totalSeconds: todayFocusSeconds,
+    );
+    final avgStr = TimeUtils.formatTimeString(
+      totalSeconds: (widget.stats.averageFocusMinutesPerSession * 60).toInt(),
+    );
+    final expectedStr = TimeUtils.formatTimeString(
+      totalSeconds: (widget.targetFocusMinutes * 60).toInt(),
+    );
+
+    final displayedInstances = showAllInstances
+        ? widget.completedInstances
+        : widget.completedInstances.take(5).toList();
+
     final chartHeight =
         (showAllInstances ? (widget.completedInstances.length * 36) : 200)
             .toDouble();
@@ -82,7 +74,7 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
                     );
                     return timeString.hours != null
                         ? '${timeString.hours} h ${timeString.minutes} min'
-                        : '${timeString.minutes} min ${timeString.seconds} sec';
+                        : '${timeString.minutes} min ${timeString.seconds}s';
                   },
                 ),
               ),
@@ -96,18 +88,18 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
             children: [
               _TimeStatChip(
                 label: 'Heute',
-                timeString: timeString,
+                timeString: todayStr,
                 color: AppPalette.pink,
               ),
               if (widget.stats.averageFocusMinutesPerSession > 0)
                 _TimeStatChip(
                   label: 'Ø Fokuszeit',
-                  timeString: averageTimeString,
+                  timeString: avgStr,
                   color: AppPalette.orange,
                 ),
               _TimeStatChip(
                 label: 'Erwartet',
-                timeString: expectedTimeString,
+                timeString: expectedStr,
                 color: AppPalette.teal,
               ),
             ],
@@ -120,7 +112,7 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
           // Reusable toggle button
           ToggleShowAllButton(
             showAll: showAllInstances,
-            thresholdExceeded: widget.completedInstances.length > 4,
+            thresholdExceeded: widget.completedInstances.length > 5,
             onToggle: () {
               setState(() => showAllInstances = !showAllInstances);
             },
@@ -134,18 +126,10 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
             curve: Curves.easeOut,
             height: showAllInstances ? chartHeight : 200,
             child: FocusTimeBarChart(
-              lastInstances: showAllInstances
-                  ? widget.completedInstances
-                  : widget.completedInstances.take(5).toList(),
-              dates: showAllInstances
-                  ? widget.completedInstances
-                        .map((i) => i.completedAt!)
-                        .toList()
-                  : widget.completedInstances
-                        .take(5)
-                        .toList()
-                        .map((i) => i.completedAt!)
-                        .toList(),
+              lastInstances: displayedInstances,
+              dates: displayedInstances
+                  .map((i) => i.completedAt ?? DateTime.now())
+                  .toList(),
               targetFocusMinutes: widget.targetFocusMinutes,
               averageFocusMinutes: widget.stats.averageFocusMinutesPerSession,
             ),

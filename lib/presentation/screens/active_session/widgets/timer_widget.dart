@@ -1,9 +1,10 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
-import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/notification_service.dart';
@@ -28,29 +29,42 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
     _lifecycleListener = AppLifecycleListener(
       onDetach: () {
-        //  When app is closed; stop background service as well
         FlutterBackgroundService().invoke('stop');
       },
       onStateChange: (state) async {
-        final backgroundService = FlutterBackgroundService();
+        if (!mounted) return;
 
-        // Check if the timer is actually running before bothering the service
-        final timerState = ref.read(
-          activeSessionViewModelProvider(widget.instanceId),
+        final notifier = ref.read(
+          activeSessionViewModelProvider(widget.instanceId).notifier,
         );
 
-        // Only check when the user is also running the timer;
-        // if paused no notifications are shown
-        if (timerState.timerStatus == TimerStatus.running) {
+        if (ref
+                .read(activeSessionViewModelProvider(widget.instanceId))
+                .timerStatus ==
+            TimerStatus.running) {
           if (state == AppLifecycleState.paused) {
-            // User left the app (show notification)
-            // This is Android ONLY
-            backgroundService.invoke('showNotification');
-          } else if (state == AppLifecycleState.resumed) {
-            // User came back (hide notification)
-            backgroundService.invoke('hideNotification');
+            // Both platforms save timestamp on leave
+            notifier.updateTimestamp(DateTime.now());
 
-            // Cancel the reminder
+            final updatedState = ref.read(
+              activeSessionViewModelProvider(widget.instanceId),
+            );
+
+            // Show notification on Android
+            if (Platform.isAndroid) {
+              FlutterBackgroundService().invoke('setTimer', {
+                'seconds': updatedState.remainingSeconds,
+              });
+              FlutterBackgroundService().invoke('showNotification');
+            }
+          } else if (state == AppLifecycleState.resumed) {
+            // Both platoforms sync timer based on last recorded timestamp
+            await notifier.syncTimerAfterBackground();
+
+            // Hide notification on Android
+            if (Platform.isAndroid) {
+              FlutterBackgroundService().invoke('hideNotification');
+            }
             await NotificationService().cancelTimerEnd();
           }
         }
@@ -152,9 +166,11 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                     ),
 
                     Text(
-                      'Block ${state.completedBlocks + 1}',
+                      '${state.session!.hasSimpleTimer ? "Runde" : "Block"} ${state.completedBlocks + 1}',
                       style: context.textTheme.labelSmall!.copyWith(
-                        color: AppPalette.grey,
+                        color: context.colorScheme.onSurface.withValues(
+                          alpha: 0.5,
+                        ),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -165,7 +181,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
             const VerticalSpace(size: SpaceSize.large),
 
-            _buildPhaseIndicator(state),
+            if (!state.session!.hasSimpleTimer) _buildPhaseIndicator(state),
 
             const VerticalSpace(),
 

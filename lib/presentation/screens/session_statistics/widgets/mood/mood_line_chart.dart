@@ -184,7 +184,7 @@ class MoodLineChart extends StatelessWidget {
 
                     return LineTooltipItem(
                       '''$moodEmoji\n${_getMoodLabel(spot.y.toInt())}\n'''
-                      '''${dayCounts[key]! > 1 ? DateFormat('dd.MM\nhh:mm').format(instance.completedAt!) : DateFormat('dd.MM').format(instance.completedAt!)}''',
+                      '''${dayCounts[key]! > 1 ? DateFormat('dd.MM HH:mm').format(instance.completedAt!) : DateFormat('dd.MM').format(instance.completedAt!)}''',
 
                       TextStyle(
                         color: context.colorScheme.onInverseSurface,

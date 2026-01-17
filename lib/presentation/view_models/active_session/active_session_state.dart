@@ -13,6 +13,9 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     SessionModel? session,
     SessionInstanceModel? instance,
 
+    // The time stamp marking the last time app was on actively on foreground
+    DateTime? lastActiveTimestamp,
+
     // Goals and tasks that are displayed in the session
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,
@@ -33,11 +36,8 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     // Total focus seconds that have currently elapsed
     @Default(0) int totalFocusSecondsElapsed,
 
-    // Total short break seconds that have currently elapsed
+    // Total short break seconds that have currently elapsed (short + long)
     @Default(0) int totalBreakSecondsElapsed,
-
-    // Total long break seconds that have currently elapsed
-    @Default(0) int totalLongBreakSecondsElapsed,
 
     // Total focus phases that were completed
     @Default(0) int totalFocusPhases,
@@ -59,8 +59,8 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     @Default(<String>{}) Set<String> completedTaskIds,
 
     // Keep track of ids to delete
-    @Default(<String>[]) List<String> goalIdsToDelete,
-    @Default(<String>[]) List<String> taskIdsToDelete,
+    @Default(<String>{}) Set<String> goalIdsToDelete,
+    @Default(<String>{}) Set<String> taskIdsToDelete,
 
     // Flag to enable edit mode
     @Default(false) bool isEditMode,

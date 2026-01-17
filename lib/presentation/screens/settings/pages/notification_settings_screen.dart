@@ -19,10 +19,16 @@ class NotificationSettingsScreen extends ConsumerStatefulWidget {
 class _NotificationSettingsScreenState
     extends ConsumerState<NotificationSettingsScreen> {
   late final _customMessageController = TextEditingController();
+  late final AppLifecycleListener _lifecycleListener;
 
   @override
   void initState() {
     super.initState();
+
+    _lifecycleListener = AppLifecycleListener(
+      onResume: () =>
+          ref.read(settingsViewModelProvider.notifier).checkPermission(),
+    );
 
     // Initialize custom motivational reminder if given
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -36,11 +42,17 @@ class _NotificationSettingsScreenState
       final newText = motivationNotification.customMessage ?? '';
       _customMessageController.text = newText;
     });
+
+    _customMessageController.addListener(() {
+      // This ensures the 'Save' button appears/disappears as you type
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
     _customMessageController.dispose();
+    _lifecycleListener.dispose();
     super.dispose();
   }
 
@@ -59,6 +71,14 @@ class _NotificationSettingsScreenState
   Widget build(BuildContext context) {
     final state = ref.watch(settingsViewModelProvider);
     final notifier = ref.read(settingsViewModelProvider.notifier);
+
+    final motivationNotification = state.notificationSettings!
+        .where(
+          (n) => n.type == NotificationType.motivationalReminder,
+        )
+        .first;
+
+    final oldText = motivationNotification.customMessage;
 
     return Scaffold(
       appBar: AppBar(
@@ -181,17 +201,57 @@ class _NotificationSettingsScreenState
                           // Custom message setter
                           if (setting.type ==
                               NotificationType.motivationalReminder) ...[
-                            const VerticalSpace(
-                              size: SpaceSize.small,
-                            ),
-                            CustomTextField(
-                              onSubmitted: (_) async {
-                                await _addCustomMessage(setting);
-                              },
-                              hintText:
-                                  '''Eigene Erinnerung, z.B. "Lass dich nicht unterkriegen 🧠"''',
-                              controller: _customMessageController,
-                              maxLength: 70,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                const VerticalSpace(
+                                  size: SpaceSize.small,
+                                ),
+                                CustomTextField(
+                                  onSubmitted: (_) async {
+                                    await _addCustomMessage(setting);
+                                  },
+                                  hintText:
+                                      '''Eigene Erinnerung, z.B. "Dranbleiben! 🧠"''',
+                                  controller: _customMessageController,
+                                  maxLength: 70,
+                                ),
+
+                                AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 200),
+                                  opacity:
+                                      _customMessageController.text.trim() !=
+                                          (setting.customMessage ?? '')
+                                      ? 1.0
+                                      : 0.0,
+                                  child: IconButton(
+                                    color: context.colorScheme.primary,
+                                    onPressed:
+                                        _customMessageController.text.trim() !=
+                                            (setting.customMessage ?? '')
+                                        ? () async {
+                                            await _addCustomMessage(setting);
+
+                                            if (!context.mounted) return;
+                                            FocusScope.of(context).unfocus();
+                                            context.scaffoldMessenger
+                                                .showSnackBar(
+                                                  const SnackBar(
+                                                    duration: Duration(
+                                                      seconds: 1,
+                                                    ),
+                                                    content: Text(
+                                                      'Nachricht gespeichert',
+                                                    ),
+                                                  ),
+                                                );
+                                          }
+                                        : null,
+                                    icon: const Icon(Icons.save_as_outlined),
+                                    tooltip: 'Speichern',
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ],

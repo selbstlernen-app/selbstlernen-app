@@ -32,48 +32,27 @@ class GoalTaskCompletionCard extends StatefulWidget {
 
 class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
   bool showAllInstances = false;
-  late List<SessionInstanceModel> allDoneInstances;
 
-  @override
-  void initState() {
-    super.initState();
+  List<SessionInstanceModel> get allDoneInstances => widget.pastInstances
+      .where((instance) => instance.status == SessionStatus.completed)
+      .toList();
 
-    // Only display such that were actually completed;
-    // and thus have goals/tasks possibly checked off during session
-    allDoneInstances = [
-      ...widget.pastInstances.where(
-        (instance) => instance.status == SessionStatus.completed,
-      ),
-    ];
-  }
-
-  double _calcAverageGoalCompletion(List<SessionInstanceModel> instances) {
-    final avgGoalCompletion = instances.fold<double>(
+  double _calcAverage(List<SessionInstanceModel> instances, bool isGoal) {
+    if (instances.isEmpty) return 0.0;
+    final total = instances.fold<double>(
       0,
-      (double sum, SessionInstanceModel i) => sum + i.completedGoalsRate,
+      (sum, i) => sum + (isGoal ? i.completedGoalsRate : i.completedTasksRate),
     );
-
-    return avgGoalCompletion / instances.length;
-  }
-
-  double _calcAverageTaskCompletion(List<SessionInstanceModel> instances) {
-    final avgTaskCompletion = instances.fold<double>(
-      0,
-      (double sum, SessionInstanceModel i) => sum + i.completedTasksRate,
-    );
-
-    return avgTaskCompletion / instances.length;
+    return total / instances.length;
   }
 
   @override
   Widget build(BuildContext context) {
-    // If we actually have goals and tasks completed at any time;
-    final showData =
-        _calcAverageTaskCompletion(
-              allDoneInstances,
-            ) >
-            0 ||
-        _calcAverageGoalCompletion(allDoneInstances) > 0;
+    final done = allDoneInstances;
+    final avgGoals = _calcAverage(done, true);
+    final avgTasks = _calcAverage(done, false);
+
+    final hasData = done.isNotEmpty || widget.stats.totalGoalsCompleted > 0;
 
     return CardLayout(
       content: Column(
@@ -100,7 +79,7 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
             ],
           ),
 
-          if (!showData)
+          if (!hasData)
             const _EmptyState()
           else ...[
             // LINE CHART BUTTON AND AVG STATS
@@ -109,7 +88,7 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
               children: [
                 ToggleShowAllButton(
                   showAll: showAllInstances,
-                  thresholdExceeded: allDoneInstances.length > 4,
+                  thresholdExceeded: done.length > 5,
                   onToggle: () {
                     setState(() => showAllInstances = !showAllInstances);
                   },
@@ -119,15 +98,11 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Ø ${_calcAverageGoalCompletion(
-                        allDoneInstances,
-                      ).toStringAsFixed(1)}% Ziele',
+                      'Ø ${avgGoals.toStringAsFixed(0)}% Ziele',
                       style: context.textTheme.bodyMedium,
                     ),
                     Text(
-                      'Ø ${_calcAverageTaskCompletion(
-                        allDoneInstances,
-                      ).toStringAsFixed(1)}% Aufgaben',
+                      'Ø ${avgTasks.toStringAsFixed(0)}% Aufgaben',
                       style: context.textTheme.bodyMedium,
                     ),
                   ],
@@ -158,7 +133,7 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
                 children: <Widget>[
                   Expanded(
                     child: _ProductivitySquare(
-                      icon: Icons.flag,
+                      icon: Icons.flag_rounded,
                       iconColor: AppPalette.sky,
                       label: 'Ziele erreicht',
                       total: widget.stats.totalGoalsCompleted,
@@ -168,7 +143,7 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
                   const HorizontalSpace(size: SpaceSize.small),
                   Expanded(
                     child: _ProductivitySquare(
-                      icon: Icons.task_alt,
+                      icon: Icons.task_alt_rounded,
                       iconColor: AppPalette.emerald,
                       label: 'Aufgaben erledigt',
                       total: widget.stats.totalTasksCompleted,

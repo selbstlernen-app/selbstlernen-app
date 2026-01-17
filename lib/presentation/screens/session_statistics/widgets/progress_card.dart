@@ -20,6 +20,29 @@ class ProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final total = instances.length;
+    final completed = instances
+        .where((i) => i.status == SessionStatus.completed)
+        .length;
+    final missed = instances
+        .where((i) => i.status == SessionStatus.missed)
+        .length;
+    final skipped = instances
+        .where((i) => i.status == SessionStatus.skipped)
+        .length;
+    final open = instances
+        .where(
+          (i) =>
+              i.status == SessionStatus.scheduled ||
+              i.status == SessionStatus.inProgress,
+        )
+        .length;
+
+    final completionRate = total > 0 ? completed / total : 0.0;
+    final missRate = total > 0 ? missed / total : 0.0;
+    final skipRate = total > 0 ? skipped / total : 0.0;
+    final combinedRate = completionRate + missRate + skipRate;
+
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,9 +66,9 @@ class ProgressCard extends StatelessWidget {
 
           // Progress summary text
           Text(
-            stats.totalInstances == 1
-                ? '''Abgeschlossen (100%)'''
-                : '''${stats.completedInstances + stats.skippedInstances + stats.missedInstances} von ${stats.totalInstances} Einheiten abgeschlossen (${(stats.combinedRate * 100).toStringAsFixed(1)} %)''',
+            (total == 1 && completed == 1)
+                ? 'Abgeschlossen (100%)'
+                : '$completed von $total Einheiten durchgeführt (${(completionRate * 100).toStringAsFixed(0)}%)',
             style: context.textTheme.bodySmall,
           ),
 
@@ -58,35 +81,30 @@ class ProgressCard extends StatelessWidget {
               height: 12,
               child: Row(
                 children: [
-                  // Completed section
-                  if (stats.completionRate > 0)
+                  if (completionRate > 0)
                     Expanded(
-                      flex: (stats.completionRate * 1000).toInt(),
+                      flex: (completionRate * 100).toInt(),
                       child: Container(
                         color: getColor(SessionStatus.completed),
                       ),
                     ),
-                  // Missed section
-                  if (stats.missRate > 0)
+                  if (missRate > 0)
                     Expanded(
-                      flex: (stats.missRate * 1000).toInt(),
-                      child: Container(
-                        color: getColor(SessionStatus.missed),
-                      ),
+                      flex: (missRate * 100).toInt(),
+                      child: Container(color: getColor(SessionStatus.missed)),
                     ),
-                  // Skipped section
-                  if (stats.skipRate > 0)
+                  if (skipRate > 0)
                     Expanded(
-                      flex: (stats.skipRate * 1000).toInt(),
-                      child: Container(
-                        color: getColor(SessionStatus.skipped),
-                      ),
+                      flex: (skipRate * 100).toInt(),
+                      child: Container(color: getColor(SessionStatus.skipped)),
                     ),
-                  // Remaining/open section
-                  if (stats.combinedRate < 1)
+                  // Rest is filled by open instances
+                  if (combinedRate < 1)
                     Expanded(
-                      flex: ((1 - stats.combinedRate) * 1000).toInt(),
-                      child: Container(color: context.colorScheme.tertiary),
+                      flex: ((1 - combinedRate) * 100).toInt(),
+                      child: Container(
+                        color: context.colorScheme.surfaceContainerHighest,
+                      ),
                     ),
                 ],
               ),
@@ -102,30 +120,26 @@ class ProgressCard extends StatelessWidget {
             children: [
               _StatChip(
                 label: 'Durchgeführt',
-                value: stats.completedInstances,
+                value: completed,
                 color: getColor(SessionStatus.completed),
-                textStyle: context.textTheme.bodySmall,
               ),
-              if (stats.missedInstances > 0)
+              if (missed > 0)
                 _StatChip(
                   label: 'Verpasst',
-                  value: stats.missedInstances,
+                  value: missed,
                   color: getColor(SessionStatus.missed),
-                  textStyle: context.textTheme.bodySmall,
                 ),
-              if (stats.skippedInstances > 0)
+              if (skipped > 0)
                 _StatChip(
                   label: 'Übersprungen',
-                  value: stats.skippedInstances,
+                  value: skipped,
                   color: getColor(SessionStatus.skipped),
-                  textStyle: context.textTheme.bodySmall,
                 ),
-              if (stats.completionRate < 1)
+              if (open > 0)
                 _StatChip(
                   label: 'Noch offen',
-                  value: stats.openInstances,
-                  color: context.colorScheme.onTertiary,
-                  textStyle: context.textTheme.bodySmall,
+                  value: open,
+                  color: AppPalette.grey,
                 ),
             ],
           ),
@@ -140,13 +154,11 @@ class _StatChip extends StatelessWidget {
     required this.label,
     required this.value,
     required this.color,
-    required this.textStyle,
   });
 
   final String label;
   final int value;
   final Color color;
-  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +182,7 @@ class _StatChip extends StatelessWidget {
           const HorizontalSpace(size: SpaceSize.small),
           Text(
             '$value $label',
-            style: textStyle?.copyWith(
+            style: context.textTheme.bodySmall!.copyWith(
               color: color,
               fontWeight: FontWeight.w600,
             ),

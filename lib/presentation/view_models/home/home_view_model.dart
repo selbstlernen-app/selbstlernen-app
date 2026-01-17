@@ -32,10 +32,17 @@ class HomeViewModel extends _$HomeViewModel {
     });
 
     _subscribe();
-    return const HomeState();
+
+    return const HomeState(isLoading: true);
+  }
+
+  void refresh() {
+    state = state.copyWith(isLoading: true, error: null);
+    _subscribe();
   }
 
   void _subscribe() {
+    _sessionsSubscription?.cancel();
     _sessionsSubscription = _getSessionsUseCase
         .call(DateTime.now())
         .listen(
@@ -43,6 +50,7 @@ class HomeViewModel extends _$HomeViewModel {
             state = state.copyWith(
               todaysSessions: sessions,
               isLoading: false,
+              error: null,
             );
           },
           onError: (dynamic error) {
