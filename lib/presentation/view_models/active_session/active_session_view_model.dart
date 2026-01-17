@@ -527,7 +527,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         } else {
           // Case 2: Time exceeds current phase, move to the next one(s)
           remainingCatchup -= state.remainingSeconds;
-          _syncTotals(remainingCatchup);
+          _syncTotals(state.remainingSeconds);
           await _handlePhaseComplete(isSynching: true);
         }
       }
