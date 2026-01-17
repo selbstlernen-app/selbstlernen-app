@@ -13,6 +13,9 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     SessionModel? session,
     SessionInstanceModel? instance,
 
+    // The time stamp marking the last time app was on actively on foreground
+    DateTime? lastActiveTimestamp,
+
     // Goals and tasks that are displayed in the session
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,

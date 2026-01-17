@@ -38,6 +38,9 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
         final timerState = ref.read(
           activeSessionViewModelProvider(widget.instanceId),
         );
+        final notifier = ref.read(
+          activeSessionViewModelProvider(widget.instanceId).notifier,
+        );
 
         // Only check when the user is also running the timer;
         // if paused no notifications are shown
@@ -46,9 +49,15 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
             // User left the app (show notification)
             // This is Android ONLY
             backgroundService.invoke('showNotification');
+
+            // For iOS safe the date
+            notifier.updateTimestamp(DateTime.now());
           } else if (state == AppLifecycleState.resumed) {
             // User came back (hide notification)
             backgroundService.invoke('hideNotification');
+
+            // For iOS sync the timer with the timestamp last recorded
+            notifier.syncTimerAfterBackground();
 
             // Cancel the reminder
             await NotificationService().cancelTimerEnd();
