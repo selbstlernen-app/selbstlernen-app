@@ -18,13 +18,13 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
           sessionId,
         )
         .listen((_) {
-          // Whenever the database changes, re-fetch the full stats
-          _loadData();
+          // Whenever the database changes, refetch full stats
+          unawaited(_loadData());
         });
 
-    ref.onDispose(() => subscription.cancel());
+    ref.onDispose(subscription.cancel);
 
-    _loadData();
+    unawaited(_loadData());
 
     return const SessionStatisticsState();
   }

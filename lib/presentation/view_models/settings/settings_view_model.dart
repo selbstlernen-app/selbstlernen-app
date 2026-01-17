@@ -31,7 +31,7 @@ class SettingsViewModel extends _$SettingsViewModel {
       unawaited(_notificationSubscription?.cancel());
     });
 
-    unawaited(_checkPermission());
+    unawaited(checkPermission());
 
     _subscribe();
 
@@ -58,13 +58,16 @@ class SettingsViewModel extends _$SettingsViewModel {
         );
   }
 
-  // UI/Theming Settings
-  Future<void> _checkPermission() async {
+  // Notification related
+  Future<void> checkPermission() async {
+    if (!ref.mounted) return;
+
     final hasPermission = await Permission.notification.isGranted;
 
     state = state.copyWith(hasNotificationPermission: hasPermission);
   }
 
+  // UI/Theming Settings
   Future<void> toggleDarkMode() async {
     await _manageSettingsUseCase.toggleDarkMode();
     state = state.copyWith(isDarkMode: _manageSettingsUseCase.getDarkMode());
