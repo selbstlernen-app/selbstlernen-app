@@ -64,11 +64,6 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
       );
     }
 
-    print(state.focusTimeMin);
-    print(state.breakTimeMin);
-    print(state.longBreakTimeMin);
-    print(state.focusPhases);
-
     // Then navigate forward
     widget.navigateForward();
   }

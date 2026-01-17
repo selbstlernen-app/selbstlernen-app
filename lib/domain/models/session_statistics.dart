@@ -27,25 +27,6 @@ abstract class SessionStatistics with _$SessionStatistics {
   }) = _SessionStatistics;
   const SessionStatistics._();
 
-  /// Rate of instances with status "completed"
-  double get completionRate =>
-      totalInstances > 0 ? completedInstances / totalInstances : 0.0;
-
-  /// Rate of instances with status "skipped"
-  double get skipRate =>
-      totalInstances > 0 ? skippedInstances / totalInstances : 0.0;
-
-  /// Rate of instances with status "missed"
-  double get missRate =>
-      totalInstances > 0 ? missedInstances / totalInstances : 0.0;
-
-  /// Combined rate of all instances
-  double get combinedRate => completionRate + skipRate + missRate;
-
-  int get openInstances =>
-      totalInstances -
-      (completedInstances + missedInstances + skippedInstances);
-
   double get averageFocusMinutesPerSession =>
       completedInstances > 0 ? totalFocusMinutes / completedInstances : 0.0;
 
