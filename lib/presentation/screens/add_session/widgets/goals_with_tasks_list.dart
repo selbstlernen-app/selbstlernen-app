@@ -27,7 +27,7 @@ class GoalWithTasksCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Card(
-      elevation: 0,
+      elevation: 0.1,
       child: Padding(
         padding: const EdgeInsets.all(8),
         child: Column(
