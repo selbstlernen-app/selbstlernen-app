@@ -27,7 +27,21 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
     if (homeState.isLoading) return const LoadingIndicator();
 
     if (homeState.error != null) {
-      return Scaffold(body: Center(child: Text('Fehler: ${homeState.error}')));
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Ups, da ist etwas schiefgelaufen.'),
+              TextButton(
+                onPressed: () =>
+                    ref.read(homeViewModelProvider.notifier).refresh(),
+                child: const Text('Erneut versuchen'),
+              ),
+            ],
+          ),
+        ),
+      );
     }
 
     return Scaffold(

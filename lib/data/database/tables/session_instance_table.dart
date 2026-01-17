@@ -3,7 +3,11 @@ import 'package:srl_app/data/database/tables/session_table.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
 class SessionInstances extends Table with AutoIncrementingPrimaryKey {
-  IntColumn get sessionId => integer().references(Sessions, #id)();
+  IntColumn get sessionId => integer().references(
+    Sessions,
+    #id,
+    onDelete: KeyAction.cascade,
+  )();
   TextColumn get status => textEnum<SessionStatus>().withDefault(
     const Constant<String>('scheduled'),
   )();

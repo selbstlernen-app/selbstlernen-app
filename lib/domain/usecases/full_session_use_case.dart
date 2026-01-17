@@ -59,8 +59,5 @@ class FullSessionUseCase {
 
   Future<void> deleteFullModel(int sessionId) async {
     await repository.deleteSession(sessionId);
-    await instanceRepository.deleteInstanceBySessionId(sessionId);
-    await goalRepository.deleteGoalsBySessionId(sessionId);
-    await taskRepository.deleteTasksBySessionId(sessionId);
   }
 }
