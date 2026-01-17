@@ -357,24 +357,20 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     final newElapsed = state.currentPhaseElapsed + 1;
 
     var focus = state.totalFocusSecondsElapsed;
-    var shortBreak = state.totalBreakSecondsElapsed;
-    var longBreak = state.totalLongBreakSecondsElapsed;
+    var breakTime = state.totalBreakSecondsElapsed;
 
     switch (state.currentPhase) {
       case SessionPhase.focus:
         focus++;
-      case SessionPhase.shortBreak:
-        shortBreak++;
-      case SessionPhase.longBreak:
-        longBreak++;
+      case (SessionPhase.shortBreak || SessionPhase.longBreak):
+        breakTime++;
     }
 
     state = state.copyWith(
       remainingSeconds: newRemaining,
       currentPhaseElapsed: newElapsed,
       totalFocusSecondsElapsed: focus,
-      totalBreakSecondsElapsed: shortBreak,
-      totalLongBreakSecondsElapsed: longBreak,
+      totalBreakSecondsElapsed: breakTime,
     );
 
     // Auto-save to DB every min
@@ -546,12 +542,11 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       totalFocusSecondsElapsed: state.currentPhase == SessionPhase.focus
           ? state.totalFocusSecondsElapsed + seconds
           : state.totalFocusSecondsElapsed,
-      totalBreakSecondsElapsed: state.currentPhase == SessionPhase.shortBreak
+      totalBreakSecondsElapsed:
+          (state.currentPhase == SessionPhase.shortBreak ||
+              state.currentPhase == SessionPhase.longBreak)
           ? state.totalBreakSecondsElapsed + seconds
           : state.totalBreakSecondsElapsed,
-      totalLongBreakSecondsElapsed: state.currentPhase == SessionPhase.longBreak
-          ? state.totalLongBreakSecondsElapsed + seconds
-          : state.totalLongBreakSecondsElapsed,
     );
   }
 

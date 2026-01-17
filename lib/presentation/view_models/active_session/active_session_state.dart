@@ -36,11 +36,8 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     // Total focus seconds that have currently elapsed
     @Default(0) int totalFocusSecondsElapsed,
 
-    // Total short break seconds that have currently elapsed
+    // Total short break seconds that have currently elapsed (short + long)
     @Default(0) int totalBreakSecondsElapsed,
-
-    // Total long break seconds that have currently elapsed
-    @Default(0) int totalLongBreakSecondsElapsed,
 
     // Total focus phases that were completed
     @Default(0) int totalFocusPhases,

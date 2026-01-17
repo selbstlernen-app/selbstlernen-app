@@ -130,7 +130,7 @@ class SessionDetailScreen extends ConsumerWidget {
                           icon: Icons.coffee,
                           label: 'Pausenzeit',
                           value:
-                              '''${TimeUtils.formatTime(session.breakTimeMin * 60)} Min''',
+                              '''${TimeUtils.formatTime((session.breakTimeMin + session.longBreakTimeMin) * 60)} Min''',
                           color: AppPalette.orange,
                         ),
 
