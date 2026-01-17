@@ -120,7 +120,7 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
           // Reusable toggle button
           ToggleShowAllButton(
             showAll: showAllInstances,
-            thresholdExceeded: widget.completedInstances.length > 4,
+            thresholdExceeded: widget.completedInstances.length > 5,
             onToggle: () {
               setState(() => showAllInstances = !showAllInstances);
             },
