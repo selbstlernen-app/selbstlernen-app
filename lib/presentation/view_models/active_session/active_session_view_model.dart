@@ -523,6 +523,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
           state = state.copyWith(
             remainingSeconds: state.remainingSeconds - remainingCatchup,
             currentPhaseElapsed: state.currentPhaseElapsed + remainingCatchup,
+            lastActiveTimestamp: null,
           );
 
           remainingCatchup = 0;
