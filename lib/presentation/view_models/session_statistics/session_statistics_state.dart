@@ -14,11 +14,10 @@ abstract class SessionStatisticsState with _$SessionStatisticsState {
     // The session for the statistics
     SessionModel? session,
 
-    // All instances of the specific session
-    // (skipped, inProgress, or completed)
+    // All instances of a session (skipped, inProgress, or completed)
     List<SessionInstanceModel>? instances,
 
-    // The currently total goals and tasks associated with the session
+    // Total current goals and tasks associated with the session
     int? totalGoals,
     int? totalTasks,
 
