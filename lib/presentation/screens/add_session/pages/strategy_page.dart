@@ -66,7 +66,7 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                 Wrap(
                   runSpacing: 8,
                   children: <Widget>[
-                    ...state.availableStrategies!.map(
+                    ...?state.availableStrategies?.map(
                       (LearningStrategyModel strategy) => SizedBox(
                         // Padding * 2 = 48
                         width: (context.mediaQuery.size.width - 48) / 2,

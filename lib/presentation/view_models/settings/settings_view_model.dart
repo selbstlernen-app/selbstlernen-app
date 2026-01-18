@@ -41,8 +41,6 @@ class SettingsViewModel extends _$SettingsViewModel {
 
     _subscribe();
 
-    unawaited(_initStrategies());
-
     unawaited(checkPermission());
 
     return SettingsState(
@@ -52,12 +50,6 @@ class SettingsViewModel extends _$SettingsViewModel {
       timerStartsAutomatically: _manageSettingsUseCase
           .getTimerStartsAutomatically(),
     );
-  }
-
-  // If no learning strategies are detected; will the default ones
-  // which will update the stream
-  Future<void> _initStrategies() async {
-    await _manageLearningStrategyUseCase.getLearningStrategies();
   }
 
   void _subscribe() {
