@@ -70,6 +70,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const VerticalSpace(),
 
               _buildSectionTile(
+                title: 'Aussehen',
+                icon: Icons.palette_outlined,
+                subtitle: 'Farbe und Darstellung anpassen',
+                onTap: () => _navigateToThemeSettings(context),
+              ),
+
+              const VerticalSpace(
+                size: SpaceSize.xsmall,
+              ),
+
+              _buildSectionTile(
                 title: 'Benachrichtigungen',
                 icon: Icons.notifications_active_outlined,
                 subtitle: 'Benachrichtigungen anpassen und konfigurieren',
@@ -100,13 +111,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
               const VerticalSpace(
                 size: SpaceSize.xsmall,
-              ),
-
-              _buildSectionTile(
-                title: 'Aussehen',
-                icon: Icons.palette_outlined,
-                subtitle: 'Farbe und Darstellung anpassen',
-                onTap: () => _navigateToThemeSettings(context),
               ),
             ],
           ),

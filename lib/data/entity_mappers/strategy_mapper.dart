@@ -5,6 +5,7 @@ import 'package:srl_app/domain/models/learning_strategy_model.dart';
 extension LearningStrategyToModel on LearningStrategy {
   LearningStrategyModel toDomain() {
     return LearningStrategyModel(
+      id: id.toString(),
       title: title,
       explanation: explanation,
     );

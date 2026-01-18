@@ -41,7 +41,7 @@ class SettingsViewModel extends _$SettingsViewModel {
 
     _subscribe();
 
-    _initStrategies();
+    unawaited(_initStrategies());
 
     unawaited(checkPermission());
 
@@ -54,9 +54,10 @@ class SettingsViewModel extends _$SettingsViewModel {
     );
   }
 
+  // If no learning strategies are detected; will the default ones
+  // which will update the stream
   Future<void> _initStrategies() async {
-    final current = await _manageLearningStrategyUseCase
-        .getLearningStrategies();
+    await _manageLearningStrategyUseCase.getLearningStrategies();
   }
 
   void _subscribe() {
@@ -78,8 +79,6 @@ class SettingsViewModel extends _$SettingsViewModel {
         .watchLearningStrategies()
         .listen(
           (List<LearningStrategyModel> strategies) {
-            print("STRATEGIES??");
-            print(strategies);
             state = state.copyWith(
               learningStrategies: strategies,
               isLoading: false,
@@ -89,6 +88,16 @@ class SettingsViewModel extends _$SettingsViewModel {
             state = state.copyWith(error: error.toString(), isLoading: false);
           },
         );
+  }
+
+  Future<void> addStrategy(String title, String? explanation) async {
+    await _manageLearningStrategyUseCase.addLearningStrategy(
+      LearningStrategyModel(title: title, explanation: explanation),
+    );
+  }
+
+  Future<void> deleteStrategy(int id) async {
+    await _manageLearningStrategyUseCase.deleteLearningStrategy(id);
   }
 
   // UI/Theming Settings
