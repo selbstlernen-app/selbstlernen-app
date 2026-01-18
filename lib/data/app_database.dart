@@ -5,12 +5,14 @@ import 'package:drift/native.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:srl_app/data/database/daos/goal_dao.dart';
+import 'package:srl_app/data/database/daos/learning_strategy_dao.dart';
 import 'package:srl_app/data/database/daos/notification_dao.dart';
 import 'package:srl_app/data/database/daos/session_dao.dart';
 import 'package:srl_app/data/database/daos/session_instance_dao.dart';
 import 'package:srl_app/data/database/daos/settings_dao.dart';
 import 'package:srl_app/data/database/daos/task_dao.dart';
 import 'package:srl_app/data/database/tables/goal_table.dart';
+import 'package:srl_app/data/database/tables/learning_strategy_table.dart';
 import 'package:srl_app/data/database/tables/notifications_table.dart';
 import 'package:srl_app/data/database/tables/session_instance_table.dart';
 import 'package:srl_app/data/database/tables/session_table.dart';
@@ -28,6 +30,7 @@ part 'app_database.g.dart';
     SessionInstances,
     Settings,
     Notifications,
+    LearningStrategies,
   ],
   daos: <Type>[
     SessionDao,
@@ -36,6 +39,7 @@ part 'app_database.g.dart';
     SessionInstanceDao,
     SettingsDao,
     NotificationDao,
+    LearningStrategyDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -47,6 +51,14 @@ class AppDatabase extends _$AppDatabase {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
+      onCreate: (m) async {
+        await m.createAll();
+      },
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          await m.createTable(learningStrategies);
+        }
+      },
       beforeOpen: (details) async {
         // Enable cascade delete behavior in SQLite
         await customStatement('PRAGMA foreign_keys = ON');
@@ -60,10 +72,10 @@ LazyDatabase _openConnection() {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(path.join(dbFolder.path, 'db.sqlite'));
 
-    // if (await file.exists()) {
-    //   await file.delete();
-    //   print('Drift database deleted!');
-    // }
+    if (await file.exists()) {
+      await file.delete();
+      print('Drift database deleted!');
+    }
 
     return NativeDatabase(file);
   });

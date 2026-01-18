@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/daos/goal_dao.dart';
+import 'package:srl_app/data/database/daos/learning_strategy_dao.dart';
 import 'package:srl_app/data/database/daos/notification_dao.dart';
 import 'package:srl_app/data/database/daos/session_dao.dart';
 import 'package:srl_app/data/database/daos/session_instance_dao.dart';
@@ -10,12 +11,14 @@ import 'package:srl_app/data/repositories/goal_repository_imp.dart';
 import 'package:srl_app/data/repositories/notification_repository_imp.dart';
 import 'package:srl_app/data/repositories/session_instance_repository_imp.dart';
 import 'package:srl_app/data/repositories/session_repository_imp.dart';
+import 'package:srl_app/data/repositories/strategy_repository_imp.dart';
 import 'package:srl_app/data/repositories/task_repository_imp.dart';
 import 'package:srl_app/domain/goal_repository.dart';
 import 'package:srl_app/domain/notification_repository.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 import 'package:srl_app/domain/settings_repository.dart';
+import 'package:srl_app/domain/strategy_repository.dart';
 import 'package:srl_app/domain/task_repository.dart';
 
 part 'providers.g.dart';
@@ -56,6 +59,11 @@ NotificationDao notificationDao(Ref ref) {
   return NotificationDao(ref.watch(appDatabaseProvider));
 }
 
+@riverpod
+LearningStrategyDao learningStrategyDao(Ref ref) {
+  return LearningStrategyDao(ref.watch(appDatabaseProvider));
+}
+
 // --- Repositories ---
 @riverpod
 SessionRepository sessionRepository(Ref ref) {
@@ -87,5 +95,12 @@ SettingsRepository settingsRepository(Ref ref) {
 NotificationRepository notificationsRepository(Ref ref) {
   return NotificationRepositoryImp(
     ref.watch(notificationDaoProvider),
+  );
+}
+
+@riverpod
+StrategyRepository strategyRepository(Ref ref) {
+  return StrategyRepositoryImp(
+    ref.watch(learningStrategyDaoProvider),
   );
 }

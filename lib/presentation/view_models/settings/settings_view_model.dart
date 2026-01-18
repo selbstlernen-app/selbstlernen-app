@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
+import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
 import 'package:srl_app/domain/providers.dart';
+import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_notifications_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_settings_use_case.dart';
 import 'package:srl_app/notification_service.dart';
@@ -17,8 +19,10 @@ part 'settings_view_model.g.dart';
 class SettingsViewModel extends _$SettingsViewModel {
   late final ManageSettingsUseCase _manageSettingsUseCase;
   late final ManageNotificationsUseCase _manageNotificationsUseCase;
+  late final ManageLearningStrategyUseCase _manageLearningStrategyUseCase;
 
   StreamSubscription<dynamic>? _notificationSubscription;
+  StreamSubscription<dynamic>? _strategySubscription;
 
   @override
   SettingsState build() {
@@ -26,14 +30,20 @@ class SettingsViewModel extends _$SettingsViewModel {
       manageSettingsUseCaseProvider,
     );
     _manageNotificationsUseCase = ref.watch(manageNotificationsUseCaseProvider);
+    _manageLearningStrategyUseCase = ref.watch(
+      manageLearningStrategyUseCaseProvider,
+    );
 
     ref.onDispose(() {
       unawaited(_notificationSubscription?.cancel());
+      unawaited(_strategySubscription?.cancel());
     });
 
-    unawaited(checkPermission());
-
     _subscribe();
+
+    _initStrategies();
+
+    unawaited(checkPermission());
 
     return SettingsState(
       isDarkMode: _manageSettingsUseCase.getDarkMode(),
@@ -44,6 +54,11 @@ class SettingsViewModel extends _$SettingsViewModel {
     );
   }
 
+  Future<void> _initStrategies() async {
+    final current = await _manageLearningStrategyUseCase
+        .getLearningStrategies();
+  }
+
   void _subscribe() {
     _notificationSubscription = _manageNotificationsUseCase
         .watchPreferences()
@@ -51,6 +66,22 @@ class SettingsViewModel extends _$SettingsViewModel {
           (List<NotificationTypeSetting> notifications) {
             state = state.copyWith(
               notificationSettings: notifications,
+              isLoading: false,
+            );
+          },
+          onError: (dynamic error) {
+            state = state.copyWith(error: error.toString(), isLoading: false);
+          },
+        );
+
+    _strategySubscription = _manageLearningStrategyUseCase
+        .watchLearningStrategies()
+        .listen(
+          (List<LearningStrategyModel> strategies) {
+            print("STRATEGIES??");
+            print(strategies);
+            state = state.copyWith(
+              learningStrategies: strategies,
               isLoading: false,
             );
           },
@@ -103,7 +134,8 @@ class SettingsViewModel extends _$SettingsViewModel {
     // Cancel all (pending) notifications
     await NotificationService().cancelAllNotifications();
 
-    // Disable all notifications (visually -> since permissions already turned off anyway)
+    // Disable all notifications
+    // (visually -> since permissions already turned off anyway)
     final disabledSettings = state.notificationSettings
         ?.map(
           (n) => n.copyWith(enabled: false),

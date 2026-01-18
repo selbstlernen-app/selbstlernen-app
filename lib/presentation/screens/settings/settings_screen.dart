@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/presentation/screens/settings/pages/learning_strategy_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/notification_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/theme_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/timer_settings_screen.dart';
@@ -41,6 +42,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  Future<void> _navigateToLearningStrategiesSettings(
+    BuildContext context,
+  ) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (context) => const LearningStrategySettingsScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +84,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 title: 'Lernstrategien',
                 icon: Icons.document_scanner_outlined,
                 subtitle: 'Lernstrategien anpassen und konfigurieren',
-                onTap: () => _navigateToNotificationSettings(context),
+                onTap: () => _navigateToLearningStrategiesSettings(context),
               ),
 
               const VerticalSpace(
