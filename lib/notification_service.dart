@@ -45,12 +45,6 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-  /// Check if notifications are enabled
-  Future<bool> hasPermission() async {
-    final status = await Permission.notification.status;
-    return status.isGranted;
-  }
-
   /// Request notification permission
   Future<bool> requestPermission() async {
     final status = await Permission.notification.request();
@@ -138,11 +132,6 @@ class NotificationService {
   /// Cancel all scheduled notifications
   Future<void> cancelAllNotifications() async {
     await flutterLocalNotificationsPlugin.cancelAll();
-  }
-
-  /// Get pending notifications
-  Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    return flutterLocalNotificationsPlugin.pendingNotificationRequests();
   }
 
   /// Opens the settings to allow notifications
