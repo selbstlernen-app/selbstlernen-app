@@ -100,6 +100,10 @@ class SettingsViewModel extends _$SettingsViewModel {
     await _manageLearningStrategyUseCase.deleteLearningStrategy(id);
   }
 
+  Future<void> updateStrategy(LearningStrategyModel model, int id) async {
+    await _manageLearningStrategyUseCase.updateLearningStrategy(model, id);
+  }
+
   // UI/Theming Settings
   Future<void> toggleDarkMode() async {
     await _manageSettingsUseCase.toggleDarkMode();

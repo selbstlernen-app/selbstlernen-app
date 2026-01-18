@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_icon_button.dart';
-import 'package:srl_app/common_widgets/vertical_space.dart';
+import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
-import 'package:srl_app/presentation/screens/settings/widgets/build_section.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
 class LearningStrategySettingsScreen extends ConsumerStatefulWidget {
@@ -22,6 +22,7 @@ class _LearningStrategySettingsScreenState
   late final _strategyExplanationController = TextEditingController();
 
   bool _isEditMode = false;
+  String _isEditId = '';
 
   @override
   void initState() {
@@ -36,6 +37,14 @@ class _LearningStrategySettingsScreenState
     super.dispose();
   }
 
+  void _editStrategy(LearningStrategyModel strategy) {
+    setState(() {
+      _isEditId = strategy.id!;
+      _strategyTitleController.text = strategy.title;
+      _strategyExplanationController.text = strategy.explanation ?? '';
+    });
+  }
+
   Future<void> _addCustomStrategy() async {
     final state = ref.read(settingsViewModelProvider);
     final title = _strategyTitleController.text.trim();
@@ -48,18 +57,39 @@ class _LearningStrategySettingsScreenState
     }
 
     final isDuplicate = state.learningStrategies!.any(
-      (strat) => strat.title.toLowerCase() == title.toLowerCase(),
+      (strat) =>
+          strat.title.toLowerCase() == title.toLowerCase() &&
+          strat.id != _isEditId,
     );
-    if (isDuplicate) return;
+    if (isDuplicate) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Diese Strategie existiert bereits.')),
+      );
+      return;
+    }
 
     final notifier = ref.read(settingsViewModelProvider.notifier);
-    await notifier.addStrategy(
-      title,
-      _strategyExplanationController.text.trim(),
-    );
+
+    if (_isEditId.isNotEmpty) {
+      await notifier.updateStrategy(
+        LearningStrategyModel(
+          title: title,
+          explanation: _strategyExplanationController.text.trim(),
+        ),
+        int.parse(_isEditId),
+      );
+    } else {
+      await notifier.addStrategy(
+        title,
+        _strategyExplanationController.text.trim(),
+      );
+    }
 
     _strategyTitleController.clear();
     _strategyExplanationController.clear();
+    setState(() {
+      _isEditId = '';
+    });
   }
 
   @override
@@ -89,6 +119,7 @@ class _LearningStrategySettingsScreenState
                       'Lernstrategien',
                       style: context.textTheme.headlineMedium,
                     ),
+
                     AnimatedSize(
                       duration: const Duration(milliseconds: 300),
                       curve: Curves.easeInOut,
@@ -106,6 +137,64 @@ class _LearningStrategySettingsScreenState
                   ],
                 ),
 
+                if (strategies.length < 15 && _isEditMode)
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Füge eine Strategie hinzu',
+                            style: context.textTheme.labelLarge,
+                          ),
+                          const VerticalSpace(size: SpaceSize.small),
+
+                          CustomTextField(
+                            hintText: 'Titel der Strategie',
+                            controller: _strategyTitleController,
+                          ),
+
+                          const VerticalSpace(
+                            size: SpaceSize.small,
+                          ),
+
+                          CustomTextField(
+                            hintText: 'Optional: Erklärung der Strategie',
+                            controller: _strategyExplanationController,
+                            maxLength: 200,
+                          ),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              AnimatedOpacity(
+                                duration: const Duration(milliseconds: 200),
+                                opacity:
+                                    _strategyTitleController.text.trim() != ''
+                                    ? 1.0
+                                    : 0.0,
+                                child: IconButton(
+                                  color: context.colorScheme.primary,
+                                  onPressed:
+                                      _strategyTitleController.text.trim() != ''
+                                      ? () async {
+                                          await _addCustomStrategy();
+                                          if (!context.mounted) return;
+                                          FocusScope.of(context).unfocus();
+                                        }
+                                      : null,
+                                  icon: const Icon(Icons.save_as_outlined),
+                                  tooltip: 'Speichern',
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                 const VerticalSpace(),
 
                 ListView.builder(
@@ -114,6 +203,9 @@ class _LearningStrategySettingsScreenState
                   itemCount: state.learningStrategies?.length ?? 0,
                   itemBuilder: (context, index) {
                     final strat = state.learningStrategies![index];
+
+                    if (strat.id == _isEditId) return const SizedBox.shrink();
+
                     return _StrategyTile(
                       strat: strat,
                       isEditMode: _isEditMode,
@@ -124,6 +216,7 @@ class _LearningStrategySettingsScreenState
                               strat.id!,
                             ),
                           ),
+                      onEdit: () => _editStrategy(strat),
                     );
                   },
                 ),
@@ -131,58 +224,6 @@ class _LearningStrategySettingsScreenState
             ),
 
             const VerticalSpace(),
-
-            if (strategies.length < 15)
-              buildSection(
-                context: context,
-                title: 'Strategie hinzufügen',
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        CustomTextField(
-                          hintText: 'Titel der Strategie',
-                          controller: _strategyTitleController,
-                        ),
-
-                        const VerticalSpace(),
-                        CustomTextField(
-                          hintText: 'Optional: Erklärung der Strategie',
-                          controller: _strategyExplanationController,
-                          maxLength: 100,
-                        ),
-
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            AnimatedOpacity(
-                              duration: const Duration(milliseconds: 200),
-                              opacity:
-                                  _strategyTitleController.text.trim() != ''
-                                  ? 1.0
-                                  : 0.0,
-                              child: IconButton(
-                                color: context.colorScheme.primary,
-                                onPressed:
-                                    _strategyTitleController.text.trim() != ''
-                                    ? () async {
-                                        await _addCustomStrategy();
-                                        if (!context.mounted) return;
-                                        FocusScope.of(context).unfocus();
-                                      }
-                                    : null,
-                                icon: const Icon(Icons.save_as_outlined),
-                                tooltip: 'Speichern',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
           ],
         ),
       ),
@@ -195,11 +236,13 @@ class _StrategyTile extends StatefulWidget {
     required this.strat,
     required this.isEditMode,
     required this.onDelete,
+    required this.onEdit,
   });
 
   final LearningStrategyModel strat;
   final bool isEditMode;
   final VoidCallback onDelete;
+  final VoidCallback onEdit;
 
   @override
   State<_StrategyTile> createState() => _StrategyTileState();
@@ -211,7 +254,8 @@ class _StrategyTileState extends State<_StrategyTile> {
   @override
   Widget build(BuildContext context) {
     final hasExplanation =
-        widget.strat.explanation != '' || widget.strat.explanation == null;
+        widget.strat.explanation == null ||
+        widget.strat.explanation!.isNotEmpty;
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -227,16 +271,30 @@ class _StrategyTileState extends State<_StrategyTile> {
                   widget.strat.title,
                   style: context.textTheme.labelLarge,
                 ),
-                // Show delete button or expansion button depending on mode
+                // Show delete/edit button or expansion button depending on mode
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
                   child: widget.isEditMode
-                      ? IconButton(
-                          icon: const Icon(
-                            Icons.delete_outline,
-                            color: Colors.red,
-                          ),
-                          onPressed: widget.onDelete,
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.mode_edit_outline_outlined,
+                                color: AppPalette.blue,
+                              ),
+                              onPressed: widget.onEdit,
+                            ),
+
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete_outline,
+                                color: AppPalette.red,
+                              ),
+                              onPressed: widget.onDelete,
+                            ),
+                          ],
                         )
                       : (hasExplanation
                             ? IconButton(
@@ -256,7 +314,7 @@ class _StrategyTileState extends State<_StrategyTile> {
 
             AnimatedSize(
               duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
+              curve: Curves.ease,
               child: _isExpanded && hasExplanation && !widget.isEditMode
                   ? Padding(
                       padding: const EdgeInsets.only(top: 4),
