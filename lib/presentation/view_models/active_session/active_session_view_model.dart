@@ -10,6 +10,7 @@ import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/live_activity_service.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/focus_prompter.dart';
+import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 import 'package:vibration/vibration.dart';
 
 part 'active_session_view_model.g.dart';
@@ -112,6 +113,15 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
               allOriginalTasks: tasks,
             );
           });
+
+      // If we set automatic start in the options, directly start the timer!
+      if (ref
+          .read(
+            settingsViewModelProvider,
+          )
+          .timerStartsAutomatically) {
+        unawaited(startTimer());
+      }
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString(), isLoading: false);
     }

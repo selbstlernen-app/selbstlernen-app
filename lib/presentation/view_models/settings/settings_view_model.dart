@@ -39,6 +39,8 @@ class SettingsViewModel extends _$SettingsViewModel {
       isDarkMode: _manageSettingsUseCase.getDarkMode(),
       followSystem: _manageSettingsUseCase.getFollowSystem(),
       primaryColor: _manageSettingsUseCase.getPrimaryColor() ?? AppPalette.sky,
+      timerStartsAutomatically: _manageSettingsUseCase
+          .getTimerStartsAutomatically(),
     );
   }
 
@@ -68,6 +70,14 @@ class SettingsViewModel extends _$SettingsViewModel {
     await _manageSettingsUseCase.toggleFollowSystem();
     state = state.copyWith(
       followSystem: _manageSettingsUseCase.getFollowSystem(),
+    );
+  }
+
+  Future<void> toggleTimerAutomaticallyStarted() async {
+    await _manageSettingsUseCase.setTimerStartsAutomatically();
+    state = state.copyWith(
+      timerStartsAutomatically: _manageSettingsUseCase
+          .getTimerStartsAutomatically(),
     );
   }
 

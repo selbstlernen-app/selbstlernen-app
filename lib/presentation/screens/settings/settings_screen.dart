@@ -4,6 +4,7 @@ import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/settings/pages/notification_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/theme_settings_screen.dart';
+import 'package:srl_app/presentation/screens/settings/pages/timer_settings_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -31,6 +32,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
+  Future<void> _navigateToTimerSettings(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (context) => const TimerSettingsScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,10 +58,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               const VerticalSpace(),
 
               _buildSectionTile(
-                title: 'Aussehen',
-                icon: Icons.palette_outlined,
-                subtitle: 'Farbe und Darstellung anpassen',
-                onTap: () => _navigateToThemeSettings(context),
+                title: 'Benachrichtigungen',
+                icon: Icons.notifications_active_outlined,
+                subtitle: 'Benachrichtigungen anpassen und konfigurieren',
+                onTap: () => _navigateToNotificationSettings(context),
               ),
 
               const VerticalSpace(
@@ -59,10 +69,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
 
               _buildSectionTile(
-                title: 'Benachrichtigungen',
-                icon: Icons.notifications_active_outlined,
-                subtitle: 'Benachrichtigungen anpassen und konfigurieren',
+                title: 'Lernstrategien',
+                icon: Icons.document_scanner_outlined,
+                subtitle: 'Lernstrategien anpassen und konfigurieren',
                 onTap: () => _navigateToNotificationSettings(context),
+              ),
+
+              const VerticalSpace(
+                size: SpaceSize.xsmall,
+              ),
+
+              _buildSectionTile(
+                title: 'Timer',
+                icon: Icons.timer_outlined,
+                subtitle: 'Timer-Einstellungen anpassen und konfigurieren',
+                onTap: () => _navigateToTimerSettings(context),
+              ),
+
+              const VerticalSpace(
+                size: SpaceSize.xsmall,
+              ),
+
+              _buildSectionTile(
+                title: 'Aussehen',
+                icon: Icons.palette_outlined,
+                subtitle: 'Farbe und Darstellung anpassen',
+                onTap: () => _navigateToThemeSettings(context),
               ),
             ],
           ),

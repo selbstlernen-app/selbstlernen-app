@@ -9,6 +9,7 @@ class ManageSettingsUseCase {
   bool getDarkMode() => _repository.isDarkMode;
   bool getFollowSystem() => _repository.followSystem;
   Color? getPrimaryColor() => _repository.primaryColor;
+  bool getTimerStartsAutomatically() => _repository.timerStartsAutomatically;
 
   // Toggle dark mode
   Future<void> toggleDarkMode() async {
@@ -26,5 +27,10 @@ class ManageSettingsUseCase {
   // Change primary color
   Future<void> setPrimaryColor(Color color) async {
     await _repository.setPrimaryColor(color);
+  }
+
+  Future<void> setTimerStartsAutomatically() async {
+    final current = _repository.timerStartsAutomatically;
+    await _repository.setTimerStartsAutomatically(value: !current);
   }
 }

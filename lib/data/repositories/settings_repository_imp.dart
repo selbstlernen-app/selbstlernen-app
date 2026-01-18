@@ -10,6 +10,7 @@ class SettingsRepositoryImp implements SettingsRepository {
   static const _darkModeKey = 'dark_mode';
   static const _followSystemKey = 'follow_system';
   static const _primaryColorKey = 'primary_color';
+  static const _timerStartsAutomaticallyKey = 'timer_starts_automatically';
 
   // Getters
   @override
@@ -23,6 +24,10 @@ class SettingsRepositoryImp implements SettingsRepository {
     final colorValue = _prefs.getInt(_primaryColorKey);
     return colorValue != null ? Color(colorValue) : null;
   }
+
+  @override
+  bool get timerStartsAutomatically =>
+      _prefs.getBool(_timerStartsAutomaticallyKey) ?? false;
 
   // Setters
   @override
@@ -42,6 +47,11 @@ class SettingsRepositoryImp implements SettingsRepository {
     } else {
       await _prefs.remove(_primaryColorKey);
     }
+  }
+
+  @override
+  Future<void> setTimerStartsAutomatically({required bool value}) async {
+    await _prefs.setBool(_timerStartsAutomaticallyKey, value);
   }
 
   @override
