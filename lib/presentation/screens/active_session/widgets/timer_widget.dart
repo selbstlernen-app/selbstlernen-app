@@ -223,6 +223,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                     isActive: true,
                   )
                 else
+                  // If not set automatically starting, show "Starten" explicitly
                   AnimatedSize(
                     duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,

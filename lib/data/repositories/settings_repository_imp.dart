@@ -27,7 +27,7 @@ class SettingsRepositoryImp implements SettingsRepository {
 
   @override
   bool get timerStartsAutomatically =>
-      _prefs.getBool(_timerStartsAutomaticallyKey) ?? false;
+      _prefs.getBool(_timerStartsAutomaticallyKey) ?? true;
 
   // Setters
   @override
