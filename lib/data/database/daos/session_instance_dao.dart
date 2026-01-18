@@ -86,7 +86,7 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Delete a session instance
-  Future<int> deleteInstance(int id) {
+  Future<int> deleteInstance(int id) async {
     return (delete(
       sessionInstances,
     )..where(($SessionInstancesTable t) => t.id.equals(id))).go();

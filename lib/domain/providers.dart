@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/services/add_session_service.dart';
+import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_notifications_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_settings_use_case.dart';
 import 'package:srl_app/domain/usecases/session/get_general_statistics_use_case.dart';
@@ -128,5 +129,12 @@ ManageSettingsUseCase manageSettingsUseCase(Ref ref) {
 ManageNotificationsUseCase manageNotificationsUseCase(Ref ref) {
   return ManageNotificationsUseCase(
     ref.watch(notificationsRepositoryProvider),
+  );
+}
+
+@riverpod
+ManageLearningStrategyUseCase manageLearningStrategyUseCase(Ref ref) {
+  return ManageLearningStrategyUseCase(
+    ref.watch(strategyRepositoryProvider),
   );
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
-import 'package:srl_app/common_widgets/custom_add_item_field.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/domain/models/learning_strategy_model.dart';
+import 'package:srl_app/presentation/screens/settings/pages/learning_strategy_settings_screen.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class StrategyPage extends ConsumerStatefulWidget {
@@ -15,7 +16,6 @@ class StrategyPage extends ConsumerStatefulWidget {
 }
 
 class _StrategyPageState extends ConsumerState<StrategyPage> {
-  bool _showInput = false;
   late TextEditingController _strategyController;
 
   @override
@@ -30,13 +30,15 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
     super.dispose();
   }
 
-  void _addCustomStrategy() {
-    final newStrategy = _strategyController.text.trim();
-    if (newStrategy.isEmpty) return;
-
-    ref.read(addSessionViewModelProvider.notifier).addStrategy(newStrategy);
-
-    _strategyController.clear();
+  Future<void> _navigateToLearningStrategiesSettings(
+    BuildContext context,
+  ) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (context) => const LearningStrategySettingsScreen(),
+      ),
+    );
   }
 
   @override
@@ -64,28 +66,28 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                 Wrap(
                   runSpacing: 8,
                   children: <Widget>[
-                    ...state.availableStrategies.map(
-                      (String strategy) => SizedBox(
+                    ...?state.availableStrategies?.map(
+                      (LearningStrategyModel strategy) => SizedBox(
                         // Padding * 2 = 48
                         width: (context.mediaQuery.size.width - 48) / 2,
                         child: GestureDetector(
                           onTap: () => ref
                               .read(addSessionViewModelProvider.notifier)
-                              .toggleStrategy(strategy),
+                              .toggleStrategy(strategy.title),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: <Widget>[
                               Checkbox(
                                 value: state.learningStrategies.contains(
-                                  strategy,
+                                  strategy.title,
                                 ),
                                 onChanged: (_) => ref
                                     .read(addSessionViewModelProvider.notifier)
-                                    .toggleStrategy(strategy),
+                                    .toggleStrategy(strategy.title),
                               ),
                               Flexible(
                                 child: Text(
-                                  strategy,
+                                  strategy.title,
                                   style: context.textTheme.bodyLarge,
                                 ),
                               ),
@@ -98,25 +100,14 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                 ),
 
                 TextButton(
-                  onPressed: () => setState(() {
-                    _showInput = !_showInput;
-                  }),
+                  onPressed: () =>
+                      _navigateToLearningStrategiesSettings(context),
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.all(8),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: Text(_showInput ? 'Abbrechen' : 'Andere Strategien?'),
+                  child: const Text('Andere Strategien?'),
                 ),
-
-                if (_showInput) ...<Widget>[
-                  const VerticalSpace(size: SpaceSize.small),
-                  CustomAddItemField(
-                    onSubmitted: _addCustomStrategy,
-                    onPressed: _addCustomStrategy,
-                    controller: _strategyController,
-                    hintText: 'z.B. Notizen auf Papier machen',
-                  ),
-                ],
               ],
             ),
           ),

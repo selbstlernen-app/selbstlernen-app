@@ -5,6 +5,7 @@ import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
 import 'package:srl_app/notification_service.dart';
+import 'package:srl_app/presentation/screens/settings/widgets/build_section.dart';
 import 'package:srl_app/presentation/screens/settings/widgets/settings_tile.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
@@ -72,14 +73,6 @@ class _NotificationSettingsScreenState
     final state = ref.watch(settingsViewModelProvider);
     final notifier = ref.read(settingsViewModelProvider.notifier);
 
-    final motivationNotification = state.notificationSettings!
-        .where(
-          (n) => n.type == NotificationType.motivationalReminder,
-        )
-        .first;
-
-    final oldText = motivationNotification.customMessage;
-
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -91,7 +84,7 @@ class _NotificationSettingsScreenState
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            _buildSection(
+            buildSection(
               context: context,
               title: 'Benachrichtigungen',
               child: Column(
@@ -264,23 +257,6 @@ class _NotificationSettingsScreenState
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildSection({
-    required String title,
-    required Widget child,
-    required BuildContext context,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: context.textTheme.headlineMedium),
-
-        const VerticalSpace(),
-
-        child,
-      ],
     );
   }
 }

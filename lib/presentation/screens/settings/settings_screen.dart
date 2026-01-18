@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/presentation/screens/settings/pages/learning_strategy_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/notification_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/theme_settings_screen.dart';
+import 'package:srl_app/presentation/screens/settings/pages/timer_settings_screen.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -27,6 +29,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context,
       MaterialPageRoute<dynamic>(
         builder: (context) => const NotificationSettingsScreen(),
+      ),
+    );
+  }
+
+  Future<void> _navigateToTimerSettings(BuildContext context) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (context) => const TimerSettingsScreen(),
+      ),
+    );
+  }
+
+  Future<void> _navigateToLearningStrategiesSettings(
+    BuildContext context,
+  ) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (context) => const LearningStrategySettingsScreen(),
       ),
     );
   }
@@ -63,6 +85,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 icon: Icons.notifications_active_outlined,
                 subtitle: 'Benachrichtigungen anpassen und konfigurieren',
                 onTap: () => _navigateToNotificationSettings(context),
+              ),
+
+              const VerticalSpace(
+                size: SpaceSize.xsmall,
+              ),
+
+              _buildSectionTile(
+                title: 'Lernstrategien',
+                icon: Icons.document_scanner_outlined,
+                subtitle: 'Lernstrategien anpassen und konfigurieren',
+                onTap: () => _navigateToLearningStrategiesSettings(context),
+              ),
+
+              const VerticalSpace(
+                size: SpaceSize.xsmall,
+              ),
+
+              _buildSectionTile(
+                title: 'Timer',
+                icon: Icons.timer_outlined,
+                subtitle: 'Timer-Einstellungen anpassen und konfigurieren',
+                onTap: () => _navigateToTimerSettings(context),
+              ),
+
+              const VerticalSpace(
+                size: SpaceSize.xsmall,
               ),
             ],
           ),

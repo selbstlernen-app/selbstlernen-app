@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
@@ -11,6 +12,7 @@ import 'package:srl_app/notification_service.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
+import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
 class TimerWidget extends ConsumerStatefulWidget {
   const TimerWidget({required this.instanceId, super.key});
@@ -111,6 +113,8 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
       activeSessionViewModelProvider(widget.instanceId).notifier,
     );
 
+    final settingsState = ref.watch(settingsViewModelProvider);
+
     final totalDuration = _getPhaseDuration(state);
 
     /// If we count upwards, get the total seconds passed per phase,
@@ -201,20 +205,14 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                 ),
 
                 // Pause and continue
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  child: CustomIconButton(
+                if (settingsState.timerStartsAutomatically)
+                  CustomIconButton(
                     radius: 40,
                     icon:
                         (state.timerStatus == TimerStatus.paused ||
                             state.timerStatus == TimerStatus.initial)
                         ? const Icon(Icons.play_arrow_rounded)
                         : const Icon(Icons.pause_rounded),
-                    label: state.timerStatus == TimerStatus.initial
-                        ? 'Starten'
-                        : null,
-                    isActive: true,
                     onPressed: () async {
                       if (state.timerStatus == TimerStatus.running) {
                         await viewModel.pauseTimer();
@@ -222,8 +220,33 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                         await viewModel.startTimer();
                       }
                     },
+                    isActive: true,
+                  )
+                else
+                  // If not set automatically starting, show "Starten" explicitly
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: CustomIconButton(
+                      radius: 40,
+                      icon:
+                          (state.timerStatus == TimerStatus.paused ||
+                              state.timerStatus == TimerStatus.initial)
+                          ? const Icon(Icons.play_arrow_rounded)
+                          : const Icon(Icons.pause_rounded),
+                      label: state.timerStatus == TimerStatus.initial
+                          ? 'Starten'
+                          : null,
+                      isActive: true,
+                      onPressed: () async {
+                        if (state.timerStatus == TimerStatus.running) {
+                          await viewModel.pauseTimer();
+                        } else {
+                          await viewModel.startTimer();
+                        }
+                      },
+                    ),
                   ),
-                ),
 
                 // Skip phase
                 CustomIconButton(

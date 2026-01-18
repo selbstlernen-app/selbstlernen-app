@@ -4,29 +4,46 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/domain/providers.dart';
+import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
 
 part 'session_statistics_view_model.g.dart';
 
 @riverpod
 class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
+  late final GetInstanceUseCase _getInstanceUseCase;
+  StreamSubscription<dynamic>? _instanceSubscription;
+
   @override
   SessionStatisticsState build(int sessionId) {
-    final subscription = ref
-        .watch(getInstanceUseCaseProvider)
-        .watchInstancesBySessionId(
-          sessionId,
-        )
-        .listen((_) {
-          // Whenever the database changes, refetch full stats
-          unawaited(_loadData());
-        });
+    _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
 
-    ref.onDispose(subscription.cancel);
+    ref.onDispose(() {
+      unawaited(_instanceSubscription?.cancel());
+    });
+
+    _subscribe();
 
     unawaited(_loadData());
 
     return const SessionStatisticsState();
+  }
+
+  void _subscribe() {
+    _instanceSubscription = _getInstanceUseCase
+        .watchInstancesBySessionId(sessionId)
+        .listen(
+          (List<SessionInstanceModel> instances) {
+            state = state.copyWith(
+              instances: instances,
+              isLoading: false,
+              error: null,
+            );
+          },
+          onError: (dynamic error) {
+            state = state.copyWith(error: error.toString(), isLoading: false);
+          },
+        );
   }
 
   Future<void> _loadData() async {
@@ -37,7 +54,6 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
         ref.read(manageSessionUseCaseProvider).getSessionById(sessionId),
         ref.read(manageGoalUseCaseProvider).getAllGoalsBySessionId(sessionId),
         ref.read(manageTasksUseCaseProvider).getAllTasksBySessionId(sessionId),
-        ref.read(getInstanceUseCaseProvider).getInstancesBySessionId(sessionId),
       ]);
 
       state = state.copyWith(
@@ -45,7 +61,6 @@ class SessionStatisticsViewModel extends _$SessionStatisticsViewModel {
         session: results[1] as SessionModel,
         totalGoals: (results[2] as List).length,
         totalTasks: (results[3] as List).length,
-        instances: results[4] as List<SessionInstanceModel>,
         isLoading: false,
         error: null,
       );

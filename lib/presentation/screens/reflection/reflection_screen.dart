@@ -69,8 +69,6 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
       reflectionViewModelProvider(widget.instance).notifier,
     );
 
-    print(reflectionState.totalTimeInBreak);
-
     return MainLayout(
       appBarTitle: 'Reflexion',
       content: Column(

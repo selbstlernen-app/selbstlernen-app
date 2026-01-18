@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
+import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
+import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/screens/add_session/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
@@ -11,12 +15,40 @@ part 'add_session_view_model.g.dart';
 @riverpod
 class AddSessionViewModel extends _$AddSessionViewModel {
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
+  late final ManageLearningStrategyUseCase _manageLearningStrategyUseCase;
+
+  StreamSubscription<dynamic>? _strategySubscription;
 
   @override
   AddSessionState build() {
     _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
+    _manageLearningStrategyUseCase = ref.watch(
+      manageLearningStrategyUseCaseProvider,
+    );
+
+    ref.onDispose(() {
+      unawaited(_strategySubscription?.cancel());
+    });
+
+    _subscribe();
 
     return const AddSessionState();
+  }
+
+  void _subscribe() {
+    _strategySubscription = _manageLearningStrategyUseCase
+        .watchLearningStrategies()
+        .listen(
+          (List<LearningStrategyModel> strategies) {
+            state = state.copyWith(
+              availableStrategies: strategies,
+              isLoading: false,
+            );
+          },
+          onError: (dynamic error) {
+            state = state.copyWith(isLoading: false);
+          },
+        );
   }
 
   // Basic info
@@ -130,22 +162,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(tasks: tasks);
   }
 
-  // TODO: needs re-work!!
-  void addStrategy(String strategy) {
-    final cleanStrategy = strategy.trim();
-    if (cleanStrategy.isEmpty) return;
-
-    state = state.copyWith(
-      // Adds to the selection if not there
-      learningStrategies: {...state.learningStrategies, cleanStrategy}.toList(),
-      // Adds to the history/available list
-      availableStrategies: {
-        ...state.availableStrategies,
-        cleanStrategy,
-      }.toList(),
-    );
-  }
-
   void toggleStrategy(String strategy) {
     final updated = List<String>.from(state.learningStrategies);
 
@@ -210,10 +226,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       goals: fullSessionModel.goals,
       tasks: fullSessionModel.tasks,
       learningStrategies: session.learningStrategies,
-      availableStrategies: {
-        ...session.learningStrategies,
-        ...state.availableStrategies,
-      }.toList(),
       focusTimeMin: session.focusTimeMin,
       breakTimeMin: session.breakTimeMin,
       longBreakTimeMin: session.longBreakTimeMin,

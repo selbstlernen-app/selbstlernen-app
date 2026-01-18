@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 
 part 'add_session_state.freezed.dart';
@@ -24,15 +25,7 @@ abstract class AddSessionState with _$AddSessionState {
 
     // Strategies
     @Default(<String>[]) List<String> learningStrategies,
-    @Default(<String>[
-      'Mind-map erstellen',
-      'Mit Freunden besprechen',
-      'Notizen machen',
-      'Neu-lesen',
-      'Wiederholen',
-      'Karteikarten erstellen',
-    ])
-    List<String> availableStrategies,
+    List<LearningStrategyModel>? availableStrategies,
 
     // Time
     @Default(true) bool isSimpleTimer,
@@ -56,6 +49,7 @@ abstract class AddSessionState with _$AddSessionState {
 
     // Edit mode
     @Default(false) bool isEditMode,
+    @Default(true) bool isLoading,
   }) = _AddSessionState;
   const AddSessionState._();
 

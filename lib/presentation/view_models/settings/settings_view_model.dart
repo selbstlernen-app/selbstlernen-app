@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
+import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
 import 'package:srl_app/domain/providers.dart';
+import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_notifications_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_settings_use_case.dart';
 import 'package:srl_app/notification_service.dart';
@@ -17,8 +19,10 @@ part 'settings_view_model.g.dart';
 class SettingsViewModel extends _$SettingsViewModel {
   late final ManageSettingsUseCase _manageSettingsUseCase;
   late final ManageNotificationsUseCase _manageNotificationsUseCase;
+  late final ManageLearningStrategyUseCase _manageLearningStrategyUseCase;
 
   StreamSubscription<dynamic>? _notificationSubscription;
+  StreamSubscription<dynamic>? _strategySubscription;
 
   @override
   SettingsState build() {
@@ -26,19 +30,25 @@ class SettingsViewModel extends _$SettingsViewModel {
       manageSettingsUseCaseProvider,
     );
     _manageNotificationsUseCase = ref.watch(manageNotificationsUseCaseProvider);
+    _manageLearningStrategyUseCase = ref.watch(
+      manageLearningStrategyUseCaseProvider,
+    );
 
     ref.onDispose(() {
       unawaited(_notificationSubscription?.cancel());
+      unawaited(_strategySubscription?.cancel());
     });
 
-    unawaited(checkPermission());
-
     _subscribe();
+
+    unawaited(checkPermission());
 
     return SettingsState(
       isDarkMode: _manageSettingsUseCase.getDarkMode(),
       followSystem: _manageSettingsUseCase.getFollowSystem(),
       primaryColor: _manageSettingsUseCase.getPrimaryColor() ?? AppPalette.sky,
+      timerStartsAutomatically: _manageSettingsUseCase
+          .getTimerStartsAutomatically(),
     );
   }
 
@@ -56,6 +66,34 @@ class SettingsViewModel extends _$SettingsViewModel {
             state = state.copyWith(error: error.toString(), isLoading: false);
           },
         );
+
+    _strategySubscription = _manageLearningStrategyUseCase
+        .watchLearningStrategies()
+        .listen(
+          (List<LearningStrategyModel> strategies) {
+            state = state.copyWith(
+              learningStrategies: strategies,
+              isLoading: false,
+            );
+          },
+          onError: (dynamic error) {
+            state = state.copyWith(error: error.toString(), isLoading: false);
+          },
+        );
+  }
+
+  Future<void> addStrategy(String title, String? explanation) async {
+    await _manageLearningStrategyUseCase.addLearningStrategy(
+      LearningStrategyModel(title: title, explanation: explanation),
+    );
+  }
+
+  Future<void> deleteStrategy(int id) async {
+    await _manageLearningStrategyUseCase.deleteLearningStrategy(id);
+  }
+
+  Future<void> updateStrategy(LearningStrategyModel model, int id) async {
+    await _manageLearningStrategyUseCase.updateLearningStrategy(model, id);
   }
 
   // UI/Theming Settings
@@ -68,6 +106,14 @@ class SettingsViewModel extends _$SettingsViewModel {
     await _manageSettingsUseCase.toggleFollowSystem();
     state = state.copyWith(
       followSystem: _manageSettingsUseCase.getFollowSystem(),
+    );
+  }
+
+  Future<void> toggleTimerAutomaticallyStarted() async {
+    await _manageSettingsUseCase.setTimerStartsAutomatically();
+    state = state.copyWith(
+      timerStartsAutomatically: _manageSettingsUseCase
+          .getTimerStartsAutomatically(),
     );
   }
 
@@ -93,7 +139,8 @@ class SettingsViewModel extends _$SettingsViewModel {
     // Cancel all (pending) notifications
     await NotificationService().cancelAllNotifications();
 
-    // Disable all notifications (visually -> since permissions already turned off anyway)
+    // Disable all notifications
+    // (visually -> since permissions already turned off anyway)
     final disabledSettings = state.notificationSettings
         ?.map(
           (n) => n.copyWith(enabled: false),
