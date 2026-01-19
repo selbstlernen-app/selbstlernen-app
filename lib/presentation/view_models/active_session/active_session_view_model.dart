@@ -372,7 +372,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     switch (state.currentPhase) {
       case SessionPhase.focus:
         focus++;
-      case (SessionPhase.shortBreak || SessionPhase.longBreak):
+      case SessionPhase.shortBreak:
+      case SessionPhase.longBreak:
         breakTime++;
     }
 
