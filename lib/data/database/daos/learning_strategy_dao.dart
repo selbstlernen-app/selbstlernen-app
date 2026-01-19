@@ -2,7 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/data/database/tables/learning_strategy_table.dart';
 
-part 'strategy_dao.g.dart';
+part 'learning_strategy_dao.g.dart';
 
 @DriftAccessor(tables: <Type>[LearningStrategies])
 class LearningStrategyDao extends DatabaseAccessor<AppDatabase>
