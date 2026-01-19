@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 // Filter chip used for filtering out sessions; used on home and general stats screen

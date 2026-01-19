@@ -38,7 +38,7 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
       .toList();
 
   double _calcAverage(List<SessionInstanceModel> instances, bool isGoal) {
-    if (instances.isEmpty) return 0.0;
+    if (instances.isEmpty) return 0;
     final total = instances.fold<double>(
       0,
       (sum, i) => sum + (isGoal ? i.completedGoalsRate : i.completedTasksRate),

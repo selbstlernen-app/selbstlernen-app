@@ -320,9 +320,9 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
       final hours = totalMins ~/ 60;
       final mins = totalMins % 60;
 
-      return Text('Gesamtzeit: ${hours}h ${mins} min');
+      return Text('Gesamtzeit: ${hours}h $mins min');
     } else {
-      return Text('Gesamtzeit: ${totalMins} min');
+      return Text('Gesamtzeit: $totalMins min');
     }
   }
 }

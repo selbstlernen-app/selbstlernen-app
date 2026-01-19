@@ -5,9 +5,7 @@ part 'learning_strategy_model.freezed.dart';
 @freezed
 abstract class LearningStrategyModel with _$LearningStrategyModel {
   const factory LearningStrategyModel({
-    String? id,
-
-    required String title,
+    required String title, String? id,
     String? explanation,
   }) = _LearningStrategyModel;
 }
