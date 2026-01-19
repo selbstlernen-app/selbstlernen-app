@@ -1,13 +1,10 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
-import 'package:srl_app/notification_service.dart';
+import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
@@ -30,43 +27,37 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
     _lifecycleListener = AppLifecycleListener(
       onDetach: () {
-        FlutterBackgroundService().invoke('stop');
+        ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
       },
-      onStateChange: (state) async {
+      onStateChange: (lifecycleState) async {
         if (!mounted) return;
 
         final notifier = ref.read(
           activeSessionViewModelProvider(widget.instanceId).notifier,
         );
+        final repo = ref.read(settingsRepositoryProvider);
 
         if (ref
                 .read(activeSessionViewModelProvider(widget.instanceId))
                 .timerStatus ==
             TimerStatus.running) {
-          if (state == AppLifecycleState.paused) {
-            // Both platforms save timestamp on leave
-            notifier.updateTimestamp(DateTime.now());
-
-            final updatedState = ref.read(
+          if (lifecycleState == AppLifecycleState.paused ||
+              lifecycleState == AppLifecycleState.detached) {
+            final currentState = ref.read(
               activeSessionViewModelProvider(widget.instanceId),
             );
 
-            // Show notification on Android
-            if (Platform.isAndroid) {
-              FlutterBackgroundService().invoke('setTimer', {
-                'seconds': updatedState.remainingSeconds,
-              });
-              FlutterBackgroundService().invoke('showNotification');
-            }
-          } else if (state == AppLifecycleState.resumed) {
-            // Both platoforms sync timer based on last recorded timestamp
-            await notifier.syncTimerAfterBackground();
+            // Both platforms save timestamp on leave
+            final targetEndTime = DateTime.now().add(
+              Duration(seconds: currentState.remainingSeconds),
+            );
 
-            // Hide notification on Android
-            if (Platform.isAndroid) {
-              FlutterBackgroundService().invoke('hideNotification');
+            repo.setTimerEndTimestamp(targetEndTime);
+          } else if (lifecycleState == AppLifecycleState.resumed) {
+            // Both platoforms sync timer based on last recorded timestamp
+            if (repo.timerEndTimestamp != null) {
+              await notifier.syncTimerAfterBackground();
             }
-            await NotificationService().cancelTimerEnd();
           }
         }
       },

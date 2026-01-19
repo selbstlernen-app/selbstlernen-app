@@ -12,6 +12,8 @@ class SettingsRepositoryImp implements SettingsRepository {
   static const _primaryColorKey = 'primary_color';
   static const _timerStartsAutomaticallyKey = 'timer_starts_automatically';
 
+  static const _timerEndKey = 'timer_end_timestamp';
+
   // Getters
   @override
   bool get isDarkMode => _prefs.getBool(_darkModeKey) ?? false;
@@ -28,6 +30,12 @@ class SettingsRepositoryImp implements SettingsRepository {
   @override
   bool get timerStartsAutomatically =>
       _prefs.getBool(_timerStartsAutomaticallyKey) ?? true;
+
+  @override
+  DateTime? get timerEndTimestamp {
+    final iso = _prefs.getString(_timerEndKey);
+    return iso != null ? DateTime.tryParse(iso) : null;
+  }
 
   // Setters
   @override
@@ -52,6 +60,15 @@ class SettingsRepositoryImp implements SettingsRepository {
   @override
   Future<void> setTimerStartsAutomatically({required bool value}) async {
     await _prefs.setBool(_timerStartsAutomaticallyKey, value);
+  }
+
+  @override
+  Future<void> setTimerEndTimestamp(DateTime? timestamp) async {
+    if (timestamp == null) {
+      await _prefs.remove(_timerEndKey);
+    } else {
+      await _prefs.setString(_timerEndKey, timestamp.toIso8601String());
+    }
   }
 
   @override

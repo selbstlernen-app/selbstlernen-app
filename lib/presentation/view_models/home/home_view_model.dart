@@ -42,7 +42,6 @@ class HomeViewModel extends _$HomeViewModel {
   }
 
   void _subscribe() {
-    _sessionsSubscription?.cancel();
     _sessionsSubscription = _getSessionsUseCase
         .call(DateTime.now())
         .listen(

@@ -1,13 +1,9 @@
 import 'dart:async';
-import 'dart:io';
-
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:srl_app/core/utils/notification_utils.dart';
+import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
-import 'package:srl_app/live_activity_service.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/focus_prompter.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
@@ -15,7 +11,7 @@ import 'package:vibration/vibration.dart';
 
 part 'active_session_view_model.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   late final ManageGoalUseCase _manageGoalUseCase;
   late final ManageTasksUseCase _manageTasksUseCase;
@@ -283,61 +279,19 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   // ---- TIMER RELATED ----
-  void _setupBackgroundListeners() {
-    FlutterBackgroundService().on('update').listen((event) {
-      if (event != null && state.timerStatus == TimerStatus.running) {
-        // Sync background time to UI state
-        final bgSeconds = event['remainingSeconds'] as int;
-
-        // Only update if there is a discrepancy to avoid loop jitters
-        if ((state.remainingSeconds - bgSeconds).abs() > 1) {
-          state = state.copyWith(remainingSeconds: bgSeconds);
-        }
-      }
-    });
-
-    FlutterBackgroundService().on('finished').listen((_) {
-      _handlePhaseComplete();
-    });
-  }
-
   Future<void> startTimer() async {
+    if (_timer?.isActive ?? false) return;
+
     // In case of double taps
     if (state.timerStatus == TimerStatus.running) return;
 
-    final service = FlutterBackgroundService();
-
-    if (!(await service.isRunning())) {
-      await service.startService();
-    }
-
-    // Tells background service the remaining seconds to start with
-    service
-      ..invoke('setTimer', {'seconds': state.remainingSeconds})
-      ..invoke('start');
-
-    // Tell iOS live activity to start
-    if (Platform.isIOS) {
-      await ref
-          .read(liveActivityServiceProvider.notifier)
-          .start(
-            secondsRemaining: state.remainingSeconds,
-            title: NotificationUtils.getPhaseLabel(state.currentPhase),
-          );
-    }
-
-    if (state.timerStatus == TimerStatus.initial) {
-      state = state.copyWith(
-        timerStatus: TimerStatus.running,
-      );
-      startFocusPrompting(); // Start focus prompt when timer has been started
-    } else if (state.timerStatus == TimerStatus.paused) {
-      state = state.copyWith(timerStatus: TimerStatus.running);
-    }
+    state = state.copyWith(
+      timerStatus: TimerStatus.running,
+    );
+    // Start focus prompt when timer has been started
+    startFocusPrompting();
 
     _timer?.cancel();
-    _timer = null;
-
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       unawaited(_tick());
     });
@@ -346,11 +300,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> pauseTimer() async {
     _timer?.cancel();
 
-    // Stop background task
-    FlutterBackgroundService().invoke('stop');
-    if (Platform.isIOS) {
-      await ref.read(liveActivityServiceProvider.notifier).stop();
-    }
+    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
 
     _focusPrompter?.stopPrompting();
     state = state.copyWith(timerStatus: TimerStatus.paused);
@@ -473,28 +423,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       _focusPrompter?.stopPrompting();
     }
 
-    // Sync the background notification label
-    final label = NotificationUtils.getPhaseLabel(phase);
-    final subtitle = NotificationUtils.getSubtitle(phase);
-
-    // Refresh background service with updated values; start again for new phase
-    FlutterBackgroundService().invoke('updatePhase', {
-      'title': label,
-      'subtitle': subtitle,
-    });
-    FlutterBackgroundService().invoke('setTimer', {'seconds': durationSeconds});
-    FlutterBackgroundService().invoke('start');
-
-    // Update the existing live activity with new phase info
-    if (Platform.isIOS) {
-      await ref
-          .read(liveActivityServiceProvider.notifier)
-          .update(
-            secondsRemaining: durationSeconds,
-            title: NotificationUtils.getPhaseLabel(phase),
-          );
-    }
-
     if (!isSyncMode) {
       await _autoSave();
     }
@@ -512,42 +440,52 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
   }
 
-  void updateTimestamp(DateTime timestamp) {
-    state = state.copyWith(lastActiveTimestamp: timestamp);
-  }
-
   Future<void> syncTimerAfterBackground() async {
-    if (state.lastActiveTimestamp != null &&
-        state.timerStatus == TimerStatus.running) {
-      final secondsGone = DateTime.now()
-          .difference(state.lastActiveTimestamp!)
-          .inSeconds;
-      var remainingCatchup = secondsGone;
-
-      while (remainingCatchup > 0) {
-        if (!ref.mounted) return;
-
-        // Case 1: Time remaining is within current phase
-        if (remainingCatchup < state.remainingSeconds) {
-          _syncTotals(remainingCatchup);
-
-          state = state.copyWith(
-            remainingSeconds: state.remainingSeconds - remainingCatchup,
-            currentPhaseElapsed: state.currentPhaseElapsed + remainingCatchup,
-            lastActiveTimestamp: null,
-          );
-
-          remainingCatchup = 0;
-        } else {
-          // Case 2: Time exceeds current phase, move to the next one(s)
-          remainingCatchup -= state.remainingSeconds;
-          _syncTotals(state.remainingSeconds);
-          await _handlePhaseComplete(isSynching: true);
-        }
-      }
-      // Perform a single save to the db after returning
-      await _autoSave();
+    final targetEndTime = ref
+        .read(settingsRepositoryProvider)
+        .timerEndTimestamp;
+    if (targetEndTime == null || state.timerStatus != TimerStatus.running) {
+      return;
     }
+
+    final now = DateTime.now();
+    if (now.isBefore(targetEndTime)) {
+      // Still in the same phase; no need to handle difference much
+      state = state.copyWith(
+        remainingSeconds: targetEndTime.difference(now).inSeconds,
+      );
+      return;
+    }
+
+    var remainingCatchup = now.difference(targetEndTime).inSeconds;
+
+    // Set the new target end time for the phase we currently are in
+    final newTarget = DateTime.now().add(
+      Duration(seconds: state.remainingSeconds),
+    );
+    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(newTarget);
+
+    while (remainingCatchup > 0) {
+      if (!ref.mounted) return;
+
+      if (remainingCatchup < state.remainingSeconds) {
+        // Case 1: We land inside the CURRENT phase
+        _syncTotals(remainingCatchup);
+        state = state.copyWith(
+          remainingSeconds: state.remainingSeconds - remainingCatchup,
+          currentPhaseElapsed: state.currentPhaseElapsed + remainingCatchup,
+        );
+        remainingCatchup = 0;
+      } else {
+        // Case 2: The current phase is definitely finished
+        remainingCatchup -= state.remainingSeconds;
+        _syncTotals(state.remainingSeconds);
+
+        await _handlePhaseComplete(isSynching: true);
+      }
+    }
+
+    await _autoSave();
   }
 
   // Helper to sync the total values and correct statistics
@@ -632,6 +570,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     required List<String> taskIdsToDelete,
   }) async {
     if (state.instance == null) return state.instance!;
+
+    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
 
     try {
       // Delete selected tasks and goals
