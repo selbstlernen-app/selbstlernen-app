@@ -17,8 +17,8 @@ ManageSessionUseCase manageSessionUseCase(Ref ref) {
 }
 
 @riverpod
-GetSessionsForTodayUseCase getSessionsForTodayUseCase(Ref ref) {
-  return GetSessionsForTodayUseCase(
+GetSessionsForDateUseCase getSessionsForDateUseCase(Ref ref) {
+  return GetSessionsForDateUseCase(
     ref.watch(sessionRepositoryProvider),
     ref.watch(sessionInstanceRepositoryProvider),
   );

@@ -7,15 +7,15 @@ import 'package:srl_app/domain/models/session_with_instance_model.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 
-class GetSessionsForTodayUseCase {
-  GetSessionsForTodayUseCase(this._sessionRepo, this._instanceRepo);
+class GetSessionsForDateUseCase {
+  GetSessionsForDateUseCase(this._sessionRepo, this._instanceRepo);
 
   final SessionRepository _sessionRepo;
   final SessionInstanceRepository _instanceRepo;
 
   Stream<List<SessionWithInstanceModel>> call(DateTime date) {
     // Stream all active (non-archived) sessions
-    final sessionsStream = _sessionRepo.watchAllActiveSessions();
+    final sessionsStream = _sessionRepo.watchAllActiveSessionsForDate(date);
 
     // Stream instances for given date
     final instancesStream = _instanceRepo.watchAllInstancesForDate(date);

@@ -5,7 +5,7 @@ abstract class SessionRepository {
   // CRUD operations
   Future<List<SessionModel>> getAllSessions();
   Future<List<SessionModel>> getAllActiveSessions();
-  Stream<List<SessionModel>> watchAllActiveSessions();
+  Stream<List<SessionModel>> watchAllActiveSessionsForDate(DateTime day);
   Stream<List<SessionModel>> watchAllSessions();
   Future<SessionModel> getSessionById(int sessionId);
   Stream<SessionModel> watchSessionById(int sessionId);

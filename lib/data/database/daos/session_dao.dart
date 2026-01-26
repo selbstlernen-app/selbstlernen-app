@@ -30,10 +30,21 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
   }
 
   // Watch all sessions which not archived yet
-  Stream<List<Session>> watchAllActiveSessions() {
+  Stream<List<Session>> watchAllActiveSessionsForDate(DateTime today) {
     return (select(
-      sessions,
-    )..where(($SessionsTable s) => s.isArchived.equals(false))).watch();
+          sessions,
+        )..where(
+          ($SessionsTable s) =>
+              // Session is not archived
+              (s.isArchived.equals(false))
+              // Start date is not given (one-time session) or smaller than today
+              &
+              (s.startDate.isNull() | s.startDate.isSmallerOrEqualValue(today))
+              // End date is not given (one-time session) or larger than today
+              &
+              (s.endDate.isNull() | s.endDate.isBiggerOrEqualValue(today)),
+        ))
+        .watch();
   }
 
   // Get session by ID

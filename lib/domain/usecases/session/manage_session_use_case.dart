@@ -16,8 +16,8 @@ class ManageSessionUseCase {
   Stream<List<SessionModel>> watchAllSessions() =>
       repository.watchAllSessions();
 
-  Stream<List<SessionModel>> watchAllActiveSessions() =>
-      repository.watchAllActiveSessions();
+  Stream<List<SessionModel>> watchAllActiveSessionsForDate(DateTime day) =>
+      repository.watchAllActiveSessionsForDate(day);
 
   Future<SessionModel> getSessionById(int sessionId) =>
       repository.getSessionById(sessionId);

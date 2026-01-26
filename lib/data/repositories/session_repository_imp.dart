@@ -32,10 +32,12 @@ class SessionRepositoryImp implements SessionRepository {
   }
 
   @override
-  Stream<List<SessionModel>> watchAllActiveSessions() {
-    return sessionDao.watchAllActiveSessions().map(
-      SessionToModelMapper.mapFromListOfEntity,
-    );
+  Stream<List<SessionModel>> watchAllActiveSessionsForDate(DateTime day) {
+    return sessionDao
+        .watchAllActiveSessionsForDate(day)
+        .map(
+          SessionToModelMapper.mapFromListOfEntity,
+        );
   }
 
   @override

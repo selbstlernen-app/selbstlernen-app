@@ -6,7 +6,7 @@ import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
 import 'package:srl_app/domain/session_repository.dart';
 import 'package:srl_app/domain/usecases/session/get_completed_sessions_for_today_use_case.dart';
-import 'package:srl_app/domain/usecases/session/get_sessions_for_today_use_case.dart';
+import 'package:srl_app/domain/usecases/session/get_sessions_for_date_use_case.dart';
 
 class MockSessionRepository extends Mock implements SessionRepository {}
 
@@ -58,11 +58,11 @@ void main() {
     },
   );
 
-  test('GetSessionsForTodayUseCase returns sessions occurring today', () async {
+  test('GetSessionsForDayUseCase returns sessions occurring today', () async {
     final sessionRepo = MockSessionRepository();
     final instanceRepo = MockSessionInstanceRepository();
 
-    final useCase = GetSessionsForTodayUseCase(
+    final useCase = GetSessionsForDateUseCase(
       sessionRepo,
       instanceRepo,
     );
@@ -86,12 +86,12 @@ void main() {
     );
 
     // When active session is watched, return both sessions
-    when(sessionRepo.watchAllActiveSessions).thenAnswer(
-      (_) => Stream<List<SessionModel>>.value(<SessionModel>[
-        session_1,
-        session_2,
-      ]),
-    );
+    // when(sessionRepo.watchAllActiveSessionsForDate(now)).thenAnswer(
+    //   (_) => Stream<List<SessionModel>>.value(<SessionModel>[
+    //     session_1,
+    //     session_2,
+    //   ]),
+    // );
 
     final result = await useCase(now).first;
 
@@ -106,7 +106,7 @@ void main() {
     final sessionRepo = MockSessionRepository();
     final instanceRepo = MockSessionInstanceRepository();
 
-    final useCase = GetSessionsForTodayUseCase(
+    final useCase = GetSessionsForDateUseCase(
       sessionRepo,
       instanceRepo,
     );
@@ -122,9 +122,9 @@ void main() {
       selectedDays: <int>[0, 1, 4],
     );
 
-    when(sessionRepo.watchAllActiveSessions).thenAnswer(
-      (_) => Stream<List<SessionModel>>.value(<SessionModel>[session]),
-    );
+    // when(sessionRepo.watchAllActiveSessions).thenAnswer(
+    //   (_) => Stream<List<SessionModel>>.value(<SessionModel>[session]),
+    // );
 
     when(() => instanceRepo.watchAllInstancesForDate(any())).thenAnswer(
       (_) => Stream<List<SessionInstanceModel>>.value(<SessionInstanceModel>[]),
@@ -141,7 +141,7 @@ void main() {
     final sessionRepo = MockSessionRepository();
     final instanceRepo = MockSessionInstanceRepository();
 
-    final useCase = GetSessionsForTodayUseCase(
+    final useCase = GetSessionsForDateUseCase(
       sessionRepo,
       instanceRepo,
     );
@@ -161,9 +161,9 @@ void main() {
       (_) => Stream<List<SessionInstanceModel>>.value(<SessionInstanceModel>[]),
     );
 
-    when(sessionRepo.watchAllActiveSessions).thenAnswer(
-      (_) => Stream<List<SessionModel>>.value(<SessionModel>[session]),
-    );
+    // when(sessionRepo.watchAllActiveSessionsForDate()).thenAnswer(
+    //   (_) => Stream<List<SessionModel>>.value(<SessionModel>[session]),
+    // );
 
     final result = await useCase(monday).first;
 
