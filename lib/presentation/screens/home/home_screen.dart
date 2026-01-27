@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/custom_filter_chip.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
-import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/home/widgets/calendar_widget.dart';
 import 'package:srl_app/presentation/screens/home/widgets/session_sections.dart';
@@ -219,7 +218,7 @@ class ProgressBar extends ConsumerWidget {
           child: LinearProgressIndicator(
             value: percent,
             minHeight: 8,
-            backgroundColor: AppPalette.grey.withValues(alpha: 0.3),
+            backgroundColor: context.colorScheme.tertiaryContainer,
             valueColor: AlwaysStoppedAnimation<Color>(
               context.colorScheme.primary,
             ),
