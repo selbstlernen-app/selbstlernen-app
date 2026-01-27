@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/custom_filter_chip.dart';
-import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/domain/models/session_with_instance_model.dart';
-import 'package:srl_app/presentation/screens/home/home_providers.dart';
 import 'package:srl_app/presentation/screens/home/widgets/calendar_widget.dart';
-import 'package:srl_app/presentation/screens/home/widgets/completed_tile.dart';
-import 'package:srl_app/presentation/screens/home/widgets/pending_session_tile.dart';
+import 'package:srl_app/presentation/screens/home/widgets/session_sections.dart';
 import 'package:srl_app/presentation/view_models/home/home_state.dart';
 import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 
@@ -23,135 +19,138 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _$HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    final homeState = ref.watch(homeViewModelProvider);
-    final date = homeState.dateToFilterFor ?? DateTime.now();
-
-    final sessionsAsync = ref.watch(sessionsForDateProvider(date));
-    final completedAsync = ref.watch(completedSessionsForDateProvider(date));
-
-    final activeSessions = sessionsAsync.value ?? [];
-    final completedSessions = completedAsync.value ?? [];
-
-    final skippedSessions = completedSessions
-        .where(
-          (session) => session.isSkipped,
-        )
-        .toList();
-
-    // Only show loading indicator if no data at all was loaded at first entry point
-    if (sessionsAsync.isLoading | completedAsync.isLoading) {
-      return const Scaffold(body: LoadingIndicator());
-    }
-
-    final isSyncing = sessionsAsync.isLoading && activeSessions.isNotEmpty;
+    final filter = ref.watch(homeViewModelProvider.select((s) => s.filter));
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeading(context),
-
-              const VerticalSpace(),
-
-              const CalendarWidget(),
-
-              if (sessionsAsync.isLoading || completedAsync.isLoading)
-                const LinearProgressIndicator(minHeight: 2),
-
-              const VerticalSpace(),
-
-              // Progress bar
-              _buildProgressBar(activeSessions, completedSessions),
-
-              const VerticalSpace(),
-
-              // Filter Chips
-              _buildFilterChips(ref, homeState),
-
-              const VerticalSpace(),
-
-              // Dynamic Sections
-              if (homeState.filter == SessionFilter.all ||
-                  homeState.filter == SessionFilter.open)
-                AnimatedOpacity(
-                  duration: const Duration(milliseconds: 200),
-                  opacity: isSyncing ? 0.5 : 1.0,
-                  child: _SessionSection(
-                    title: homeState.filter == SessionFilter.all
-                        ? 'Anstehende Lerneinheiten'
-                        : null,
-                    items: activeSessions,
-                    emptyLabel: 'Keine offene Lerneinheit',
-                    itemBuilder: (data) => PendingSessionTile(
-                      session: data.session,
-                      hasInstance: data.instance != null,
-                    ),
-                  ),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            const SliverPadding(
+              padding: EdgeInsets.all(24),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Greeting(),
+                    VerticalSpace(),
+                    CalendarWidget(),
+                    VerticalSpace(),
+                    ProgressBar(),
+                    VerticalSpace(),
+                    FilterButtonRow(),
+                  ],
                 ),
+              ),
+            ),
 
-              if (homeState.filter == SessionFilter.all ||
-                  homeState.filter == SessionFilter.done)
-                _SessionSection(
-                  title: homeState.filter != SessionFilter.done
-                      ? 'Erledigte Lerneinheiten'
-                      : null,
-                  items: completedSessions,
-                  emptyLabel: 'Noch nichts erledigt',
-                  itemBuilder: (data) => CompletedSessionTile(
-                    sessionWithInstance: data,
-                  ),
+            // Dynamic Sections
+            if (filter == SessionFilter.all ||
+                filter == SessionFilter.open) ...[
+              const HomeSectionActive(),
+              const SliverToBoxAdapter(
+                child: VerticalSpace(
+                  size: SpaceSize.xsmall,
                 ),
-
-              if (homeState.filter == SessionFilter.skipped)
-                _SessionSection(
-                  title: homeState.filter != SessionFilter.skipped
-                      ? 'Übersprungene Lerneinheiten'
-                      : null,
-                  items: skippedSessions,
-                  emptyLabel: 'Keine Lerneinheit übersprungen',
-                  itemBuilder: (data) => PendingSessionTile(
-                    session: data.session,
-                    hasInstance: data.instance != null,
-                  ),
-                ),
+              ),
             ],
-          ),
+
+            if (filter == SessionFilter.all || filter == SessionFilter.done)
+              const HomeSectionCompleted(),
+
+            if (filter == SessionFilter.skipped) const HomeSectionSkipped(),
+
+            const SliverToBoxAdapter(
+              child: VerticalSpace(size: SpaceSize.large),
+            ),
+          ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildFilterChips(WidgetRef ref, HomeState homeState) {
+class Greeting extends ConsumerWidget {
+  const Greeting({super.key});
+
+  String getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Morgen ☀️';
+    if (hour < 15) return 'Tag ⛅️';
+    if (hour < 18) return 'Nachmittag ⛅️';
+    return 'Abend 🌙';
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Text(
+              'Guten ',
+              style: context.textTheme.headlineLarge!.copyWith(
+                fontSize: 26,
+              ),
+            ),
+            Text(
+              getGreeting(),
+              style: context.textTheme.headlineLarge!.copyWith(
+                color: context.colorScheme.primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 26,
+              ),
+            ),
+          ],
+        ),
+
+        Text(
+          DateFormat('EEEE, d. MMMM', 'de_DE').format(DateTime.now()),
+          style: context.textTheme.bodyMedium,
+        ),
+      ],
+    );
+  }
+}
+
+class FilterButtonRow extends ConsumerWidget {
+  const FilterButtonRow({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filter = ref.watch(
+      homeViewModelProvider.select((s) => s.filter),
+    );
+
     return Wrap(
       spacing: 8,
       children: <Widget>[
         CustomFilterChip(
           label: 'Alle',
-          isActive: homeState.filter == SessionFilter.all,
+          isActive: filter == SessionFilter.all,
           onPressed: () => ref
               .read(homeViewModelProvider.notifier)
               .setFilter(SessionFilter.all),
         ),
         CustomFilterChip(
           label: 'Offen',
-          isActive: homeState.filter == SessionFilter.open,
+          isActive: filter == SessionFilter.open,
           onPressed: () => ref
               .read(homeViewModelProvider.notifier)
               .setFilter(SessionFilter.open),
         ),
         CustomFilterChip(
           label: 'Übersprungen',
-          isActive: homeState.filter == SessionFilter.skipped,
+          isActive: filter == SessionFilter.skipped,
           onPressed: () => ref
               .read(homeViewModelProvider.notifier)
               .setFilter(SessionFilter.skipped),
         ),
         CustomFilterChip(
           label: 'Erledigt',
-          isActive: homeState.filter == SessionFilter.done,
+          isActive: filter == SessionFilter.done,
           onPressed: () => ref
               .read(homeViewModelProvider.notifier)
               .setFilter(SessionFilter.done),
@@ -159,14 +158,33 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
       ],
     );
   }
+}
 
-  Widget _buildProgressBar(
-    List<SessionWithInstanceModel> active,
-    List<SessionWithInstanceModel> completed,
-  ) {
+class ProgressBar extends ConsumerWidget {
+  const ProgressBar({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(
+      homeViewModelProvider.select((s) => s.dateToFilterFor),
+    );
+    final activeSessions =
+        ref.watch(sessionsForDateProvider(selectedDate)).value ?? [];
+    final completedSessions =
+        ref
+            .watch(
+              completedSessionsForDateProvider(selectedDate),
+            )
+            .value ??
+        [];
+
+    final total = activeSessions.length + completedSessions.length;
+
+    final percent = total > 0 ? (completedSessions.length / total) : 0.0;
+
     String getMotivationalSubtext() {
-      final remaining = active.length;
-      if (remaining == 0 && completed.isNotEmpty) {
+      final remaining = activeSessions.length;
+      if (remaining == 0 && completedSessions.isNotEmpty) {
         return 'Du hast alles erledigt! Zeit zum Entspannen. ✨';
       }
       if (remaining > 0) {
@@ -174,10 +192,6 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
       }
       return 'Bereit für deine erste Einheit?';
     }
-
-    final total = active.length + completed.length;
-
-    final percent = total > 0 ? (completed.length / total) : 0.0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,88 +234,6 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
             color: context.colorScheme.onSurface,
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildHeading(BuildContext context) {
-    String getGreeting() {
-      final hour = DateTime.now().hour;
-      if (hour < 12) return 'Morgen ☀️';
-      if (hour < 15) return 'Tag ⛅️';
-      if (hour < 18) return 'Nachmittag ⛅️';
-      return 'Abend 🌙';
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Text(
-              'Guten ',
-              style: context.textTheme.headlineLarge!.copyWith(
-                fontSize: 26,
-              ),
-            ),
-            Text(
-              getGreeting(),
-              style: context.textTheme.headlineLarge!.copyWith(
-                color: context.colorScheme.primary,
-                fontWeight: FontWeight.w600,
-                fontSize: 26,
-              ),
-            ),
-          ],
-        ),
-
-        Text(
-          DateFormat('EEEE, d. MMMM', 'de_DE').format(DateTime.now()),
-          style: context.textTheme.bodyMedium,
-        ),
-      ],
-    );
-  }
-}
-
-class _SessionSection extends StatelessWidget {
-  const _SessionSection({
-    required this.title,
-    required this.items,
-    required this.emptyLabel,
-    required this.itemBuilder,
-  });
-  final String? title;
-  final List<SessionWithInstanceModel> items;
-  final String emptyLabel;
-  final Widget Function(SessionWithInstanceModel) itemBuilder;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (title != null)
-          Text(
-            title!,
-            style: context.textTheme.labelMedium!.copyWith(
-              color: context.colorScheme.onSurface,
-            ),
-          ),
-        const VerticalSpace(size: SpaceSize.xsmall),
-        if (items.isEmpty)
-          Text(
-            emptyLabel,
-            style: context.textTheme.bodyMedium!.copyWith(
-              color: context.colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          )
-        else
-          ...items.map(
-            itemBuilder,
-          ),
-        const VerticalSpace(),
       ],
     );
   }

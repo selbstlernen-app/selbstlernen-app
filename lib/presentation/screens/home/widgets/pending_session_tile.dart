@@ -50,14 +50,12 @@ class PendingSessionTile extends ConsumerWidget {
               clipBehavior: Clip.hardEdge,
               child: ListTile(
                 onTap: () {
-                  final selectedDate =
-                      homeState.dateToFilterFor ?? DateTime.now();
                   Navigator.pushNamed(
                     context,
                     AppRoutes.detail,
                     arguments: DetailSessionArgs(
                       sessionId: int.parse(session.id!),
-                      targetDate: selectedDate,
+                      targetDate: homeState.dateToFilterFor,
                     ),
                   );
                 },

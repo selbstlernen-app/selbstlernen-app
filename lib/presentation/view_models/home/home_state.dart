@@ -5,8 +5,9 @@ part 'home_state.freezed.dart';
 @freezed
 abstract class HomeState with _$HomeState {
   const factory HomeState({
-    DateTime? dateToFilterFor,
+    required DateTime dateToFilterFor,
     @Default(SessionFilter.all) SessionFilter filter,
+    @Default(true) bool isLoading,
     String? error,
   }) = _HomeState;
 
