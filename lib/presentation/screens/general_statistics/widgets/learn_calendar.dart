@@ -14,9 +14,7 @@ import 'package:srl_app/presentation/view_models/general_statistics/ui_model/enr
 /// Shows on which days one has learned;
 /// How many sessions were conducted on that particular day
 class LearnCalendar extends ConsumerStatefulWidget {
-  const LearnCalendar({required this.enrichedInstances, super.key});
-
-  final List<EnrichedSessionInstance> enrichedInstances;
+  const LearnCalendar({super.key});
 
   @override
   ConsumerState<LearnCalendar> createState() => _LearnCalendarState();
@@ -163,9 +161,12 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
 
   Map<DateTime, int> _buildCalendarDataset() {
     final dataset = <DateTime, int>{};
+    final enrichedInstances = ref.watch(
+      statisticsViewModelProvider.select((s) => s.enrichedInstances),
+    );
 
     // Group instances by date
-    for (final enrichedInstance in widget.enrichedInstances) {
+    for (final enrichedInstance in enrichedInstances) {
       if (enrichedInstance.instance.status == SessionStatus.completed ||
           enrichedInstance.instance.status == SessionStatus.skipped) {
         // Normalize to start of day

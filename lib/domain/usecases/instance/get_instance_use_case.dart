@@ -10,6 +10,9 @@ class GetInstanceUseCase {
   Stream<List<SessionInstanceModel>> watchInstancesBySessionId(int sessionId) =>
       repository.watchInstancesBySessionId(sessionId);
 
+  Stream<List<SessionInstanceModel>> watchAllInstances() =>
+      repository.watchAllInstances();
+
   Stream<SessionInstanceModel> watchSessionInstanceById(
     int sessionInstanceId,
   ) => repository.watchInstanceById(sessionInstanceId);

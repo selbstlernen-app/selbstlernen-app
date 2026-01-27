@@ -46,6 +46,11 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
         .watch();
   }
 
+  // Watch all session instances
+  Stream<List<SessionInstance>> watchAllInstances() {
+    return select(sessionInstances).watch();
+  }
+
   /// Watch all instances for a week, given today
   Stream<List<SessionInstance>> watchAllInstancesForTheWeek(DateTime date) {
     final startWindow = date.subtract(const Duration(days: 3));

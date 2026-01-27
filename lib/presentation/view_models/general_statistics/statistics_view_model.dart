@@ -1,74 +1,79 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/usecases/session/get_general_statistics_use_case.dart';
-import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/general_statistics/statistics_state.dart';
 import 'package:srl_app/presentation/view_models/general_statistics/ui_model/enriched_session_instance.dart';
 
 part 'statistics_view_model.g.dart';
 
 @riverpod
+Stream<List<EnrichedSessionInstance>> enrichedInstancesStream(Ref ref) {
+  final instanceUseCase = ref.watch(getInstanceUseCaseProvider);
+  final sessionUseCase = ref.watch(manageSessionUseCaseProvider);
+
+  return Rx.combineLatest2(
+    instanceUseCase.watchAllInstances(),
+    sessionUseCase.watchAllSessions(),
+    (instances, sessions) {
+      final sessionMap = {for (var s in sessions) s.id.toString(): s.title};
+      return instances
+          .map(
+            (instance) => EnrichedSessionInstance(
+              instance: instance,
+              sessionName: sessionMap[instance.sessionId] ?? 'Unknown',
+            ),
+          )
+          .toList();
+    },
+  );
+}
+
+@riverpod
+Stream<List<SessionModel>> allSessionsStream(Ref ref) {
+  final useCase = ref.watch(manageSessionUseCaseProvider);
+  return useCase.watchAllSessions();
+}
+
+@riverpod
 class StatisticsViewModel extends _$StatisticsViewModel {
-  late final GetInstanceUseCase _getInstanceUseCase;
-  late final ManageSessionUseCase _manageSessionUseCase;
-  late final GetGeneralStatisticsUseCase _getGeneralStatisticsUseCase;
-
-  StreamSubscription<dynamic>? _sessionsSubscription;
-
   @override
   StatisticsState build() {
-    _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
-    _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
-    _getGeneralStatisticsUseCase = ref.watch(
-      getGeneralStatisticsUseCaseProvider,
+    final instancesAsync = ref.watch(enrichedInstancesStreamProvider);
+    final sessionsAsync = ref.watch(
+      allSessionsStreamProvider,
     );
 
-    ref.onDispose(() {
-      unawaited(_sessionsSubscription?.cancel());
-    });
+    final allSessions = sessionsAsync.value ?? [];
 
-    unawaited(_loadData());
-    return const StatisticsState();
+    // Sort and filter all sessions once on build
+    final active = allSessions.where((s) => !s.isArchived).toList()
+      ..sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
+
+    final archived = allSessions.where((s) => s.isArchived).toList()
+      ..sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
+
+    unawaited(_loadStats());
+
+    return StatisticsState(
+      enrichedInstances: instancesAsync.value ?? [],
+      activeSessions: active,
+      archivedSessions: archived,
+      isLoading: instancesAsync.isLoading || sessionsAsync.isLoading,
+      error: instancesAsync.hasError ? instancesAsync.error.toString() : null,
+    );
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadStats() async {
     try {
-      final instances = await _getInstanceUseCase.getAllInstances();
-      final enrichedInstances = <EnrichedSessionInstance>[];
-
-      for (final instance in instances) {
-        final session = await _manageSessionUseCase.getSessionById(
-          int.parse(instance.sessionId),
-        );
-        enrichedInstances.add(
-          EnrichedSessionInstance(
-            instance: instance,
-            sessionName: session.title,
-          ),
-        );
-      }
-
-      _sessionsSubscription = _manageSessionUseCase.watchAllSessions().listen(
-        (List<SessionModel> sessions) {
-          state = state.copyWith(
-            activeOrArchivedSessions: sessions,
-            isLoading: false,
-          );
-        },
-        onError: (dynamic error) {
-          state = state.copyWith(error: error.toString(), isLoading: false);
-        },
-      );
-
-      final statistics = await _getGeneralStatisticsUseCase.call();
+      final statistics = await ref
+          .watch(getGeneralStatisticsUseCaseProvider)
+          .call();
 
       state = state.copyWith(
         stats: statistics,
-        enrichedInstances: enrichedInstances,
-
         isLoading: false,
       );
     } on Exception catch (e) {
