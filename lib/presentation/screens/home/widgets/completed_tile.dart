@@ -40,6 +40,7 @@ class CompletedSessionTile extends StatelessWidget {
             arguments: DetailSessionArgs(
               sessionId: int.parse(session.id!),
               instanceId: int.parse(instance.id!),
+              targetDate: instance.completedAt!,
             ),
           ),
           title: Text(session.title, style: context.textTheme.headlineSmall),

@@ -32,6 +32,7 @@ class AppRoutes {
           builder: (_) => SessionDetailScreen(
             sessionId: args.sessionId,
             instanceId: args.instanceId,
+            targetDate: args.targetDate,
           ),
           settings: const RouteSettings(name: AppRoutes.detail),
         );
@@ -94,9 +95,14 @@ class ActiveSessionArgs {
 }
 
 class DetailSessionArgs {
-  DetailSessionArgs({required this.sessionId, this.instanceId});
+  DetailSessionArgs({
+    required this.sessionId,
+    required this.targetDate,
+    this.instanceId,
+  });
   final int sessionId;
   final int? instanceId;
+  final DateTime targetDate;
 }
 
 class SessionStatisticsArgs {

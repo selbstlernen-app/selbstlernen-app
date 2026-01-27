@@ -43,6 +43,17 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   }
 
   @override
+  Stream<List<SessionInstanceModel>> watchAllInstancesForTheWeek(
+    DateTime date,
+  ) {
+    return sessionInstanceDao
+        .watchAllInstancesForTheWeek(date)
+        .map(
+          SessionInstanceToModelMapper.mapFromListOfEntity,
+        );
+  }
+
+  @override
   Stream<SessionInstanceModel> watchInstanceById(int sessionInstanceId) {
     return sessionInstanceDao.watchSessionInstanceById(sessionInstanceId).map((
       SessionInstance? sessionInstance,

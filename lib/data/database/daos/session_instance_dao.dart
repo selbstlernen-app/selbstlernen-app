@@ -46,7 +46,35 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
         .watch();
   }
 
+  /// Watch all instances for a week, given today
+  Stream<List<SessionInstance>> watchAllInstancesForTheWeek(DateTime date) {
+    final startWindow = date.subtract(const Duration(days: 3));
+    final endWindow = date.add(const Duration(days: 7));
+
+    final start = DateTime(
+      startWindow.year,
+      startWindow.month,
+      startWindow.day,
+    );
+    final end = DateTime(
+      endWindow.year,
+      endWindow.month,
+      endWindow.day,
+      23,
+      59,
+      59,
+    );
+
+    return (select(sessionInstances)..where(
+          ($SessionInstancesTable t) =>
+              t.scheduledAt.isBetweenValues(start, end) |
+              t.completedAt.isBetweenValues(start, end),
+        ))
+        .watch();
+  }
+
   /// Watch all session instances for a given date
+  /// Returns all instances that are either scheduled or were completed during the week
   Stream<List<SessionInstance>> watchAllInstancesForDate(DateTime date) {
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = DateTime(
@@ -59,13 +87,11 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     );
 
     return (select(sessionInstances)..where(
-          ($SessionInstancesTable t) =>
-              t.scheduledAt.isBetweenValues(startOfDay, endOfDay),
+          (i) =>
+              i.scheduledAt.isBetweenValues(startOfDay, endOfDay) |
+              i.completedAt.isBetweenValues(startOfDay, endOfDay),
         ))
-        .watch()
-        .map((List<SessionInstance> rows) {
-          return rows.toList();
-        });
+        .watch();
   }
 
   // Get all instances for a specific session
@@ -105,20 +131,14 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     DateTime date,
   ) async {
     final startOfDay = DateTime(date.year, date.month, date.day);
-    final endOfDay = DateTime(
-      date.year,
-      date.month,
-      date.day,
-      23,
-      59,
-      59,
-    );
+    final endOfDay = startOfDay.add(const Duration(days: 1));
 
     final instances =
         await (select(sessionInstances)..where(
               ($SessionInstancesTable s) =>
                   s.sessionId.equals(sessionId) &
-                  s.scheduledAt.isBetweenValues(startOfDay, endOfDay),
+                  s.scheduledAt.isBiggerOrEqualValue(startOfDay) &
+                  s.scheduledAt.isSmallerThanValue(endOfDay),
             ))
             .get();
 

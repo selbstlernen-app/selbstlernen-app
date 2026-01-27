@@ -6,7 +6,6 @@ import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
 import 'package:srl_app/presentation/screens/home/home_providers.dart';
 import 'package:srl_app/presentation/screens/home/widgets/calendar_widget.dart';
@@ -30,91 +29,95 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
     final sessionsAsync = ref.watch(sessionsForDateProvider(date));
     final completedAsync = ref.watch(completedSessionsForDateProvider(date));
 
+    final activeSessions = sessionsAsync.value ?? [];
+    final completedSessions = completedAsync.value ?? [];
+
+    final skippedSessions = completedSessions
+        .where(
+          (session) => session.isSkipped,
+        )
+        .toList();
+
+    // Only show loading indicator if no data at all was loaded at first entry point
+    if (sessionsAsync.isLoading | completedAsync.isLoading) {
+      return const Scaffold(body: LoadingIndicator());
+    }
+
+    final isSyncing = sessionsAsync.isLoading && activeSessions.isNotEmpty;
+
     return Scaffold(
       body: SafeArea(
-        child: sessionsAsync.when(
-          loading: () => const LoadingIndicator(),
-          error: (e, _) => Center(child: Text('Fehler: $e')),
-          data: (activeSessions) => completedAsync.when(
-            loading: () => const LoadingIndicator(),
-            error: (e, _) => Center(child: Text('Fehler: $e')),
-            data: (completedSessions) {
-              final skippedSessions = completedSessions
-                  .where(
-                    (s) => s.instance?.status == SessionStatus.skipped,
-                  )
-                  .toList();
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeading(context),
 
-              return SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Heading
-                    _buildHeading(context),
+              const VerticalSpace(),
 
-                    const VerticalSpace(),
+              const CalendarWidget(),
 
-                    // Calendar
-                    const CalendarWidget(),
+              if (sessionsAsync.isLoading || completedAsync.isLoading)
+                const LinearProgressIndicator(minHeight: 2),
 
-                    const VerticalSpace(),
+              const VerticalSpace(),
 
-                    // Progress bar
-                    _buildProgressBar(activeSessions, completedSessions),
+              // Progress bar
+              _buildProgressBar(activeSessions, completedSessions),
 
-                    const VerticalSpace(),
+              const VerticalSpace(),
 
-                    // Filter Chips
-                    _buildFilterChips(ref, homeState),
+              // Filter Chips
+              _buildFilterChips(ref, homeState),
 
-                    const VerticalSpace(),
+              const VerticalSpace(),
 
-                    // Dynamic Sections
-                    if (homeState.filter == SessionFilter.all ||
-                        homeState.filter == SessionFilter.open)
-                      _SessionSection(
-                        title: homeState.filter == SessionFilter.all
-                            ? 'Anstehende Lerneinheiten'
-                            : null,
-                        items: activeSessions,
-                        emptyLabel: 'Alles erledigt!',
-                        itemBuilder: (data) => PendingSessionTile(
-                          session: data.session,
-                          hasInstance: data.instance != null,
-                        ),
-                      ),
-
-                    if (homeState.filter == SessionFilter.all ||
-                        homeState.filter == SessionFilter.done)
-                      _SessionSection(
-                        title: homeState.filter != SessionFilter.done
-                            ? 'Erledigte Lerneinheiten'
-                            : null,
-                        items: completedSessions,
-                        emptyLabel: 'Noch nichts erledigt',
-                        itemBuilder: (data) => CompletedSessionTile(
-                          sessionWithInstance: data,
-                        ),
-                      ),
-
-                    if (homeState.filter == SessionFilter.skipped)
-                      _SessionSection(
-                        title: homeState.filter != SessionFilter.skipped
-                            ? 'Übersprungene Lerneinheiten'
-                            : null,
-                        items: skippedSessions,
-                        emptyLabel:
-                            'Noch keine Lerneinheiten heute übersprungen',
-                        itemBuilder: (data) => PendingSessionTile(
-                          session: data.session,
-                          hasInstance: data.instance != null,
-                        ),
-                      ),
-                  ],
+              // Dynamic Sections
+              if (homeState.filter == SessionFilter.all ||
+                  homeState.filter == SessionFilter.open)
+                AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: isSyncing ? 0.5 : 1.0,
+                  child: _SessionSection(
+                    title: homeState.filter == SessionFilter.all
+                        ? 'Anstehende Lerneinheiten'
+                        : null,
+                    items: activeSessions,
+                    emptyLabel: 'Keine offene Lerneinheit',
+                    itemBuilder: (data) => PendingSessionTile(
+                      session: data.session,
+                      hasInstance: data.instance != null,
+                    ),
+                  ),
                 ),
-              );
-            },
+
+              if (homeState.filter == SessionFilter.all ||
+                  homeState.filter == SessionFilter.done)
+                _SessionSection(
+                  title: homeState.filter != SessionFilter.done
+                      ? 'Erledigte Lerneinheiten'
+                      : null,
+                  items: completedSessions,
+                  emptyLabel: 'Noch nichts erledigt',
+                  itemBuilder: (data) => CompletedSessionTile(
+                    sessionWithInstance: data,
+                  ),
+                ),
+
+              if (homeState.filter == SessionFilter.skipped)
+                _SessionSection(
+                  title: homeState.filter != SessionFilter.skipped
+                      ? 'Übersprungene Lerneinheiten'
+                      : null,
+                  items: skippedSessions,
+                  emptyLabel: 'Keine Lerneinheit übersprungen',
+                  itemBuilder: (data) => PendingSessionTile(
+                    session: data.session,
+                    hasInstance: data.instance != null,
+                  ),
+                ),
+            ],
           ),
         ),
       ),

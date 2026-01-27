@@ -16,16 +16,22 @@ import 'package:srl_app/presentation/view_models/detail_session/detail_session_v
 class SessionDetailScreen extends ConsumerWidget {
   const SessionDetailScreen({
     required this.sessionId,
-    super.key,
+    required this.targetDate,
     this.instanceId,
+    super.key,
   });
   final int sessionId;
   final int? instanceId;
+  final DateTime targetDate;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(
-      detailSessionViewModelProvider(sessionId, instanceId: instanceId),
+      detailSessionViewModelProvider(
+        sessionId,
+        instanceId: instanceId,
+        targetDate: targetDate,
+      ),
     );
 
     if (state.isLoading) {
@@ -300,6 +306,7 @@ class SessionDetailScreen extends ConsumerWidget {
                         .read(
                           detailSessionViewModelProvider(
                             sessionId,
+                            targetDate: targetDate,
                           ).notifier,
                         )
                         .redoSession();
@@ -356,9 +363,10 @@ class SessionDetailScreen extends ConsumerWidget {
                         .read(
                           detailSessionViewModelProvider(
                             sessionId,
+                            targetDate: targetDate,
                           ).notifier,
                         )
-                        .startSession(DateTime.now());
+                        .startSession();
 
                     if (context.mounted) {
                       await Navigator.pushNamed(
@@ -390,7 +398,12 @@ class SessionDetailScreen extends ConsumerWidget {
   }) {
     Future<void> deleteSession() async {
       await ref
-          .read(detailSessionViewModelProvider(sessionId).notifier)
+          .read(
+            detailSessionViewModelProvider(
+              sessionId,
+              targetDate: targetDate,
+            ).notifier,
+          )
           .deleteSession();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -451,7 +464,12 @@ class SessionDetailScreen extends ConsumerWidget {
   }) {
     Future<void> deleteInstance() async {
       await ref
-          .read(detailSessionViewModelProvider(sessionId).notifier)
+          .read(
+            detailSessionViewModelProvider(
+              sessionId,
+              targetDate: targetDate,
+            ).notifier,
+          )
           .deleteInstance(instanceId);
 
       if (context.mounted) {
@@ -512,7 +530,12 @@ class SessionDetailScreen extends ConsumerWidget {
   }) {
     Future<void> archiveSession() async {
       await ref
-          .read(detailSessionViewModelProvider(sessionId).notifier)
+          .read(
+            detailSessionViewModelProvider(
+              sessionId,
+              targetDate: targetDate,
+            ).notifier,
+          )
           .archiveSession();
 
       if (context.mounted) {

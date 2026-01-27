@@ -20,6 +20,8 @@ class PendingSessionTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final homeState = ref.watch(homeViewModelProvider);
+
     return Stack(
       clipBehavior: Clip.antiAlias,
       children: <Widget>[
@@ -47,13 +49,18 @@ class PendingSessionTile extends ConsumerWidget {
             child: Card(
               clipBehavior: Clip.hardEdge,
               child: ListTile(
-                onTap: () => Navigator.pushNamed(
-                  context,
-                  AppRoutes.detail,
-                  arguments: DetailSessionArgs(
-                    sessionId: int.parse(session.id!),
-                  ),
-                ),
+                onTap: () {
+                  final selectedDate =
+                      homeState.dateToFilterFor ?? DateTime.now();
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.detail,
+                    arguments: DetailSessionArgs(
+                      sessionId: int.parse(session.id!),
+                      targetDate: selectedDate,
+                    ),
+                  );
+                },
                 title: Text(
                   session.title,
                   style: context.textTheme.headlineSmall,

@@ -5,7 +5,7 @@ import 'package:srl_app/domain/providers.dart';
 part 'home_providers.g.dart';
 
 // Watch the stream of sessions for a specific date
-@riverpod
+@Riverpod(keepAlive: true)
 Stream<List<SessionWithInstanceModel>> sessionsForDate(Ref ref, DateTime date) {
   return ref.watch(getSessionsForDateUseCaseProvider).call(date);
 }

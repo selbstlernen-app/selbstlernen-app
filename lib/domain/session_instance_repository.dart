@@ -11,6 +11,7 @@ abstract class SessionInstanceRepository {
   Future<List<SessionInstanceModel>> getAllInstances();
 
   Stream<List<SessionInstanceModel>> watchInstancesBySessionId(int sessionId);
+  Stream<List<SessionInstanceModel>> watchAllInstancesForTheWeek(DateTime date);
   Stream<SessionInstanceModel> watchInstanceById(int sessionInstanceId);
   Stream<List<SessionInstanceModel>> watchAllInstancesForDate(DateTime date);
 
