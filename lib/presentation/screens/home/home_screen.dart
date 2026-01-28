@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/custom_filter_chip.dart';
+import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/home/widgets/calendar_widget.dart';
@@ -20,48 +21,61 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final filter = ref.watch(homeViewModelProvider.select((s) => s.filter));
 
+    final isLoading = ref.watch(
+      homeViewModelProvider.select((s) => s.isLoading),
+    );
+
     return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            const SliverPadding(
-              padding: EdgeInsets.all(24),
+            SliverPadding(
+              padding: const EdgeInsets.all(24),
               sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Greeting(),
-                    VerticalSpace(),
-                    CalendarWidget(),
-                    VerticalSpace(),
-                    ProgressBar(),
-                    VerticalSpace(),
-                    FilterButtonRow(),
+                    const _Greeting(),
+                    const VerticalSpace(),
+                    const CalendarWidget(),
+                    const VerticalSpace(),
+                    const ProgressBar(),
+                    const VerticalSpace(),
+                    const _FilterButtonRow(),
+
+                    if (isLoading) ...[
+                      const VerticalSpace(),
+                      const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ],
                   ],
                 ),
               ),
             ),
 
-            // Dynamic Sections
-            if (filter == SessionFilter.all ||
-                filter == SessionFilter.open) ...[
-              const HomeSectionActive(),
-              const SliverToBoxAdapter(
-                child: VerticalSpace(
-                  size: SpaceSize.xsmall,
+            if (!isLoading) ...[
+              // Dynamic Session Panel Sections
+              if (filter == SessionFilter.all ||
+                  filter == SessionFilter.open) ...[
+                const HomeSectionActive(),
+                const SliverToBoxAdapter(
+                  child: VerticalSpace(
+                    size: SpaceSize.xsmall,
+                  ),
                 ),
+              ],
+
+              if (filter == SessionFilter.all || filter == SessionFilter.done)
+                const HomeSectionCompleted(),
+
+              if (filter == SessionFilter.skipped) const HomeSectionSkipped(),
+
+              const SliverToBoxAdapter(
+                child: VerticalSpace(size: SpaceSize.large),
               ),
             ],
-
-            if (filter == SessionFilter.all || filter == SessionFilter.done)
-              const HomeSectionCompleted(),
-
-            if (filter == SessionFilter.skipped) const HomeSectionSkipped(),
-
-            const SliverToBoxAdapter(
-              child: VerticalSpace(size: SpaceSize.large),
-            ),
           ],
         ),
       ),
@@ -69,8 +83,8 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-class Greeting extends ConsumerWidget {
-  const Greeting({super.key});
+class _Greeting extends ConsumerWidget {
+  const _Greeting({super.key});
 
   String getGreeting() {
     final hour = DateTime.now().hour;
@@ -114,8 +128,8 @@ class Greeting extends ConsumerWidget {
   }
 }
 
-class FilterButtonRow extends ConsumerWidget {
-  const FilterButtonRow({super.key});
+class _FilterButtonRow extends ConsumerWidget {
+  const _FilterButtonRow({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

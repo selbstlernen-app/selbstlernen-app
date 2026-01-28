@@ -4,7 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/home/home_state.dart';
 
 part 'home_view_model.g.dart';
@@ -26,8 +25,6 @@ Stream<List<SessionWithInstanceModel>> completedSessionsForDate(
 
 @riverpod
 class HomeViewModel extends _$HomeViewModel {
-  late final ManangeInstanceUseCase _manangeInstanceUseCase;
-
   @override
   HomeState build() {
     return HomeState(
@@ -36,8 +33,14 @@ class HomeViewModel extends _$HomeViewModel {
     );
   }
 
-  void updateDate(DateTime newDate) {
-    state = state.copyWith(dateToFilterFor: newDate);
+  // Set the new update date and introduce some latency for
+  // loading to appear smooth
+  Future<void> updateDate(DateTime newDate) async {
+    state = state.copyWith(dateToFilterFor: newDate, isLoading: true);
+
+    await Future<dynamic>.delayed(const Duration(milliseconds: 300));
+
+    state = state.copyWith(isLoading: false);
   }
 
   void setFilter(SessionFilter filter) {
