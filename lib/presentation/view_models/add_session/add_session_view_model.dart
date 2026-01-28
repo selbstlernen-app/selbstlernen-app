@@ -175,7 +175,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void toggleTimerMode({required bool isSimpleTimer}) {
-    state = state.copyWith(isSimpleTimer: isSimpleTimer);
+    state = state.copyWith(sessionComplexity: SessionComplexity.simple);
   }
 
   void setTimerSettings({

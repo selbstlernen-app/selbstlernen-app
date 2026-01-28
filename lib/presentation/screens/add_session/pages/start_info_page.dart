@@ -177,42 +177,6 @@ class _StartInfoPageState extends ConsumerState<StartInfoPage> {
                 const VerticalSpace(size: SpaceSize.large),
 
                 // Date and days
-                Row(
-                  children: <Widget>[
-                    const Icon(
-                      Icons.event_repeat_rounded,
-                    ),
-                    const HorizontalSpace(size: SpaceSize.small),
-                    Text('Häufigkeit', style: context.textTheme.headlineSmall),
-                  ],
-                ),
-                const VerticalSpace(),
-                Row(
-                  children: <Widget>[
-                    CustomFilterChip(
-                      label: 'Einmalig',
-                      isActive: !state.isRepeating,
-                      onPressed: () => state.isEditMode
-                          ? null
-                          : ref
-                                .read(addSessionViewModelProvider.notifier)
-                                .setIsRepeating(isRepeating: false),
-                    ),
-
-                    const HorizontalSpace(size: SpaceSize.small),
-
-                    CustomFilterChip(
-                      label: 'Wiederholend',
-                      isActive: state.isRepeating,
-                      onPressed: () => state.isEditMode
-                          ? null
-                          : ref
-                                .read(addSessionViewModelProvider.notifier)
-                                .setIsRepeating(isRepeating: true),
-                    ),
-                  ],
-                ),
-
                 if (state.isRepeating) const DateInputFields(),
 
                 const VerticalSpace(

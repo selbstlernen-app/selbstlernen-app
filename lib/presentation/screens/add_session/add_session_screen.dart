@@ -6,6 +6,7 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/bottom_up_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/prompt_page.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/setup_wizard_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/start_info_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/strategy_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/timer_page.dart';
@@ -139,6 +140,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         controller: _pageController,
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
+          SetupWizardPage(),
           StartInfoPage(navigateForward: _navigateForward),
           // Always show TopDownPage in edit mode
           if (state.isEditMode || state.setGoals)

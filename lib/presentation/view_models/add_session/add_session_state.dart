@@ -28,7 +28,7 @@ abstract class AddSessionState with _$AddSessionState {
     List<LearningStrategyModel>? availableStrategies,
 
     // Time
-    @Default(true) bool isSimpleTimer,
+    @Default(SessionComplexity.none) SessionComplexity sessionComplexity,
     @Default(25) int focusTimeMin,
     @Default(5) int breakTimeMin,
     @Default(15) int longBreakTimeMin,
@@ -68,4 +68,13 @@ abstract class AddSessionState with _$AddSessionState {
     if (isEditMode) return 4;
     return 5;
   }
+}
+
+enum SessionComplexity {
+  // Diary / No-time
+  none,
+  // Basic countdown; only configure focus time here
+  simple,
+  // Pomodoro / Intervals
+  advanced,
 }

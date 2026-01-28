@@ -56,13 +56,13 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   void _saveSettings() {
     final notifier = ref.read(addSessionViewModelProvider.notifier);
     final state = ref.read(addSessionViewModelProvider);
-    if (state.isSimpleTimer) {
-      notifier.setTimerSettings(
-        breakTime: 0,
-        longBreakTime: 0,
-        focusPhases: 1,
-      );
-    }
+    // if (state.isSimpleTimer) {
+    //   notifier.setTimerSettings(
+    //     breakTime: 0,
+    //     longBreakTime: 0,
+    //     focusPhases: 1,
+    //   );
+    // }
 
     // Then navigate forward
     widget.navigateForward();
@@ -90,26 +90,25 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                   size: SpaceSize.small,
                 ),
 
-                SegmentedToggleButton(
-                  leftLabel: 'Fokus-Timer',
-                  rightLabel: 'Pomodoro-Timer',
-                  isLeftActive: state.isSimpleTimer,
-                  onLeftPressed: () => ref
-                      .read(addSessionViewModelProvider.notifier)
-                      .toggleTimerMode(isSimpleTimer: true),
-                  onRightPressed: () => ref
-                      .read(addSessionViewModelProvider.notifier)
-                      .toggleTimerMode(isSimpleTimer: false),
-                ),
-
+                // SegmentedToggleButton(
+                //   leftLabel: 'Fokus-Timer',
+                //   rightLabel: 'Pomodoro-Timer',
+                //   isLeftActive: state.isSimpleTimer,
+                //   onLeftPressed: () => ref
+                //       .read(addSessionViewModelProvider.notifier)
+                //       .toggleTimerMode(isSimpleTimer: true),
+                //   onRightPressed: () => ref
+                //       .read(addSessionViewModelProvider.notifier)
+                //       .toggleTimerMode(isSimpleTimer: false),
+                // ),
                 const VerticalSpace(
                   size: SpaceSize.small,
                 ),
 
-                if (!state.isSimpleTimer)
-                  _buildAdvancedTimeSettings()
-                else
-                  _buildSimpleTimeSettings(),
+                // if (!state.isSimpleTimer)
+                //   _buildAdvancedTimeSettings()
+                // else
+                _buildSimpleTimeSettings(),
               ],
             ),
           ),
@@ -304,11 +303,11 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   Widget _calculateTotalTime() {
     final state = ref.read(addSessionViewModelProvider);
 
-    if (state.isSimpleTimer) {
-      return Text(
-        'Gesamtzeit: ${state.focusTimeMin} min',
-      );
-    }
+    // if (state.isSimpleTimer) {
+    //   return Text(
+    //     'Gesamtzeit: ${state.focusTimeMin} min',
+    //   );
+    // }
 
     final focusPhases = state.focusPhases > 0 ? state.focusPhases : 1;
 
