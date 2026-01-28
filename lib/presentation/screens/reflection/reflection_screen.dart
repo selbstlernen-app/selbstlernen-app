@@ -177,7 +177,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
           ),
 
           SizedBox(
-            width: context.mediaQuery.size.width,
+            width: double.infinity,
             child: CustomButton(
               label: 'Abschließen',
               onPressed: submitReflection,

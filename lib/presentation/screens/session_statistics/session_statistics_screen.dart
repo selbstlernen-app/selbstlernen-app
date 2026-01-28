@@ -144,7 +144,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
               ),
 
               SizedBox(
-                width: context.mediaQuery.size.width,
+                width: double.infinity,
                 child: CustomButton(
                   onPressed: () => showGeneralStatsOnly
                       ? Navigator.of(context).pop()

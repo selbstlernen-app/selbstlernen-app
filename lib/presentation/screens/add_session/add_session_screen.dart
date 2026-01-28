@@ -4,13 +4,12 @@ import 'package:srl_app/common_widgets/main_layout.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
-import 'package:srl_app/presentation/screens/add_session/pages/bottom_up_page.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/goal_setting_page.dart';
+import 'package:srl_app/presentation/screens/add_session/pages/plan_start_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/prompt_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/setup_wizard_page.dart';
-import 'package:srl_app/presentation/screens/add_session/pages/start_info_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/strategy_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/timer_page.dart';
-import 'package:srl_app/presentation/screens/add_session/pages/top_down_page.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class AddSessionScreen extends ConsumerStatefulWidget {
@@ -55,7 +54,8 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     if (currentPage > 0) {
       final targetPage = currentPage - 1;
 
-      await _pageController
+      await ref
+          .watch(addSessionPageControllerProvider)
           .animateToPage(
             targetPage,
             duration: const Duration(milliseconds: 300),
@@ -98,6 +98,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final pageController = ref.watch(addSessionPageControllerProvider);
     final state = ref.watch(addSessionViewModelProvider);
     final showBackButton = widget.fullSessionModel != null || currentPage > 0;
 
@@ -136,19 +137,19 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
           ),
         ),
       ),
+      navigateBack: showBackButton ? _navigateBack : null,
       content: PageView(
-        controller: _pageController,
+        controller: pageController,
+        onPageChanged: (index) => setState(() => currentPage = index),
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
-          SetupWizardPage(),
-          StartInfoPage(navigateForward: _navigateForward),
-          // Always show TopDownPage in edit mode
-          if (state.isEditMode || state.setGoals)
-            TopDownPage(navigateForward: _navigateForward)
-          else
-            BottomUpPage(navigateForward: _navigateForward),
+          const SetupWizardPage(),
 
-          StrategyPage(navigateForward: _navigateForward),
+          const PlanStartPage(),
+
+          const GoalSettingPage(),
+
+          const StrategyPage(),
 
           // Do not show this page in edit mode, since nothing should
           // be changed here anyway
@@ -159,7 +160,6 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
           PromptPage(navigateForward: _navigateForward),
         ],
       ),
-      navigateBack: showBackButton ? _navigateBack : null,
     );
   }
 }

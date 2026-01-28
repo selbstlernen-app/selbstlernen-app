@@ -85,7 +85,7 @@ class MainLayout extends StatelessWidget {
           color: context.colorScheme.brightness == Brightness.dark
               ? context.colorScheme.surface
               : Colors.white,
-          width: context.mediaQuery.size.width,
+          width: double.infinity,
           child: SafeArea(
             child: Padding(padding: const EdgeInsets.all(24), child: content),
           ),

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
@@ -7,10 +9,19 @@ import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
+import 'package:srl_app/notification_service.dart';
 import 'package:srl_app/presentation/screens/add_session/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 part 'add_session_view_model.g.dart';
+
+@riverpod
+PageController addSessionPageController(Ref ref) {
+  final controller = PageController();
+  ref.onDispose(() => controller.dispose);
+
+  return controller;
+}
 
 @riverpod
 class AddSessionViewModel extends _$AddSessionViewModel {
@@ -63,6 +74,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(isRepeating: isRepeating);
   }
 
+  void setSessionComplexity({required SessionComplexity complexity}) {
+    state = state.copyWith(sessionComplexity: complexity);
+  }
+
   void setGoals({required bool setGoals}) {
     state = state.copyWith(setGoals: setGoals);
   }
@@ -105,61 +120,58 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
+  void updateTime(TimeOfDay plannedTime) {
+    state = state.copyWith(plannedTime: plannedTime);
+  }
+
+  Future<void> enableNotifications({required bool isEnabled}) async {
+    final status = await Permission.notification.request();
+    if (status.isGranted) {
+      state = state.copyWith(enableNotifications: isEnabled);
+    } else {
+      await NotificationService().openNotificationSettings();
+    }
+  }
+
   // Goals and tasks
   void addGoal(GoalModel goal) {
     state = state.copyWith(goals: <GoalModel>[...state.goals, goal]);
   }
 
-  void addTask(TaskModel task) {
-    state = state.copyWith(tasks: <TaskModel>[...state.tasks, task]);
+  // Check if no id or UUID is given
+  bool _isPersistentId(String? id) {
+    if (id == null) return false;
+    return int.tryParse(id) != null;
   }
 
-  void removeGoal(int index) {
-    final goal = state.goals[index];
-    // If in edit mode, mark for deletion
-    // Only if not just newly created goal (invalid id)
-    if (state.isEditMode && int.tryParse(goal.id!) != null) {
+  void removeGoalById(String goalId) {
+    if (state.isEditMode && _isPersistentId(goalId)) {
       state = state.copyWith(
-        goalIdsToDelete: [
-          ...state.goalIdsToDelete,
-          goal.id!,
-        ],
+        goalIdsToDelete: {...state.goalIdsToDelete, goalId},
       );
     }
-    final goals = [...state.goals]..removeAt(index);
-    state = state.copyWith(goals: goals);
+
+    state = state.copyWith(
+      goals: state.goals.where((g) => g.id != goalId).toList(),
+    );
   }
 
-  void removeTask(int index) {
-    final task = state.tasks[index];
-    // If in edit mode, mark for deletion
-    // Only if not just newly created task (invalid id)
-    if (state.isEditMode && int.tryParse(task.id!) != null) {
+  void removeTask(String taskId) {
+    if (state.isEditMode && _isPersistentId(taskId)) {
       state = state.copyWith(
-        taskIdsToDelete: [
-          ...state.taskIdsToDelete,
-          task.id!,
-        ],
+        taskIdsToDelete: {...state.taskIdsToDelete, taskId},
       );
     }
-    final tasks = [...state.tasks]..removeAt(index);
-    state = state.copyWith(tasks: tasks);
+
+    state = state.copyWith(
+      tasks: state.tasks.where((t) => t.id != taskId).toList(),
+    );
   }
 
   // Creates a task directly linked to a goal
   void addTaskToGoal(TaskModel task, String? goalId) {
     final taskWithGoal = task.copyWith(goalId: goalId);
-    state = state.copyWith(tasks: <TaskModel>[...state.tasks, taskWithGoal]);
-  }
-
-  // Task is udpated and linked to a goal
-  void linkTaskToGoal(int taskIndex, String goalId) {
-    final tasks = List<TaskModel>.from(state.tasks);
-    final task = tasks[taskIndex];
-
-    tasks[taskIndex] = task.copyWith(goalId: goalId);
-
-    state = state.copyWith(tasks: tasks);
+    state = state.copyWith(tasks: [...state.tasks, taskWithGoal]);
   }
 
   void toggleStrategy(String strategy) {
@@ -237,36 +249,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  bool validateAll() {
-    final titleErr = AddSessionValidator.validateTitle(state.title);
-    final dateErr = AddSessionValidator.validateDate(
-      startDate: state.startDate,
-      isRepeating: state.isRepeating,
-      endDate: state.endDate,
-    );
-    final goalError = AddSessionValidator.validateGoals(
-      setGoals: state.setGoals,
-      goals: state.goals,
-      tasks: state.tasks,
-    );
-    final daysErr = AddSessionValidator.validateDays(
-      state.selectedDays,
-      isRepeating: state.isRepeating,
-    );
-
-    state = state.copyWith(
-      titleError: titleErr,
-      dateError: dateErr,
-      selectedDaysError: daysErr,
-      goalsError: goalError,
-    );
-
-    return titleErr == null &&
-        dateErr == null &&
-        daysErr == null &&
-        goalError == null;
-  }
-
   bool get isFormValid {
     // Title must be valid
     if (state.titleError != null) return false;
@@ -289,10 +271,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Update session info
   Future<void> updateSession() async {
-    if (!validateAll()) {
-      throw Exception('Bitte fülle alle Felder korrekt aus!');
-    }
-
     final service = ref.read(addSessionServiceProvider);
     final session = _stateToSessionModel(state);
 
@@ -307,10 +285,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   Future<void> updateSessionAndReset() async {
-    if (!validateAll()) {
-      throw Exception('Bitte fülle alle Felder korrekt aus!');
-    }
-
     final service = ref.read(addSessionServiceProvider);
     final session = _stateToSessionModel(state);
 
@@ -328,10 +302,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Save all info
   Future<void> createSession() async {
-    if (!validateAll()) {
-      throw Exception('Bitte fülle alle Felder korrekt aus!');
-    }
-
     final service = ref.read(addSessionServiceProvider);
     final session = _stateToSessionModel(state);
 

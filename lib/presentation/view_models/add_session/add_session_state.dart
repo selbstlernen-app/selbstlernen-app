@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/models.dart';
@@ -11,6 +12,11 @@ abstract class AddSessionState with _$AddSessionState {
     @Default('') String title,
     @Default(false) bool isRepeating,
     @Default(true) bool setGoals,
+
+    @Default(TimeOfDay(hour: 10, minute: 0)) TimeOfDay plannedTime,
+
+    @Default(false) bool enableNotifications,
+
     DateTime? startDate,
     DateTime? endDate,
     @Default(<int>[]) List<int> selectedDays,
@@ -20,15 +26,15 @@ abstract class AddSessionState with _$AddSessionState {
     @Default(<TaskModel>[]) List<TaskModel> tasks,
 
     // In edit mode we may delete some tasks/goals
-    @Default(<String>[]) List<String> taskIdsToDelete,
-    @Default(<String>[]) List<String> goalIdsToDelete,
+    @Default(<String>{}) Set<String> taskIdsToDelete,
+    @Default(<String>{}) Set<String> goalIdsToDelete,
 
     // Strategies
     @Default(<String>[]) List<String> learningStrategies,
     List<LearningStrategyModel>? availableStrategies,
 
     // Time
-    @Default(SessionComplexity.none) SessionComplexity sessionComplexity,
+    @Default(SessionComplexity.simple) SessionComplexity sessionComplexity,
     @Default(25) int focusTimeMin,
     @Default(5) int breakTimeMin,
     @Default(15) int longBreakTimeMin,
@@ -42,7 +48,7 @@ abstract class AddSessionState with _$AddSessionState {
     @Default(false) bool hasFreetextPrompt,
 
     //Validation fields
-    String? titleError,
+    @Default(null) String? titleError,
     String? dateError,
     String? selectedDaysError,
     String? goalsError,
@@ -67,6 +73,25 @@ abstract class AddSessionState with _$AddSessionState {
   int get totalPages {
     if (isEditMode) return 4;
     return 5;
+  }
+
+  // Can go to second page
+  bool get canGoToSecondStep {
+    if (title.isEmpty || titleError != null) return false;
+
+    return true;
+  }
+
+  // Can go to second page
+  bool get canGoToThirdPage {
+    if (isRepeating) {
+      final hasValidDates =
+          startDate != null && endDate != null && startDate!.isBefore(endDate!);
+
+      return selectedDays.isNotEmpty && hasValidDates;
+    }
+
+    return true;
   }
 }
 

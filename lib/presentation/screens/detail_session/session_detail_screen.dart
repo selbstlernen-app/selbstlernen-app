@@ -293,7 +293,7 @@ class SessionDetailScreen extends ConsumerWidget {
           // Repeat button
           if (instanceId != null)
             SizedBox(
-              width: context.mediaQuery.size.width,
+              width: double.infinity,
               child: CustomIconButton(
                 verticalPadding: 16,
                 radius: 30,
@@ -334,7 +334,7 @@ class SessionDetailScreen extends ConsumerWidget {
               size: SpaceSize.xsmall,
             ),
             SizedBox(
-              width: context.mediaQuery.size.width,
+              width: double.infinity,
               child: CustomButton(
                 onPressed: () async {
                   await Navigator.of(
@@ -354,7 +354,7 @@ class SessionDetailScreen extends ConsumerWidget {
 
           if (instanceId == null && !session.isArchived)
             SizedBox(
-              width: context.mediaQuery.size.width,
+              width: double.infinity,
               child: CustomButton(
                 onPressed: () async {
                   try {

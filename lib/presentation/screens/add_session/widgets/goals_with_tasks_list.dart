@@ -26,6 +26,10 @@ class GoalWithTasksCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isEditMode = ref.watch(
+      addSessionViewModelProvider.select((s) => s.isEditMode),
+    );
+
     return Card(
       elevation: 0.1,
       child: Padding(
@@ -45,11 +49,9 @@ class GoalWithTasksCard extends ConsumerWidget {
                     Icon(
                       Icons.flag_outlined,
                       color: context.colorScheme.primary,
-                      size: 24,
+                      size: 20,
                     ),
-
                     const HorizontalSpace(),
-
                     // Goal title + task count
                     Expanded(
                       child: Column(
@@ -69,7 +71,6 @@ class GoalWithTasksCard extends ConsumerWidget {
                                 color: context.colorScheme.onSurface.withValues(
                                   alpha: 0.7,
                                 ),
-                                fontSize: 13,
                               ),
                             ),
                           if (tasksForGoal.isEmpty)
@@ -79,12 +80,27 @@ class GoalWithTasksCard extends ConsumerWidget {
                                 color: context.colorScheme.onSurface.withValues(
                                   alpha: 0.7,
                                 ),
-                                fontSize: 13,
                               ),
                             ),
                         ],
                       ),
                     ),
+
+                    // Delete button
+                    if (tasksForGoal.isEmpty && goal.id != '__ungrouped__')
+                      IconButton(
+                        icon: const Icon(
+                          Icons.delete_forever_rounded,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          ref
+                              .read(
+                                addSessionViewModelProvider.notifier,
+                              )
+                              .removeGoalById(goal.id!);
+                        },
+                      ),
 
                     // Expand/Collapse arrow
                     Icon(
@@ -142,15 +158,13 @@ class GoalWithTasksCard extends ConsumerWidget {
                                   size: 20,
                                 ),
                                 onPressed: () {
-                                  final notifier = ref.read(
-                                    addSessionViewModelProvider.notifier,
-                                  );
-                                  final state = ref.read(
-                                    addSessionViewModelProvider,
-                                  );
-                                  notifier.removeTask(
-                                    state.tasks.indexOf(task),
-                                  );
+                                  ref
+                                      .read(
+                                        addSessionViewModelProvider.notifier,
+                                      )
+                                      .removeTask(
+                                        task.id!,
+                                      );
                                 },
                               ),
                             ],
@@ -163,9 +177,7 @@ class GoalWithTasksCard extends ConsumerWidget {
 
                     // Add task input
                     InputList<TaskModel>(
-                      markEditMode: ref
-                          .read(addSessionViewModelProvider)
-                          .isEditMode,
+                      markEditMode: isEditMode,
                       controller: taskController,
                       onEnter: onAddTask,
                       isBigGoal: false,

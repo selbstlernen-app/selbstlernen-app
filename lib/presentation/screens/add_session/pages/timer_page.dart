@@ -115,7 +115,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
         ),
 
         SizedBox(
-          width: context.mediaQuery.size.width,
+          width: double.infinity,
           child: CustomButton(
             isActive: state.isTimeValid,
             label: 'Weiter',

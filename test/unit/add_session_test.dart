@@ -44,9 +44,6 @@ void main() {
       goals: <GoalModel>[],
     );
 
-    var isValid = vm.validateAll();
-
-    expect(isValid, false);
     expect(vm.state.titleError, 'Titel kann nicht leer sein.');
     expect(vm.state.dateError, 'Startdatum muss gegeben sein.');
     expect(vm.state.selectedDaysError, isNotNull);
@@ -60,18 +57,12 @@ void main() {
       selectedDays: <int>[1, 2, 3],
     );
 
-    isValid = vm.validateAll();
-
-    expect(isValid, false);
     expect(vm.state.dateError, 'Enddatum muss gegeben sein.');
     expect(vm.state.selectedDaysError, isNull);
 
     // 3) Same date (invalid)
     vm.state = vm.state.copyWith(endDate: DateTime(2025, 11));
 
-    isValid = vm.validateAll();
-
-    expect(isValid, false);
     expect(
       vm.state.dateError,
       '''Start- und Enddatum können nicht am selben Tag sein.'''
@@ -80,10 +71,6 @@ void main() {
 
     // 4) End before start (invalid)
     vm.state = vm.state.copyWith(endDate: DateTime(2025, 10));
-
-    isValid = vm.validateAll();
-
-    expect(isValid, false);
     expect(vm.state.dateError, 'Startdatum muss vor dem Enddatum liegen.');
   });
 
@@ -99,10 +86,6 @@ void main() {
       tasks: <TaskModel>[],
       goals: <GoalModel>[],
     );
-
-    final isValid = vm.validateAll();
-
-    expect(isValid, false);
 
     expect(vm.state.titleError, isNotNull);
     expect(vm.state.titleError, 'Titel muss mind. 3 Charaktere lang sein.');

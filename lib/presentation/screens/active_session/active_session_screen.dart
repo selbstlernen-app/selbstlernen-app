@@ -134,7 +134,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                 if (state.timerStatus == TimerStatus.initial) ...<Widget>[
                   const VerticalSpace(size: SpaceSize.small),
                   SizedBox(
-                    width: context.mediaQuery.size.width,
+                    width: double.infinity,
                     child: CustomButton(
                       verticalPadding: 8,
                       onPressed: () async {
