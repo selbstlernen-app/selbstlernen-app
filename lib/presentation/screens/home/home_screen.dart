@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/custom_filter_chip.dart';
-import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/home/widgets/calendar_widget.dart';
@@ -84,7 +83,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 class _Greeting extends ConsumerWidget {
-  const _Greeting({super.key});
+  const _Greeting();
 
   String getGreeting() {
     final hour = DateTime.now().hour;
@@ -129,7 +128,7 @@ class _Greeting extends ConsumerWidget {
 }
 
 class _FilterButtonRow extends ConsumerWidget {
-  const _FilterButtonRow({super.key});
+  const _FilterButtonRow();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
