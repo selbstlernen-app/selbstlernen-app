@@ -10,6 +10,7 @@ import 'package:srl_app/presentation/screens/add_session/pages/prompt_page.dart'
 import 'package:srl_app/presentation/screens/add_session/pages/setup_wizard_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/strategy_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/timer_page.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class AddSessionScreen extends ConsumerStatefulWidget {
@@ -23,15 +24,12 @@ class AddSessionScreen extends ConsumerStatefulWidget {
 }
 
 class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
-  final PageController _pageController = PageController();
-  int currentPage = 0;
+  var currentPage = 0;
   double _progress = 0;
 
   @override
   void initState() {
     super.initState();
-    // Denominator is the total amount of pages available
-    _progress = 1 / 5;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.fullSessionModel != null) {
@@ -49,51 +47,20 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
 
   Future<void> _navigateBack() async {
     FocusScope.of(context).unfocus();
-    final totalPages = ref.read(addSessionViewModelProvider).totalPages;
 
     if (currentPage > 0) {
-      final targetPage = currentPage - 1;
-
       await ref
           .watch(addSessionPageControllerProvider)
-          .animateToPage(
-            targetPage,
+          .previousPage(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-          )
-          .then((_) {
-            setState(() {
-              currentPage = targetPage;
-              _progress = (currentPage + 1) / totalPages;
-            });
-          });
+          );
     } else {
       if (widget.fullSessionModel != null) {
-        // reset fields and then navigate back!
         ref.read(addSessionViewModelProvider.notifier).resetFields();
-        Navigator.pop(context);
       }
+      Navigator.pop(context);
     }
-  }
-
-  Future<void> _navigateForward() async {
-    final targetPage = currentPage + 1;
-    final totalPages = ref.read(addSessionViewModelProvider).totalPages;
-
-    FocusScope.of(context).unfocus();
-
-    await _pageController
-        .animateToPage(
-          targetPage,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-        )
-        .then((_) {
-          setState(() {
-            currentPage = targetPage;
-            _progress = (currentPage + 1) / totalPages;
-          });
-        });
   }
 
   @override
@@ -140,7 +107,16 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
       navigateBack: showBackButton ? _navigateBack : null,
       content: PageView(
         controller: pageController,
-        onPageChanged: (index) => setState(() => currentPage = index),
+        onPageChanged: (index) {
+          setState(() {
+            currentPage = index;
+            // Recalculate progress here based on dynamic page count
+            final total = state.sessionComplexity == SessionComplexity.advanced
+                ? 6
+                : 5;
+            _progress = (index + 1) / total;
+          });
+        },
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
           const SetupWizardPage(),
@@ -151,13 +127,11 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
 
           const StrategyPage(),
 
-          // Do not show this page in edit mode, since nothing should
-          // be changed here anyway
-          if (!state.isEditMode) ...[
-            TimerPage(navigateForward: _navigateForward),
-          ],
+          // Only show complex timer page on separate page when clicked
+          if (state.sessionComplexity == SessionComplexity.advanced)
+            const TimerPage(),
 
-          PromptPage(navigateForward: _navigateForward),
+          PromptPage(),
         ],
       ),
     );

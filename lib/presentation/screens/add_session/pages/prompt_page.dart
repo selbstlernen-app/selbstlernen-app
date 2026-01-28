@@ -9,8 +9,7 @@ import 'package:srl_app/presentation/screens/add_session/widgets/time_input_fiel
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class PromptPage extends ConsumerStatefulWidget {
-  const PromptPage({required this.navigateForward, super.key});
-  final VoidCallback navigateForward;
+  const PromptPage({super.key});
 
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _$PromptPageState();
