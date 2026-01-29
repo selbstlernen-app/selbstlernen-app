@@ -24,7 +24,8 @@ class AddSessionScreen extends ConsumerStatefulWidget {
 }
 
 class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
-  var currentPage = 0;
+  final PageController _pageController = PageController();
+  int currentPage = 0;
   double _progress = 0;
 
   @override
@@ -48,13 +49,25 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   Future<void> _navigateBack() async {
     FocusScope.of(context).unfocus();
 
+    final totalPages = ref.read(
+      addSessionViewModelProvider.select((s) => s.totalPages),
+    );
+
     if (currentPage > 0) {
-      await ref
-          .watch(addSessionPageControllerProvider)
-          .previousPage(
+      final targetPage = currentPage - 1;
+
+      await _pageController
+          .animateToPage(
+            targetPage,
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-          );
+          )
+          .then((_) {
+            setState(() {
+              currentPage = targetPage;
+              _progress = (currentPage + 1) / totalPages;
+            });
+          });
     } else {
       if (widget.fullSessionModel != null) {
         ref.read(addSessionViewModelProvider.notifier).resetFields();
@@ -63,9 +76,29 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
     }
   }
 
+  Future<void> _navigateForward() async {
+    print("NAVIGATE FORWARD?? ");
+    final targetPage = currentPage + 1;
+    final totalPages = ref.read(addSessionViewModelProvider).totalPages;
+
+    FocusScope.of(context).unfocus();
+
+    await _pageController
+        .animateToPage(
+          targetPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        )
+        .then((_) {
+          setState(() {
+            currentPage = targetPage;
+            _progress = (currentPage + 1) / totalPages;
+          });
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final pageController = ref.watch(addSessionPageControllerProvider);
     final state = ref.watch(addSessionViewModelProvider);
     final showBackButton = widget.fullSessionModel != null || currentPage > 0;
 
@@ -106,7 +139,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
       ),
       navigateBack: showBackButton ? _navigateBack : null,
       content: PageView(
-        controller: pageController,
+        controller: _pageController,
         onPageChanged: (index) {
           setState(() {
             currentPage = index;
@@ -119,19 +152,19 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         },
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
-          const SetupWizardPage(),
+          SetupWizardPage(navigateForward: _navigateForward),
 
-          const PlanStartPage(),
+          PlanStartPage(navigateForward: _navigateForward),
 
-          const GoalSettingPage(),
+          GoalSettingPage(navigateForward: _navigateForward),
 
-          const StrategyPage(),
+          StrategyPage(navigateForward: _navigateForward),
 
           // Only show complex timer page on separate page when clicked
           if (state.sessionComplexity == SessionComplexity.advanced)
-            const TimerPage(),
+            TimerPage(navigateForward: _navigateForward),
 
-          PromptPage(),
+          const PromptPage(),
         ],
       ),
     );

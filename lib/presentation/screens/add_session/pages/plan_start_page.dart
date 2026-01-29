@@ -7,32 +7,14 @@ import 'package:srl_app/presentation/screens/add_session/widgets/date_input_fiel
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class PlanStartPage extends ConsumerStatefulWidget {
-  const PlanStartPage({super.key});
+  const PlanStartPage({required this.navigateForward, super.key});
+  final VoidCallback navigateForward;
 
   @override
   ConsumerState<PlanStartPage> createState() => _PlanStartPageState();
 }
 
 class _PlanStartPageState extends ConsumerState<PlanStartPage> {
-  late TextEditingController _goalController;
-  late TextEditingController _taskController;
-  final ScrollController _scrollController = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _goalController = TextEditingController();
-    _taskController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _goalController.dispose();
-    _taskController.dispose();
-    _scrollController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(addSessionViewModelProvider);
@@ -48,7 +30,6 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
       children: <Widget>[
         Expanded(
           child: SingleChildScrollView(
-            controller: _scrollController,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -178,12 +159,7 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
             isActive: ref.read(addSessionViewModelProvider).canGoToThirdPage,
             onPressed: () =>
                 ref.read(addSessionViewModelProvider).canGoToThirdPage
-                ? ref
-                      .read(addSessionPageControllerProvider)
-                      .nextPage(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeIn,
-                      )
+                ? widget.navigateForward()
                 : null,
           ),
         ),

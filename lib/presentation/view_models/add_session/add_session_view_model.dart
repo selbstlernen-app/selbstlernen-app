@@ -16,14 +16,6 @@ import 'package:srl_app/presentation/view_models/add_session/add_session_state.d
 part 'add_session_view_model.g.dart';
 
 @riverpod
-PageController addSessionPageController(Ref ref) {
-  final controller = PageController();
-  ref.onDispose(() => controller.dispose);
-
-  return controller;
-}
-
-@riverpod
 class AddSessionViewModel extends _$AddSessionViewModel {
   late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
   late final ManageLearningStrategyUseCase _manageLearningStrategyUseCase;
@@ -76,10 +68,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   void setSessionComplexity({required SessionComplexity complexity}) {
     state = state.copyWith(sessionComplexity: complexity);
-  }
-
-  void setGoals({required bool setGoals}) {
-    state = state.copyWith(setGoals: setGoals);
   }
 
   void setStartDate(DateTime? date) {
@@ -186,10 +174,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(learningStrategies: updated);
   }
 
-  void toggleTimerMode({required bool isSimpleTimer}) {
-    state = state.copyWith(sessionComplexity: SessionComplexity.simple);
-  }
-
   void setTimerSettings({
     int? focusTime,
     int? breakTime,
@@ -215,16 +199,12 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       focusPromptInterval: focusPromptInterval ?? state.focusPromptInterval,
       showFocusPromptAlways:
           showFocusPromptAlways ?? state.showFocusPromptAlways,
-      hasFreetextPrompt: freetext ?? state.hasFreetextPrompt,
     );
   }
 
   // Initialization (if in edit mode)
   void initializeState(FullSessionModel fullSessionModel) {
     final session = fullSessionModel.session;
-    final hasUngroupedTasks = fullSessionModel.tasks.any(
-      (TaskModel task) => task.goalId == null,
-    );
 
     state = state.copyWith(
       sessionId: session.id,
@@ -234,7 +214,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       startDate: session.isRepeating ? session.startDate : null,
       endDate: session.isRepeating ? session.endDate : null,
       selectedDays: session.isRepeating ? session.selectedDays : [],
-      setGoals: !hasUngroupedTasks,
+
       goals: fullSessionModel.goals,
       tasks: fullSessionModel.tasks,
       learningStrategies: session.learningStrategies,
@@ -245,7 +225,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       hasFocusPrompt: session.hasFocusPrompt,
       focusPromptInterval: session.focusPromptInterval,
       showFocusPromptAlways: session.showFocusPromptAlways,
-      hasFreetextPrompt: session.hasFreetextPrompt,
     );
   }
 
@@ -262,11 +241,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       }
     }
 
-    // Must have either goals or tasks
-    final hasGoals = state.setGoals && state.goals.isNotEmpty;
-    final hasTasks = !state.setGoals && state.tasks.isNotEmpty;
-
-    return hasGoals || hasTasks;
+    // Must have some goal or task
+    return state.goals.isNotEmpty || state.tasks.isNotEmpty;
   }
 
   // Update session info
@@ -327,6 +303,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       isRepeating: state.isRepeating,
       startDate: state.startDate,
       endDate: state.endDate,
+      plannedTime: state.plannedTime,
+      complexity: state.sessionComplexity,
       selectedDays: state.selectedDays,
       learningStrategies: state.learningStrategies,
       focusTimeMin: state.focusTimeMin,
@@ -336,7 +314,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       hasFocusPrompt: state.hasFocusPrompt,
       focusPromptInterval: state.focusPromptInterval,
       showFocusPromptAlways: state.showFocusPromptAlways,
-      hasFreetextPrompt: state.hasFreetextPrompt,
     );
   }
 

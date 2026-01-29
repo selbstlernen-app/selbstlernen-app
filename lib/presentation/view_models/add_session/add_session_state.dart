@@ -11,12 +11,11 @@ abstract class AddSessionState with _$AddSessionState {
     String? sessionId,
     @Default('') String title,
     @Default(false) bool isRepeating,
-    @Default(true) bool setGoals,
 
     @Default(TimeOfDay(hour: 10, minute: 0)) TimeOfDay plannedTime,
-
     @Default(false) bool enableNotifications,
 
+    // In case of repeating sessions
     DateTime? startDate,
     DateTime? endDate,
     @Default(<int>[]) List<int> selectedDays,
@@ -24,8 +23,7 @@ abstract class AddSessionState with _$AddSessionState {
     // Goals and tasks
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,
-
-    // In edit mode we may delete some tasks/goals
+    // In edit mode we may delete some tasks/goals indefinitely
     @Default(<String>{}) Set<String> taskIdsToDelete,
     @Default(<String>{}) Set<String> goalIdsToDelete,
 
@@ -45,7 +43,6 @@ abstract class AddSessionState with _$AddSessionState {
     @Default(15) int focusPromptInterval,
     // Show independent of user inactivity
     @Default(false) bool showFocusPromptAlways,
-    @Default(false) bool hasFreetextPrompt,
 
     //Validation fields
     @Default(null) String? titleError,
@@ -65,14 +62,14 @@ abstract class AddSessionState with _$AddSessionState {
   List<TaskModel> tasksForGoal(String goalId) =>
       tasks.where((TaskModel task) => task.goalId == goalId).toList();
 
+  int get totalPages {
+    return sessionComplexity == SessionComplexity.advanced ? 6 : 5;
+  }
+
+  // Can go to prompter page
   bool get isTimeValid {
     if (focusTimeMin > 0) return true;
     return false;
-  }
-
-  int get totalPages {
-    if (isEditMode) return 4;
-    return 5;
   }
 
   // Can go to second page
@@ -88,6 +85,8 @@ abstract class AddSessionState with _$AddSessionState {
       final hasValidDates =
           startDate != null && endDate != null && startDate!.isBefore(endDate!);
 
+      print(hasValidDates);
+      print(selectedDays.isNotEmpty);
       return selectedDays.isNotEmpty && hasValidDates;
     }
 
@@ -96,7 +95,7 @@ abstract class AddSessionState with _$AddSessionState {
 }
 
 enum SessionComplexity {
-  // Diary / No-time
+  // Diary / No-time (TODO: yet to decide if this is a use case students are interested in)
   none,
   // Basic countdown; only configure focus time here
   simple,

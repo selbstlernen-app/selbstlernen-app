@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/material.dart' hide Table;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:srl_app/data/database/daos/goal_dao.dart';
@@ -18,7 +19,9 @@ import 'package:srl_app/data/database/tables/session_instance_table.dart';
 import 'package:srl_app/data/database/tables/session_table.dart';
 import 'package:srl_app/data/database/tables/settings_table.dart';
 import 'package:srl_app/data/database/tables/task_table.dart';
+import 'package:srl_app/data/entity_mappers/session_mapper.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 part 'app_database.g.dart';
 

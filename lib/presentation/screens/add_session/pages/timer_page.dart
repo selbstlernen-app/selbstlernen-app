@@ -7,7 +7,8 @@ import 'package:srl_app/presentation/screens/add_session/widgets/time_input_fiel
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class TimerPage extends ConsumerStatefulWidget {
-  const TimerPage({super.key});
+  const TimerPage({required this.navigateForward, super.key});
+  final VoidCallback navigateForward;
 
   @override
   ConsumerState<TimerPage> createState() => _$TimerPageState();
@@ -96,14 +97,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           child: CustomButton(
             isActive: isTimeValid,
             label: 'Weiter',
-            onPressed: () => isTimeValid
-                ? ref
-                      .read(addSessionPageControllerProvider)
-                      .nextPage(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeIn,
-                      )
-                : null,
+            onPressed: () => isTimeValid ? widget.navigateForward() : null,
           ),
         ),
       ],

@@ -1,4 +1,6 @@
 import 'package:drift/drift.dart';
+import 'package:srl_app/data/entity_mappers/session_mapper.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 class Sessions extends Table with AutoIncrementingPrimaryKey {
   TextColumn get title => text()();
@@ -11,6 +13,12 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
 
   TextColumn get learningStrategies => text().nullable()();
 
+  IntColumn get plannedTime => integer().map(const TimeOfDayConverter())();
+  IntColumn get complexity => intEnum<SessionComplexity>()();
+
+  BoolColumn get hasNotification =>
+      boolean().withDefault(const Constant<bool>(false))();
+
   IntColumn get focusTimeMin => integer()();
   IntColumn get breakTimeMin => integer()();
   IntColumn get longBreakTimeMin => integer()();
@@ -21,8 +29,6 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
   IntColumn get focusPromptInterval => integer()();
   BoolColumn get showFocusPromptAlways =>
       boolean().withDefault(const Constant<bool>(false))();
-  BoolColumn get hasFreetextPrompt =>
-      boolean().withDefault(const Constant<bool>(true))();
 
   BoolColumn get isArchived =>
       boolean().withDefault(const Constant<bool>(false))();

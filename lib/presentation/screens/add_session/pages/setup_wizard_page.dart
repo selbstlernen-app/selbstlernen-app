@@ -3,14 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_error_text.dart';
 import 'package:srl_app/common_widgets/custom_filter_chip.dart';
-import 'package:srl_app/common_widgets/custom_text_field.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class SetupWizardPage extends ConsumerStatefulWidget {
-  const SetupWizardPage({super.key});
+  const SetupWizardPage({required this.navigateForward, super.key});
+  final VoidCallback navigateForward;
 
   @override
   ConsumerState<SetupWizardPage> createState() => _$SetupWizardPageState();
@@ -96,14 +96,8 @@ class _$SetupWizardPageState extends ConsumerState<SetupWizardPage> {
           child: CustomButton(
             label: 'Weiter',
             isActive: canGoToSecondStep,
-            onPressed: () => canGoToSecondStep
-                ? ref
-                      .read(addSessionPageControllerProvider)
-                      .nextPage(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeIn,
-                      )
-                : null,
+            onPressed: () =>
+                canGoToSecondStep ? widget.navigateForward() : null,
           ),
         ),
       ],

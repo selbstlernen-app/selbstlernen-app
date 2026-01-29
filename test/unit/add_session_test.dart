@@ -39,7 +39,6 @@ void main() {
       startDate: null,
       endDate: DateTime.now(),
       selectedDays: <int>[],
-      setGoals: false,
       tasks: <TaskModel>[],
       goals: <GoalModel>[],
     );
@@ -82,7 +81,7 @@ void main() {
     vm.state = vm.state.copyWith(
       title: '12',
       isRepeating: false,
-      setGoals: false,
+
       tasks: <TaskModel>[],
       goals: <GoalModel>[],
     );
@@ -105,7 +104,6 @@ void main() {
           keptForFutureSessions: true,
         ),
       ],
-      setGoals: true,
     );
 
     expect(vm.isFormValid, true);
@@ -148,8 +146,8 @@ void main() {
             keptForFutureSessions: true,
           ),
         ],
-        goalIdsToDelete: <String>[],
-        taskIdsToDelete: <String>[],
+        goalIdsToDelete: <String>{},
+        taskIdsToDelete: <String>{},
       ),
     ).thenAnswer((_) async => <dynamic, dynamic>{});
   });

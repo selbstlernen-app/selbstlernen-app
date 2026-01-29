@@ -10,7 +10,8 @@ import 'package:srl_app/presentation/view_models/add_session/add_session_state.d
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class StrategyPage extends ConsumerStatefulWidget {
-  const StrategyPage({super.key});
+  const StrategyPage({required this.navigateForward, super.key});
+  final VoidCallback navigateForward;
 
   @override
   ConsumerState<StrategyPage> createState() => _StrategyPageState();
@@ -144,14 +145,7 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
           width: MediaQuery.sizeOf(context).width,
           child: CustomButton(
             label: canNavigate ? 'Weiter' : 'Wähle mind. 1 Strategien aus',
-            onPressed: () => canNavigate
-                ? ref
-                      .read(addSessionPageControllerProvider)
-                      .nextPage(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeIn,
-                      )
-                : null,
+            onPressed: () => canNavigate ? widget.navigateForward() : null,
             isActive: canNavigate,
           ),
         ),

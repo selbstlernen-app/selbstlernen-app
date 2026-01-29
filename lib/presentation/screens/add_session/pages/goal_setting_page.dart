@@ -10,7 +10,8 @@ import 'package:srl_app/presentation/view_models/add_session/add_session_view_mo
 import 'package:uuid/uuid.dart';
 
 class GoalSettingPage extends ConsumerStatefulWidget {
-  const GoalSettingPage({super.key});
+  const GoalSettingPage({required this.navigateForward, super.key});
+  final VoidCallback navigateForward;
 
   @override
   ConsumerState<GoalSettingPage> createState() => _GoalSettingPageState();
@@ -210,13 +211,10 @@ class _GoalSettingPageState extends ConsumerState<GoalSettingPage> {
         SizedBox(
           width: double.infinity,
           child: CustomButton(
-            label: state.goals.isNotEmpty ? 'Weiter' : 'Überspringen',
-            onPressed: () => ref
-                .read(addSessionPageControllerProvider)
-                .nextPage(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeIn,
-                ),
+            isActive: state.goals.isNotEmpty,
+            label: 'Weiter',
+            onPressed: () =>
+                state.goals.isNotEmpty ? widget.navigateForward() : null,
           ),
         ),
       ],

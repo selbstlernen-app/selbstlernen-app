@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 import 'package:srl_app/data/app_database.dart';
 import 'package:srl_app/domain/models/session_model.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 extension SessionToModelMapper on Session {
   SessionModel toDomain() {
@@ -8,6 +10,9 @@ extension SessionToModelMapper on Session {
       id: id.toString(),
       title: title,
       isRepeating: isRepeating,
+      plannedTime: plannedTime,
+      complexity: complexity,
+      hasNotification: hasNotification,
       startDate: startDate,
       endDate: endDate,
       selectedDays: selectedDays?.split(',').map(int.parse).toList() ?? <int>[],
@@ -19,7 +24,6 @@ extension SessionToModelMapper on Session {
       hasFocusPrompt: hasFocusPrompt,
       focusPromptInterval: focusPromptInterval,
       showFocusPromptAlways: showFocusPromptAlways,
-      hasFreetextPrompt: hasFreetextPrompt,
       isArchived: isArchived,
       createdAt: createdAt,
       updatedAt: updatedAt,
@@ -44,6 +48,9 @@ extension SessionToCompanionMapper on SessionModel {
       learningStrategies: Value<String?>(
         learningStrategies.isNotEmpty ? learningStrategies.join(',') : null,
       ),
+      plannedTime: Value<TimeOfDay>(plannedTime),
+      hasNotification: Value<bool>(hasNotification),
+      complexity: Value<SessionComplexity>(complexity),
       focusTimeMin: Value<int>(focusTimeMin),
       breakTimeMin: Value<int>(breakTimeMin),
       longBreakTimeMin: Value<int>(longBreakTimeMin),
@@ -51,7 +58,6 @@ extension SessionToCompanionMapper on SessionModel {
       hasFocusPrompt: Value<bool>(hasFocusPrompt),
       focusPromptInterval: Value<int>(focusPromptInterval),
       showFocusPromptAlways: Value<bool>(showFocusPromptAlways),
-      hasFreetextPrompt: Value<bool>(hasFreetextPrompt),
       isArchived: Value<bool>(isArchived),
       createdAt: Value<DateTime>(createdAt ?? DateTime.now()),
       updatedAt: Value<DateTime>(updatedAt ?? DateTime.now()),
@@ -73,14 +79,24 @@ extension SessionToCompanionMapper on SessionModel {
       ),
       focusTimeMin: Value<int>(focusTimeMin),
       breakTimeMin: Value<int>(breakTimeMin),
+      plannedTime: Value<TimeOfDay>(plannedTime),
+      hasNotification: Value<bool>(hasNotification),
       longBreakTimeMin: Value<int>(longBreakTimeMin),
       focusPhases: Value<int>(focusPhases),
       hasFocusPrompt: Value<bool>(hasFocusPrompt),
       focusPromptInterval: Value<int>(focusPromptInterval),
       showFocusPromptAlways: Value<bool>(showFocusPromptAlways),
-      hasFreetextPrompt: Value<bool>(hasFreetextPrompt),
       isArchived: Value<bool>(isArchived),
       updatedAt: Value<DateTime>(DateTime.now()),
     );
   }
+}
+
+class TimeOfDayConverter extends TypeConverter<TimeOfDay, int> {
+  const TimeOfDayConverter();
+  @override
+  TimeOfDay fromSql(int fromDb) =>
+      TimeOfDay(hour: fromDb ~/ 60, minute: fromDb % 60);
+  @override
+  int toSql(TimeOfDay value) => value.hour * 60 + value.minute;
 }
