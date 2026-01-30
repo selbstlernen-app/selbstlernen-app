@@ -34,14 +34,13 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
     _startDateController = TextEditingController();
     _endDateController = TextEditingController();
 
-    final startDate =
-        ref.read(addSessionViewModelProvider).startDate ?? DateTime.now();
-    final endDate =
-        ref.read(addSessionViewModelProvider).endDate ??
-        DateTime.now().add(const Duration(days: 1));
+    final startDate = ref.read(addSessionViewModelProvider).startDate;
+    final endDate = ref.read(addSessionViewModelProvider).endDate;
 
-    _startDateController.text = DateFormat('dd.MM.yyyy').format(startDate);
-    _endDateController.text = DateFormat('dd.MM.yyyy').format(endDate);
+    if (startDate != null && endDate != null) {
+      _startDateController.text = DateFormat('dd.MM.yyyy').format(startDate);
+      _endDateController.text = DateFormat('dd.MM.yyyy').format(endDate);
+    }
   }
 
   @override
@@ -106,7 +105,20 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(addSessionViewModelProvider);
+    final selectedDays = ref.watch(
+      addSessionViewModelProvider.select((s) => s.selectedDays),
+    );
+    final editMode = ref.watch(
+      addSessionViewModelProvider.select((s) => s.isEditMode),
+    );
+
+    final selectedDaysError = ref.watch(
+      addSessionViewModelProvider.select((s) => s.selectedDayError),
+    );
+
+    final dateError = ref.watch(
+      addSessionViewModelProvider.select((s) => s.dateError),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,10 +132,10 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: dayNames.map((String day) {
             final dayIndex = dayNames.indexOf(day);
-            final isSelected = state.selectedDays.contains(dayIndex);
+            final isSelected = selectedDays.contains(dayIndex);
 
             return InkWell(
-              onTap: () => state.isEditMode
+              onTap: () => editMode
                   ? null
                   : ref
                         .read(addSessionViewModelProvider.notifier)
@@ -166,8 +178,8 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
           }).toList(),
         ),
 
-        if (state.selectedDaysError != null)
-          CustomErrorText(errorText: state.selectedDaysError!),
+        if (selectedDaysError != null)
+          CustomErrorText(errorText: selectedDaysError),
 
         const VerticalSpace(
           size: SpaceSize.small,
@@ -194,10 +206,9 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                     controller: _startDateController,
                     readOnly: true,
                     hintText: 'Startdatum',
-                    onTap: () => state.isEditMode
-                        ? null
-                        : _pickDate(_startDateController, true),
-                    hasError: state.dateError != null,
+                    onTap: () =>
+                        editMode ? null : _pickDate(_startDateController, true),
+                    hasError: dateError != null,
                   ),
                 ],
               ),
@@ -218,10 +229,9 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                     controller: _endDateController,
                     readOnly: true,
                     hintText: 'Enddatum',
-                    onTap: () => state.isEditMode
-                        ? null
-                        : _pickDate(_endDateController, false),
-                    hasError: state.dateError != null,
+                    onTap: () =>
+                        editMode ? null : _pickDate(_endDateController, false),
+                    hasError: dateError != null,
                   ),
                 ],
               ),
@@ -229,8 +239,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
           ],
         ),
 
-        if (state.dateError != null)
-          CustomErrorText(errorText: state.dateError!),
+        if (dateError != null) CustomErrorText(errorText: dateError),
       ],
     );
   }

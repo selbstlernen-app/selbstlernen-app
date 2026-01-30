@@ -10,7 +10,6 @@ import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/notification_service.dart';
-import 'package:srl_app/presentation/screens/add_session/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 part 'add_session_view_model.g.dart';
@@ -35,7 +34,11 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
     _subscribe();
 
-    return const AddSessionState();
+    final now = DateTime.now();
+    return AddSessionState(
+      startDate: now,
+      endDate: now.add(const Duration(days: 1)),
+    );
   }
 
   void _subscribe() {
@@ -56,10 +59,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Basic info
   void setTitle(String title) {
-    state = state.copyWith(
-      title: title,
-      titleError: AddSessionValidator.validateTitle(title),
-    );
+    state = state.copyWith(title: title);
   }
 
   void setIsRepeating({required bool isRepeating}) {
@@ -73,22 +73,12 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   void setStartDate(DateTime? date) {
     state = state.copyWith(
       startDate: date,
-      dateError: AddSessionValidator.validateDate(
-        isRepeating: state.isRepeating,
-        startDate: date,
-        endDate: state.endDate,
-      ),
     );
   }
 
   void setEndDate(DateTime? date) {
     state = state.copyWith(
       endDate: date,
-      dateError: AddSessionValidator.validateDate(
-        startDate: state.startDate,
-        isRepeating: state.isRepeating,
-        endDate: date,
-      ),
     );
   }
 
@@ -99,13 +89,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     } else {
       days.add(day);
     }
-    state = state.copyWith(
-      selectedDays: days,
-      selectedDaysError: AddSessionValidator.validateDays(
-        isRepeating: state.isRepeating,
-        days,
-      ),
-    );
+    state = state.copyWith(selectedDays: days);
   }
 
   void updateTime(TimeOfDay plannedTime) {
@@ -202,47 +186,9 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  // Initialization (if in edit mode)
+  // Initalise state for edit mode
   void initializeState(FullSessionModel fullSessionModel) {
-    final session = fullSessionModel.session;
-
-    state = state.copyWith(
-      sessionId: session.id,
-      isEditMode: session.id != null,
-      title: session.title,
-      isRepeating: session.isRepeating,
-      startDate: session.isRepeating ? session.startDate : null,
-      endDate: session.isRepeating ? session.endDate : null,
-      selectedDays: session.isRepeating ? session.selectedDays : [],
-
-      goals: fullSessionModel.goals,
-      tasks: fullSessionModel.tasks,
-      learningStrategies: session.learningStrategies,
-      focusTimeMin: session.focusTimeMin,
-      breakTimeMin: session.breakTimeMin,
-      longBreakTimeMin: session.longBreakTimeMin,
-      focusPhases: session.focusPhases,
-      hasFocusPrompt: session.hasFocusPrompt,
-      focusPromptInterval: session.focusPromptInterval,
-      showFocusPromptAlways: session.showFocusPromptAlways,
-    );
-  }
-
-  bool get isFormValid {
-    // Title must be valid
-    if (state.titleError != null) return false;
-
-    // If repeating, must have date range and selected days
-    if (state.isRepeating) {
-      if (state.startDate == null ||
-          state.endDate == null ||
-          state.selectedDays.isEmpty) {
-        return false;
-      }
-    }
-
-    // Must have some goal or task
-    return state.goals.isNotEmpty || state.tasks.isNotEmpty;
+    state = AddSessionState.fromModel(fullSessionModel);
   }
 
   // Update session info
@@ -298,6 +244,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   SessionModel _stateToSessionModel(AddSessionState state) {
+    // In case of simple sessions adapt all other time properties to 0
+    final isComplex = state.sessionComplexity == SessionComplexity.advanced;
     return SessionModel(
       title: state.title,
       isRepeating: state.isRepeating,
@@ -308,9 +256,9 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       selectedDays: state.selectedDays,
       learningStrategies: state.learningStrategies,
       focusTimeMin: state.focusTimeMin,
-      breakTimeMin: state.breakTimeMin,
-      longBreakTimeMin: state.longBreakTimeMin,
-      focusPhases: state.focusPhases,
+      breakTimeMin: isComplex ? state.breakTimeMin : 0,
+      longBreakTimeMin: isComplex ? state.longBreakTimeMin : 0,
+      focusPhases: isComplex ? state.focusPhases : 0,
       hasFocusPrompt: state.hasFocusPrompt,
       focusPromptInterval: state.focusPromptInterval,
       showFocusPromptAlways: state.showFocusPromptAlways,

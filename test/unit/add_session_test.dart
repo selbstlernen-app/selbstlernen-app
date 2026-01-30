@@ -105,8 +105,6 @@ void main() {
         ),
       ],
     );
-
-    expect(vm.isFormValid, true);
   });
 
   test('createSession calls service and sets sessionId', () async {
