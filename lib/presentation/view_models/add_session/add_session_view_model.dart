@@ -188,7 +188,10 @@ class AddSessionViewModel extends _$AddSessionViewModel {
 
   // Initalise state for edit mode
   void initializeState(FullSessionModel fullSessionModel) {
-    state = AddSessionState.fromModel(fullSessionModel);
+    state = AddSessionState.fromModel(
+      fullSession: fullSessionModel,
+      existingStrategies: state.availableStrategies,
+    );
   }
 
   // Update session info

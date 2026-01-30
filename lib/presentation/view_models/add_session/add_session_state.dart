@@ -53,7 +53,10 @@ abstract class AddSessionState with _$AddSessionState {
   const AddSessionState._();
 
   // Factory to initialize the state from the given model in edit mode
-  factory AddSessionState.fromModel(FullSessionModel fullSession) {
+  factory AddSessionState.fromModel({
+    required FullSessionModel fullSession,
+    List<LearningStrategyModel>? existingStrategies,
+  }) {
     final session = fullSession.session;
     return AddSessionState(
       sessionId: session.id,
@@ -66,6 +69,7 @@ abstract class AddSessionState with _$AddSessionState {
       goals: fullSession.goals,
       tasks: fullSession.tasks,
       learningStrategies: session.learningStrategies,
+      availableStrategies: existingStrategies,
       sessionComplexity: session.complexity,
       focusTimeMin: session.focusTimeMin,
       breakTimeMin: session.breakTimeMin,
@@ -85,6 +89,9 @@ abstract class AddSessionState with _$AddSessionState {
       tasks.where((TaskModel task) => task.goalId == goalId).toList();
 
   int get totalPages {
+    if (isEditMode) {
+      return sessionComplexity == SessionComplexity.advanced ? 5 : 4;
+    }
     return sessionComplexity == SessionComplexity.advanced ? 6 : 5;
   }
 

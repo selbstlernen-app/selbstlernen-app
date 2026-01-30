@@ -160,7 +160,8 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         },
         physics: const NeverScrollableScrollPhysics(),
         children: <Widget>[
-          SetupWizardPage(navigateForward: _navigateForward),
+          if (!state.isEditMode)
+            SetupWizardPage(navigateForward: _navigateForward),
 
           PlanStartPage(navigateForward: _navigateForward),
 
