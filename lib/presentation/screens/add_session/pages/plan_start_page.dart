@@ -85,7 +85,7 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
                 if (time != null) {
                   ref
                       .read(addSessionViewModelProvider.notifier)
-                      .updateTime(time);
+                      .setPlannedTime(time);
                 }
               },
             ),

@@ -75,9 +75,11 @@ class _NotificationSettingsScreenState
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           'Benachrichtigungen',
           style: context.textTheme.headlineLarge,
+          textAlign: TextAlign.center,
         ),
       ),
       body: SafeArea(

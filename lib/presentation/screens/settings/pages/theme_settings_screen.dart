@@ -17,7 +17,9 @@ class ThemeSettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
+          textAlign: TextAlign.center,
           'Aussehen',
           style: context.textTheme.headlineLarge,
         ),

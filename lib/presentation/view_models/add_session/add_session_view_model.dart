@@ -92,7 +92,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(selectedDays: days);
   }
 
-  void updateTime(TimeOfDay plannedTime) {
+  void setPlannedTime(TimeOfDay plannedTime) {
     state = state.copyWith(plannedTime: plannedTime);
   }
 
@@ -200,6 +200,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     final service = ref.read(addSessionServiceProvider);
 
     if (state.isEditMode) {
+      print("UPDATED TIME IS : ${session.plannedTime}");
       await service.updateSessionWithChanges(
         sessionId: int.parse(state.sessionId!),
         session: session,
@@ -265,6 +266,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       startDate: state.startDate,
       endDate: state.endDate,
       plannedTime: state.plannedTime,
+      hasNotification: state.enableNotifications,
       complexity: state.sessionComplexity,
       selectedDays: state.selectedDays,
       learningStrategies: state.learningStrategies,

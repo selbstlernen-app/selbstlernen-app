@@ -78,6 +78,8 @@ abstract class AddSessionState with _$AddSessionState {
       hasFocusPrompt: session.hasFocusPrompt,
       focusPromptInterval: session.focusPromptInterval,
       showFocusPromptAlways: session.showFocusPromptAlways,
+      enableNotifications: session.hasNotification,
+      plannedTime: session.plannedTime,
       isLoading: false,
     );
   }

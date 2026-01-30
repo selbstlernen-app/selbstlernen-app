@@ -103,6 +103,7 @@ class _LearningStrategySettingsScreenState
         title: Text(
           'Meine Strategien (${strategies.length}/15)',
           style: context.textTheme.headlineLarge,
+          textAlign: TextAlign.center,
         ),
       ),
       body: SafeArea(
