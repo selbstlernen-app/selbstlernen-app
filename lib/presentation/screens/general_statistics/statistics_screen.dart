@@ -36,13 +36,21 @@ class StatisticsScreen extends ConsumerWidget {
     }
     if (isLoading) return const LoadingIndicator();
 
-    return const Scaffold(
+    return Scaffold(
       body: SafeArea(
         child: CustomScrollView(
-          physics: AlwaysScrollableScrollPhysics(),
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            SliverAppBar(title: Text('Gesamt-Statistik')),
-            SliverToBoxAdapter(
+            SliverAppBar(
+              centerTitle: true,
+              title: Text(
+                'Gesamt-Statistik',
+                style: context.textTheme.headlineLarge,
+                textAlign: TextAlign.center,
+              ),
+              automaticallyImplyLeading: false,
+            ),
+            const SliverToBoxAdapter(
               child: Padding(
                 padding: EdgeInsets.all(16),
                 child: Column(
@@ -63,7 +71,7 @@ class StatisticsScreen extends ConsumerWidget {
               ),
             ),
 
-            SliverSessionList(),
+            const SliverSessionList(),
           ],
         ),
       ),

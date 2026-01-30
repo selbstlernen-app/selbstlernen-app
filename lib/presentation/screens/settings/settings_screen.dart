@@ -57,63 +57,69 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Text(
+        child: CustomScrollView(
+          physics: const ScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              centerTitle: true,
+              title: Text(
                 'Einstellungen',
-                textAlign: TextAlign.center,
                 style: context.textTheme.headlineLarge,
+                textAlign: TextAlign.center,
               ),
+              automaticallyImplyLeading: false,
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    _buildSectionTile(
+                      title: 'Aussehen',
+                      icon: Icons.palette_outlined,
+                      subtitle: 'Farbe und Darstellung anpassen',
+                      onTap: () => _navigateToThemeSettings(context),
+                    ),
 
-              const VerticalSpace(),
+                    const VerticalSpace(
+                      size: SpaceSize.xsmall,
+                    ),
 
-              _buildSectionTile(
-                title: 'Aussehen',
-                icon: Icons.palette_outlined,
-                subtitle: 'Farbe und Darstellung anpassen',
-                onTap: () => _navigateToThemeSettings(context),
+                    _buildSectionTile(
+                      title: 'Benachrichtigungen',
+                      icon: Icons.notifications_active_outlined,
+                      subtitle: 'Benachrichtigungen anpassen und konfigurieren',
+                      onTap: () => _navigateToNotificationSettings(context),
+                    ),
+
+                    const VerticalSpace(
+                      size: SpaceSize.xsmall,
+                    ),
+
+                    _buildSectionTile(
+                      title: 'Lernstrategien',
+                      icon: Icons.document_scanner_outlined,
+                      subtitle: 'Lernstrategien anpassen und konfigurieren',
+                      onTap: () =>
+                          _navigateToLearningStrategiesSettings(context),
+                    ),
+
+                    const VerticalSpace(
+                      size: SpaceSize.xsmall,
+                    ),
+
+                    _buildSectionTile(
+                      title: 'Timer',
+                      icon: Icons.timer_outlined,
+                      subtitle:
+                          'Timer-Einstellungen anpassen und konfigurieren',
+                      onTap: () => _navigateToTimerSettings(context),
+                    ),
+                  ],
+                ),
               ),
-
-              const VerticalSpace(
-                size: SpaceSize.xsmall,
-              ),
-
-              _buildSectionTile(
-                title: 'Benachrichtigungen',
-                icon: Icons.notifications_active_outlined,
-                subtitle: 'Benachrichtigungen anpassen und konfigurieren',
-                onTap: () => _navigateToNotificationSettings(context),
-              ),
-
-              const VerticalSpace(
-                size: SpaceSize.xsmall,
-              ),
-
-              _buildSectionTile(
-                title: 'Lernstrategien',
-                icon: Icons.document_scanner_outlined,
-                subtitle: 'Lernstrategien anpassen und konfigurieren',
-                onTap: () => _navigateToLearningStrategiesSettings(context),
-              ),
-
-              const VerticalSpace(
-                size: SpaceSize.xsmall,
-              ),
-
-              _buildSectionTile(
-                title: 'Timer',
-                icon: Icons.timer_outlined,
-                subtitle: 'Timer-Einstellungen anpassen und konfigurieren',
-                onTap: () => _navigateToTimerSettings(context),
-              ),
-
-              const VerticalSpace(
-                size: SpaceSize.xsmall,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
