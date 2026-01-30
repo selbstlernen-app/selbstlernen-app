@@ -97,8 +97,6 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   }
 
   Future<SessionInstanceModel> startSession() async {
-    print("START SESSION SCHEDULED FOR: ");
-    print(targetDate);
     final newInstance = await _getOrCreateInstanceUseCase.call(
       sessionId: _sessionId,
       date: targetDate,

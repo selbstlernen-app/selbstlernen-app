@@ -118,7 +118,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
       onPressedFAB: () async {
         await ref
             .read(addSessionViewModelProvider.notifier)
-            .updateSessionAndReset();
+            .handleSaveSession();
 
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

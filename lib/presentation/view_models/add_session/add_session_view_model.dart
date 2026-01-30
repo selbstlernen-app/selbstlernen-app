@@ -186,7 +186,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  // Initalise state for edit mode
+  // Initalize state for edit mode
   void initializeState(FullSessionModel fullSessionModel) {
     state = AddSessionState.fromModel(
       fullSession: fullSessionModel,
@@ -194,53 +194,63 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
-  // Update session info
-  Future<void> updateSession() async {
-    final service = ref.read(addSessionServiceProvider);
+  // Save or update the session depending on edit mode
+  Future<void> handleSaveSession() async {
     final session = _stateToSessionModel(state);
-
-    await service.updateSessionWithChanges(
-      sessionId: int.parse(state.sessionId!),
-      session: session,
-      goalsToUpdate: state.goals,
-      tasksToUpdate: state.tasks,
-      goalIdsToDelete: state.goalIdsToDelete,
-      taskIdsToDelete: state.taskIdsToDelete,
-    );
-  }
-
-  Future<void> updateSessionAndReset() async {
     final service = ref.read(addSessionServiceProvider);
-    final session = _stateToSessionModel(state);
 
-    await service.updateSessionWithChanges(
-      sessionId: int.parse(state.sessionId!),
-      session: session,
-      goalsToUpdate: state.goals,
-      tasksToUpdate: state.tasks,
-      goalIdsToDelete: state.goalIdsToDelete,
-      taskIdsToDelete: state.taskIdsToDelete,
-    );
-
+    if (state.isEditMode) {
+      await service.updateSessionWithChanges(
+        sessionId: int.parse(state.sessionId!),
+        session: session,
+        goalsToUpdate: state.goals,
+        tasksToUpdate: state.tasks,
+        goalIdsToDelete: state.goalIdsToDelete,
+        taskIdsToDelete: state.taskIdsToDelete,
+      );
+    } else {
+      await service.createSessionWithGoalsAndTasks(
+        session: session,
+        goals: state.goals,
+        tasks: state.tasks,
+      );
+    }
     resetFields();
   }
 
-  // Save all info
-  Future<void> createSession() async {
+  Future<SessionInstanceModel> handleStartSession() async {
     final service = ref.read(addSessionServiceProvider);
     final session = _stateToSessionModel(state);
+    if (state.isEditMode) {
+      await service.updateSessionWithChanges(
+        sessionId: int.parse(state.sessionId!),
+        session: session,
+        goalsToUpdate: state.goals,
+        tasksToUpdate: state.tasks,
+        goalIdsToDelete: state.goalIdsToDelete,
+        taskIdsToDelete: state.taskIdsToDelete,
+      );
+    } else {
+      final sessionId = await service.createSessionWithGoalsAndTasks(
+        session: session,
+        goals: state.goals,
+        tasks: state.tasks,
+      );
 
-    final sessionId = await service.createSessionWithGoalsAndTasks(
-      session: session,
-      goals: state.goals,
-      tasks: state.tasks,
+      state = state.copyWith(sessionId: sessionId.toString());
+    }
+
+    final now = DateTime.now();
+    final instance = await _getOrCreateInstanceUseCase.call(
+      sessionId: int.parse(state.sessionId!),
+      date: now,
     );
 
-    state = state.copyWith(sessionId: sessionId.toString());
+    return instance;
   }
 
   void resetFields() {
-    // returns default state, with exception of saved available strategies
+    // Returns default state, with exception of saved available strategies
     state = const AddSessionState().copyWith(
       availableStrategies: state.availableStrategies,
     );
@@ -266,16 +276,5 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       focusPromptInterval: state.focusPromptInterval,
       showFocusPromptAlways: state.showFocusPromptAlways,
     );
-  }
-
-  Future<SessionInstanceModel> startSession() async {
-    final now = DateTime.now();
-    final instance = await _getOrCreateInstanceUseCase.call(
-      sessionId: int.parse(state.sessionId!),
-      date: now,
-    );
-
-    resetFields();
-    return instance;
   }
 }

@@ -52,9 +52,12 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         );
   }
 
-  Future<void> _saveSession() async {
+  Future<void> _handleSaveSession() async {
     try {
-      await ref.read(addSessionViewModelProvider.notifier).createSession();
+      final notifier = ref.read(addSessionViewModelProvider.notifier);
+      final state = ref.read(addSessionViewModelProvider);
+
+      await notifier.handleSaveSession();
       if (!mounted) return;
 
       context.scaffoldMessenger.showSnackBar(
@@ -64,56 +67,30 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
         ),
       );
 
-      await Navigator.of(context).pushNamedAndRemoveUntil(
-        AppRoutes.home,
-        (Route<dynamic> route) => false,
-      );
-    } on Exception catch (e) {
-      if (!mounted) return;
-      context.scaffoldMessenger.showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          content: Text('Fehler: $e'),
-        ),
-      );
-    }
-  }
-
-  Future<void> _updateSession() async {
-    try {
-      await ref.read(addSessionViewModelProvider.notifier).updateSession();
-
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          content: Text(Constants.successModified),
-        ),
-      );
-      Navigator.pop(context);
-    } on Exception catch (e) {
-      if (!mounted) return;
-      context.scaffoldMessenger.showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 2),
-          content: Text('Fehler: $e'),
-        ),
-      );
-    }
-  }
-
-  Future<void> _startSession(bool isEditingMode) async {
-    try {
-      if (isEditingMode) {
-        await ref.read(addSessionViewModelProvider.notifier).updateSession();
+      if (state.isEditMode) {
+        Navigator.pop(context);
       } else {
-        await ref.read(addSessionViewModelProvider.notifier).createSession();
+        await Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.home,
+          (Route<dynamic> route) => false,
+        );
       }
+    } on Exception catch (e) {
+      if (!mounted) return;
+      context.scaffoldMessenger.showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          content: Text('Fehler: $e'),
+        ),
+      );
+    }
+  }
 
-      // Create or get instance for today
+  Future<void> _startSession() async {
+    try {
       final instance = await ref
           .read(addSessionViewModelProvider.notifier)
-          .startSession();
+          .handleStartSession();
 
       if (!mounted) return;
 
@@ -248,7 +225,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
                       label: state.isEditMode
                           ? 'Mit Änderungen starten'
                           : 'Sofort starten',
-                      onPressed: () => _startSession(state.isEditMode),
+                      onPressed: _startSession,
                     ),
                   ),
 
@@ -259,8 +236,7 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
                       label: state.isEditMode
                           ? 'Änderungen speichern'
                           : 'Einheit erstellen',
-                      onPressed: () =>
-                          state.isEditMode ? _updateSession() : _saveSession(),
+                      onPressed: _handleSaveSession,
                     ),
                   ),
                 ],
