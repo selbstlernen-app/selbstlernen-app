@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/theme/text_theme.dart';
@@ -13,6 +14,7 @@ class CustomTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
+
       colorScheme: ColorScheme.fromSeed(
         seedColor: primaryColor,
         primary: primaryColor,
@@ -27,6 +29,10 @@ class CustomTheme {
       scaffoldBackgroundColor: const Color(0xffF5F5F5),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xffF5F5F5),
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.dark,
+          statusBarBrightness: Brightness.light,
+        ),
       ),
       cardTheme: const CardThemeData(
         surfaceTintColor: Colors.transparent,
@@ -71,6 +77,10 @@ class CustomTheme {
       scaffoldBackgroundColor: const Color(0xFF121212),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF121212),
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarIconBrightness: Brightness.light,
+          statusBarBrightness: Brightness.dark,
+        ),
       ),
       cardTheme: const CardThemeData(
         elevation: 0,
