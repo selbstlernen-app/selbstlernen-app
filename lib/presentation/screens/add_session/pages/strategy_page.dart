@@ -69,84 +69,90 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
       addSessionViewModelProvider.select((s) => s.focusTimeMin),
     );
 
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate([
+            Row(
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    const Icon(
-                      Icons.wb_incandescent_outlined,
-                    ),
-                    const HorizontalSpace(size: SpaceSize.small),
-                    Text(
-                      'Lernstrategien',
-                      style: context.textTheme.headlineSmall,
-                    ),
-                  ],
+                const Icon(
+                  Icons.wb_incandescent_outlined,
                 ),
-                const VerticalSpace(size: SpaceSize.xsmall),
+                const HorizontalSpace(size: SpaceSize.small),
                 Text(
-                  '''Strategien, die du in deiner Lerneinheit anwenden willst,''',
-                  style: context.textTheme.bodyMedium,
+                  'Lernstrategien',
+                  style: context.textTheme.headlineSmall,
                 ),
-                const VerticalSpace(
-                  size: SpaceSize.small,
-                ),
-
-                // Grid of learning strategies
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 4,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 4,
-                  ),
-                  itemCount: available?.length ?? 0,
-                  itemBuilder: (context, index) {
-                    final strategy = available![index];
-                    return _StrategyItem(
-                      strategy: strategy,
-                      isSelected: selected.contains(strategy.title),
-                    );
-                  },
-                ),
-
-                const VerticalSpace(
-                  size: SpaceSize.small,
-                ),
-
-                TextButton(
-                  onPressed: () =>
-                      _navigateToLearningStrategiesSettings(context),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.all(8),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: const Text('Andere Strategien?'),
-                ),
-
-                const VerticalSpace(
-                  size: SpaceSize.large,
-                ),
-                // Simple Timer (*IF chosen in wizard)
-                if (isSimpleTimer) _buildSimpleTimeSettings(focusTime),
               ],
             ),
-          ),
+            const VerticalSpace(size: SpaceSize.xsmall),
+            Text(
+              '''Strategien, die du in deiner Lerneinheit anwenden willst,''',
+              style: context.textTheme.bodyMedium,
+            ),
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+
+            // Grid of learning strategies
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 4,
+                mainAxisSpacing: 8,
+                crossAxisSpacing: 4,
+              ),
+              itemCount: available?.length ?? 0,
+              itemBuilder: (context, index) {
+                final strategy = available![index];
+                return _StrategyItem(
+                  strategy: strategy,
+                  isSelected: selected.contains(strategy.title),
+                );
+              },
+            ),
+
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+
+            TextButton(
+              onPressed: () => _navigateToLearningStrategiesSettings(context),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.all(8),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: const Text('Andere Strategien?'),
+            ),
+
+            const VerticalSpace(),
+            // Simple Timer (*IF chosen in wizard)
+            if (isSimpleTimer) _buildSimpleTimeSettings(focusTime),
+          ]),
         ),
-        // Navigation button
-        SizedBox(
-          width: MediaQuery.sizeOf(context).width,
-          child: CustomButton(
-            label: canNavigate ? 'Weiter' : 'Wähle mind. 1 Strategien aus',
-            onPressed: () => canNavigate ? widget.navigateForward() : null,
-            isActive: canNavigate,
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomButton(
+                    label: canNavigate
+                        ? 'Weiter'
+                        : 'Wähle mind. 1 Strategien aus',
+                    onPressed: () =>
+                        canNavigate ? widget.navigateForward() : null,
+                    isActive: canNavigate,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -189,6 +195,8 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
         ),
 
         Text('Gesamtzeit: ${focusTime ~/ 60}h ${focusTime % 60} min'),
+
+        const VerticalSpace(size: SpaceSize.small),
       ],
     );
   }

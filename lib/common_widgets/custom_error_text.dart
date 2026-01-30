@@ -8,12 +8,12 @@ class CustomErrorText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 12, top: 4),
+      padding: const EdgeInsets.only(left: 8),
       child: Text(
         errorText,
         style: context.textTheme.bodySmall!.copyWith(
           color: context.colorScheme.error,
-          fontSize: 13,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );

@@ -141,133 +141,137 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(addSessionViewModelProvider);
 
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate([
+            Text(
+              'Abfragen während der Lerneinheit',
+              style: context.textTheme.headlineMedium,
+            ),
+
+            const VerticalSpace(),
+
+            Text('Fokusabfrage', style: context.textTheme.headlineSmall),
+            const VerticalSpace(size: SpaceSize.xsmall),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text(
-                  'Abfragen während der Lerneinheit',
-                  style: context.textTheme.headlineMedium,
-                ),
-
-                const VerticalSpace(),
-
-                Text('Fokusabfrage', style: context.textTheme.headlineSmall),
-                const VerticalSpace(size: SpaceSize.xsmall),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Expanded(
-                      child: Text(
-                        '''Konfiguriere eine Abfrage, die während der Lerneinheit deine Aufmerksamkeit testet.''',
-                        style: context.textTheme.bodyMedium!.copyWith(
-                          color: state.hasFocusPrompt
-                              ? context.colorScheme.onSurface
-                              : context.colorScheme.onTertiary,
-                        ),
-                      ),
+                Expanded(
+                  child: Text(
+                    '''Konfiguriere eine Abfrage, die während der Lerneinheit deine Aufmerksamkeit testet.''',
+                    style: context.textTheme.bodyMedium!.copyWith(
+                      color: state.hasFocusPrompt
+                          ? context.colorScheme.onSurface
+                          : context.colorScheme.onTertiary,
                     ),
-                    Theme(
-                      data: ThemeData(useMaterial3: true).copyWith(
-                        colorScheme: context.colorScheme.copyWith(
-                          outline: context.colorScheme.onTertiary,
-                        ),
-                      ),
-                      child: Switch(
-                        value: state.hasFocusPrompt,
-                        inactiveThumbColor: context.colorScheme.onTertiary,
-                        onChanged: (bool value) {
-                          _switchValues(focus: value);
-                        },
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-
-                if (state.hasFocusPrompt) ...<Widget>[
-                  const VerticalSpace(),
-                  TimeInputField(
-                    minValue: 10,
-                    maxValue: 120,
-                    controller: _focusPromptController,
-                    label: 'Abfrage alle (min)',
-                    onChanged: (int value) {
-                      _switchValues(focusPromptInterval: value);
+                Theme(
+                  data: ThemeData(useMaterial3: true).copyWith(
+                    colorScheme: context.colorScheme.copyWith(
+                      outline: context.colorScheme.onTertiary,
+                    ),
+                  ),
+                  child: Switch(
+                    value: state.hasFocusPrompt,
+                    inactiveThumbColor: context.colorScheme.onTertiary,
+                    onChanged: (bool value) {
+                      _switchValues(focus: value);
                     },
                   ),
-
-                  const VerticalSpace(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Expanded(
-                        child: CustomButton(
-                          onPressed: () =>
-                              _switchValues(showFocusPromptAlways: false),
-                          label: 'Nach Inaktvität',
-                          isActive: !state.showFocusPromptAlways,
-                          borderLeft: true,
-                          verticalPadding: 8,
-                        ),
-                      ),
-                      Expanded(
-                        child: CustomButton(
-                          onPressed: () =>
-                              _switchValues(showFocusPromptAlways: true),
-                          label: 'Immer',
-                          isActive: state.showFocusPromptAlways,
-                          borderRight: true,
-                          verticalPadding: 8,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const VerticalSpace(),
-                  Text(
-                    !state.showFocusPromptAlways
-                        ? '''Bekomme die Abfrage nach ${state.focusPromptInterval} min Inaktvität (d.h. du hast für diese Zeit den Bildschirm nicht berührt).'''
-                        : '''Bekomme die Abfrage immer, unabhängig von Bildschirm-Aktivität.''',
-                    style: context.textTheme.bodyMedium,
-                  ),
-                  const VerticalSpace(size: SpaceSize.small),
-                ],
+                ),
               ],
             ),
-          ),
-        ),
-        // Navigation buttons
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Expanded(
-              child: IntrinsicHeight(
-                child: CustomButton(
-                  verticalPadding: 8,
-                  label: state.isEditMode
-                      ? 'Mit Änderungen starten'
-                      : 'Sofort starten',
-                  onPressed: () => _startSession(state.isEditMode),
-                ),
-              ),
-            ),
 
-            const HorizontalSpace(size: SpaceSize.small),
-            Expanded(
-              child: IntrinsicHeight(
-                child: CustomButton(
-                  verticalPadding: 8,
-                  label: state.isEditMode
-                      ? 'Änderungen speichern'
-                      : 'Einheit erstellen',
-                  onPressed: () =>
-                      state.isEditMode ? _updateSession() : _saveSession(),
-                ),
+            if (state.hasFocusPrompt) ...<Widget>[
+              const VerticalSpace(),
+              TimeInputField(
+                minValue: 10,
+                maxValue: 120,
+                controller: _focusPromptController,
+                label: 'Abfrage alle (min)',
+                onChanged: (int value) {
+                  _switchValues(focusPromptInterval: value);
+                },
               ),
-            ),
-          ],
+
+              const VerticalSpace(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                    child: CustomButton(
+                      onPressed: () =>
+                          _switchValues(showFocusPromptAlways: false),
+                      label: 'Nach Inaktvität',
+                      isActive: !state.showFocusPromptAlways,
+                      borderLeft: true,
+                      verticalPadding: 8,
+                    ),
+                  ),
+                  Expanded(
+                    child: CustomButton(
+                      onPressed: () =>
+                          _switchValues(showFocusPromptAlways: true),
+                      label: 'Immer',
+                      isActive: state.showFocusPromptAlways,
+                      borderRight: true,
+                      verticalPadding: 8,
+                    ),
+                  ),
+                ],
+              ),
+              const VerticalSpace(),
+              Text(
+                !state.showFocusPromptAlways
+                    ? '''Bekomme die Abfrage nach ${state.focusPromptInterval} min Inaktvität (d.h. du hast für diese Zeit den Bildschirm nicht berührt).'''
+                    : '''Bekomme die Abfrage immer, unabhängig von Bildschirm-Aktivität.''',
+                style: context.textTheme.bodyMedium,
+              ),
+              const VerticalSpace(size: SpaceSize.small),
+            ],
+          ]),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Expanded(
+                    child: IntrinsicHeight(
+                      child: CustomButton(
+                        verticalPadding: 8,
+                        label: state.isEditMode
+                            ? 'Mit Änderungen starten'
+                            : 'Sofort starten',
+                        onPressed: () => _startSession(state.isEditMode),
+                      ),
+                    ),
+                  ),
+
+                  const HorizontalSpace(size: SpaceSize.small),
+                  Expanded(
+                    child: IntrinsicHeight(
+                      child: CustomButton(
+                        verticalPadding: 8,
+                        label: state.isEditMode
+                            ? 'Änderungen speichern'
+                            : 'Einheit erstellen',
+                        onPressed: () => state.isEditMode
+                            ? _updateSession()
+                            : _saveSession(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ],
     );

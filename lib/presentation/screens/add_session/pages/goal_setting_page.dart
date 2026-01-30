@@ -134,87 +134,96 @@ class _GoalSettingPageState extends ConsumerState<GoalSettingPage> {
       ),
     ];
 
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  children: [
-                    const Icon(Icons.emoji_flags_rounded),
-                    const HorizontalSpace(size: SpaceSize.small),
-                    Text(
-                      'Ziele festlegen',
-                      style: context.textTheme.headlineMedium,
-                    ),
-                  ],
-                ),
-                const VerticalSpace(size: SpaceSize.xsmall),
+    return CustomScrollView(
+      controller: _scrollController,
+      physics: const ScrollPhysics(),
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate([
+            Row(
+              children: [
+                const Icon(Icons.emoji_flags_rounded),
+                const HorizontalSpace(size: SpaceSize.small),
                 Text(
-                  '''Was möchtest du in dieser Einheit erreichen? Ziele helfen dir, den Fokus zu behalten.''',
-                  style: context.textTheme.bodyMedium,
+                  'Ziele festlegen',
+                  style: context.textTheme.headlineMedium,
                 ),
-
-                const VerticalSpace(),
-
-                // Add button
-                CustomAddItemField(
-                  onSubmitted: _handleAddGoal,
-                  onPressed: _handleAddGoal,
-                  controller: _goalController,
-                  hintText: 'Ich will...',
-                  hasError: state.goalsError != null,
-                  markEditMode: state.isEditMode,
-                ),
-                const VerticalSpace(
-                  size: SpaceSize.xsmall,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(left: 8),
-                  child: Text(
-                    '''Tipp: Halte Ziele möglichst präzise.''',
-                    style: context.textTheme.bodySmall!.copyWith(
-                      color: context.colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-
-                const VerticalSpace(
-                  size: SpaceSize.small,
-                ),
-
-                // Goals and tasks
-                ...goalsToMap.map((GoalModel goal) {
-                  final isUngrouped = goal.id == ungroupedTaskGoalId;
-                  final tasks = isUngrouped
-                      ? state.ungroupedTasks
-                      : state.tasksForGoal(goal.id!);
-
-                  return GoalWithTasksCard(
-                    key: ValueKey(goal.id),
-                    goal: goal,
-                    isExpanded: expandedGoalIds.contains(goal.id),
-                    onToggleExpand: () => _toggleGoalExpansion(goal.id!),
-                    onAddTask: () => _addTaskToGoal(goal: goal),
-                    tasksForGoal: tasks,
-                    taskController: _taskController,
-                  );
-                }),
               ],
             ),
-          ),
+            const VerticalSpace(size: SpaceSize.xsmall),
+            Text(
+              '''Was möchtest du in dieser Einheit erreichen? Ziele helfen dir, den Fokus zu behalten.''',
+              style: context.textTheme.bodyMedium,
+            ),
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+
+            // Add button
+            if (state.goals.length < 5)
+              CustomAddItemField(
+                onSubmitted: _handleAddGoal,
+                onPressed: _handleAddGoal,
+                controller: _goalController,
+                hintText: 'Ich will...',
+                hasError: state.goalsError != null,
+                markEditMode: state.isEditMode,
+              ),
+            const VerticalSpace(
+              size: SpaceSize.xsmall,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: Text(
+                '''Tipp: Halte Ziele möglichst präzise.''',
+                style: context.textTheme.bodySmall!.copyWith(
+                  color: context.colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+
+            ...goalsToMap.map((GoalModel goal) {
+              final isUngrouped = goal.id == ungroupedTaskGoalId;
+              final tasks = isUngrouped
+                  ? state.ungroupedTasks
+                  : state.tasksForGoal(goal.id!);
+
+              return GoalWithTasksCard(
+                key: ValueKey(goal.id),
+                goal: goal,
+                isExpanded: expandedGoalIds.contains(goal.id),
+                onToggleExpand: () => _toggleGoalExpansion(goal.id!),
+                onAddTask: () => _addTaskToGoal(goal: goal),
+                tasksForGoal: tasks,
+                taskController: _taskController,
+              );
+            }),
+          ]),
         ),
-        SizedBox(
-          width: double.infinity,
-          child: CustomButton(
-            isActive: state.goals.isNotEmpty,
-            label: 'Weiter',
-            onPressed: () =>
-                state.goals.isNotEmpty ? widget.navigateForward() : null,
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomButton(
+                    isActive: state.goals.isNotEmpty,
+                    label: 'Weiter',
+                    onPressed: () => state.goals.isNotEmpty
+                        ? widget.navigateForward()
+                        : null,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],

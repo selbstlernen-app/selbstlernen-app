@@ -50,54 +50,48 @@ class _$SetupWizardPageState extends ConsumerState<SetupWizardPage> {
       addSessionViewModelProvider.select((s) => s.canGoToSecondStep),
     );
 
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title
-                Text(
-                  'Titel der Lerneinheit',
-                  style: context.textTheme.headlineMedium,
-                ),
-                const VerticalSpace(size: SpaceSize.small),
-                CustomTextField(
-                  readOnly: editMode,
-                  onChanged: ref
-                      .read(addSessionViewModelProvider.notifier)
-                      .setTitle,
-                  controller: _titleController,
-                  hintText: 'z.B. Info 1 - Vorlesung 3...',
-                  maxLength: 35,
-                  hasError: titleError != null,
-                ),
-                if (titleError != null) CustomErrorText(errorText: titleError),
-
-                const VerticalSpace(
-                  size: SpaceSize.large,
-                ),
-
-                // Frequency + Info Text
-                const _FrequencySetting(),
-
-                const VerticalSpace(
-                  size: SpaceSize.xlarge,
-                ),
-
-                const _LearntimeSetting(),
-              ],
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate([
+            Text(
+              'Titel der Lerneinheit',
+              style: context.textTheme.headlineMedium,
             ),
-          ),
+            const VerticalSpace(size: SpaceSize.small),
+            CustomTextField(
+              readOnly: editMode,
+              onChanged: ref
+                  .read(addSessionViewModelProvider.notifier)
+                  .setTitle,
+              controller: _titleController,
+              hintText: 'z.B. Info 1 - Vorlesung 3...',
+              maxLength: 35,
+              hasError: titleError != null,
+            ),
+            if (titleError != null) CustomErrorText(errorText: titleError),
+            const VerticalSpace(),
+            const _FrequencySetting(),
+            const VerticalSpace(size: SpaceSize.large),
+            const _LearntimeSetting(),
+          ]),
         ),
-        SizedBox(
-          width: MediaQuery.sizeOf(context).width,
-          child: CustomButton(
-            label: 'Weiter',
-            isActive: canGoToSecondStep,
-            onPressed: () =>
-                canGoToSecondStep ? widget.navigateForward() : null,
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: CustomButton(
+                  label: 'Weiter',
+                  isActive: canGoToSecondStep,
+                  onPressed: () =>
+                      canGoToSecondStep ? widget.navigateForward() : null,
+                ),
+              ),
+            ],
           ),
         ),
       ],

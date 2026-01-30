@@ -42,7 +42,10 @@ class GoalWithTasksCard extends ConsumerWidget {
               onTap: onToggleExpand,
               borderRadius: BorderRadius.circular(8),
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
                 child: Row(
                   children: <Widget>[
                     // Goal icon

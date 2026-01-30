@@ -62,42 +62,49 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
       addSessionViewModelProvider.select((s) => s.isTimeValid),
     );
 
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverList(
+          delegate: SliverChildListDelegate([
+            Row(
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    const Icon(
-                      Icons.timer_outlined,
-                    ),
-                    const HorizontalSpace(size: SpaceSize.small),
-                    Text(
-                      'Pomodoro Timer festlegen',
-                      style: context.textTheme.headlineSmall,
-                    ),
-                  ],
+                const Icon(
+                  Icons.timer_outlined,
                 ),
-
-                const VerticalSpace(
-                  size: SpaceSize.small,
+                const HorizontalSpace(size: SpaceSize.small),
+                Text(
+                  'Pomodoro Timer festlegen',
+                  style: context.textTheme.headlineSmall,
                 ),
-
-                _buildAdvancedTimeSettings(),
               ],
             ),
-          ),
-        ),
 
-        SizedBox(
-          width: double.infinity,
-          child: CustomButton(
-            isActive: isTimeValid,
-            label: 'Weiter',
-            onPressed: () => isTimeValid ? widget.navigateForward() : null,
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+
+            _buildAdvancedTimeSettings(),
+          ]),
+        ),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomButton(
+                    isActive: isTimeValid,
+                    label: 'Weiter',
+                    onPressed: () =>
+                        isTimeValid ? widget.navigateForward() : null,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -230,7 +237,9 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
         child: Text(
           label,
           style: context.textTheme.labelLarge!.copyWith(
-            color: context.colorScheme.onPrimary,
+            color: label != 'L'
+                ? context.colorScheme.onPrimary
+                : context.colorScheme.primary,
           ),
         ),
       ),

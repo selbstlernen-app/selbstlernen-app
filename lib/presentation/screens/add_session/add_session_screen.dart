@@ -32,6 +32,8 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   void initState() {
     super.initState();
 
+    _progress = 1 / 5;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.fullSessionModel != null) {
         // Edit mode: initialize with existing data;
@@ -77,7 +79,6 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   }
 
   Future<void> _navigateForward() async {
-    print("NAVIGATE FORWARD?? ");
     final targetPage = currentPage + 1;
     final totalPages = ref.read(addSessionViewModelProvider).totalPages;
 
@@ -97,15 +98,22 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         });
   }
 
+  String _getAppBarTitle(String title) {
+    if (currentPage == 0) return 'Lerneinheit erstellen';
+    if (widget.fullSessionModel != null) {
+      return '${widget.fullSessionModel!.session.title} bearbeiten';
+    } else {
+      return '$title konfigurieren';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(addSessionViewModelProvider);
     final showBackButton = widget.fullSessionModel != null || currentPage > 0;
 
     return MainLayout(
-      appBarTitle: widget.fullSessionModel != null
-          ? 'Lerneinheit bearbeiten'
-          : 'Neue Lerneinheit erstellen',
+      appBarTitle: _getAppBarTitle(state.title),
       showFloatingActionButton: state.isEditMode,
       onPressedFAB: () async {
         await ref
