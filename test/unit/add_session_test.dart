@@ -45,8 +45,8 @@ void main() {
 
     expect(vm.state.titleError, 'Titel kann nicht leer sein.');
     expect(vm.state.dateError, 'Startdatum muss gegeben sein.');
-    expect(vm.state.selectedDaysError, isNotNull);
-    expect(vm.state.goalsError, 'Es muss mind. 1 Aufgabe festgelegt werden.');
+    expect(vm.state.selectedDayError, isNotNull);
+    expect(vm.state.goalError, 'Es muss mind. 1 Aufgabe festgelegt werden.');
 
     // 2) Enddate missing
     vm.state = vm.state.copyWith(
@@ -57,7 +57,7 @@ void main() {
     );
 
     expect(vm.state.dateError, 'Enddatum muss gegeben sein.');
-    expect(vm.state.selectedDaysError, isNull);
+    expect(vm.state.selectedDayError, isNull);
 
     // 3) Same date (invalid)
     vm.state = vm.state.copyWith(endDate: DateTime(2025, 11));
@@ -88,7 +88,7 @@ void main() {
 
     expect(vm.state.titleError, isNotNull);
     expect(vm.state.titleError, 'Titel muss mind. 3 Charaktere lang sein.');
-    expect(vm.state.goalsError, 'Es muss mind. 1 Aufgabe festgelegt werden.');
+    expect(vm.state.goalError, 'Es muss mind. 1 Aufgabe festgelegt werden.');
   });
 
   test('isFormValid returns true when all fields valid', () {
