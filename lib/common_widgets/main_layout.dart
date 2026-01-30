@@ -26,7 +26,6 @@ class MainLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
       backgroundColor: Color.lerp(
         context.colorScheme.secondary,
         Colors.white,
