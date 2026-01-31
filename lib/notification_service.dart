@@ -60,6 +60,117 @@ class NotificationService {
     return status.isGranted;
   }
 
+  int _getUniqueId(int sessionId, int dayOfWeek) {
+    return sessionId * 10 + dayOfWeek;
+  }
+
+  // Gets all possible ids for a session needed for scheduling/cancelling
+  List<int> _getAllPossibleIds(int sessionId) {
+    return List.generate(8, (index) => sessionId * 10 + index);
+  }
+
+  Future<void> cancelSpecificSessionNotifications(int sessionId) async {
+    final ids = _getAllPossibleIds(sessionId);
+    for (final id in ids) {
+      await flutterLocalNotificationsPlugin.cancel(id);
+    }
+  }
+
+  Future<void> _scheduleSingleSession(
+    int sessionId,
+    String sessionTitle,
+    TimeOfDay plannedTime,
+  ) async {
+    final scheduledDate = _calculateNextInstance(plannedTime);
+    await _executeSchedule(
+      id: sessionId * 10,
+      title: sessionTitle,
+      body: _getNotificationBody(NotificationType.sessionReminder),
+      scheduledDate: scheduledDate,
+      type: NotificationType.sessionReminder,
+      matchComponents: DateTimeComponents.time,
+    );
+  }
+
+  Future<void> _scheduleWeeklySessions(
+    int sessionId,
+    String title,
+    TimeOfDay time,
+    List<int> days,
+    DateTime start,
+    DateTime end,
+  ) async {
+    for (final dayOfWeek in days) {
+      final scheduledDate = _nextInstanceOfDayAndTime(dayOfWeek, time, start);
+
+      if (scheduledDate.isAfter(tz.TZDateTime.from(end, tz.local))) {
+        continue;
+      }
+
+      await _executeSchedule(
+        id: _getUniqueId(sessionId, dayOfWeek),
+        title: _getNotificationTitle(NotificationType.sessionReminder, title),
+        body: _getNotificationBody(NotificationType.sessionReminder),
+        scheduledDate: scheduledDate,
+        type: NotificationType.sessionReminder,
+        matchComponents: DateTimeComponents.dayOfWeekAndTime,
+      );
+    }
+  }
+
+  tz.TZDateTime _calculateNextInstance(
+    TimeOfDay time, [
+    int? daysInterval = 1,
+  ]) {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
+    if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(Duration(days: daysInterval ?? 1));
+    }
+    return scheduled;
+  }
+
+  // If the session is repeating; then set type to fit frequency
+  // Else repeat as long as session has not been archived yet
+  Future<void> scheduleSessionNotification({
+    required int sessionId,
+    required bool hasNotification,
+    required bool isRepeating,
+    required TimeOfDay plannedTime,
+    required String sessionTitle,
+    List<int>? selectedDays,
+    DateTime? startDate,
+    DateTime? endDate,
+  }) async {
+    // Cancel any specific session notifications
+    await cancelSpecificSessionNotifications(sessionId);
+
+    if (!hasNotification) return;
+
+    if (!isRepeating) {
+      await _scheduleSingleSession(sessionId, sessionTitle, plannedTime);
+    } else {
+      // For repeating sessions we can assume that selectedDays, start
+      // and end date are given
+      await _scheduleWeeklySessions(
+        sessionId,
+        sessionTitle,
+        plannedTime,
+        selectedDays!,
+        startDate!,
+        endDate!,
+      );
+    }
+    await pendingNotifications();
+  }
+
   // Schedule a notification based on type, frequency, and preferred time
   Future<void> scheduleNotification({
     required NotificationType type,
@@ -70,54 +181,21 @@ class NotificationService {
     // Cancel existing notifications for this type
     await cancelNotificationsForType(type);
 
-    if (frequency == NotificationFrequency.never) {
-      return;
-    }
-
     final notificationId = _notificationIds[type]!;
     final time = preferredTime ?? const TimeOfDay(hour: 9, minute: 0);
 
-    // Calculate next notification time
-    final now = tz.TZDateTime.now(tz.local);
-    var scheduledDate = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
+    final scheduledDate = _calculateNextInstance(
+      time,
+      frequency.daysInterval,
     );
 
-    // If the scheduled time is in the past, move to next occurrence
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(
-        Duration(days: frequency.daysInterval ?? 1),
-      );
-    }
-
-    final androidDetails = AndroidNotificationDetails(
-      'scheduled_channel',
-      'Scheduled Notifications',
-      channelDescription: _getChannelDescription(type),
-      importance: Importance.high,
-      priority: Priority.high,
-    );
-
-    const iosDetails = DarwinNotificationDetails();
-    final notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: iosDetails,
-    );
-
-    // Schedule notification
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      notificationId,
-      _getNotificationTitle(type, customMessage),
-      _getNotificationBody(type),
-      scheduledDate,
-      notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: _getMatchDateTimeComponents(frequency),
+    await _executeSchedule(
+      id: notificationId,
+      title: _getNotificationTitle(type, customMessage),
+      body: _getNotificationBody(type),
+      scheduledDate: scheduledDate,
+      type: type,
+      matchComponents: _getMatchDateTimeComponents(frequency),
     );
   }
 
@@ -126,6 +204,15 @@ class NotificationService {
     final notificationId = _notificationIds[type];
     if (notificationId != null) {
       await flutterLocalNotificationsPlugin.cancel(notificationId);
+    }
+  }
+
+  Future<void> pendingNotifications() async {
+    final notificiations = await flutterLocalNotificationsPlugin
+        .pendingNotificationRequests();
+    for (var note in notificiations) {
+      print(note.id);
+      print(note.title);
     }
   }
 
@@ -152,6 +239,8 @@ class NotificationService {
         return 'Dein Wochenfortschritt 📍';
       case NotificationType.motivationalReminder:
         return customMessage ?? 'Bleib dran und gib alles! 🔥';
+      case NotificationType.sessionReminder:
+        return customMessage ?? 'Deine Einheit wartet auf dich 🎯';
     }
   }
 
@@ -162,6 +251,8 @@ class NotificationService {
       case NotificationType.weeklyProgress:
         return 'Schau dir an, wie weit du diese Woche gekommen bist!';
       case NotificationType.motivationalReminder:
+        return '';
+      case NotificationType.sessionReminder:
         return '';
     }
   }
@@ -174,6 +265,8 @@ class NotificationService {
         return 'Weekly progress summaries';
       case NotificationType.motivationalReminder:
         return 'Motivational reminders';
+      case NotificationType.sessionReminder:
+        return 'Session specific reminder';
     }
   }
 
@@ -184,11 +277,63 @@ class NotificationService {
       case NotificationFrequency.daily:
         return DateTimeComponents.time; // Same time every day
       case NotificationFrequency.weekly:
+      case NotificationFrequency.everyOtherDay:
         return DateTimeComponents
             .dayOfWeekAndTime; // Same day and time every week
-      case NotificationFrequency.everyOtherDay:
-      case NotificationFrequency.never:
-        return null; // Handle manually with rescheduling
     }
+  }
+
+  tz.TZDateTime _nextInstanceOfDayAndTime(
+    int dayOfWeek,
+    TimeOfDay plannedTime,
+    DateTime startDate,
+  ) {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduledDate = tz.TZDateTime(
+      tz.local,
+      startDate.year,
+      startDate.month,
+      startDate.day,
+      plannedTime.hour,
+      plannedTime.minute,
+    );
+
+    while (scheduledDate.weekday != dayOfWeek || scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+    return scheduledDate;
+  }
+
+  /// Execute the scheduled notification
+  Future<void> _executeSchedule({
+    required int id,
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledDate,
+    required NotificationType type,
+    required DateTimeComponents? matchComponents,
+  }) async {
+    final androidDetails = AndroidNotificationDetails(
+      'scheduled_channel',
+      'Scheduled Notifications',
+      channelDescription: _getChannelDescription(type),
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: const DarwinNotificationDetails(),
+    );
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledDate,
+      notificationDetails,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: matchComponents,
+    );
   }
 }

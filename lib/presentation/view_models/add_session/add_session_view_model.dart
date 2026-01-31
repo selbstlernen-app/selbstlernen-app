@@ -176,7 +176,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     bool? focus,
     int? focusPromptInterval,
     bool? showFocusPromptAlways,
-    bool? freetext,
   }) {
     state = state.copyWith(
       hasFocusPrompt: focus ?? state.hasFocusPrompt,
@@ -200,7 +199,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     final service = ref.read(addSessionServiceProvider);
 
     if (state.isEditMode) {
-      print("UPDATED TIME IS : ${session.plannedTime}");
       await service.updateSessionWithChanges(
         sessionId: int.parse(state.sessionId!),
         session: session,

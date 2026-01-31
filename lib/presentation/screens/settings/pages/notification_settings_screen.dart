@@ -140,7 +140,6 @@ class _NotificationSettingsScreenState
                               border: OutlineInputBorder(),
                             ),
                             items: NotificationFrequency.values
-                                .where((f) => f != NotificationFrequency.never)
                                 .map(
                                   (f) => DropdownMenuItem(
                                     value: f,
