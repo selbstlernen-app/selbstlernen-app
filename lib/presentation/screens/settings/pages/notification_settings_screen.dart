@@ -124,6 +124,7 @@ class _NotificationSettingsScreenState
                       isEnabled: setting.enabled,
                       onToggle: () async {
                         await notifier.toggleNotificationSetting(
+                          setting: setting,
                           type: setting.type,
                           isEnabled: !setting.enabled,
                         );

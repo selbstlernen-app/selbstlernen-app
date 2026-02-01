@@ -29,7 +29,7 @@ class ManageSettingsUseCase {
     await _repository.setPrimaryColor(color);
   }
 
-  Future<void> setTimerStartsAutomatically() async {
+  Future<void> toggleTimerStartsAutomatically() async {
     final current = _repository.timerStartsAutomatically;
     await _repository.setTimerStartsAutomatically(value: !current);
   }

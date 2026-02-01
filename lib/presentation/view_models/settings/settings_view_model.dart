@@ -110,7 +110,7 @@ class SettingsViewModel extends _$SettingsViewModel {
   }
 
   Future<void> toggleTimerAutomaticallyStarted() async {
-    await _manageSettingsUseCase.setTimerStartsAutomatically();
+    await _manageSettingsUseCase.toggleTimerStartsAutomatically();
     state = state.copyWith(
       timerStartsAutomatically: _manageSettingsUseCase
           .getTimerStartsAutomatically(),
@@ -158,10 +158,12 @@ class SettingsViewModel extends _$SettingsViewModel {
   }
 
   Future<void> toggleNotificationSetting({
+    required NotificationTypeSetting setting,
     required NotificationType type,
     required bool isEnabled,
   }) async {
     await _manageNotificationsUseCase.toggleNotificationType(
+      setting: setting,
       type: type,
       isEnabled: isEnabled,
     );
