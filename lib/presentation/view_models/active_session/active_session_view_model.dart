@@ -3,7 +3,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/focus_prompter.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
@@ -60,7 +59,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   void _listenToDataStreams(int instanceId) {
-    // .listen to update when manual changes in db happen
+    // .listen to any update when manual changes in db happen
     ref
       ..listen(activeInstanceProvider(instanceId), (prev, next) {
         next.whenData((instance) {
@@ -79,6 +78,12 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
               .where((goal) => !state.goalIdsToDelete.contains(goal.id))
               .toList();
           state = state.copyWith(goals: filteredGoals, allOriginalGoals: goals);
+        });
+      })
+      // Watch tasks
+      ..listen(activeTasksProvider(instanceId), (prev, next) {
+        next.whenData((tasks) {
+          state = state.copyWith(tasks: tasks);
         });
       });
   }
