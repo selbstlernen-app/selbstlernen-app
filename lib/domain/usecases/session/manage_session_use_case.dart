@@ -27,6 +27,9 @@ class ManageSessionUseCase {
     return sessionId;
   }
 
+  Stream<SessionModel> watchSessionById(int sessionId) =>
+      repository.watchSessionById(sessionId);
+
   Stream<List<SessionModel>> watchAllSessions() =>
       repository.watchAllSessions();
 

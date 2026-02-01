@@ -35,16 +35,13 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   late SessionInstanceModel sessionInstance;
 
   @override
-  void initState() {
-    super.initState();
-    unawaited(_updateWakeLock());
+  void dispose() {
+    unawaited(WakelockPlus.disable());
+    super.dispose();
   }
 
-  Future<void> _updateWakeLock() async {
-    final state = ref.read(activeSessionViewModelProvider(widget.instanceId));
-
-    if (state.timerStatus == TimerStatus.running ||
-        state.timerStatus == TimerStatus.initial) {
+  Future<void> _handleTimerStatusChange(TimerStatus status) async {
+    if (status == TimerStatus.running || status == TimerStatus.initial) {
       await WakelockPlus.enable();
     } else {
       await WakelockPlus.disable();
@@ -52,53 +49,60 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   }
 
   @override
-  void dispose() {
-    // Disable wake lock when screen is disposed
-    unawaited(WakelockPlus.disable());
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final state = ref.watch(
-      activeSessionViewModelProvider(widget.instanceId),
-    );
-    final viewModel = ref.read(
-      activeSessionViewModelProvider(widget.instanceId).notifier,
-    );
-
-    // Focus prompt listener
+    // Focus prompt + wakelock listener
     ref.listen<ActiveSessionState>(
       activeSessionViewModelProvider(widget.instanceId),
-      (previous, next) {
+      (previous, next) async {
         // Show dialog when showFocusPrompt becomes true
         if (next.showFocusPrompt && !(previous?.showFocusPrompt ?? false)) {
-          _showFocusPromptDialog(viewModel);
+          await _showFocusPromptDialog(
+            ref.read(
+              activeSessionViewModelProvider(widget.instanceId).notifier,
+            ),
+          );
+          if (!mounted) return;
         }
+        // Stop wakelock when timer status is NOT running
         if (previous?.timerStatus != next.timerStatus) {
-          _updateWakeLock();
+          await _handleTimerStatusChange(next.timerStatus);
         }
       },
     );
 
-    if (state.isLoading) {
-      return const LoadingIndicator();
-    }
+    final isLoading = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) => s.isLoading),
+    );
+    final error = ref.watch(
+      activeSessionViewModelProvider(widget.instanceId).select((s) => s.error),
+    );
+    final hasData = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) => s.session != null),
+    );
+    final timerStatus = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) => s.timerStatus),
+    );
 
-    // Handle error
-    if (state.error != null) {
-      return Scaffold(body: Center(child: Text('Error: ${state.error}')));
+    if (isLoading) return const LoadingIndicator();
+    if (error != null) {
+      return Scaffold(body: Center(child: Text('Fehler: $error')));
     }
-
-    // Handle no data
-    if (state.session == null || state.instance == null) {
+    if (!hasData) {
       return const Scaffold(
         body: Center(child: Text('Session nicht gefunden')),
       );
     }
 
     return Listener(
-      onPointerDown: (_) => viewModel.recordUserInteraction(),
+      onPointerDown: (_) => ref
+          .read(activeSessionViewModelProvider(widget.instanceId).notifier)
+          .recordUserInteraction(),
       child: Scaffold(
         backgroundColor: Color.lerp(
           context.colorScheme.secondary,
@@ -125,13 +129,13 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
                 ),
 
                 // Stop session button
-                if (state.timerStatus != TimerStatus.initial) ...<Widget>[
+                if (timerStatus != TimerStatus.initial) ...<Widget>[
                   const VerticalSpace(size: SpaceSize.small),
                   ExitButton(instanceId: widget.instanceId),
                 ],
 
                 // Leave session button
-                if (state.timerStatus == TimerStatus.initial) ...<Widget>[
+                if (timerStatus == TimerStatus.initial) ...<Widget>[
                   const VerticalSpace(size: SpaceSize.small),
                   SizedBox(
                     width: double.infinity,
@@ -159,8 +163,8 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
     );
   }
 
-  void _showFocusPromptDialog(ActiveSessionViewModel viewModel) {
-    showDialog(
+  Future<void> _showFocusPromptDialog(ActiveSessionViewModel viewModel) async {
+    await showDialog<dynamic>(
       context: context,
       barrierDismissible: false,
       builder: (context) => FocusPromptDialog(
