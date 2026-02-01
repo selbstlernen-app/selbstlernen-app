@@ -1,4 +1,5 @@
 import 'package:rxdart/rxdart.dart';
+import 'package:srl_app/core/services/notification_service.dart';
 import 'package:srl_app/domain/goal_repository.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
@@ -58,6 +59,7 @@ class FullSessionUseCase {
   }
 
   Future<void> deleteFullModel(int sessionId) async {
+    await NotificationService().cancelSpecificSessionNotifications(sessionId);
     await repository.deleteSession(sessionId);
   }
 }

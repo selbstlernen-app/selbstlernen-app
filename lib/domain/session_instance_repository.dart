@@ -6,7 +6,6 @@ abstract class SessionInstanceRepository {
   Future<int> createInstance({required SessionInstanceModel instance});
 
   Future<SessionInstanceModel> getInstanceById(int instanceId);
-  Future<SessionInstanceModel?> getInstanceBySessionId(int sessionId);
   Future<List<SessionInstanceModel>> getAllInstancesBySessionId(int sessionId);
   Future<List<SessionInstanceModel>> getAllInstances();
 

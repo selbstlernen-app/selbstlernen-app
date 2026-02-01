@@ -84,11 +84,4 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
       goals,
     )..where(($GoalsTable s) => s.id.equals(id))).go();
   }
-
-  // Delete all goals of a session
-  Future<int> deleteGoalsBySessionId(int sessionId) async {
-    return (delete(
-      goals,
-    )..where(($GoalsTable s) => s.sessionId.equals(sessionId))).go();
-  }
 }

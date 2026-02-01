@@ -1,6 +1,5 @@
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
-import 'package:srl_app/core/services/notification_service.dart';
 
 /// Service class to help centralize logic for mulitple use cases needed
 /// for the creation or update of a session
@@ -28,18 +27,6 @@ class AddSessionService {
     final goalIdMapping = await _createGoals(goals, sessionId);
     await _createTasks(tasks, sessionId, goalIdMapping);
 
-    // (Re-)Schedule notifications
-    await NotificationService().scheduleSessionNotification(
-      sessionId: sessionId,
-      hasNotification: session.hasNotification,
-      isRepeating: session.isRepeating,
-      plannedTime: session.plannedTime,
-      sessionTitle: session.title,
-      selectedDays: session.selectedDays,
-      startDate: session.startDate,
-      endDate: session.endDate,
-    );
-
     return sessionId;
   }
 
@@ -63,18 +50,6 @@ class AddSessionService {
     // Update session and goals
     await _manageSessionUseCase.updateSession(sessionId, session);
     await _updateExistingGoals(goals.existingGoals);
-
-    // (Re-)Schedule notifications
-    await NotificationService().scheduleSessionNotification(
-      sessionId: sessionId,
-      hasNotification: session.hasNotification,
-      isRepeating: session.isRepeating,
-      plannedTime: session.plannedTime,
-      sessionTitle: session.title,
-      selectedDays: session.selectedDays,
-      startDate: session.startDate,
-      endDate: session.endDate,
-    );
 
     // Create new goals
     final goalIdMapping = await _createGoals(

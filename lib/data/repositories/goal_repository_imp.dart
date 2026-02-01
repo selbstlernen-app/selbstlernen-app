@@ -19,11 +19,6 @@ class GoalRepositoryImp implements GoalRepository {
   }
 
   @override
-  Future<void> deleteGoalsBySessionId(int sessionId) {
-    return goalDao.deleteGoalsBySessionId(sessionId);
-  }
-
-  @override
   Future<List<GoalModel>> getGoalsBySessionId(int sessionId) async {
     final goalEntities = await goalDao.getGoalsBySessionId(sessionId);
     final goals = GoalToModelMapper.mapFromListOfEntity(goalEntities);
