@@ -1,6 +1,6 @@
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/usecases/use_cases.dart';
-import 'package:srl_app/notification_service.dart';
+import 'package:srl_app/core/services/notification_service.dart';
 
 /// Service class to help centralize logic for mulitple use cases needed
 /// for the creation or update of a session
