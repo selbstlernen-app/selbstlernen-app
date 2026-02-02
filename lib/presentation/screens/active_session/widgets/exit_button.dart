@@ -145,6 +145,7 @@ class _ExitButtonState extends ConsumerState<ExitButton> {
     required List<TaskModel> newTasks,
   }) async {
     final newGoalIds = newGoals.map((g) => g.id).toSet();
+
     final existingGoalsWithNewTasks = state
         .getExistingGoalsWithNewTasks()
         .where((g) => !newGoalIds.contains(g.id))
