@@ -3,43 +3,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
+import 'package:srl_app/presentation/view_models/active_session/active_session_providers.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/focus_prompter.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 import 'package:vibration/vibration.dart';
 
 part 'active_session_view_model.g.dart';
-
-@riverpod
-Stream<SessionInstanceModel> activeInstance(Ref ref, int instanceId) {
-  return ref
-      .watch(getInstanceUseCaseProvider)
-      .watchSessionInstanceById(instanceId);
-}
-
-@riverpod
-Stream<SessionModel> activeSession(Ref ref, int instanceId) async* {
-  final instance = await ref.watch(activeInstanceProvider(instanceId).future);
-  yield* ref
-      .watch(manageSessionUseCaseProvider)
-      .watchSessionById(int.parse(instance.sessionId));
-}
-
-@riverpod
-Stream<List<GoalModel>> activeGoals(Ref ref, int instanceId) async* {
-  final session = await ref.watch(activeSessionProvider(instanceId).future);
-  yield* ref
-      .watch(manageGoalUseCaseProvider)
-      .watchGoalsBySessionIdAndDate(int.parse(session.id!), DateTime.now());
-}
-
-@riverpod
-Stream<List<TaskModel>> activeTasks(Ref ref, int instanceId) async* {
-  final session = await ref.watch(activeSessionProvider(instanceId).future);
-  yield* ref
-      .watch(manageTasksUseCaseProvider)
-      .watchTasksBySessionIdAndDate(int.parse(session.id!), DateTime.now());
-}
 
 @Riverpod(keepAlive: true)
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
@@ -101,35 +71,13 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       instance: instance,
       remainingSeconds:
           instance.remainingSeconds ??
-          getDefaultDuration(SessionPhase.focus, session),
+          session.getDefaultDuration(SessionPhase.focus),
       isLoading: false,
     );
 
     // Auto-start timer logic here
     if (ref.read(settingsViewModelProvider).timerStartsAutomatically) {
       unawaited(startTimer());
-    }
-  }
-
-  SessionPhase phaseFromIndex(int index, int focusPhases) {
-    if (index.isEven) {
-      return SessionPhase.focus;
-    }
-    // Odd index means either long or short break was last
-    final lastBreakIndex = (focusPhases * 2) - 1;
-    return index == lastBreakIndex
-        ? SessionPhase.longBreak
-        : SessionPhase.shortBreak;
-  }
-
-  int getDefaultDuration(SessionPhase phase, SessionModel session) {
-    switch (phase) {
-      case SessionPhase.focus:
-        return session.focusTimeMin * 60;
-      case SessionPhase.shortBreak:
-        return session.breakTimeMin * 60;
-      case SessionPhase.longBreak:
-        return session.longBreakTimeMin * 60;
     }
   }
 
