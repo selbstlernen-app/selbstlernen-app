@@ -352,7 +352,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     var nextIndex = state.currentPhaseIndex + 1;
 
     // If we only have focus timer, then we switch no phases visibly
-    if (state.session!.hasSimpleTimer) {
+    if (state.session!.isSimple) {
       nextPhase = SessionPhase.focus;
       duration = session.focusTimeMin * 60;
       nextBlocks++;

@@ -54,6 +54,5 @@ abstract class SessionModel with _$SessionModel {
     return (focusTimeMin + breakTimeMin) * focusPhases + longBreakTimeMin;
   }
 
-  // Check if the current session is of simple timer kind - or pomodoro like
-  bool get hasSimpleTimer => breakTimeMin == 0 && longBreakTimeMin == 0;
+  bool get isSimple => complexity == SessionComplexity.simple;
 }

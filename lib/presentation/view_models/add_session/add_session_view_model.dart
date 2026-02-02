@@ -8,56 +8,45 @@ import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
-import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 part 'add_session_view_model.g.dart';
 
 @riverpod
+Stream<List<LearningStrategyModel>> learningStrategiesStream(Ref ref) {
+  return ref
+      .watch(manageLearningStrategyUseCaseProvider)
+      .watchLearningStrategies();
+}
+
+@riverpod
 class AddSessionViewModel extends _$AddSessionViewModel {
-  late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
-  late final ManageLearningStrategyUseCase _manageLearningStrategyUseCase;
-
-  StreamSubscription<dynamic>? _strategySubscription;
-
   @override
   AddSessionState build() {
-    _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
-    _manageLearningStrategyUseCase = ref.watch(
-      manageLearningStrategyUseCaseProvider,
-    );
+    _listenToDataStreams();
 
-    ref.onDispose(() {
-      unawaited(_strategySubscription?.cancel());
-    });
-
-    _subscribe();
-
-    final now = DateTime.now();
     return AddSessionState(
-      startDate: now,
-      endDate: now.add(const Duration(days: 1)),
+      startDate: DateTime.now(),
+      endDate: DateTime.now().add(const Duration(days: 1)),
     );
   }
 
-  void _subscribe() {
-    _strategySubscription = _manageLearningStrategyUseCase
-        .watchLearningStrategies()
-        .listen(
-          (List<LearningStrategyModel> strategies) {
-            state = state.copyWith(
-              availableStrategies: strategies,
-              isLoading: false,
-            );
-          },
-          onError: (dynamic error) {
-            state = state.copyWith(isLoading: false);
-          },
-        );
+  void _listenToDataStreams() {
+    ref.listen(
+      learningStrategiesStreamProvider,
+      (previous, next) {
+        next.whenData((strategies) {
+          state = state.copyWith(
+            availableStrategies: strategies,
+            isLoading: false,
+          );
+        });
+      },
+    );
   }
 
-  // Basic info
+  // -- Setters --
+
   void setTitle(String title) {
     state = state.copyWith(title: title);
   }
@@ -105,7 +94,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     }
   }
 
-  // Goals and tasks
   void addGoal(GoalModel goal) {
     state = state.copyWith(goals: <GoalModel>[...state.goals, goal]);
   }
@@ -185,6 +173,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     );
   }
 
+  // -- Actions --
+
   // Initalize state for edit mode
   void initializeState(FullSessionModel fullSessionModel) {
     state = AddSessionState.fromModel(
@@ -239,11 +229,12 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       state = state.copyWith(sessionId: sessionId.toString());
     }
 
-    final now = DateTime.now();
-    final instance = await _getOrCreateInstanceUseCase.call(
-      sessionId: int.parse(state.sessionId!),
-      date: now,
-    );
+    final instance = await ref
+        .read(getOrCreateInstanceUseCaseProvider)
+        .call(
+          sessionId: int.parse(state.sessionId!),
+          date: DateTime.now(),
+        );
 
     return instance;
   }

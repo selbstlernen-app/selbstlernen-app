@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:srl_app/common_widgets/session_dialogs.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -37,20 +38,36 @@ class PendingSessionTile extends ConsumerWidget {
               motion: const BehindMotion(),
               children: <Widget>[
                 SlidableAction(
-                  onPressed: (BuildContext slidableContext) async {
-                    await _showSkipDialog(context, ref);
-                  },
                   backgroundColor: Colors.transparent,
                   icon: Icons.skip_next,
                   label: 'Überspringen',
+                  onPressed: (BuildContext slidableContext) async {
+                    await SessionDialogs.showSkipSession(
+                      slidableContext,
+                      onConfirm: () async {
+                        await ref
+                            .read(homeViewModelProvider.notifier)
+                            .skipSession(sessionId: session.id!);
+
+                        if (slidableContext.mounted) {
+                          ScaffoldMessenger.of(slidableContext).showSnackBar(
+                            const SnackBar(
+                              duration: Duration(seconds: 2),
+                              content: Text('Lerneinheit übersprungen!'),
+                            ),
+                          );
+                        }
+                      },
+                    );
+                  },
                 ),
               ],
             ),
             child: Card(
               clipBehavior: Clip.hardEdge,
               child: ListTile(
-                onTap: () {
-                  Navigator.pushNamed(
+                onTap: () async {
+                  await Navigator.pushNamed(
                     context,
                     AppRoutes.detail,
                     arguments: DetailSessionArgs(
@@ -87,56 +104,6 @@ class PendingSessionTile extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Future<void> _showSkipDialog(BuildContext context, WidgetRef ref) {
-    Future<void> skipSession() async {
-      await ref
-          .read(homeViewModelProvider.notifier)
-          .skipSession(sessionId: session.id!);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            duration: Duration(seconds: 2),
-            content: Text('Lerneinheit übersprungen!'),
-          ),
-        );
-
-        Navigator.of(context).pop();
-      }
-    }
-
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Lerneinheit überspringen',
-            style: context.textTheme.headlineMedium,
-          ),
-          content: Text(
-            'Willst du diese Einheit wirklich überspringen?',
-            style: context.textTheme.bodyLarge,
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                overlayColor: context.colorScheme.error,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Abbrechen',
-                style: context.textTheme.labelLarge!.copyWith(
-                  color: context.colorScheme.error,
-                ),
-              ),
-            ),
-            TextButton(onPressed: skipSession, child: const Text('Bestätigen')),
-          ],
-        );
-      },
     );
   }
 }
