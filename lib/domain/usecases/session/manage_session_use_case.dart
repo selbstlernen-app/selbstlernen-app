@@ -42,7 +42,7 @@ class ManageSessionUseCase {
   // Update
   Future<int> updateSession(int sessionId, SessionModel updatedSession) async {
     await NotificationService().scheduleSessionNotification(
-      sessionId: int.parse(updatedSession.id!),
+      sessionId: sessionId,
       hasNotification: updatedSession.hasNotification,
       isRepeating: updatedSession.isRepeating,
       plannedTime: updatedSession.plannedTime,
