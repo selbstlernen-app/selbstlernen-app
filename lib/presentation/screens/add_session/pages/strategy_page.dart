@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
+import 'package:srl_app/common_widgets/info_dialogs.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
@@ -75,17 +76,30 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
         SliverList(
           delegate: SliverChildListDelegate([
             Row(
-              children: <Widget>[
-                const Icon(
-                  Icons.wb_incandescent_outlined,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: <Widget>[
+                      const Icon(
+                        Icons.wb_incandescent_outlined,
+                      ),
+                      const HorizontalSpace(size: SpaceSize.small),
+                      Text(
+                        'Lernstrategien',
+                        style: context.textTheme.headlineSmall,
+                      ),
+                    ],
+                  ),
                 ),
-                const HorizontalSpace(size: SpaceSize.small),
-                Text(
-                  'Lernstrategien',
-                  style: context.textTheme.headlineSmall,
+                IconButton(
+                  onPressed: () =>
+                      InfoDialogs.showLearningStrategyInfo(context),
+                  icon: const Icon(Icons.info_outline),
+                  color: context.colorScheme.primary,
                 ),
               ],
             ),
+
             const VerticalSpace(size: SpaceSize.xsmall),
             Text(
               '''Strategien, die du in deiner Lerneinheit anwenden willst,''',
