@@ -58,7 +58,7 @@ class HomeViewModel extends _$HomeViewModel {
       );
 
       await ref
-          .watch(manangeInstanceUseCaseProvider)
+          .read(manangeInstanceUseCaseProvider)
           .createInstance(newInstance);
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString());

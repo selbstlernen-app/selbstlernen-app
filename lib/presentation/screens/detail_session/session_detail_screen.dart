@@ -3,14 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
+import 'package:srl_app/common_widgets/session_dialogs.dart';
 import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/common_widgets/time_break_down_item.dart';
-import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
+import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
+import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_view_model.dart';
 
 class SessionDetailScreen extends ConsumerWidget {
@@ -24,6 +26,51 @@ class SessionDetailScreen extends ConsumerWidget {
   final int? instanceId;
   final DateTime targetDate;
 
+  Future<void> _handleSessionAction(
+    BuildContext context,
+    WidgetRef ref,
+    bool isRedo,
+  ) async {
+    final notifier = ref.read(
+      detailSessionViewModelProvider(
+        sessionId,
+        targetDate: targetDate,
+      ).notifier,
+    );
+    try {
+      final instance = isRedo
+          ? await notifier.redoSession()
+          : await notifier.startSession(sessionId);
+      if (context.mounted) {
+        await Navigator.pushNamed(
+          context,
+          AppRoutes.active,
+          arguments: ActiveSessionArgs(
+            instanceId: int.parse(instance.id!),
+            sessionId: sessionId,
+          ),
+        );
+      }
+    } on Exception catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Fehler: $e')));
+      }
+    }
+  }
+
+  Future<void> _navigateToEdit(
+    BuildContext context,
+    FullSessionModel fullSession,
+  ) async {
+    await Navigator.pushNamed(
+      context,
+      AppRoutes.addSession,
+      arguments: fullSession,
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(
@@ -35,15 +82,24 @@ class SessionDetailScreen extends ConsumerWidget {
     );
 
     if (state.isLoading) {
-      return const Scaffold(
+      return const Scaffold(body: Center(child: LoadingIndicator()));
+    }
+    if (state.hasError || !state.hasSession) {
+      return Scaffold(
         body: Center(
-          child: LoadingIndicator(),
+          child: Text(
+            state.hasError
+                ? 'Fehler: ${state.error}'
+                : 'Lerneinheit nicht gefunden',
+          ),
         ),
       );
     }
 
-    final session = state.fullSession!.session;
+    final session = state.session!;
     final instance = state.instance;
+    final goals = state.goals;
+    final ungroupedTasks = state.fullSession!.ungroupedTasks;
 
     return MainLayout(
       navigateBack: () {
@@ -51,17 +107,11 @@ class SessionDetailScreen extends ConsumerWidget {
       },
       appBarTitle: session.title,
       actions: <Widget>[
-        if (!session.isArchived)
+        if (state.canArchive)
           CustomIconButton(
             isActive: true,
-            onPressed: () async {
-              await Navigator.pushNamed(
-                context,
-                AppRoutes.addSession,
-                arguments: state.fullSession,
-              );
-            },
             icon: const Icon(Icons.mode_edit_outline_rounded),
+            onPressed: () => _navigateToEdit(context, state.fullSession!),
           ),
       ],
       content: Column(
@@ -71,173 +121,27 @@ class SessionDetailScreen extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  if (session.isArchived) ...[
-                    Text(
-                      'Diese Einheit ist archiviert',
-                      style: context.textTheme.headlineSmall!.copyWith(
-                        color: AppPalette.orange,
-                      ),
-                    ),
-                    const VerticalSpace(
-                      size: SpaceSize.small,
-                    ),
-                  ],
-                  // If session was checked off for today, say so in title
-                  if (instanceId != null && !session.isArchived) ...<Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          '🥳',
-                          style: TextStyle(fontSize: 36),
-                        ),
-                        const HorizontalSpace(size: SpaceSize.small),
-                        Text(
-                          'Einheit für heute erledigt!',
-                          style: context.textTheme.headlineMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ),
-                    const VerticalSpace(
-                      size: SpaceSize.large,
-                    ),
-                  ],
+                  if (session.isArchived) _ArchivedBanner(),
 
-                  // Planned work and break time
-                  Text(
-                    'Geplante Zeit',
-                    style: context.textTheme.headlineSmall,
-                  ),
-                  const VerticalSpace(size: SpaceSize.small),
-                  Column(
-                    children: <Widget>[
-                      TimeBreakdownItem(
-                        icon: Icons.psychology,
-                        label: 'Fokuszeit',
-                        value:
-                            '''${TimeUtils.formatTime(session.focusTimeMin * 60)} Min''',
-                        color: AppPalette.pink,
-                      ),
+                  if (state.hasInstance && !session.isArchived)
+                    _CompletedBanner(),
 
-                      if (instanceId != null && instance != null) ...[
-                        TimeBreakdownItem(
-                          icon: Icons.psychology,
-                          label: 'Durchgeführte Fokuszeit',
-                          value:
-                              '''${TimeUtils.formatTime(instance.totalFocusSecondsElapsed)} Min''',
-                          color: AppPalette.pinkLight,
-                        ),
-                        const VerticalSpace(),
-                      ],
-
-                      if (!session.hasSimpleTimer)
-                        TimeBreakdownItem(
-                          icon: Icons.coffee,
-                          label: 'Pausenzeit',
-                          value:
-                              '''${TimeUtils.formatTime((session.breakTimeMin + session.longBreakTimeMin) * 60)} Min''',
-                          color: AppPalette.orange,
-                        ),
-
-                      if (instanceId != null &&
-                          instance != null &&
-                          !session.hasSimpleTimer) ...[
-                        TimeBreakdownItem(
-                          icon: Icons.coffee,
-                          label: 'Durchgeführte Pausenzeit',
-                          value:
-                              '''${TimeUtils.formatTime(instance.totalBreakSecondsElapsed)} Min''',
-                          color: AppPalette.orangeLight,
-                        ),
-
-                        const VerticalSpace(size: SpaceSize.small),
-                        Divider(
-                          color: context.colorScheme.tertiary,
-                          thickness: 4,
-                          radius: BorderRadius.circular(10),
-                        ),
-                        const VerticalSpace(size: SpaceSize.small),
-
-                        TimeBreakdownItem(
-                          icon: Icons.timelapse_outlined,
-                          label: 'Gesamte Zeit',
-                          value:
-                              '''${TimeUtils.formatTime(instance.totalBreakSecondsElapsed + instance.totalFocusSecondsElapsed)} Min''',
-                          color: AppPalette.sky,
-                        ),
-                      ],
-                    ],
+                  _TimeSection(
+                    session: session,
+                    instance: instance,
                   ),
 
                   const VerticalSpace(size: SpaceSize.large),
 
-                  // Planned strategies
-                  if (instanceId == null) ...[
-                    Text(
-                      'Deine Strategien',
-                      style: context.textTheme.headlineSmall,
-                    ),
-                    const VerticalSpace(size: SpaceSize.small),
-                    ...session.learningStrategies.map(
-                      Text.new,
-                    ),
-                    const VerticalSpace(size: SpaceSize.large),
-                  ],
+                  if (!state.hasInstance)
+                    _StrategiesSection(strategies: session.learningStrategies),
+
+                  const VerticalSpace(size: SpaceSize.large),
 
                   // Goals and tasks column
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      if (state.fullSession!.goals.isNotEmpty)
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              ...<Widget>[
-                                Text(
-                                  'Ziele',
-                                  style: context.textTheme.headlineSmall,
-                                ),
-                                const VerticalSpace(size: SpaceSize.small),
-                                ...state.fullSession!.goals.map((
-                                  GoalModel goal,
-                                ) {
-                                  return CustomItemTile(
-                                    iconSize: 20,
-                                    text: goal.title,
-                                    isLargeGoal: true,
-                                  );
-                                }),
-                              ],
-                            ],
-                          ),
-                        ),
-                      if (state.fullSession!.ungroupedTasks.isNotEmpty)
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              ...<Widget>[
-                                Text(
-                                  'Sonstige Aufgaben',
-                                  style: context.textTheme.headlineSmall,
-                                ),
-                                const VerticalSpace(size: SpaceSize.small),
-                                ...state.fullSession!.ungroupedTasks.map((
-                                  TaskModel task,
-                                ) {
-                                  return CustomItemTile(
-                                    iconSize: 20,
-                                    text: task.title,
-                                    isLargeGoal: false,
-                                  );
-                                }),
-                              ],
-                            ],
-                          ),
-                        ),
-                    ],
+                  _GoalsAndTasksSection(
+                    goals: goals,
+                    ungroupedTasks: ungroupedTasks,
                   ),
                 ],
               ),
@@ -245,344 +149,307 @@ class SessionDetailScreen extends ConsumerWidget {
           ),
 
           // Delete and archive buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              // Delete the current instance
-              if (instanceId != null)
-                IconButton(
-                  onPressed: () async {
-                    await deleteInstanceDialog(
-                      context,
-                      ref,
-                      instanceId: instanceId!,
-                    );
-                  },
-                  icon: const Icon(Icons.delete_forever),
-                ),
-
-              IconButton(
-                color: AppPalette.rose,
-                onPressed: () async {
-                  await deleteSessionDialog(
-                    context,
-                    ref,
-                    isRepeating: session.isRepeating,
-                  );
-                },
-                icon: const Icon(Icons.delete_sweep_rounded),
-              ),
-
-              // If the session has more than 1 item
-              // Able to archive it
-              if (!session.isArchived && state.pastInstancesLength! > 0)
-                IconButton(
-                  color: AppPalette.orange,
-                  onPressed: () async {
-                    await archiveSessionDialog(
-                      context,
-                      ref,
-                      isRepeating: session.isRepeating,
-                    );
-                  },
-                  icon: const Icon(Icons.archive_outlined),
-                ),
-            ],
+          _ActionButtons(
+            state: state,
+            sessionId: sessionId,
+            instanceId: instanceId,
+            targetDate: targetDate,
           ),
 
-          // Repeat button
-          if (instanceId != null)
+          if (state.hasInstance) ...[
             SizedBox(
               width: double.infinity,
               child: CustomIconButton(
-                verticalPadding: 16,
-                radius: 30,
                 isActive: true,
                 icon: const Icon(Icons.redo),
-                onPressed: () async {
-                  try {
-                    // Create new instance
-                    final newInstance = await ref
-                        .read(
-                          detailSessionViewModelProvider(
-                            sessionId,
-                            targetDate: targetDate,
-                          ).notifier,
-                        )
-                        .redoSession();
-
-                    if (context.mounted) {
-                      await Navigator.pushNamed(
-                        context,
-                        AppRoutes.active,
-                        arguments: ActiveSessionArgs(
-                          instanceId: int.parse(newInstance.id!),
-                          sessionId: int.parse(session.id!),
-                        ),
-                      );
-                    }
-                  } on Exception catch (e) {
-                    throw ArgumentError(e);
-                  }
-                },
                 label: 'Wiederholen?',
+                onPressed: () => _handleSessionAction(context, ref, true),
               ),
             ),
-
-          if (instanceId != null) ...<Widget>[
-            const VerticalSpace(
-              size: SpaceSize.xsmall,
-            ),
+            const VerticalSpace(size: SpaceSize.xsmall),
             SizedBox(
               width: double.infinity,
               child: CustomButton(
-                onPressed: () async {
-                  await Navigator.of(
-                    context,
-                  ).pushNamed(
-                    AppRoutes.stats,
-                    arguments: SessionStatisticsArgs(
-                      sessionId: sessionId,
-                      showGeneralStatsOnly: false,
-                    ),
-                  );
-                },
                 label: 'Zur statistischen Auswertung',
+                onPressed: () => Navigator.pushNamed(
+                  context,
+                  AppRoutes.stats,
+                  arguments: SessionStatisticsArgs(
+                    sessionId: sessionId,
+                    showGeneralStatsOnly: false,
+                  ),
+                ),
               ),
             ),
-          ],
-
-          if (instanceId == null && !session.isArchived)
+          ] else if (instanceId == null && !state.session!.isArchived)
             SizedBox(
               width: double.infinity,
               child: CustomButton(
-                onPressed: () async {
-                  try {
-                    // Get or create instance
-                    final existingInstance = await ref
-                        .read(
-                          detailSessionViewModelProvider(
-                            sessionId,
-                            targetDate: targetDate,
-                          ).notifier,
-                        )
-                        .startSession();
-
-                    if (context.mounted) {
-                      await Navigator.pushNamed(
-                        context,
-                        AppRoutes.active,
-                        arguments: ActiveSessionArgs(
-                          instanceId: int.parse(existingInstance.id!),
-                          sessionId: int.parse(session.id!),
-                        ),
-                      );
-                    }
-                  } on Exception catch (e) {
-                    throw ArgumentError(e);
-                  }
-                },
                 label: 'Starten',
+                onPressed: () => _handleSessionAction(context, ref, false),
               ),
             ),
         ],
       ),
     );
   }
+}
 
-  // Dialogs
-  Future<void> deleteSessionDialog(
-    BuildContext context,
-    WidgetRef ref, {
-    required bool isRepeating,
-  }) {
-    Future<void> deleteSession() async {
-      await ref
-          .read(
-            detailSessionViewModelProvider(
-              sessionId,
-              targetDate: targetDate,
-            ).notifier,
-          )
-          .deleteSession();
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 2),
-            content: Text(Constants.successDeleted),
+class _ArchivedBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Diese Einheit ist archiviert',
+          style: context.textTheme.headlineSmall!.copyWith(
+            color: AppPalette.orange,
           ),
-        );
-        await Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.home,
-          (Route<dynamic> route) => false,
-        );
-      }
-    }
-
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Lerneinheit löschen?',
-            style: context.textTheme.headlineMedium,
-          ),
-          content: Text(
-            '''Wenn du diese Einheit löschst, löschst du auch alle bisher durchgeführten Instanzen und Daten.\nDies kannst du nicht mehr rückgängig machen.'''
-            '''${isRepeating ? 'Willst du diese und alle zukünftigen Einheiten löschen?' : 'Willst du diese Einheit wirklich löschen?'}''',
-
-            style: context.textTheme.bodyLarge,
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                overlayColor: context.colorScheme.error,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Abbrechen',
-                style: context.textTheme.labelLarge!.copyWith(
-                  color: context.colorScheme.error,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: deleteSession,
-              child: const Text('Bestätigen'),
-            ),
-          ],
-        );
-      },
+        ),
+        const VerticalSpace(size: SpaceSize.small),
+      ],
     );
   }
+}
 
-  Future<void> deleteInstanceDialog(
-    BuildContext context,
-    WidgetRef ref, {
-    required int instanceId,
-  }) {
-    Future<void> deleteInstance() async {
-      await ref
-          .read(
-            detailSessionViewModelProvider(
-              sessionId,
-              targetDate: targetDate,
-            ).notifier,
-          )
-          .deleteInstance(instanceId);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            duration: const Duration(seconds: 2),
-            content: Text(Constants.successDeleted),
-          ),
-        );
-        await Navigator.pushNamedAndRemoveUntil(
-          context,
-          AppRoutes.home,
-          (Route<dynamic> route) => false,
-        );
-      }
-    }
-
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Durchgeführte Einheit löschen?',
-            style: context.textTheme.headlineMedium,
-          ),
-          content: Text(
-            '''Willst du diese durchgeführte Lerneinheit löschen? Hiermit löschst du alle Daten, die in dieser Instanz erhoben worden sind.\nDies kannst du nicht mehr rückgängig machen.''',
-            style: context.textTheme.bodyLarge,
-          ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                overlayColor: context.colorScheme.error,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Abbrechen',
-                style: context.textTheme.labelLarge!.copyWith(
-                  color: context.colorScheme.error,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: deleteInstance,
-              child: const Text('Bestätigen'),
+class _CompletedBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text('🥳', style: TextStyle(fontSize: 36)),
+            const HorizontalSpace(size: SpaceSize.small),
+            Text(
+              'Einheit für heute erledigt!',
+              style: context.textTheme.headlineMedium,
+              textAlign: TextAlign.center,
             ),
           ],
-        );
-      },
+        ),
+        const VerticalSpace(size: SpaceSize.large),
+      ],
     );
   }
+}
 
-  /// Dialog to archive a session
-  Future<void> archiveSessionDialog(
-    BuildContext context,
-    WidgetRef ref, {
-    required bool isRepeating,
-  }) {
-    Future<void> archiveSession() async {
-      await ref
-          .read(
-            detailSessionViewModelProvider(
-              sessionId,
-              targetDate: targetDate,
-            ).notifier,
-          )
-          .archiveSession();
+class _TimeSection extends StatelessWidget {
+  const _TimeSection({
+    required this.session,
+    this.instance,
+  });
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            duration: Duration(seconds: 2),
-            content: Text('Einheit erfolgreich archiviert'),
-          ),
-        );
-        // Close dialog
-        Navigator.of(context).pop();
-      }
-    }
+  final SessionModel session;
+  final SessionInstanceModel? instance;
 
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            'Lerneinheit archivieren?',
-            style: context.textTheme.headlineMedium,
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Geplante Zeit', style: context.textTheme.headlineSmall),
+        const VerticalSpace(size: SpaceSize.small),
+
+        // Planned focus time
+        TimeBreakdownItem(
+          icon: Icons.psychology,
+          label: 'Fokuszeit',
+          value: '${TimeUtils.formatTime(session.focusTimeMin * 60)} Min',
+          color: AppPalette.pink,
+        ),
+
+        // Actual focus time (if instance exists)
+        if (instance != null) ...[
+          TimeBreakdownItem(
+            icon: Icons.psychology,
+            label: 'Durchgeführte Fokuszeit',
+            value:
+                '${TimeUtils.formatTime(instance!.totalFocusSecondsElapsed)} Min',
+            color: AppPalette.pinkLight,
           ),
-          content: Text(
-            '''Wenn du diese Einheit archivierst, wirst du sie nicht länger bearbeiten oder durchführen können.'''
-            '''\nAlte abgeschlossene Einheiten können aber weiterhin eingesehen werden.''',
-            style: context.textTheme.bodyLarge,
+          const VerticalSpace(),
+        ],
+
+        // Break time if not simple timer
+        if (!session.isSimple) ...[
+          TimeBreakdownItem(
+            icon: Icons.coffee,
+            label: 'Pausenzeit',
+            value:
+                '${TimeUtils.formatTime((session.breakTimeMin + session.longBreakTimeMin) * 60)} Min',
+            color: AppPalette.orange,
           ),
-          actions: <Widget>[
-            TextButton(
-              style: TextButton.styleFrom(
-                overlayColor: context.colorScheme.error,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Abbrechen',
-                style: context.textTheme.labelLarge!.copyWith(
-                  color: context.colorScheme.error,
-                ),
-              ),
+
+          // Actual break time (if instance exists)
+          if (instance != null) ...[
+            TimeBreakdownItem(
+              icon: Icons.coffee,
+              label: 'Durchgeführte Pausenzeit',
+              value:
+                  '${TimeUtils.formatTime(instance!.totalBreakSecondsElapsed)} Min',
+              color: AppPalette.orangeLight,
             ),
-            TextButton(
-              onPressed: archiveSession,
-              child: const Text('Bestätigen'),
+            const VerticalSpace(size: SpaceSize.small),
+            Divider(
+              color: context.colorScheme.tertiary,
+              thickness: 4,
+            ),
+            const VerticalSpace(size: SpaceSize.small),
+
+            // Total time
+            TimeBreakdownItem(
+              icon: Icons.timelapse_outlined,
+              label: 'Gesamte Zeit',
+              value:
+                  '${TimeUtils.formatTime(instance!.totalBreakSecondsElapsed + instance!.totalFocusSecondsElapsed)} Min',
+              color: AppPalette.sky,
             ),
           ],
-        );
-      },
+        ],
+      ],
+    );
+  }
+}
+
+class _StrategiesSection extends StatelessWidget {
+  const _StrategiesSection({required this.strategies});
+
+  final List<String> strategies;
+
+  @override
+  Widget build(BuildContext context) {
+    if (strategies.isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Deine Strategien', style: context.textTheme.headlineSmall),
+        const VerticalSpace(size: SpaceSize.small),
+        ...strategies.map(Text.new),
+        const VerticalSpace(size: SpaceSize.large),
+      ],
+    );
+  }
+}
+
+class _GoalsAndTasksSection extends StatelessWidget {
+  const _GoalsAndTasksSection({
+    required this.goals,
+    required this.ungroupedTasks,
+  });
+
+  final List<GoalModel> goals;
+  final List<TaskModel> ungroupedTasks;
+
+  @override
+  Widget build(BuildContext context) {
+    if (goals.isEmpty && ungroupedTasks.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (goals.isNotEmpty)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Ziele', style: context.textTheme.headlineSmall),
+                const VerticalSpace(size: SpaceSize.small),
+                ...goals.map(
+                  (goal) => CustomItemTile(
+                    iconSize: 20,
+                    text: goal.title,
+                    isLargeGoal: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        if (ungroupedTasks.isNotEmpty)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Sonstige Aufgaben',
+                  style: context.textTheme.headlineSmall,
+                ),
+                const VerticalSpace(size: SpaceSize.small),
+                ...ungroupedTasks.map(
+                  (task) => CustomItemTile(
+                    iconSize: 20,
+                    text: task.title,
+                    isLargeGoal: false,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _ActionButtons extends ConsumerWidget {
+  const _ActionButtons({
+    required this.state,
+    required this.sessionId,
+    required this.targetDate,
+    this.instanceId,
+  });
+
+  final DetailSessionState state;
+  final int sessionId;
+  final DateTime targetDate;
+  final int? instanceId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final notifier = ref.read(
+      detailSessionViewModelProvider(
+        sessionId,
+        targetDate: targetDate,
+      ).notifier,
+    );
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        if (instanceId != null)
+          IconButton(
+            icon: const Icon(Icons.delete_forever),
+            onPressed: () => SessionDialogs.showDeleteSession(
+              context,
+              isRepeating: false,
+              onConfirm: () => notifier.deleteInstance(instanceId!),
+            ),
+          ),
+
+        IconButton(
+          color: AppPalette.rose,
+          icon: const Icon(Icons.delete_sweep_rounded),
+          onPressed: () => SessionDialogs.showDeleteSession(
+            context,
+            isRepeating: state.session!.isRepeating,
+            onConfirm: notifier.deleteSession,
+          ),
+        ),
+
+        if (state.canArchive && state.hasPastSessions)
+          IconButton(
+            color: AppPalette.orange,
+            icon: const Icon(Icons.archive_outlined),
+            onPressed: () => SessionDialogs.showArchive(
+              context,
+              onConfirm: notifier.archiveSession,
+            ),
+          ),
+      ],
     );
   }
 }

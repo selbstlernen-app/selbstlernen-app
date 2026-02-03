@@ -5,62 +5,55 @@ import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/usecases/use_cases.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
 
 part 'detail_session_view_model.g.dart';
 
 @riverpod
+Stream<FullSessionModel> fullSessionModel(Ref ref, int sessionId) {
+  return ref.watch(fullSessionUseCaseProvider).watchFullSession(sessionId);
+}
+
+@riverpod
 class DetailSessionViewModel extends _$DetailSessionViewModel {
-  late final FullSessionUseCase _fullSessionUseCase;
-  late final ManageSessionUseCase _manageSessionUseCase;
-  late final GetInstanceUseCase _getInstancesUseCase;
-  late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
-  late final ManangeInstanceUseCase _manangeInstanceUseCase;
-
-  late int _sessionId;
-  StreamSubscription<FullSessionModel>? _fullSessionSubscription;
-
   @override
   DetailSessionState build(
     int sessionId, {
     required DateTime targetDate,
     int? instanceId,
   }) {
-    _sessionId = sessionId;
+    _listenToDataStreams(sessionId);
 
-    _fullSessionUseCase = ref.watch(fullSessionUseCaseProvider);
-    _getInstancesUseCase = ref.watch(getInstanceUseCaseProvider);
-    _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
-    _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
-    _manangeInstanceUseCase = ref.watch(manangeInstanceUseCaseProvider);
-
-    unawaited(_initializeDetailSession(targetDate, instanceId));
-
-    ref.onDispose(() async {
-      unawaited(_fullSessionSubscription?.cancel());
-    });
+    unawaited(_initializeDetailSession(sessionId, targetDate, instanceId));
 
     return const DetailSessionState();
   }
 
-  Future<void> _initializeDetailSession(DateTime? date, int? id) async {
+  void _listenToDataStreams(int sessionId) {
+    ref.listen(fullSessionModelProvider(sessionId), (prev, next) {
+      next.whenData((fullSession) {
+        state = state.copyWith(fullSession: fullSession);
+      });
+    });
+  }
+
+  Future<void> _initializeDetailSession(
+    int sessionId,
+    DateTime targetDate,
+    int? instanceId,
+  ) async {
     try {
-      _fullSessionSubscription = _fullSessionUseCase
-          .watchFullSession(_sessionId)
-          .listen((fullSession) {
-            state = state.copyWith(fullSession: fullSession);
-          });
+      final getInstanceUseCase = ref.read(getInstanceUseCaseProvider);
 
       // Fetch specific instance if given
       SessionInstanceModel? instance;
-      if (id != null) {
-        instance = await _getInstancesUseCase.getInstanceById(id);
+      if (instanceId != null) {
+        instance = await getInstanceUseCase.getInstanceById(instanceId);
       }
 
       // Fetch all instances from past
-      final allInstances = await _getInstancesUseCase.getInstancesBySessionId(
-        _sessionId,
+      final allInstances = await getInstanceUseCase.getInstancesBySessionId(
+        sessionId,
       );
 
       state = state.copyWith(
@@ -74,11 +67,13 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   }
 
   Future<void> deleteSession() async {
-    await _fullSessionUseCase.deleteFullModel(_sessionId);
+    await ref.read(fullSessionUseCaseProvider).deleteFullModel(sessionId);
   }
 
   Future<void> deleteInstance(int instanceId) async {
-    await _manangeInstanceUseCase.deleteInstanceById(instanceId);
+    await ref
+        .read(manangeInstanceUseCaseProvider)
+        .deleteInstanceById(instanceId);
   }
 
   Future<void> archiveSession() async {
@@ -93,14 +88,18 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
       isArchived: true,
     );
 
-    await _manageSessionUseCase.updateSession(sessionId, updated);
+    await ref
+        .read(manageSessionUseCaseProvider)
+        .updateSession(sessionId, updated);
   }
 
-  Future<SessionInstanceModel> startSession() async {
-    final newInstance = await _getOrCreateInstanceUseCase.call(
-      sessionId: _sessionId,
-      date: targetDate,
-    );
+  Future<SessionInstanceModel> startSession(int sessionId) async {
+    final newInstance = await ref
+        .read(getOrCreateInstanceUseCaseProvider)
+        .call(
+          sessionId: sessionId,
+          date: targetDate,
+        );
     return newInstance;
   }
 
@@ -111,7 +110,9 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
       sessionId: sessionId.toString(),
       status: SessionStatus.inProgress,
     );
-    final id = await _manangeInstanceUseCase.createInstance(newInstance);
+    final id = await ref
+        .read(manangeInstanceUseCaseProvider)
+        .createInstance(newInstance);
     return newInstance = newInstance.copyWith(id: id.toString());
   }
 }

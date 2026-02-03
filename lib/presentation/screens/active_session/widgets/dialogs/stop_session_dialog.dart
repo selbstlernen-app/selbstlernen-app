@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:srl_app/common_widgets/show_custom_dialog.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/dialogs/show_custom_dialog.dart';
 
 class StopSessionDialog {
   static Future<void> show({
@@ -11,7 +11,7 @@ class StopSessionDialog {
     required Future<void> Function() onShowDetailedSelection,
   }) async {
     if (!isRepeating || totalEdits == 0) {
-      // No edits or not repeating - go directly to reflection
+      // No edits or not repeating -> go directly to reflection
       await onDiscardAll();
       return;
     }
@@ -27,7 +27,6 @@ class StopSessionDialog {
       ),
       confirmLabel: 'Ja',
       cancelLabel: 'Nein',
-
       onCancel: onDiscardAll,
       onConfirm: onShowDetailedSelection,
     );

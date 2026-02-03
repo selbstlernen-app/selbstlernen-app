@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:srl_app/domain/models/general_statistics.dart';
 import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/presentation/view_models/general_statistics/statistics_state.dart';
@@ -38,47 +39,86 @@ Stream<List<SessionModel>> allSessionsStream(Ref ref) {
 }
 
 @riverpod
+Future<GeneralStatistics> generalStatistics(Ref ref) {
+  return ref.watch(getGeneralStatisticsUseCaseProvider).call();
+}
+
+@riverpod
 class StatisticsViewModel extends _$StatisticsViewModel {
   @override
   StatisticsState build() {
-    final instancesAsync = ref.watch(enrichedInstancesStreamProvider);
-    final sessionsAsync = ref.watch(
-      allSessionsStreamProvider,
-    );
-
-    final allSessions = sessionsAsync.value ?? [];
-
-    // Sort and filter all sessions once on build
-    final active = allSessions.where((s) => !s.isArchived).toList()
-      ..sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
-
-    final archived = allSessions.where((s) => s.isArchived).toList()
-      ..sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
-
-    unawaited(_loadStats());
-
-    return StatisticsState(
-      enrichedInstances: instancesAsync.value ?? [],
-      activeSessions: active,
-      archivedSessions: archived,
-      isLoading: instancesAsync.isLoading || sessionsAsync.isLoading,
-      error: instancesAsync.hasError ? instancesAsync.error.toString() : null,
-    );
+    _listenToDataStreams();
+    return const StatisticsState();
   }
 
-  Future<void> _loadStats() async {
-    try {
-      final statistics = await ref
-          .watch(getGeneralStatisticsUseCaseProvider)
-          .call();
+  void _listenToDataStreams() {
+    ref
+      ..listen(
+        enrichedInstancesStreamProvider,
+        (previous, next) {
+          next.when(
+            data: (instances) {
+              state = state.copyWith(
+                enrichedInstances: instances,
+                isLoading: false,
+              );
+            },
+            loading: () {},
+            error: (error, stack) {
+              state = state.copyWith(
+                error: error.toString(),
+                isLoading: false,
+              );
+            },
+          );
+        },
+      )
+      ..listen(
+        allSessionsStreamProvider,
+        (previous, next) {
+          next.when(
+            data: (sessions) {
+              final active = sessions.where((s) => !s.isArchived).toList()
+                ..sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
+              final archived = sessions.where((s) => s.isArchived).toList()
+                ..sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
 
-      state = state.copyWith(
-        stats: statistics,
-        isLoading: false,
+              state = state.copyWith(
+                activeSessions: active,
+                archivedSessions: archived,
+                isLoading: false,
+              );
+            },
+            loading: () {},
+            error: (error, stack) {
+              state = state.copyWith(
+                error: error.toString(),
+                isLoading: false,
+              );
+            },
+          );
+        },
+      )
+      ..listen(
+        generalStatisticsProvider,
+        (previous, next) {
+          next.when(
+            data: (statistics) {
+              state = state.copyWith(
+                stats: statistics,
+                isLoading: false,
+              );
+            },
+            loading: () {},
+            error: (error, stack) {
+              state = state.copyWith(
+                error: error.toString(),
+                isLoading: false,
+              );
+            },
+          );
+        },
       );
-    } on Exception catch (e) {
-      state = state.copyWith(error: e.toString(), isLoading: false);
-    }
   }
 
   void setFilter(StatisticsFilter filter) {
