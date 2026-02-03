@@ -10,10 +10,6 @@ class ManageLearningStrategyUseCase {
     return repo.watchLearningStrategies();
   }
 
-  Future<List<LearningStrategyModel>> getLearningStrategies() {
-    return repo.getLearningStrategies();
-  }
-
   Future<void> updateLearningStrategy(
     LearningStrategyModel model,
     int id,

@@ -5,9 +5,10 @@ import 'package:srl_app/common_widgets/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/data/providers.dart';
-import 'package:srl_app/presentation/screens/active_session/widgets/circular_time_painter.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/circular_timer/progress_circle.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_view_model.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
 class TimerWidget extends ConsumerStatefulWidget {
@@ -26,8 +27,8 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
     super.initState();
 
     _lifecycleListener = AppLifecycleListener(
-      onDetach: () {
-        ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
+      onDetach: () async {
+        await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
       },
       onStateChange: (lifecycleState) async {
         if (!mounted) return;
@@ -52,7 +53,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
               Duration(seconds: currentState.remainingSeconds),
             );
 
-            repo.setTimerEndTimestamp(targetEndTime);
+            await repo.setTimerEndTimestamp(targetEndTime);
           } else if (lifecycleState == AppLifecycleState.resumed) {
             // Both platoforms sync timer based on last recorded timestamp
             if (repo.timerEndTimestamp != null) {
@@ -70,18 +71,6 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
     super.dispose();
   }
 
-  // Get the total time to calculate progress percentage
-  int _getPhaseDuration(ActiveSessionState state) {
-    switch (state.currentPhase) {
-      case SessionPhase.focus:
-        return (state.session!.focusTimeMin) * 60;
-      case SessionPhase.shortBreak:
-        return (state.session!.breakTimeMin) * 60;
-      case SessionPhase.longBreak:
-        return (state.session!.longBreakTimeMin) * 60;
-    }
-  }
-
   String _getPhaseLabel(SessionPhase phase) {
     switch (phase) {
       case SessionPhase.focus:
@@ -95,23 +84,31 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(
-      activeSessionViewModelProvider(widget.instanceId),
+    final completedBlocks = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) => s.completedBlocks),
     );
 
-    final viewModel = ref.read(
-      activeSessionViewModelProvider(widget.instanceId).notifier,
+    final isSimpleTimer = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) {
+        return s.session!.complexity == SessionComplexity.simple;
+      }),
     );
 
-    final settingsState = ref.watch(settingsViewModelProvider);
+    final sessionTitle = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) => s.session?.title ?? ''),
+    );
 
-    final totalDuration = _getPhaseDuration(state);
-
-    /// If we count upwards, get the total seconds passed per phase,
-    /// else get the seconds remaining of a phase
-    final progress = state.countUpwards
-        ? (state.currentPhaseElapsed / totalDuration)
-        : (state.remainingSeconds / totalDuration);
+    final currentPhase = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) => s.currentPhase),
+    );
 
     return Card(
       elevation: 0,
@@ -121,7 +118,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
         child: Column(
           children: <Widget>[
             Text(
-              state.session!.title,
+              sessionTitle,
               style: context.textTheme.headlineLarge,
               textAlign: TextAlign.center,
             ),
@@ -134,33 +131,21 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                 SizedBox(
                   width: 160,
                   height: 160,
-                  child: CustomPaint(
-                    painter: CircularTimePainter(
-                      progress: progress,
-                      backgroundColor: context.colorScheme.tertiary,
-                      progressColor: context.colorScheme.primary,
-                      isReversed: state.countUpwards,
-                    ),
-                  ),
+                  child: ProgressCircle(instanceId: widget.instanceId),
                 ),
                 Column(
-                  children: <Widget>[
-                    Text(
-                      state.countUpwards
-                          ? TimeUtils.formatTime(state.currentPhaseElapsed)
-                          : TimeUtils.formatTime(state.remainingSeconds),
-                      style: context.textTheme.headlineLarge,
-                    ),
+                  children: [
+                    TimeTicker(instanceId: widget.instanceId),
 
                     Text(
-                      _getPhaseLabel(state.currentPhase),
+                      _getPhaseLabel(currentPhase),
                       style: context.textTheme.labelMedium!.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
 
                     Text(
-                      '${state.session!.hasSimpleTimer ? "Runde" : "Block"} ${state.completedBlocks + 1}',
+                      '${isSimpleTimer ? "Runde" : "Block"} ${completedBlocks + 1}',
                       style: context.textTheme.labelSmall!.copyWith(
                         color: context.colorScheme.onSurface.withValues(
                           alpha: 0.5,
@@ -175,89 +160,150 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
             const VerticalSpace(size: SpaceSize.large),
 
-            if (!state.session!.hasSimpleTimer) _buildPhaseIndicator(state),
+            if (!isSimpleTimer) _PhaseIndicator(instanceId: widget.instanceId),
 
             const VerticalSpace(),
 
             // Button row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                // Switch timer view
-                CustomIconButton(
-                  icon: const Icon(Icons.sync_alt_rounded),
-                  isActive: true,
-                  onPressed: () {
-                    viewModel.setCountUpwards(
-                      countUpwards: !state.countUpwards,
-                    );
-                  },
-                ),
-
-                // Pause and continue
-                if (settingsState.timerStartsAutomatically)
-                  CustomIconButton(
-                    radius: 40,
-                    icon:
-                        (state.timerStatus == TimerStatus.paused ||
-                            state.timerStatus == TimerStatus.initial)
-                        ? const Icon(Icons.play_arrow_rounded)
-                        : const Icon(Icons.pause_rounded),
-                    onPressed: () async {
-                      if (state.timerStatus == TimerStatus.running) {
-                        await viewModel.pauseTimer();
-                      } else {
-                        await viewModel.startTimer();
-                      }
-                    },
-                    isActive: true,
-                  )
-                else
-                  // If not set automatically starting, show "Starten" explicitly
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                    child: CustomIconButton(
-                      radius: 40,
-                      icon:
-                          (state.timerStatus == TimerStatus.paused ||
-                              state.timerStatus == TimerStatus.initial)
-                          ? const Icon(Icons.play_arrow_rounded)
-                          : const Icon(Icons.pause_rounded),
-                      label: state.timerStatus == TimerStatus.initial
-                          ? 'Starten'
-                          : null,
-                      isActive: true,
-                      onPressed: () async {
-                        if (state.timerStatus == TimerStatus.running) {
-                          await viewModel.pauseTimer();
-                        } else {
-                          await viewModel.startTimer();
-                        }
-                      },
-                    ),
-                  ),
-
-                // Skip phase
-                CustomIconButton(
-                  icon: const Icon(Icons.skip_next_rounded, size: 25),
-                  isActive: true,
-                  onPressed: state.timerStatus == TimerStatus.initial
-                      ? null
-                      : viewModel.skipPhase,
-                ),
-              ],
-            ),
+            _TimerButtons(instanceId: widget.instanceId),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _buildPhaseIndicator(ActiveSessionState state) {
-    final focusPhases = state.session!.focusPhases;
-    final currentBlock = state.currentPhaseIndex;
+// Class for the time running down to reduce rebuilds of full screen
+class TimeTicker extends ConsumerWidget {
+  const TimeTicker({required this.instanceId, super.key});
+  final int instanceId;
 
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final displayTime = ref.watch(
+      activeSessionViewModelProvider(instanceId).select((s) {
+        return s.countUpwards ? s.currentPhaseElapsed : s.remainingSeconds;
+      }),
+    );
+
+    return Text(
+      TimeUtils.formatTime(displayTime),
+      style: context.textTheme.headlineLarge,
+    );
+  }
+}
+
+class _TimerButtons extends ConsumerWidget {
+  const _TimerButtons({required this.instanceId});
+  final int instanceId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final countUpwards = ref.watch(
+      activeSessionViewModelProvider(
+        instanceId,
+      ).select((s) => s.countUpwards),
+    );
+
+    final timerStatus = ref.watch(
+      activeSessionViewModelProvider(
+        instanceId,
+      ).select((s) => s.timerStatus),
+    );
+
+    final timerStartsAutomatically = ref.watch(
+      settingsViewModelProvider.select((s) => s.timerStartsAutomatically),
+    );
+
+    final viewModel = ref.read(
+      activeSessionViewModelProvider(instanceId).notifier,
+    );
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        // Switch timer view
+        CustomIconButton(
+          icon: const Icon(Icons.sync_alt_rounded),
+          isActive: true,
+          onPressed: () {
+            viewModel.setCountUpwards(
+              countUpwards: !countUpwards,
+            );
+          },
+        ),
+
+        // Pause and continue
+        if (timerStartsAutomatically)
+          CustomIconButton(
+            radius: 40,
+            icon:
+                (timerStatus == TimerStatus.paused ||
+                    timerStatus == TimerStatus.initial)
+                ? const Icon(Icons.play_arrow_rounded)
+                : const Icon(Icons.pause_rounded),
+            onPressed: () async {
+              if (timerStatus == TimerStatus.running) {
+                await viewModel.pauseTimer();
+              } else {
+                await viewModel.startTimer();
+              }
+            },
+            isActive: true,
+          )
+        else
+          // If not set automatically starting, show "Starten" explicitly
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: CustomIconButton(
+              radius: 40,
+              icon:
+                  (timerStatus == TimerStatus.paused ||
+                      timerStatus == TimerStatus.initial)
+                  ? const Icon(Icons.play_arrow_rounded)
+                  : const Icon(Icons.pause_rounded),
+              label: timerStatus == TimerStatus.initial ? 'Starten' : null,
+              isActive: true,
+              onPressed: () async {
+                if (timerStatus == TimerStatus.running) {
+                  await viewModel.pauseTimer();
+                } else {
+                  await viewModel.startTimer();
+                }
+              },
+            ),
+          ),
+
+        // Skip phase
+        CustomIconButton(
+          icon: const Icon(Icons.skip_next_rounded, size: 25),
+          isActive: true,
+          onPressed: timerStatus == TimerStatus.initial
+              ? null
+              : viewModel.skipPhase,
+        ),
+      ],
+    );
+  }
+}
+
+class _PhaseIndicator extends ConsumerWidget {
+  const _PhaseIndicator({required this.instanceId});
+  final int instanceId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentBlock = ref.watch(
+      activeSessionViewModelProvider(
+        instanceId,
+      ).select((s) => s.currentPhaseIndex),
+    );
+    final focusPhases = ref.watch(
+      activeSessionViewModelProvider(
+        instanceId,
+      ).select((s) => s.session!.focusPhases),
+    );
     return Wrap(
       runSpacing: 4,
       children: List<Widget>.generate(focusPhases, (int index) {
@@ -271,12 +317,20 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
               children: <Widget>[
                 Opacity(
                   opacity: currentBlock == focusBlockIndex ? 1.0 : 0.2,
-                  child: _buildPreviewBlock('F', context.colorScheme.primary),
+                  child: _buildPreviewBlock(
+                    context,
+                    'F',
+                    context.colorScheme.primary,
+                  ),
                 ),
                 const HorizontalSpace(custom: 2),
                 Opacity(
                   opacity: currentBlock == breakBlockIndex ? 1.0 : 0.2,
-                  child: _buildPreviewBlock('K', context.colorScheme.primary),
+                  child: _buildPreviewBlock(
+                    context,
+                    'K',
+                    context.colorScheme.primary,
+                  ),
                 ),
               ],
             ),
@@ -287,12 +341,20 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
             children: <Widget>[
               Opacity(
                 opacity: currentBlock == focusBlockIndex ? 1.0 : 0.2,
-                child: _buildPreviewBlock('F', context.colorScheme.primary),
+                child: _buildPreviewBlock(
+                  context,
+                  'F',
+                  context.colorScheme.primary,
+                ),
               ),
               const HorizontalSpace(custom: 2),
               Opacity(
                 opacity: currentBlock == breakBlockIndex ? 1.0 : 0.2,
-                child: _buildPreviewBlock('L', context.colorScheme.primary),
+                child: _buildPreviewBlock(
+                  context,
+                  'L',
+                  context.colorScheme.primary,
+                ),
               ),
             ],
           );
@@ -301,7 +363,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
     );
   }
 
-  Widget _buildPreviewBlock(String label, Color color) {
+  Widget _buildPreviewBlock(BuildContext context, String label, Color color) {
     return Container(
       width: 17,
       height: 17,

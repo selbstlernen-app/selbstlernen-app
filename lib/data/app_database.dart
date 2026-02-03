@@ -101,7 +101,7 @@ class AppDatabase extends _$AppDatabase {
       LearningStrategiesCompanion.insert(
         title: 'Wiederholen',
         explanation: const Value<String>(
-          ' Regelmäßiges Auffrischen des Gelernten festigt das Wissen langfristig und verbessert die Abrufbarkeit in Prüfungen.',
+          'Regelmäßiges Auffrischen des Gelernten festigt das Wissen langfristig und verbessert die Abrufbarkeit in Prüfungen.',
         ),
       ),
     ];

@@ -55,51 +55,44 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(
-      activeSessionViewModelProvider(widget.instanceId),
+    final goals = ref.watch(
+      activeSessionViewModelProvider(widget.instanceId).select((s) => s.goals),
     );
+    final tasks = ref.watch(
+      activeSessionViewModelProvider(widget.instanceId).select((s) => s.tasks),
+    );
+    final isEditMode = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) => s.isEditMode),
+    );
+    final expandedGoalId = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) => s.expandedGoalId),
+    );
+    final completedGoalIds = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) => s.completedGoalIds),
+    );
+    final completedTaskIds = ref.watch(
+      activeSessionViewModelProvider(
+        widget.instanceId,
+      ).select((s) => s.completedTaskIds),
+    );
+
+    // 2. Access the notifier once
     final viewModel = ref.read(
       activeSessionViewModelProvider(widget.instanceId).notifier,
     );
 
-    var goals = List<GoalModel>.from(state.goals);
-    final allTasks = List<TaskModel>.from(state.tasks);
-
-    // Add a temporary goal;
-    // with special goal id to add ungrouped tasks
-    const ungroupedGoal = GoalModel(
-      id: ungroupedGoalId,
-      title: 'Sonstige Aufgaben',
-      keptForFutureSessions: false,
-    );
-
-    goals = <GoalModel>[...goals, ungroupedGoal];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        // Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text(
-              'Ziele & Aufgaben',
-              style: context.textTheme.headlineSmall!.copyWith(
-                color: context.colorScheme.brightness == Brightness.dark
-                    ? context.colorScheme.surface
-                    : context.colorScheme.onSurface,
-              ),
-            ),
-            CustomIconButton(
-              isActive: state.isEditMode,
-              onPressed: viewModel.toggleEditMode,
-              icon: !state.isEditMode
-                  ? const Icon(Icons.mode_edit_outline_outlined)
-                  : const Icon(Icons.edit_off_outlined),
-            ),
-          ],
-        ),
+        _GoalsHeader(instanceId: widget.instanceId),
 
+        // Header
         const VerticalSpace(size: SpaceSize.xsmall),
 
         // List of goals grouped with tasks/ungrouped tasks
@@ -110,21 +103,17 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
             itemCount: goals.length,
             itemBuilder: (BuildContext context, int index) {
               final goal = goals[index];
+              final isExpanded = expandedGoalId == goal.id;
+              final isGoalCompleted = completedGoalIds.contains(goal.id);
 
-              final relatedTasks = allTasks
+              // Filter tasks locally
+              final relatedTasks = tasks
                   .where(
-                    (TaskModel t) => goal.id == ungroupedGoalId
-                        ? t.goalId ==
-                              null // Match orphaned tasks
-                        : t.goalId == goal.id, // Match normal tasks
+                    (t) => goal.id == ungroupedGoalId
+                        ? t.goalId == null
+                        : t.goalId == goal.id,
                   )
                   .toList();
-
-              final isGoalCompleted = state.completedGoalIds.contains(
-                goal.id,
-              );
-
-              final isExpanded = state.expandedGoalId == goal.id;
 
               return Card(
                 elevation: 0,
@@ -164,7 +153,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                                 ),
                                 if (relatedTasks.isNotEmpty)
                                   Text(
-                                    '${relatedTasks.where((TaskModel t) => state.completedTaskIds.contains(t.id)).length}/${relatedTasks.length} Aufgaben erledigt',
+                                    '${relatedTasks.where((TaskModel t) => completedTaskIds.contains(t.id)).length}/${relatedTasks.length} Aufgaben erledigt',
                                     style: context.textTheme.bodyMedium!
                                         .copyWith(color: AppPalette.grey),
                                   ),
@@ -180,7 +169,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
 
                           // Delete button if no tasks
                           if (relatedTasks.isEmpty &&
-                              state.isEditMode &&
+                              isEditMode &&
                               goal.id != ungroupedGoalId)
                             IconButton(
                               icon: const Icon(
@@ -191,7 +180,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                             ),
 
                           // Expand/Collapse arrow
-                          if (state.isEditMode || relatedTasks.isNotEmpty)
+                          if (isEditMode || relatedTasks.isNotEmpty)
                             IconButton(
                               icon: Icon(
                                 isExpanded
@@ -226,17 +215,17 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
                             ...relatedTasks.map(
                               (TaskModel task) => _TaskItem(
                                 task: task,
-                                isCompleted: state.completedTaskIds.contains(
+                                isCompleted: completedTaskIds.contains(
                                   task.id,
                                 ),
                                 onToggle: () =>
                                     viewModel.toggleTaskCompletion(task.id!),
-                                isEditMode: state.isEditMode,
+                                isEditMode: isEditMode,
                                 onDelete: () =>
                                     viewModel.removeTaskById(taskId: task.id!),
                               ),
                             ),
-                            if (state.isEditMode)
+                            if (isEditMode)
                               CustomAddItemField(
                                 controller: _taskGoalController,
                                 hintText: 'Neue Aufgabe für ${goal.title}...',
@@ -253,7 +242,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
           ),
 
         // Add new goal field at bottom (only if no goal is expanded)
-        if (state.expandedGoalId == null && state.isEditMode)
+        if (expandedGoalId == null && isEditMode)
           Padding(
             padding: const EdgeInsets.symmetric(
               vertical: 12,
@@ -266,6 +255,49 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
               onPressed: _addGoal,
             ),
           ),
+      ],
+    );
+  }
+}
+
+class _GoalsHeader extends ConsumerWidget {
+  const _GoalsHeader({required this.instanceId});
+  final int instanceId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isEditMode = ref.watch(
+      activeSessionViewModelProvider(instanceId).select(
+        (s) => s.isEditMode,
+      ),
+    );
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          'Ziele & Aufgaben',
+          style: context.textTheme.headlineSmall!.copyWith(
+            color: context.colorScheme.brightness == Brightness.dark
+                ? context.colorScheme.surface
+                : context.colorScheme.onSurface,
+          ),
+        ),
+        AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: CustomIconButton(
+            radius: 40,
+            icon: Icon(
+              isEditMode ? Icons.edit_off_outlined : Icons.edit,
+            ),
+            label: isEditMode ? 'Fertig' : 'Bearbeiten',
+            isActive: true,
+            onPressed: () => ref
+                .read(activeSessionViewModelProvider(instanceId).notifier)
+                .toggleEditMode(),
+          ),
+        ),
       ],
     );
   }

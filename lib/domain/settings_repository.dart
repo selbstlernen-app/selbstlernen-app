@@ -12,6 +12,4 @@ abstract class SettingsRepository {
   Future<void> setFollowSystem({required bool value});
   Future<void> setPrimaryColor(Color colorValue);
   Future<void> setTimerEndTimestamp(DateTime? timestamp);
-
-  Future<void> clearAll();
 }

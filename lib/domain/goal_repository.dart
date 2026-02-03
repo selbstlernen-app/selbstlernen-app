@@ -15,5 +15,4 @@ abstract class GoalRepository {
     int goalId, {
     required bool keptForFutureSessions,
   });
-  Future<void> deleteGoalsBySessionId(int sessionId);
 }

@@ -23,7 +23,7 @@ abstract class StatisticsState with _$StatisticsState {
   List<EnrichedSessionInstance> getInstancesByDateAndSorted(DateTime date) {
     final normalizedDate = DateTime(date.year, date.month, date.day);
 
-    return enrichedInstances!.where((enrichedInstance) {
+    return enrichedInstances.where((enrichedInstance) {
       if (enrichedInstance.instance.status == (SessionStatus.inProgress)) {
         return false;
       }

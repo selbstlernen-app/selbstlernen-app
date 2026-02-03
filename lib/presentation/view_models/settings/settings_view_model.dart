@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:srl_app/core/services/notification_service.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
@@ -10,7 +11,6 @@ import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_notifications_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_settings_use_case.dart';
-import 'package:srl_app/notification_service.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_state.dart';
 
 part 'settings_view_model.g.dart';
@@ -110,7 +110,7 @@ class SettingsViewModel extends _$SettingsViewModel {
   }
 
   Future<void> toggleTimerAutomaticallyStarted() async {
-    await _manageSettingsUseCase.setTimerStartsAutomatically();
+    await _manageSettingsUseCase.toggleTimerStartsAutomatically();
     state = state.copyWith(
       timerStartsAutomatically: _manageSettingsUseCase
           .getTimerStartsAutomatically(),
@@ -158,10 +158,12 @@ class SettingsViewModel extends _$SettingsViewModel {
   }
 
   Future<void> toggleNotificationSetting({
+    required NotificationTypeSetting setting,
     required NotificationType type,
     required bool isEnabled,
   }) async {
     await _manageNotificationsUseCase.toggleNotificationType(
+      setting: setting,
       type: type,
       isEnabled: isEnabled,
     );

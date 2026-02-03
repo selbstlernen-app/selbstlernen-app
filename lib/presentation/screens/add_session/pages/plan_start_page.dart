@@ -56,9 +56,11 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
                   Icons.notification_important_outlined,
                 ),
                 const HorizontalSpace(size: SpaceSize.small),
-                Text(
-                  'Um wie viel Uhr willst du lernen?',
-                  style: context.textTheme.headlineSmall,
+                Expanded(
+                  child: Text(
+                    'Um wie viel Uhr willst du die Einheit durchführen?',
+                    style: context.textTheme.headlineSmall,
+                  ),
                 ),
               ],
             ),

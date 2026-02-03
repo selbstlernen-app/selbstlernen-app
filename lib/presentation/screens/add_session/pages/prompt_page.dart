@@ -40,7 +40,6 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
     bool? focus,
     int? focusPromptInterval,
     bool? showFocusPromptAlways,
-    bool? freetext,
   }) {
     ref
         .read(addSessionViewModelProvider.notifier)
@@ -48,7 +47,6 @@ class _$PromptPageState extends ConsumerState<PromptPage> {
           focus: focus,
           focusPromptInterval: focusPromptInterval,
           showFocusPromptAlways: showFocusPromptAlways,
-          freetext: freetext,
         );
   }
 

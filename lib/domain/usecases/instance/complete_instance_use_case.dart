@@ -1,3 +1,4 @@
+import 'package:srl_app/core/services/notification_service.dart';
 import 'package:srl_app/core/utils/date_time_utils.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/session_instance_repository.dart';
@@ -29,8 +30,12 @@ class CompleteInstanceUseCase {
 
     if (!session.isRepeating) {
       await sessionRepo.updateSession(
-        int.parse(session.id!),
+        int.parse(sessionId),
         session.copyWith(isArchived: true),
+      );
+
+      await NotificationService().cancelSpecificSessionNotifications(
+        int.parse(sessionId),
       );
 
       return;
@@ -50,6 +55,10 @@ class CompleteInstanceUseCase {
       await sessionRepo.updateSession(
         int.parse(session.id!),
         session.copyWith(isArchived: true),
+      );
+
+      await NotificationService().cancelSpecificSessionNotifications(
+        int.parse(sessionId),
       );
     }
   }

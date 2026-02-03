@@ -18,7 +18,7 @@ Stream<List<EnrichedSessionInstance>> enrichedInstancesStream(Ref ref) {
     instanceUseCase.watchAllInstances(),
     sessionUseCase.watchAllSessions(),
     (instances, sessions) {
-      final sessionMap = {for (var s in sessions) s.id.toString(): s.title};
+      final sessionMap = {for (final s in sessions) s.id.toString(): s.title};
       return instances
           .map(
             (instance) => EnrichedSessionInstance(

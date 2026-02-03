@@ -80,12 +80,6 @@ class GetSessionsForDateUseCase {
       return true;
     }
 
-    // For scheduled sessions
-    print(session.startDate);
-    print(date.isBefore(session.startDate!));
-    print(date);
-    print(session.selectedDays.contains(date.weekday - 1));
-
     if (date.isBefore(session.startDate!)) return false;
     if (session.endDate != null && date.isAfter(session.endDate!)) return false;
     return session.selectedDays.contains(date.weekday - 1);
