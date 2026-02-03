@@ -49,7 +49,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -63,7 +63,22 @@ class AppDatabase extends _$AppDatabase {
         if (from < 2) {
           await m.createTable(learningStrategies);
           await _insertDefaultStrategies();
-          await m.drop(notifications);
+        }
+        if (from == 2 && to == 3) {
+          debugPrint(
+            'Migrating database from v2 to v3 - will recreate all tables',
+          );
+
+          // Drop all existing tables
+          await _dropAllTables(m);
+
+          // Recreate with new schema
+          await m.createAll();
+
+          // Insert default data
+          await _insertDefaultStrategies();
+
+          debugPrint('Migration to v3 complete');
         }
       },
       beforeOpen: (details) async {
@@ -71,6 +86,50 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('PRAGMA foreign_keys = ON');
       },
     );
+  }
+
+  Future<void> _dropAllTables(Migrator m) async {
+    try {
+      await m.drop(notifications);
+    } on Exception catch (e) {
+      debugPrint('Could not drop notifications: $e');
+    }
+
+    try {
+      await m.drop(sessions);
+    } on Exception catch (e) {
+      debugPrint('Could not drop sessions: $e');
+    }
+
+    try {
+      await m.drop(sessionInstances);
+    } on Exception catch (e) {
+      debugPrint('Could not drop sessionInstances: $e');
+    }
+
+    try {
+      await m.drop(goals);
+    } on Exception catch (e) {
+      debugPrint('Could not drop goals: $e');
+    }
+
+    try {
+      await m.drop(settings);
+    } on Exception catch (e) {
+      debugPrint('Could not drop goals: $e');
+    }
+
+    try {
+      await m.drop(tasks);
+    } on Exception catch (e) {
+      debugPrint('Could not drop tasks: $e');
+    }
+
+    try {
+      await m.drop(learningStrategies);
+    } on Exception catch (e) {
+      debugPrint('Could not drop learningStrategies: $e');
+    }
   }
 
   Future<void> _insertDefaultStrategies() async {
