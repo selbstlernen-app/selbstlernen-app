@@ -210,7 +210,7 @@ class NotificationService {
   Future<void> pendingNotifications() async {
     final notificiations = await flutterLocalNotificationsPlugin
         .pendingNotificationRequests();
-    for (var note in notificiations) {
+    for (final note in notificiations) {
       print(note.id);
       print(note.title);
     }

@@ -9,15 +9,9 @@ import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
+import 'package:srl_app/presentation/view_models/providers.dart';
 
 part 'add_session_view_model.g.dart';
-
-@riverpod
-Stream<List<LearningStrategyModel>> learningStrategiesStream(Ref ref) {
-  return ref
-      .watch(manageLearningStrategyUseCaseProvider)
-      .watchLearningStrategies();
-}
 
 @riverpod
 class AddSessionViewModel extends _$AddSessionViewModel {
