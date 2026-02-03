@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
 
 class HorizontalSpace extends StatelessWidget {
   const HorizontalSpace({super.key, this.size = SpaceSize.medium, this.custom});

@@ -4,7 +4,7 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/session_dialogs.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/common_widgets/time_break_down_item.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
