@@ -8,7 +8,6 @@ extension NotificationToModelMapper on Notification {
     return NotificationTypeSetting(
       type: NotificationType.values.firstWhere(
         (e) => e.name == notificationType,
-        orElse: () => NotificationType.dailyReminder,
       ),
       frequency: NotificationFrequency.values.firstWhere(
         (e) => e.name == frequency,

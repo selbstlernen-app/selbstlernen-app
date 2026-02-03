@@ -4,14 +4,8 @@ import 'package:srl_app/data/database/tables/settings_table.dart';
 
 part 'settings_dao.g.dart';
 
-// TODO: later rework with notification settings etc.
 @DriftAccessor(tables: <Type>[Settings])
 class SettingsDao extends DatabaseAccessor<AppDatabase>
     with _$SettingsDaoMixin {
   SettingsDao(super.attachedDatabase);
-
-  // Get settings
-  Future<Setting> getSetting() async {
-    return select(settings).getSingle();
-  }
 }

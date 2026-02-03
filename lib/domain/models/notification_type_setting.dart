@@ -16,8 +16,6 @@ abstract class NotificationTypeSetting with _$NotificationTypeSetting {
 
 /// Types of notifications
 enum NotificationType {
-  // Daily reminder to keep up
-  dailyReminder,
   // Weekly reminder about current progress; generally
   weeklyProgress,
   // Custom motivational message
@@ -28,8 +26,6 @@ enum NotificationType {
 
   String get displayName {
     switch (this) {
-      case NotificationType.dailyReminder:
-        return 'Lerneinheit Erinnerung';
       case NotificationType.weeklyProgress:
         return 'Wöchentlicher Fortschritt';
       case NotificationType.motivationalReminder:
@@ -41,8 +37,6 @@ enum NotificationType {
 
   String get description {
     switch (this) {
-      case NotificationType.dailyReminder:
-        return 'Erinnere mich an meine Lerneinheiten für den Tag';
       case NotificationType.weeklyProgress:
         return 'Zeige mir meinen Wochenfortschritt';
       case NotificationType.motivationalReminder:

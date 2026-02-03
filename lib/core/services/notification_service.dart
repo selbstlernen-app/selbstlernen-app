@@ -21,7 +21,6 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static const Map<NotificationType, int> _notificationIds = {
-    NotificationType.dailyReminder: 1,
     NotificationType.weeklyProgress: 2,
     NotificationType.motivationalReminder: 3,
   };
@@ -168,7 +167,6 @@ class NotificationService {
         endDate!,
       );
     }
-    await pendingNotifications();
   }
 
   // Schedule a notification based on type, frequency, and preferred time
@@ -207,14 +205,14 @@ class NotificationService {
     }
   }
 
-  Future<void> pendingNotifications() async {
-    final notificiations = await flutterLocalNotificationsPlugin
-        .pendingNotificationRequests();
-    for (final note in notificiations) {
-      print(note.id);
-      print(note.title);
-    }
-  }
+  // Future<void> pendingNotifications() async {
+  //   final notificiations = await flutterLocalNotificationsPlugin
+  //       .pendingNotificationRequests();
+  //   for (final note in notificiations) {
+  //     print(note.id);
+  //     print(note.title);
+  //   }
+  // }
 
   /// Cancel all scheduled notifications
   Future<void> cancelAllNotifications() async {
@@ -226,47 +224,37 @@ class NotificationService {
     await AppSettings.openAppSettings(type: AppSettingsType.notification);
   }
 
-  Future<void> cancelTimerEnd() async {
-    await flutterLocalNotificationsPlugin.cancel(999);
-  }
-
   // Helper methods
   String _getNotificationTitle(NotificationType type, [String? customMessage]) {
     switch (type) {
-      case NotificationType.dailyReminder:
-        return 'Zeit zum Lernen! 📚';
+      case NotificationType.sessionReminder:
+        return customMessage ?? 'Deine Einheit wartet auf dich 🎯';
       case NotificationType.weeklyProgress:
         return 'Dein Wochenfortschritt 📍';
       case NotificationType.motivationalReminder:
         return customMessage ?? 'Bleib dran und gib alles! 🔥';
-      case NotificationType.sessionReminder:
-        return customMessage ?? 'Deine Einheit wartet auf dich 🎯';
     }
   }
 
   String _getNotificationBody(NotificationType type) {
     switch (type) {
-      case NotificationType.dailyReminder:
-        return 'Vergiss nicht, heute deine Lerneinheit zu absolvieren!';
+      case NotificationType.sessionReminder:
+        return '';
       case NotificationType.weeklyProgress:
         return 'Schau dir an, wie weit du diese Woche gekommen bist!';
       case NotificationType.motivationalReminder:
-        return '';
-      case NotificationType.sessionReminder:
         return '';
     }
   }
 
   String _getChannelDescription(NotificationType type) {
     switch (type) {
-      case NotificationType.dailyReminder:
-        return 'Daily learning reminders';
+      case NotificationType.sessionReminder:
+        return 'Session specific reminder';
       case NotificationType.weeklyProgress:
         return 'Weekly progress summaries';
       case NotificationType.motivationalReminder:
         return 'Motivational reminders';
-      case NotificationType.sessionReminder:
-        return 'Session specific reminder';
     }
   }
 

@@ -55,13 +55,6 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
         .watch();
   }
 
-  // Get goal by ID
-  Stream<Goal?> getGoalById(int id) {
-    return (select(
-      goals,
-    )..where(($GoalsTable s) => s.id.equals(id))).watchSingleOrNull();
-  }
-
   // Update goal
   Future<int> updateGoal(int id, GoalsCompanion companion) async {
     return (update(

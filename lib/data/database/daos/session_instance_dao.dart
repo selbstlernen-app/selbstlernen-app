@@ -79,7 +79,8 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   }
 
   /// Watch all session instances for a given date
-  /// Returns all instances that are either scheduled or were completed during the week
+  /// Returns all instances that are either scheduled
+  /// or were completed during the week
   Stream<List<SessionInstance>> watchAllInstancesForDate(DateTime date) {
     final startOfDay = DateTime(date.year, date.month, date.day);
     final endOfDay = DateTime(

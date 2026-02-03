@@ -8,6 +8,7 @@ import 'package:srl_app/core/services/notification_service.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
+import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/domain/usecases/manage_settings_use_case.dart';
 import 'package:srl_app/presentation/view_models/providers.dart';
@@ -57,6 +58,11 @@ class SettingsViewModel extends _$SettingsViewModel {
             notificationSettings: notifications,
             isLoading: false,
           );
+        });
+      })
+      ..listen(activeSessionsProvider, (previous, next) {
+        next.whenData((sessions) {
+          state = state.copyWith(activeSessions: sessions, isLoading: false);
         });
       });
   }
@@ -150,6 +156,7 @@ class SettingsViewModel extends _$SettingsViewModel {
     required NotificationType type,
     required bool isEnabled,
   }) async {
+    print(type);
     await ref
         .read(manageNotificationsUseCaseProvider)
         .toggleNotificationType(
@@ -167,6 +174,15 @@ class SettingsViewModel extends _$SettingsViewModel {
       final settingToSchedule = updatedSetting.copyWith(enabled: isEnabled);
       await _scheduleNotification(settingToSchedule);
     }
+  }
+
+  Future<void> updateSessionSettings(
+    SessionModel updatedModel,
+    int sessionId,
+  ) async {
+    await ref
+        .read(manageSessionUseCaseProvider)
+        .updateSession(sessionId, updatedModel);
   }
 
   Future<void> updateNotification(

@@ -63,6 +63,7 @@ class AppDatabase extends _$AppDatabase {
         if (from < 2) {
           await m.createTable(learningStrategies);
           await _insertDefaultStrategies();
+          await m.drop(notifications);
         }
       },
       beforeOpen: (details) async {

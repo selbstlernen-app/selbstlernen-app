@@ -10,15 +10,6 @@ class NotificationRepositoryImp implements NotificationRepository {
   final NotificationDao notificationDao;
 
   @override
-  Future<List<NotificationTypeSetting>> getPreferences() async {
-    final entities = await notificationDao.getAllSettings();
-    if (entities.isEmpty) {
-      await initializePreferences();
-    }
-    return NotificationToModelMapper.mapFromListOfEntity(entities);
-  }
-
-  @override
   Future<void> toggleNotificationType(
     NotificationType type, {
     required bool enabled,

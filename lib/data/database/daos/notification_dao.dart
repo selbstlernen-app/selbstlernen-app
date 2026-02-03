@@ -27,24 +27,6 @@ class NotificationDao extends DatabaseAccessor<AppDatabase>
     return select(notifications).watch();
   }
 
-  /// Get a specific notification type setting
-  Future<Notification?> getNotificationSettings(
-    NotificationType type,
-  ) {
-    return (select(notifications)
-          ..where((tbl) => tbl.notificationType.equals(type.name)))
-        .getSingleOrNull();
-  }
-
-  /// Watch a specific notification type setting
-  Stream<Notification?> watchSetting(
-    NotificationType type,
-  ) {
-    return (select(notifications)
-          ..where((tbl) => tbl.notificationType.equals(type.name)))
-        .watchSingleOrNull();
-  }
-
   /// Update enabled flag only
   Future<void> updateEnabled(NotificationType type, {required bool enabled}) {
     return (update(
