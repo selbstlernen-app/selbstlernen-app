@@ -135,11 +135,9 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
             final isSelected = selectedDays.contains(dayIndex);
 
             return InkWell(
-              onTap: () => editMode
-                  ? null
-                  : ref
-                        .read(addSessionViewModelProvider.notifier)
-                        .toggleDay(dayIndex),
+              onTap: () => ref
+                  .read(addSessionViewModelProvider.notifier)
+                  .toggleDay(dayIndex),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 10,
@@ -229,8 +227,7 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
                     controller: _endDateController,
                     readOnly: true,
                     hintText: 'Enddatum',
-                    onTap: () =>
-                        editMode ? null : _pickDate(_endDateController, false),
+                    onTap: () => _pickDate(_endDateController, false),
                     hasError: dateError != null,
                   ),
                 ],

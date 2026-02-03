@@ -20,23 +20,12 @@ class ProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final total = instances.length;
-    final completed = instances
-        .where((i) => i.status == SessionStatus.completed)
-        .length;
-    final missed = instances
-        .where((i) => i.status == SessionStatus.missed)
-        .length;
-    final skipped = instances
-        .where((i) => i.status == SessionStatus.skipped)
-        .length;
-    final open = instances
-        .where(
-          (i) =>
-              i.status == SessionStatus.scheduled ||
-              i.status == SessionStatus.inProgress,
-        )
-        .length;
+    final total = stats.totalInstances;
+
+    final completed = stats.completedInstances;
+    final missed = stats.missedInstances;
+    final skipped = stats.skippedInstances;
+    final open = total - (completed + missed + skipped);
 
     final completionRate = total > 0 ? completed / total : 0.0;
     final missRate = total > 0 ? missed / total : 0.0;
