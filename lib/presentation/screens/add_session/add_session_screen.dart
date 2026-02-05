@@ -14,10 +14,15 @@ import 'package:srl_app/presentation/view_models/add_session/add_session_state.d
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class AddSessionScreen extends ConsumerStatefulWidget {
-  const AddSessionScreen({super.key, this.fullSessionModel});
+  const AddSessionScreen({
+    super.key,
+    this.fullSessionModel,
+    this.fromHomeScreen,
+  });
 
   // If in editing mode
   final FullSessionModel? fullSessionModel;
+  final bool? fromHomeScreen;
 
   @override
   ConsumerState<AddSessionScreen> createState() => _AddSessionScreenState();
@@ -110,7 +115,10 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(addSessionViewModelProvider);
-    final showBackButton = widget.fullSessionModel != null || currentPage > 0;
+    final showBackButton =
+        widget.fullSessionModel != null ||
+        currentPage > 0 ||
+        (widget.fromHomeScreen ?? false);
 
     return MainLayout(
       appBarTitle: _getAppBarTitle(state.title),

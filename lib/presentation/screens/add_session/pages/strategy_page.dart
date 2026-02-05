@@ -60,7 +60,6 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
     final selected = ref.watch(
       addSessionViewModelProvider.select((s) => s.learningStrategies),
     );
-    final canNavigate = selected.isNotEmpty;
     final isSimpleTimer = ref.watch(
       addSessionViewModelProvider.select(
         (s) => s.sessionComplexity == SessionComplexity.simple,
@@ -69,6 +68,9 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
     final focusTime = ref.watch(
       addSessionViewModelProvider.select((s) => s.focusTimeMin),
     );
+
+    final canNavigate =
+        selected.isNotEmpty && (!isSimpleTimer || focusTime > 0);
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -159,7 +161,9 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                   child: CustomButton(
                     label: canNavigate
                         ? 'Weiter'
-                        : 'Wähle mind. 1 Strategien aus',
+                        : ((isSimpleTimer && focusTime == 0)
+                              ? 'Zeit muss mind. 1 Min betragen'
+                              : 'Wähle mind. 1 Strategien aus'),
                     onPressed: () =>
                         canNavigate ? widget.navigateForward() : null,
                     isActive: canNavigate,

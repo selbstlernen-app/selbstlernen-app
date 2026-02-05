@@ -11,6 +11,7 @@ import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
   @override
   ConsumerState<ConsumerStatefulWidget> createState() => _$HomeScreenState();
 }
@@ -33,7 +34,6 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
               padding: const EdgeInsets.all(24),
               sliver: SliverToBoxAdapter(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const _Greeting(),
                     const VerticalSpace(),
@@ -42,6 +42,8 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                     const ProgressBar(),
                     const VerticalSpace(),
                     const _FilterButtonRow(),
+
+                    const ButtonAction(),
 
                     if (isLoading) ...[
                       const VerticalSpace(),
@@ -55,7 +57,7 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
             ),
 
             if (!isLoading) ...[
-              // Dynamic Session Panel Sections
+              // Dynamic session sections
               if (filter == SessionFilter.all ||
                   filter == SessionFilter.open) ...[
                 const HomeSectionActive(),
@@ -136,36 +138,41 @@ class _FilterButtonRow extends ConsumerWidget {
       homeViewModelProvider.select((s) => s.filter),
     );
 
-    return Wrap(
-      spacing: 8,
-      children: <Widget>[
-        CustomFilterChip(
-          label: 'Alle',
-          isActive: filter == SessionFilter.all,
-          onPressed: () => ref
-              .read(homeViewModelProvider.notifier)
-              .setFilter(SessionFilter.all),
-        ),
-        CustomFilterChip(
-          label: 'Offen',
-          isActive: filter == SessionFilter.open,
-          onPressed: () => ref
-              .read(homeViewModelProvider.notifier)
-              .setFilter(SessionFilter.open),
-        ),
-        CustomFilterChip(
-          label: 'Übersprungen',
-          isActive: filter == SessionFilter.skipped,
-          onPressed: () => ref
-              .read(homeViewModelProvider.notifier)
-              .setFilter(SessionFilter.skipped),
-        ),
-        CustomFilterChip(
-          label: 'Erledigt',
-          isActive: filter == SessionFilter.done,
-          onPressed: () => ref
-              .read(homeViewModelProvider.notifier)
-              .setFilter(SessionFilter.done),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8,
+          children: <Widget>[
+            CustomFilterChip(
+              label: 'Alle',
+              isActive: filter == SessionFilter.all,
+              onPressed: () => ref
+                  .read(homeViewModelProvider.notifier)
+                  .setFilter(SessionFilter.all),
+            ),
+            CustomFilterChip(
+              label: 'Offen',
+              isActive: filter == SessionFilter.open,
+              onPressed: () => ref
+                  .read(homeViewModelProvider.notifier)
+                  .setFilter(SessionFilter.open),
+            ),
+            CustomFilterChip(
+              label: 'Übersprungen',
+              isActive: filter == SessionFilter.skipped,
+              onPressed: () => ref
+                  .read(homeViewModelProvider.notifier)
+                  .setFilter(SessionFilter.skipped),
+            ),
+            CustomFilterChip(
+              label: 'Erledigt',
+              isActive: filter == SessionFilter.done,
+              onPressed: () => ref
+                  .read(homeViewModelProvider.notifier)
+                  .setFilter(SessionFilter.done),
+            ),
+          ],
         ),
       ],
     );

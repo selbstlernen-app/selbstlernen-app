@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:srl_app/common_widgets/custom_icon_button.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
 import 'package:srl_app/presentation/screens/home/widgets/completed_tile.dart';
@@ -44,6 +47,59 @@ class SessionSectionSliver extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class ButtonAction extends ConsumerWidget {
+  const ButtonAction({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedDate = ref.watch(
+      homeViewModelProvider.select((s) => s.dateToFilterFor),
+    );
+
+    final activeSessions = ref.watch(
+      sessionsForDateProvider(selectedDate),
+    );
+
+    final completedSessions = ref.watch(
+      completedSessionsForDateProvider(selectedDate),
+    );
+
+    // Combine both states; ONLY if both are empty, show the button
+    return activeSessions.when(
+      data: (activeList) {
+        return completedSessions.when(
+          data: (completedList) {
+            if (activeList.isEmpty && completedList.isEmpty) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const VerticalSpace(),
+                  CustomIconButton(
+                    radius: 10,
+                    isActive: true,
+                    onPressed: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.addSession,
+                      arguments: AddSessionArgs(fromHomeScreen: true),
+                    ),
+                    label: 'Füge eine neue Lerneinheit hinzu',
+                    icon: const Icon(Icons.add_box_outlined),
+                  ),
+                ],
+              );
+            }
+            return const SizedBox.shrink();
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, __) => const SizedBox.shrink(),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 }

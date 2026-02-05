@@ -6,6 +6,7 @@ import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/session_dialogs.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/common_widgets/time_break_down_item.dart';
+import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -67,7 +68,7 @@ class SessionDetailScreen extends ConsumerWidget {
     await Navigator.pushNamed(
       context,
       AppRoutes.addSession,
-      arguments: fullSession,
+      arguments: AddSessionArgs(fullSessionModel: fullSession),
     );
   }
 
@@ -426,7 +427,22 @@ class _ActionButtons extends ConsumerWidget {
             onPressed: () => SessionDialogs.showDeleteSession(
               context,
               isRepeating: false,
-              onConfirm: () => notifier.deleteInstance(instanceId!),
+              onConfirm: () async {
+                await notifier.deleteInstance(instanceId!);
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      duration: const Duration(seconds: 2),
+                      content: Text(Constants.successDeleted),
+                    ),
+                  );
+                  await Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    AppRoutes.home,
+                    (Route<dynamic> route) => false,
+                  );
+                }
+              },
             ),
           ),
 
@@ -436,7 +452,22 @@ class _ActionButtons extends ConsumerWidget {
           onPressed: () => SessionDialogs.showDeleteSession(
             context,
             isRepeating: state.session!.isRepeating,
-            onConfirm: notifier.deleteSession,
+            onConfirm: () async {
+              await notifier.deleteSession();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 2),
+                    content: Text(Constants.successDeleted),
+                  ),
+                );
+                await Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  AppRoutes.home,
+                  (Route<dynamic> route) => false,
+                );
+              }
+            },
           ),
         ),
 
