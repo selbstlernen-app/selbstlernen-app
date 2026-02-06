@@ -77,10 +77,15 @@ class GetSessionsForDateUseCase {
     if (session.isArchived) return false;
 
     if (!session.isRepeating) {
-      return true;
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final checkDate = DateTime(date.year, date.month, date.day);
+
+      return checkDate.isAtSameMomentAs(today) || checkDate.isAfter(today);
     }
 
     if (date.isBefore(session.startDate!)) return false;
+
     if (session.endDate != null && date.isAfter(session.endDate!)) return false;
     return session.selectedDays.contains(date.weekday - 1);
   }

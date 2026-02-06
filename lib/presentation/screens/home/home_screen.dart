@@ -138,43 +138,41 @@ class _FilterButtonRow extends ConsumerWidget {
       homeViewModelProvider.select((s) => s.filter),
     );
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Wrap(
-          spacing: 8,
-          children: <Widget>[
-            CustomFilterChip(
-              label: 'Alle',
-              isActive: filter == SessionFilter.all,
-              onPressed: () => ref
-                  .read(homeViewModelProvider.notifier)
-                  .setFilter(SessionFilter.all),
-            ),
-            CustomFilterChip(
-              label: 'Offen',
-              isActive: filter == SessionFilter.open,
-              onPressed: () => ref
-                  .read(homeViewModelProvider.notifier)
-                  .setFilter(SessionFilter.open),
-            ),
-            CustomFilterChip(
-              label: 'Übersprungen',
-              isActive: filter == SessionFilter.skipped,
-              onPressed: () => ref
-                  .read(homeViewModelProvider.notifier)
-                  .setFilter(SessionFilter.skipped),
-            ),
-            CustomFilterChip(
-              label: 'Erledigt',
-              isActive: filter == SessionFilter.done,
-              onPressed: () => ref
-                  .read(homeViewModelProvider.notifier)
-                  .setFilter(SessionFilter.done),
-            ),
-          ],
-        ),
-      ],
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Wrap(
+        spacing: 8,
+        children: <Widget>[
+          CustomFilterChip(
+            label: 'Alle',
+            isActive: filter == SessionFilter.all,
+            onPressed: () => ref
+                .read(homeViewModelProvider.notifier)
+                .setFilter(SessionFilter.all),
+          ),
+          CustomFilterChip(
+            label: 'Offen',
+            isActive: filter == SessionFilter.open,
+            onPressed: () => ref
+                .read(homeViewModelProvider.notifier)
+                .setFilter(SessionFilter.open),
+          ),
+          CustomFilterChip(
+            label: 'Übersprungen',
+            isActive: filter == SessionFilter.skipped,
+            onPressed: () => ref
+                .read(homeViewModelProvider.notifier)
+                .setFilter(SessionFilter.skipped),
+          ),
+          CustomFilterChip(
+            label: 'Erledigt',
+            isActive: filter == SessionFilter.done,
+            onPressed: () => ref
+                .read(homeViewModelProvider.notifier)
+                .setFilter(SessionFilter.done),
+          ),
+        ],
+      ),
     );
   }
 }
