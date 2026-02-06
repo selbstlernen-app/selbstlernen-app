@@ -73,6 +73,7 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
               initDate: DateTime.now(),
               flexible: true,
               colorMode: ColorMode.color,
+              activeDate: _selectedDate ?? DateTime.now(),
               onClick: (DateTime date) {
                 _buildCalendarDataset();
                 setState(() {

@@ -176,12 +176,13 @@ class _DateInputFieldsState extends ConsumerState<DateInputFields> {
           }).toList(),
         ),
 
-        if (selectedDaysError != null)
+        if (selectedDaysError != null) ...[
           CustomErrorText(errorText: selectedDaysError),
-
-        const VerticalSpace(
-          size: SpaceSize.small,
-        ),
+          const VerticalSpace(),
+        ] else
+          const VerticalSpace(
+            size: SpaceSize.small,
+          ),
 
         // Pick start and end dates
         Row(
