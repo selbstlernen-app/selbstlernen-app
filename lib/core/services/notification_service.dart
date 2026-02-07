@@ -283,12 +283,14 @@ class NotificationService {
       startDate.month,
       startDate.day,
       plannedTime.hour,
-      plannedTime.minute,
+      plannedTime.minute - 2,
     );
 
-    while (scheduledDate.weekday != dayOfWeek || scheduledDate.isBefore(now)) {
+    while ((scheduledDate.weekday - 1) != dayOfWeek ||
+        scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
+
     return scheduledDate;
   }
 
