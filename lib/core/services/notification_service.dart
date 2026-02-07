@@ -228,7 +228,7 @@ class NotificationService {
   String _getNotificationTitle(NotificationType type, [String? customMessage]) {
     switch (type) {
       case NotificationType.sessionReminder:
-        return customMessage ?? 'Deine Einheit wartet auf dich 🎯';
+        return 'Deine Einheit $customMessage wartet darauf, bearbeitet zu werden 🎯';
       case NotificationType.weeklyProgress:
         return 'Dein Wochenfortschritt 📍';
       case NotificationType.motivationalReminder:
