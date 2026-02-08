@@ -6,14 +6,13 @@ import 'package:srl_app/common_widgets/loading_indicator.dart';
 import 'package:srl_app/common_widgets/session_dialogs.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/common_widgets/time_break_down_item.dart';
-import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
+import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_view_model.dart';
 
 class SessionDetailScreen extends ConsumerWidget {
@@ -101,6 +100,12 @@ class SessionDetailScreen extends ConsumerWidget {
     final instance = state.instance;
     final goals = state.goals;
     final ungroupedTasks = state.fullSession!.ungroupedTasks;
+    final notifier = ref.read(
+      detailSessionViewModelProvider(
+        sessionId,
+        targetDate: targetDate,
+      ).notifier,
+    );
 
     return MainLayout(
       navigateBack: () {
@@ -149,12 +154,56 @@ class SessionDetailScreen extends ConsumerWidget {
             ),
           ),
 
-          // Delete and archive buttons
-          _ActionButtons(
-            state: state,
-            sessionId: sessionId,
-            instanceId: instanceId,
-            targetDate: targetDate,
+          // BUTTONS
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              // Delete Instance button -> only when repeating session!
+              if (instanceId != null && session.isRepeating)
+                IconButton(
+                  icon: const Icon(Icons.delete_forever),
+                  onPressed: () => SessionDialogs.showDeleteInstance(
+                    context,
+                    onConfirm: () async {
+                      final useCase = ref.read(manangeInstanceUseCaseProvider);
+                      await useCase.deleteInstanceById(instanceId!);
+                    },
+                  ),
+                ),
+
+              // Delete session button -> shown whenever
+              IconButton(
+                color: AppPalette.rose,
+                icon: const Icon(Icons.delete_sweep_rounded),
+                onPressed: () => SessionDialogs.showDeleteSession(
+                  context,
+                  isRepeating: state.session!.isRepeating,
+                  onConfirm: () async {
+                    final useCase = ref.read(fullSessionUseCaseProvider);
+                    await useCase.deleteFullModel(sessionId);
+                  },
+                ),
+              ),
+
+              if (state.canArchive && state.hasPastSessions)
+                IconButton(
+                  color: AppPalette.orange,
+                  icon: const Icon(Icons.archive_outlined),
+                  onPressed: () => SessionDialogs.showArchive(
+                    context,
+                    onConfirm: () async {
+                      final useCase = ref.read(manageSessionUseCaseProvider);
+                      final updated = state.fullSession!.session.copyWith(
+                        isArchived: true,
+                      );
+                      await useCase.updateSession(
+                        sessionId,
+                        updated,
+                      );
+                    },
+                  ),
+                ),
+            ],
           ),
 
           if (state.hasInstance) ...[
@@ -389,95 +438,6 @@ class _GoalsAndTasksSection extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _ActionButtons extends ConsumerWidget {
-  const _ActionButtons({
-    required this.state,
-    required this.sessionId,
-    required this.targetDate,
-    this.instanceId,
-  });
-
-  final DetailSessionState state;
-  final int sessionId;
-  final DateTime targetDate;
-  final int? instanceId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.read(
-      detailSessionViewModelProvider(
-        sessionId,
-        targetDate: targetDate,
-      ).notifier,
-    );
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        if (instanceId != null)
-          IconButton(
-            icon: const Icon(Icons.delete_forever),
-            onPressed: () => SessionDialogs.showDeleteSession(
-              context,
-              isRepeating: false,
-              onConfirm: () async {
-                await notifier.deleteInstance(instanceId!);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      duration: const Duration(seconds: 2),
-                      content: Text(Constants.successDeleted),
-                    ),
-                  );
-                  await Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    AppRoutes.home,
-                    (Route<dynamic> route) => false,
-                  );
-                }
-              },
-            ),
-          ),
-
-        IconButton(
-          color: AppPalette.rose,
-          icon: const Icon(Icons.delete_sweep_rounded),
-          onPressed: () => SessionDialogs.showDeleteSession(
-            context,
-            isRepeating: state.session!.isRepeating,
-            onConfirm: () async {
-              await notifier.deleteSession();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    duration: const Duration(seconds: 2),
-                    content: Text(Constants.successDeleted),
-                  ),
-                );
-                await Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  AppRoutes.home,
-                  (Route<dynamic> route) => false,
-                );
-              }
-            },
-          ),
-        ),
-
-        if (state.canArchive && state.hasPastSessions)
-          IconButton(
-            color: AppPalette.orange,
-            icon: const Icon(Icons.archive_outlined),
-            onPressed: () => SessionDialogs.showArchive(
-              context,
-              onConfirm: notifier.archiveSession,
             ),
           ),
       ],

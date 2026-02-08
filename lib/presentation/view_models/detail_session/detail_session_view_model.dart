@@ -66,33 +66,6 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
     }
   }
 
-  Future<void> deleteSession() async {
-    await ref.read(fullSessionUseCaseProvider).deleteFullModel(sessionId);
-  }
-
-  Future<void> deleteInstance(int instanceId) async {
-    await ref
-        .read(manangeInstanceUseCaseProvider)
-        .deleteInstanceById(instanceId);
-  }
-
-  Future<void> archiveSession() async {
-    // Archive session, so that past session data still persists
-    final currentFullSession = state.fullSession;
-
-    if (currentFullSession == null) {
-      throw Exception('No session loaded');
-    }
-
-    final updated = currentFullSession.session.copyWith(
-      isArchived: true,
-    );
-
-    await ref
-        .read(manageSessionUseCaseProvider)
-        .updateSession(sessionId, updated);
-  }
-
   Future<SessionInstanceModel> startSession(int sessionId) async {
     final newInstance = await ref
         .read(getOrCreateInstanceUseCaseProvider)

@@ -12,7 +12,7 @@ import 'package:srl_app/presentation/view_models/providers.dart';
 
 part 'add_session_view_model.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AddSessionViewModel extends _$AddSessionViewModel {
   @override
   AddSessionState build() {
@@ -25,17 +25,15 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void _listenToDataStreams() {
-    ref.listen(
-      learningStrategiesStreamProvider,
-      (previous, next) {
-        next.whenData((strategies) {
-          state = state.copyWith(
-            availableStrategies: strategies,
-            isLoading: false,
-          );
-        });
-      },
-    );
+    // Only update the learning strat field on any updates; do NOT trigger whole rebuild
+    ref.listen(learningStrategiesStreamProvider, (previous, next) {
+      next.whenData((strategies) {
+        state = state.copyWith(
+          availableStrategies: strategies,
+          isLoading: false,
+        );
+      });
+    });
   }
 
   // -- Setters --

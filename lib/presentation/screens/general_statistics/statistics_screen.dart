@@ -52,18 +52,21 @@ class StatisticsScreen extends ConsumerWidget {
             ),
             const SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
                     // Calendar
                     LearnCalendar(),
 
-                    VerticalSpace(),
+                    VerticalSpace(
+                      size: SpaceSize.small,
+                    ),
 
                     // Stats row
                     StatsSection(),
 
                     VerticalSpace(),
+
                     // Filter buttons
                     FilterRow(),
                   ],
@@ -172,11 +175,11 @@ class StatsSection extends ConsumerWidget {
             ),
           ),
           const VerticalSpace(
-            size: SpaceSize.small,
+            size: SpaceSize.xsmall,
           ),
           Text(
             value,
-            style: context.textTheme.headlineLarge,
+            style: context.textTheme.headlineMedium,
           ),
         ],
       ),

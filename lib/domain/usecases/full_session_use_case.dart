@@ -59,7 +59,14 @@ class FullSessionUseCase {
   }
 
   Future<void> deleteFullModel(int sessionId) async {
+    print("1. In use case - sessionId: $sessionId");
+
+    print("2. About to cancel notifications");
     await NotificationService().cancelSpecificSessionNotifications(sessionId);
+    print("3. Notifications cancelled");
+
+    print("4. About to delete from repository");
     await repository.deleteSession(sessionId);
+    print("5. Repository delete complete");
   }
 }

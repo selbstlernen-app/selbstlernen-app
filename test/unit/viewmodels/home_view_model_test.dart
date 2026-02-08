@@ -113,7 +113,7 @@ void main() {
 
     group('sessionsForDate', () {
       test('calls usecase with correct date', () {
-        final testDate = DateTime(2026, 1);
+        final testDate = DateTime(2026);
         final testSessions = <SessionWithInstanceModel>[];
 
         when(

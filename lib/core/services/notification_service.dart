@@ -69,6 +69,7 @@ class NotificationService {
   }
 
   Future<void> cancelSpecificSessionNotifications(int sessionId) async {
+    print("CANCEL NOTIFS");
     final ids = _getAllPossibleIds(sessionId);
     for (final id in ids) {
       await flutterLocalNotificationsPlugin.cancel(id);
