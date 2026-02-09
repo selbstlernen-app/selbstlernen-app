@@ -5,9 +5,7 @@ import 'package:srl_app/common_widgets/info_dialogs.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
-import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
 import 'package:srl_app/presentation/screens/settings/pages/learning_strategy_settings_screen.dart';
-import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class StrategyPage extends ConsumerStatefulWidget {
@@ -60,17 +58,8 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
     final selected = ref.watch(
       addSessionViewModelProvider.select((s) => s.learningStrategies),
     );
-    final isSimpleTimer = ref.watch(
-      addSessionViewModelProvider.select(
-        (s) => s.sessionComplexity == SessionComplexity.simple,
-      ),
-    );
-    final focusTime = ref.watch(
-      addSessionViewModelProvider.select((s) => s.focusTimeMin),
-    );
 
-    final canNavigate =
-        selected.isNotEmpty && (!isSimpleTimer || focusTime > 0);
+    final canNavigate = selected.isNotEmpty;
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -145,8 +134,6 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
             ),
 
             const VerticalSpace(),
-            // Simple Timer (*IF chosen in wizard)
-            if (isSimpleTimer) _buildSimpleTimeSettings(focusTime),
           ]),
         ),
         SliverFillRemaining(
@@ -161,9 +148,7 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                   child: CustomButton(
                     label: canNavigate
                         ? 'Weiter'
-                        : ((isSimpleTimer && focusTime == 0)
-                              ? 'Zeit muss mind. 1 Min betragen'
-                              : 'Wähle mind. 1 Strategien aus'),
+                        : 'Wähle mind. 1 Strategien aus',
                     onPressed: () =>
                         canNavigate ? widget.navigateForward() : null,
                     isActive: canNavigate,
@@ -173,48 +158,6 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
             ),
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildSimpleTimeSettings(int focusTime) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: <Widget>[
-            const Icon(
-              Icons.timer_outlined,
-            ),
-            const HorizontalSpace(size: SpaceSize.small),
-            Text(
-              'Fokuszeit festlegen',
-              style: context.textTheme.headlineSmall,
-            ),
-          ],
-        ),
-        const VerticalSpace(),
-
-        TimeInputField(
-          controller: _focusController,
-          onChanged: (int value) {
-            ref
-                .read(addSessionViewModelProvider.notifier)
-                .setTimerSettings(focusTime: value);
-          },
-        ),
-
-        const VerticalSpace(size: SpaceSize.xsmall),
-
-        Divider(
-          color: context.colorScheme.tertiary,
-          thickness: 4,
-          radius: BorderRadius.circular(10),
-        ),
-
-        Text('Gesamtzeit: ${focusTime ~/ 60}h ${focusTime % 60} min'),
-
-        const VerticalSpace(size: SpaceSize.small),
       ],
     );
   }

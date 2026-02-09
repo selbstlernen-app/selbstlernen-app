@@ -5,6 +5,7 @@ import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/common_widgets/timer_widgets.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class TimerPage extends ConsumerStatefulWidget {
@@ -57,6 +58,12 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
       addSessionViewModelProvider.select((s) => s.isTimeValid),
     );
 
+    final isSimpleTimer = ref.watch(
+      addSessionViewModelProvider.select(
+        (s) => s.sessionComplexity == SessionComplexity.simple,
+      ),
+    );
+
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
@@ -69,7 +76,9 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                 ),
                 const HorizontalSpace(size: SpaceSize.small),
                 Text(
-                  'Pomodoro Timer festlegen',
+                  isSimpleTimer
+                      ? 'Fokuszeit festlegen'
+                      : 'Pomodoro Timer festlegen',
                   style: context.textTheme.headlineSmall,
                 ),
               ],
@@ -79,7 +88,11 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
               size: SpaceSize.small,
             ),
 
-            _buildAdvancedTimeSettings(),
+            // Simple Timer (*IF chosen in wizard)
+            if (isSimpleTimer)
+              _buildSimpleTimeSettings()
+            else
+              _buildAdvancedTimeSettings(),
           ]),
         ),
         SliverFillRemaining(
@@ -102,6 +115,33 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
             ),
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildSimpleTimeSettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TimeInputField(
+          controller: _focusController,
+          onChanged: (int value) {
+            ref
+                .read(addSessionViewModelProvider.notifier)
+                .setTimerSettings(focusTime: value);
+          },
+        ),
+
+        const VerticalSpace(size: SpaceSize.xsmall),
+
+        Divider(
+          color: context.colorScheme.tertiary,
+          thickness: 4,
+          radius: BorderRadius.circular(10),
+        ),
+        const VerticalSpace(size: SpaceSize.xsmall),
+
+        _calculateTotalTime(isSimpleTimer: true),
       ],
     );
   }
@@ -169,7 +209,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
 
         const VerticalSpace(size: SpaceSize.xsmall),
 
-        _calculateTotalTime(),
+        _calculateTotalTime(isSimpleTimer: false),
       ],
     );
   }
@@ -221,14 +261,19 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
     );
   }
 
-  Widget _calculateTotalTime() {
+  Widget _calculateTotalTime({required bool isSimpleTimer}) {
     final (focus, short, phases) = ref.watch(
       addSessionViewModelProvider.select(
         (s) => (s.focusTimeMin, s.breakTimeMin, s.pomodoroPhases),
       ),
     );
 
-    final totalMins = (focus + short) * phases;
+    var totalMins = 0;
+    if (isSimpleTimer) {
+      totalMins = focus;
+    } else {
+      totalMins = (focus + short) * phases;
+    }
 
     final duration = Duration(minutes: totalMins);
     final hours = duration.inHours;
