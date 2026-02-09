@@ -3,7 +3,10 @@ import 'package:srl_app/domain/models/models.dart';
 
 part 'active_session_state.freezed.dart';
 
-enum SessionPhase { focus, shortBreak, longBreak }
+enum SessionPhase {
+  focus,
+  shortBreak,
+}
 
 enum TimerStatus { initial, running, paused, completed }
 

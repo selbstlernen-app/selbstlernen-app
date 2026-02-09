@@ -323,8 +323,7 @@ class _TimeSection extends StatelessWidget {
           TimeBreakdownItem(
             icon: Icons.coffee,
             label: 'Pausenzeit',
-            value:
-                '${TimeUtils.formatTime((session.breakTimeMin + session.longBreakTimeMin) * 60)} Min',
+            value: '${TimeUtils.formatTime(session.breakTimeMin * 60)} Min',
             color: AppPalette.orange,
           ),
 

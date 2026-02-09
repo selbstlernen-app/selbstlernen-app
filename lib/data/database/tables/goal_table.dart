@@ -16,6 +16,5 @@ class Goals extends Table with AutoIncrementingPrimaryKey {
   BoolColumn get keptForFutureSessions =>
       boolean().withDefault(const Constant<bool>(false))();
 
-  DateTimeColumn get completedAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

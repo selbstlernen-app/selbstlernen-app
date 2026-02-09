@@ -50,8 +50,6 @@ class ProgressCircle extends ConsumerWidget {
         return (state.session!.focusTimeMin) * 60;
       case SessionPhase.shortBreak:
         return (state.session!.breakTimeMin) * 60;
-      case SessionPhase.longBreak:
-        return (state.session!.longBreakTimeMin) * 60;
     }
   }
 }

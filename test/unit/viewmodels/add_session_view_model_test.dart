@@ -211,15 +211,13 @@ void main() {
             .setTimerSettings(
               focusTime: 45,
               breakTime: 10,
-              longBreakTime: 20,
-              focusPhases: 4,
+              pomodoroPhases: 4,
             );
 
         final state = container.read(addSessionViewModelProvider);
         expect(state.focusTimeMin, 45);
         expect(state.breakTimeMin, 10);
-        expect(state.longBreakTimeMin, 20);
-        expect(state.focusPhases, 4);
+        expect(state.pomodoroPhases, 4);
       });
     });
 
@@ -915,8 +913,7 @@ void main() {
           ..setTimerSettings(
             focusTime: 25,
             breakTime: 5,
-            longBreakTime: 15,
-            focusPhases: 4,
+            pomodoroPhases: 4,
           );
 
         // Trigger save to access the converted model
@@ -943,8 +940,7 @@ void main() {
         // For simple sessions, break times and phases should be 0
         expect(captured.focusTimeMin, 25);
         expect(captured.breakTimeMin, 0);
-        expect(captured.longBreakTimeMin, 0);
-        expect(captured.focusPhases, 0);
+        expect(captured.pomodoroPhases, 0);
       });
 
       test('converts state to SessionModel with advanced complexity', () async {
@@ -954,8 +950,8 @@ void main() {
           ..setTimerSettings(
             focusTime: 50,
             breakTime: 10,
-            longBreakTime: 20,
-            focusPhases: 3,
+
+            pomodoroPhases: 3,
           );
 
         when(
@@ -981,8 +977,7 @@ void main() {
         // For advanced sessions, all values should be preserved
         expect(captured.focusTimeMin, 50);
         expect(captured.breakTimeMin, 10);
-        expect(captured.longBreakTimeMin, 20);
-        expect(captured.focusPhases, 3);
+        expect(captured.pomodoroPhases, 3);
       });
 
       test('includes all session properties', () async {

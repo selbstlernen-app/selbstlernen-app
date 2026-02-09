@@ -7,22 +7,22 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
 
   BoolColumn get isRepeating =>
       boolean().withDefault(const Constant<bool>(false))();
+
+  IntColumn get complexity => intEnum<SessionComplexity>()();
+
+  IntColumn get plannedTime => integer().map(const TimeOfDayConverter())();
+  BoolColumn get hasNotification =>
+      boolean().withDefault(const Constant<bool>(false))();
+
   DateTimeColumn get startDate => dateTime().nullable()();
   DateTimeColumn get endDate => dateTime().nullable()();
   TextColumn get selectedDays => text().nullable()();
 
-  TextColumn get learningStrategies => text().nullable()();
-
-  IntColumn get plannedTime => integer().map(const TimeOfDayConverter())();
-  IntColumn get complexity => intEnum<SessionComplexity>()();
-
-  BoolColumn get hasNotification =>
-      boolean().withDefault(const Constant<bool>(false))();
+  TextColumn get learningStrategies => text()();
 
   IntColumn get focusTimeMin => integer()();
   IntColumn get breakTimeMin => integer()();
-  IntColumn get longBreakTimeMin => integer()();
-  IntColumn get focusPhases => integer()();
+  IntColumn get pomodoroPhases => integer()();
 
   BoolColumn get hasFocusPrompt =>
       boolean().withDefault(const Constant<bool>(true))();

@@ -14,6 +14,7 @@ abstract class AddSessionState with _$AddSessionState {
     @Default('') String title,
     @Default(false) bool isRepeating,
 
+    @Default(SessionComplexity.simple) SessionComplexity sessionComplexity,
     @Default(TimeOfDay(hour: 10, minute: 0)) TimeOfDay plannedTime,
     @Default(false) bool enableNotifications,
 
@@ -34,11 +35,9 @@ abstract class AddSessionState with _$AddSessionState {
     List<LearningStrategyModel>? availableStrategies,
 
     // Time
-    @Default(SessionComplexity.simple) SessionComplexity sessionComplexity,
     @Default(25) int focusTimeMin,
     @Default(5) int breakTimeMin,
-    @Default(15) int longBreakTimeMin,
-    @Default(4) int focusPhases,
+    @Default(4) int pomodoroPhases,
 
     // Prompts
     @Default(false) bool hasFocusPrompt,
@@ -73,8 +72,7 @@ abstract class AddSessionState with _$AddSessionState {
       sessionComplexity: session.complexity,
       focusTimeMin: session.focusTimeMin,
       breakTimeMin: session.breakTimeMin,
-      longBreakTimeMin: session.longBreakTimeMin,
-      focusPhases: session.focusPhases,
+      pomodoroPhases: session.pomodoroPhases,
       hasFocusPrompt: session.hasFocusPrompt,
       focusPromptInterval: session.focusPromptInterval,
       showFocusPromptAlways: session.showFocusPromptAlways,

@@ -13,6 +13,8 @@ abstract class SessionModel with _$SessionModel {
     String? id,
     @Default(false) bool isRepeating,
 
+    @Default(SessionComplexity.simple) SessionComplexity complexity,
+
     DateTime? startDate,
     DateTime? endDate,
     @Default(<int>[]) List<int> selectedDays, // 0 = Monday, 6 = Sunday
@@ -22,11 +24,9 @@ abstract class SessionModel with _$SessionModel {
 
     @Default(<String>[]) List<String> learningStrategies,
 
-    @Default(SessionComplexity.simple) SessionComplexity complexity,
     @Default(25) int focusTimeMin,
     @Default(5) int breakTimeMin,
-    @Default(15) int longBreakTimeMin,
-    @Default(4) int focusPhases,
+    @Default(4) int pomodoroPhases,
 
     @Default(true) bool hasFocusPrompt,
     @Default(15) int focusPromptInterval,
@@ -51,10 +51,6 @@ abstract class SessionModel with _$SessionModel {
     );
   }
 
-  int get totalTimeForOneBlock {
-    return (focusTimeMin + breakTimeMin) * focusPhases + longBreakTimeMin;
-  }
-
   bool get isSimple => complexity == SessionComplexity.simple;
 
   // -- Helpers --
@@ -62,11 +58,8 @@ abstract class SessionModel with _$SessionModel {
     if (index.isEven) {
       return SessionPhase.focus;
     }
-    // Odd index means either long or short break was last
-    final lastBreakIndex = (focusPhases * 2) - 1;
-    return index == lastBreakIndex
-        ? SessionPhase.longBreak
-        : SessionPhase.shortBreak;
+    // Odd index means short break
+    return SessionPhase.shortBreak;
   }
 
   int getDefaultDuration(SessionPhase phase) {
@@ -75,8 +68,6 @@ abstract class SessionModel with _$SessionModel {
         return focusTimeMin * 60;
       case SessionPhase.shortBreak:
         return breakTimeMin * 60;
-      case SessionPhase.longBreak:
-        return longBreakTimeMin * 60;
     }
   }
 }

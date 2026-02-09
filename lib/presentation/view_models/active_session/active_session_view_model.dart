@@ -264,7 +264,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       case SessionPhase.focus:
         focus++;
       case SessionPhase.shortBreak:
-      case SessionPhase.longBreak:
         breakTime++;
     }
 
@@ -307,25 +306,17 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       nextIndex = 0;
     } else {
       if (state.currentPhase == SessionPhase.focus) {
-        // Determine next break type
-        // E.g. we have 4 % 4 = 0, take long else short break
-        final isLongBreak =
-            (state.totalFocusPhases + 1) % session.focusPhases == 0;
-        nextPhase = isLongBreak
-            ? SessionPhase.longBreak
-            : SessionPhase.shortBreak;
-        duration =
-            (isLongBreak ? session.longBreakTimeMin : session.breakTimeMin) *
-            60;
+        nextPhase = SessionPhase.shortBreak;
+        duration = (session.breakTimeMin) * 60;
       } else {
         // After either short or long break follows focus time
         nextPhase = SessionPhase.focus;
         duration = session.focusTimeMin * 60;
         nextTotalFocus++;
-        if (state.currentPhase == SessionPhase.longBreak) {
-          nextBlocks++;
-          nextIndex = 0;
-        }
+        // if (state.currentPhase % session.pomodoroPhases == 0) {
+        //   nextBlocks++;
+        //   nextIndex = 0;
+        // }
       }
     }
 
@@ -435,9 +426,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       totalFocusSecondsElapsed: state.currentPhase == SessionPhase.focus
           ? state.totalFocusSecondsElapsed + seconds
           : state.totalFocusSecondsElapsed,
-      totalBreakSecondsElapsed:
-          (state.currentPhase == SessionPhase.shortBreak ||
-              state.currentPhase == SessionPhase.longBreak)
+      totalBreakSecondsElapsed: state.currentPhase == SessionPhase.shortBreak
           ? state.totalBreakSecondsElapsed + seconds
           : state.totalBreakSecondsElapsed,
     );

@@ -77,8 +77,6 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
         return 'Fokuszeit';
       case SessionPhase.shortBreak:
         return 'Kurze Pause';
-      case SessionPhase.longBreak:
-        return 'Lange Pause';
     }
   }
 
@@ -299,17 +297,17 @@ class _PhaseIndicator extends ConsumerWidget {
         instanceId,
       ).select((s) => s.currentPhaseIndex),
     );
-    final focusPhases = ref.watch(
+    final pomodoroPhases = ref.watch(
       activeSessionViewModelProvider(
         instanceId,
-      ).select((s) => s.session!.focusPhases),
+      ).select((s) => s.session!.pomodoroPhases),
     );
     return Wrap(
       runSpacing: 4,
-      children: List<Widget>.generate(focusPhases, (int index) {
+      children: List<Widget>.generate(pomodoroPhases, (int index) {
         final focusBlockIndex = index * 2;
         final breakBlockIndex = focusBlockIndex + 1;
-        if (index < focusPhases - 1) {
+        if (index < pomodoroPhases - 1) {
           return Container(
             margin: const EdgeInsets.only(right: 4),
             child: Row(

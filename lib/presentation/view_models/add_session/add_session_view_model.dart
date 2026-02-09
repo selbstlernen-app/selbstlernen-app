@@ -141,13 +141,12 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     int? focusTime,
     int? breakTime,
     int? longBreakTime,
-    int? focusPhases,
+    int? pomodoroPhases,
   }) {
     state = state.copyWith(
       focusTimeMin: focusTime ?? state.focusTimeMin,
       breakTimeMin: breakTime ?? state.breakTimeMin,
-      longBreakTimeMin: longBreakTime ?? state.longBreakTimeMin,
-      focusPhases: focusPhases ?? state.focusPhases,
+      pomodoroPhases: pomodoroPhases ?? state.pomodoroPhases,
     );
   }
 
@@ -252,8 +251,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       learningStrategies: state.learningStrategies,
       focusTimeMin: state.focusTimeMin,
       breakTimeMin: isComplex ? state.breakTimeMin : 0,
-      longBreakTimeMin: isComplex ? state.longBreakTimeMin : 0,
-      focusPhases: isComplex ? state.focusPhases : 0,
+      pomodoroPhases: isComplex ? state.pomodoroPhases : 0,
       hasFocusPrompt: state.hasFocusPrompt,
       focusPromptInterval: state.focusPromptInterval,
       showFocusPromptAlways: state.showFocusPromptAlways,

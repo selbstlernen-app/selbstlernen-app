@@ -28,7 +28,7 @@ class TestData extends _$TestData {
       learningStrategies: <String>['Karteinkarten schreiben', 'Active Recall'],
       focusTimeMin: 50,
       breakTimeMin: 10,
-      longBreakTimeMin: 20,
+
       createdAt: DateTime(2025, 11, 20),
     );
 

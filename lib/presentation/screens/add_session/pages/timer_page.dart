@@ -18,16 +18,14 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   // Controllers
   late TextEditingController _focusController;
   late TextEditingController _breakController;
-  late TextEditingController _longBreakController;
-  late TextEditingController _focusPhaseController;
+  late TextEditingController _pomodoroPhaseController;
 
   @override
   void initState() {
     super.initState();
     _focusController = TextEditingController();
     _breakController = TextEditingController();
-    _longBreakController = TextEditingController();
-    _focusPhaseController = TextEditingController();
+    _pomodoroPhaseController = TextEditingController();
 
     _focusController.text = ref
         .read(addSessionViewModelProvider)
@@ -37,13 +35,10 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
         .read(addSessionViewModelProvider)
         .breakTimeMin
         .toString();
-    _longBreakController.text = ref
+
+    _pomodoroPhaseController.text = ref
         .read(addSessionViewModelProvider)
-        .longBreakTimeMin
-        .toString();
-    _focusPhaseController.text = ref
-        .read(addSessionViewModelProvider)
-        .focusPhases
+        .pomodoroPhases
         .toString();
   }
 
@@ -51,8 +46,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   void dispose() {
     _focusController.dispose();
     _breakController.dispose();
-    _longBreakController.dispose();
-    _focusPhaseController.dispose();
+    _pomodoroPhaseController.dispose();
     super.dispose();
   }
 
@@ -147,25 +141,15 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           children: <Widget>[
             Expanded(
               child: TimeInputField(
-                label: 'Fokusphasen bis zur langen Pause',
-                controller: _focusPhaseController,
+                label: 'Pomodoro-Phasen',
+                controller: _pomodoroPhaseController,
                 onChanged: (int value) {
                   ref
                       .read(addSessionViewModelProvider.notifier)
-                      .setTimerSettings(focusPhases: value);
+                      .setTimerSettings(pomodoroPhases: value);
                 },
                 maxValue: 15,
               ),
-            ),
-
-            TimeInputField(
-              label: 'Lange Pause',
-              controller: _longBreakController,
-              onChanged: (int value) {
-                ref
-                    .read(addSessionViewModelProvider.notifier)
-                    .setTimerSettings(longBreakTime: value);
-              },
             ),
           ],
         ),
@@ -189,7 +173,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
 
   Widget _buildTimerPreview() {
     final phases = ref.watch(
-      addSessionViewModelProvider.select((s) => s.focusPhases),
+      addSessionViewModelProvider.select((s) => s.pomodoroPhases),
     );
     final actualPhases = phases > 0 ? phases : 1;
 
@@ -247,17 +231,15 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
   }
 
   Widget _calculateTotalTime() {
-    final (focus, short, long, phases) = ref.watch(
+    final (focus, short, phases) = ref.watch(
       addSessionViewModelProvider.select(
-        (s) =>
-            (s.focusTimeMin, s.breakTimeMin, s.longBreakTimeMin, s.focusPhases),
+        (s) => (s.focusTimeMin, s.breakTimeMin, s.pomodoroPhases),
       ),
     );
 
-    final actualPhases = phases > 0 ? phases : 1;
-    // Calculates (F+K) * (Phases - 1) + F + L
+    // Calculates (F+K) * (Phases)
     // The long break counts as its own
-    final totalMins = (focus + short) * (actualPhases - 1) + focus + long;
+    final totalMins = (focus + short) * phases;
 
     final duration = Duration(minutes: totalMins);
     final hours = duration.inHours;
