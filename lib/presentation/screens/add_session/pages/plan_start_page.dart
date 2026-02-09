@@ -74,7 +74,7 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Text(
-                    plannedTime.format(context),
+                    TimeOfDay.now().format(context),
                     style: context.textTheme.bodyLarge,
                   ),
                 ),
@@ -82,7 +82,7 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
               onTap: () async {
                 final time = await showTimePicker(
                   context: context,
-                  initialTime: plannedTime,
+                  initialTime: TimeOfDay.now(),
                 );
                 if (time != null) {
                   ref

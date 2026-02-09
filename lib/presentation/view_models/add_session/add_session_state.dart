@@ -15,7 +15,7 @@ abstract class AddSessionState with _$AddSessionState {
     @Default(false) bool isRepeating,
 
     @Default(SessionComplexity.simple) SessionComplexity sessionComplexity,
-    @Default(TimeOfDay(hour: 10, minute: 0)) TimeOfDay plannedTime,
+    TimeOfDay? plannedTime,
     @Default(false) bool enableNotifications,
 
     // In case of repeating sessions
@@ -90,9 +90,9 @@ abstract class AddSessionState with _$AddSessionState {
 
   int get totalPages {
     if (isEditMode) {
-      return sessionComplexity == SessionComplexity.advanced ? 5 : 4;
+      return 5;
     }
-    return sessionComplexity == SessionComplexity.advanced ? 6 : 5;
+    return 6;
   }
 
   // Can go to prompter page

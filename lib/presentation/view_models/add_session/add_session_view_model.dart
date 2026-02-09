@@ -19,6 +19,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     _listenToDataStreams();
 
     return AddSessionState(
+      plannedTime: TimeOfDay.now(),
       startDate: DateTime.now(),
       endDate: DateTime.now().add(const Duration(days: 1)),
     );
@@ -244,7 +245,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       isRepeating: state.isRepeating,
       startDate: state.startDate,
       endDate: state.endDate,
-      plannedTime: state.plannedTime,
+      plannedTime: state.plannedTime ?? TimeOfDay.now(),
       hasNotification: state.enableNotifications,
       complexity: state.sessionComplexity,
       selectedDays: state.selectedDays,
