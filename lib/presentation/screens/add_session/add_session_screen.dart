@@ -173,13 +173,13 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
 
           PlanStartPage(navigateForward: _navigateForward),
 
-          GoalSettingPage(navigateForward: _navigateForward),
-
-          StrategyPage(navigateForward: _navigateForward),
-
           // Only show complex timer page on separate page when clicked
           if (state.sessionComplexity == SessionComplexity.advanced)
             TimerPage(navigateForward: _navigateForward),
+
+          GoalSettingPage(navigateForward: _navigateForward),
+
+          StrategyPage(navigateForward: _navigateForward),
 
           const PromptPage(),
         ],

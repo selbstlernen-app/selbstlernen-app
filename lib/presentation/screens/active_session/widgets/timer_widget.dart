@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
+import 'package:srl_app/common_widgets/timer_widgets.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/data/providers.dart';
@@ -76,7 +77,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
       case SessionPhase.focus:
         return 'Fokuszeit';
       case SessionPhase.shortBreak:
-        return 'Kurze Pause';
+        return 'Pausenzeit';
     }
   }
 
@@ -307,77 +308,32 @@ class _PhaseIndicator extends ConsumerWidget {
       children: List<Widget>.generate(pomodoroPhases, (int index) {
         final focusBlockIndex = index * 2;
         final breakBlockIndex = focusBlockIndex + 1;
-        if (index < pomodoroPhases - 1) {
-          return Container(
-            margin: const EdgeInsets.only(right: 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Opacity(
-                  opacity: currentBlock == focusBlockIndex ? 1.0 : 0.2,
-                  child: _buildPreviewBlock(
-                    context,
-                    'F',
-                    context.colorScheme.primary,
-                  ),
-                ),
-                const HorizontalSpace(custom: 2),
-                Opacity(
-                  opacity: currentBlock == breakBlockIndex ? 1.0 : 0.2,
-                  child: _buildPreviewBlock(
-                    context,
-                    'K',
-                    context.colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-          );
-        } else {
-          return Row(
+        return Container(
+          margin: const EdgeInsets.only(right: 4),
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Opacity(
                 opacity: currentBlock == focusBlockIndex ? 1.0 : 0.2,
-                child: _buildPreviewBlock(
-                  context,
-                  'F',
-                  context.colorScheme.primary,
+                child: PreviewBlock(
+                  color: context.colorScheme.secondary,
+                  label: 'F',
+                  size: 17,
                 ),
               ),
               const HorizontalSpace(custom: 2),
               Opacity(
                 opacity: currentBlock == breakBlockIndex ? 1.0 : 0.2,
-                child: _buildPreviewBlock(
-                  context,
-                  'L',
-                  context.colorScheme.primary,
+                child: PreviewBlock(
+                  color: context.colorScheme.secondary,
+                  label: 'P',
+                  size: 17,
                 ),
               ),
             ],
-          );
-        }
-      }),
-    );
-  }
-
-  Widget _buildPreviewBlock(BuildContext context, String label, Color color) {
-    return Container(
-      width: 17,
-      height: 17,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: context.textTheme.labelSmall!.copyWith(
-            color: context.colorScheme.onPrimary,
           ),
-          textAlign: TextAlign.center,
-        ),
-      ),
+        );
+      }),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
+import 'package:srl_app/common_widgets/timer_widgets.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/add_session/widgets/time_input_field.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
@@ -123,7 +124,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
               ),
             ),
             TimeInputField(
-              label: 'Kurze Pause',
+              label: 'Pausenzeit',
               controller: _breakController,
               onChanged: (int value) {
                 ref
@@ -166,6 +167,8 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
           radius: BorderRadius.circular(10),
         ),
 
+        const VerticalSpace(size: SpaceSize.xsmall),
+
         _calculateTotalTime(),
       ],
     );
@@ -180,53 +183,41 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Text('Block Vorschau', style: context.textTheme.headlineSmall),
+        Text(
+          'Vorschau der Zeitaufteilung',
+          style: context.textTheme.headlineSmall,
+        ),
         const VerticalSpace(size: SpaceSize.small),
         Wrap(
-          spacing: 4,
-          runSpacing: 4,
+          spacing: 6,
+          runSpacing: 8,
           children: List<Widget>.generate(actualPhases, (int index) {
-            final isLast = index == actualPhases - 1;
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                _buildPreviewBlock('F', context.colorScheme.primary),
-                const HorizontalSpace(size: SpaceSize.xsmall),
-                if (!isLast)
-                  _buildPreviewBlock('K', context.colorScheme.secondary)
-                else
-                  _buildPreviewBlock('L', context.colorScheme.tertiary),
+                PreviewBlock(
+                  color: context.colorScheme.primary,
+                  label: 'F',
+                  size: 25,
+                ),
+                const HorizontalSpace(
+                  custom: 2,
+                ),
+                PreviewBlock(
+                  color: context.colorScheme.secondary,
+                  label: 'P',
+                  size: 25,
+                ),
               ],
             );
           }),
         ),
         const VerticalSpace(size: SpaceSize.small),
         Text(
-          'F = Fokusphase, K = Kurze Pause, L = Lange Pause',
-          style: context.textTheme.bodyMedium,
+          'F = Fokus, P = Pause',
+          style: context.textTheme.bodyLarge,
         ),
       ],
-    );
-  }
-
-  Widget _buildPreviewBlock(String label, Color color) {
-    return Container(
-      width: 25,
-      height: 25,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: context.textTheme.labelLarge!.copyWith(
-            color: label != 'L'
-                ? context.colorScheme.onPrimary
-                : context.colorScheme.primary,
-          ),
-        ),
-      ),
     );
   }
 
@@ -237,8 +228,6 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
       ),
     );
 
-    // Calculates (F+K) * (Phases)
-    // The long break counts as its own
     final totalMins = (focus + short) * phases;
 
     final duration = Duration(minutes: totalMins);
@@ -247,7 +236,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
 
     return Text(
       'Gesamtzeit: ${hours > 0 ? '${hours}h ' : ''}$mins min',
-      style: context.textTheme.titleMedium?.copyWith(
+      style: context.textTheme.bodyLarge?.copyWith(
         fontWeight: FontWeight.bold,
       ),
     );
