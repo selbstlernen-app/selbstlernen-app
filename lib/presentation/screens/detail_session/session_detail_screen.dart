@@ -100,12 +100,6 @@ class SessionDetailScreen extends ConsumerWidget {
     final instance = state.instance;
     final goals = state.goals;
     final ungroupedTasks = state.fullSession!.ungroupedTasks;
-    final notifier = ref.read(
-      detailSessionViewModelProvider(
-        sessionId,
-        targetDate: targetDate,
-      ).notifier,
-    );
 
     return MainLayout(
       navigateBack: () {
@@ -178,6 +172,7 @@ class SessionDetailScreen extends ConsumerWidget {
                 onPressed: () => SessionDialogs.showDeleteSession(
                   context,
                   isRepeating: state.session!.isRepeating,
+                  shouldNavigateHome: true,
                   onConfirm: () async {
                     final useCase = ref.read(fullSessionUseCaseProvider);
                     await useCase.deleteFullModel(sessionId);

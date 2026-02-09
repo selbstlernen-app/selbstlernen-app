@@ -22,6 +22,7 @@ class SessionDialogs {
 
   static Future<void> showDeleteSession(
     BuildContext context, {
+    required bool shouldNavigateHome,
     required bool isRepeating,
     required Future<void> Function() onConfirm,
   }) {
@@ -33,7 +34,7 @@ class SessionDialogs {
           '${isRepeating ? 'Willst du diese und alle zukünftigen Einheiten löschen?' : 'Willst du diese Einheit wirklich löschen?'}',
       onConfirm: onConfirm,
       successMessage: Constants.successDeleted,
-      shouldNavigateHome: true,
+      shouldNavigateHome: shouldNavigateHome,
     );
   }
 

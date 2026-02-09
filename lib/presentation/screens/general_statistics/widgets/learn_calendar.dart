@@ -141,7 +141,7 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
                       Text(
                         DateFormat(
                           'HH:mm',
-                        ).format(enrichedInstance.instance.scheduledAt),
+                        ).format(enrichedInstance.instance.completedAt!),
                         style: context.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),

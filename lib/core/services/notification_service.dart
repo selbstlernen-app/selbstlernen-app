@@ -69,7 +69,6 @@ class NotificationService {
   }
 
   Future<void> cancelSpecificSessionNotifications(int sessionId) async {
-    print("CANCEL NOTIFS");
     final ids = _getAllPossibleIds(sessionId);
     for (final id in ids) {
       await flutterLocalNotificationsPlugin.cancel(id);
@@ -113,7 +112,9 @@ class NotificationService {
         body: _getNotificationBody(NotificationType.sessionReminder),
         scheduledDate: scheduledDate,
         type: NotificationType.sessionReminder,
-        matchComponents: DateTimeComponents.dayOfWeekAndTime,
+        matchComponents: _getMatchDateTimeComponents(
+          NotificationFrequency.weekly,
+        ),
       );
     }
   }
@@ -168,6 +169,9 @@ class NotificationService {
         endDate!,
       );
     }
+
+    print("PENDING NOTIFS");
+    await pendingNotifications();
   }
 
   // Schedule a notification based on type, frequency, and preferred time
@@ -206,14 +210,15 @@ class NotificationService {
     }
   }
 
-  // Future<void> pendingNotifications() async {
-  //   final notificiations = await flutterLocalNotificationsPlugin
-  //       .pendingNotificationRequests();
-  //   for (final note in notificiations) {
-  //     print(note.id);
-  //     print(note.title);
-  //   }
-  // }
+  /// Function to check what notifications are pending; for debugging
+  Future<void> pendingNotifications() async {
+    final notificiations = await flutterLocalNotificationsPlugin
+        .pendingNotificationRequests();
+    for (final note in notificiations) {
+      print(note.id);
+      print(note.title);
+    }
+  }
 
   /// Cancel all scheduled notifications
   Future<void> cancelAllNotifications() async {
@@ -225,7 +230,40 @@ class NotificationService {
     await AppSettings.openAppSettings(type: AppSettingsType.notification);
   }
 
-  // Helper methods
+  /// Execute the scheduled notification
+  Future<void> _executeSchedule({
+    required int id,
+    required String title,
+    required String body,
+    required tz.TZDateTime scheduledDate,
+    required NotificationType type,
+    required DateTimeComponents? matchComponents,
+  }) async {
+    final androidDetails = AndroidNotificationDetails(
+      'scheduled_channel',
+      'Scheduled Notifications',
+      channelDescription: _getChannelDescription(type),
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+
+    final notificationDetails = NotificationDetails(
+      android: androidDetails,
+      iOS: const DarwinNotificationDetails(),
+    );
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      scheduledDate,
+      notificationDetails,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      matchDateTimeComponents: matchComponents,
+    );
+  }
+
+  // -- Helper methods --
   String _getNotificationTitle(NotificationType type, [String? customMessage]) {
     switch (type) {
       case NotificationType.sessionReminder:
@@ -272,6 +310,7 @@ class NotificationService {
     }
   }
 
+  /// Get the next scheduled date when the notification is supposed to appear
   tz.TZDateTime _nextInstanceOfDayAndTime(
     int dayOfWeek,
     TimeOfDay plannedTime,
@@ -293,38 +332,5 @@ class NotificationService {
     }
 
     return scheduledDate;
-  }
-
-  /// Execute the scheduled notification
-  Future<void> _executeSchedule({
-    required int id,
-    required String title,
-    required String body,
-    required tz.TZDateTime scheduledDate,
-    required NotificationType type,
-    required DateTimeComponents? matchComponents,
-  }) async {
-    final androidDetails = AndroidNotificationDetails(
-      'scheduled_channel',
-      'Scheduled Notifications',
-      channelDescription: _getChannelDescription(type),
-      importance: Importance.high,
-      priority: Priority.high,
-    );
-
-    final notificationDetails = NotificationDetails(
-      android: androidDetails,
-      iOS: const DarwinNotificationDetails(),
-    );
-
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      scheduledDate,
-      notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      matchDateTimeComponents: matchComponents,
-    );
   }
 }
