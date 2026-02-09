@@ -8,10 +8,11 @@ part 'statistics_state.freezed.dart';
 abstract class StatisticsState with _$StatisticsState {
   const factory StatisticsState({
     GeneralStatistics? stats,
-    List<SessionModel>? activeOrArchivedSessions,
-    List<EnrichedSessionInstance>? enrichedInstances,
+    @Default([]) List<SessionModel> activeSessions,
+    @Default([]) List<SessionModel> archivedSessions,
+    @Default([]) List<EnrichedSessionInstance> enrichedInstances,
     @Default(true) bool isLoading,
-    @Default(StatisticsFilter.running) filter,
+    @Default(StatisticsFilter.running) StatisticsFilter filter,
     String? error,
   }) = _StatisticsState;
 
@@ -22,7 +23,7 @@ abstract class StatisticsState with _$StatisticsState {
   List<EnrichedSessionInstance> getInstancesByDateAndSorted(DateTime date) {
     final normalizedDate = DateTime(date.year, date.month, date.day);
 
-    return enrichedInstances!.where((enrichedInstance) {
+    return enrichedInstances.where((enrichedInstance) {
       if (enrichedInstance.instance.status == (SessionStatus.inProgress)) {
         return false;
       }
@@ -38,15 +39,6 @@ abstract class StatisticsState with _$StatisticsState {
       (a, b) => a.instance.scheduledAt.compareTo(b.instance.scheduledAt),
     );
   }
-
-  // Helper
-  List<SessionModel> get activeSessions =>
-      activeOrArchivedSessions!.where((s) => !s.isArchived).toList()
-        ..sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
-
-  List<SessionModel> get archivedSessions =>
-      activeOrArchivedSessions!.where((s) => s.isArchived).toList()
-        ..sort((a, b) => b.updatedAt!.compareTo(a.updatedAt!));
 }
 
 enum StatisticsFilter { archived, running }

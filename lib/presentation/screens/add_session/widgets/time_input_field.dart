@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_formatter.dart';
 
 class TimeInputField extends StatelessWidget {
   const TimeInputField({
     required this.controller,
-    required this.label,
+
     required this.onChanged,
+    this.label,
     super.key,
     this.minValue = 1,
     this.maxValue = 480, // 480 min = 8 hours of learning
@@ -16,7 +17,7 @@ class TimeInputField extends StatelessWidget {
 
   final TextEditingController controller;
   final ValueChanged<int> onChanged;
-  final String label;
+  final String? label;
   final int minValue;
   final int maxValue;
 
@@ -27,18 +28,20 @@ class TimeInputField extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          SizedBox(
-            width: 150,
-            child: Text(
-              label,
-              maxLines: 2,
-              style: context.textTheme.headlineSmall!.copyWith(
-                fontSize: 16,
-                color: context.colorScheme.primary,
+          if (label != null) ...[
+            SizedBox(
+              width: 150,
+              child: Text(
+                label!,
+                maxLines: 2,
+                style: context.textTheme.headlineSmall!.copyWith(
+                  fontSize: 16,
+                  color: context.colorScheme.primary,
+                ),
               ),
             ),
-          ),
-          const VerticalSpace(size: SpaceSize.xsmall),
+            const VerticalSpace(size: SpaceSize.xsmall),
+          ],
           SizedBox(
             width: 150,
             child: TextField(
@@ -70,6 +73,7 @@ class TimeInputField extends StatelessWidget {
                 hintText: 'xxx',
                 hintStyle: TextStyle(color: context.colorScheme.onTertiary),
               ),
+              keyboardType: TextInputType.number,
               inputFormatters: <TextInputFormatter>[
                 FilteringTextInputFormatter.digitsOnly,
                 LengthLimitingTextInputFormatter(3),

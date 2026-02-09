@@ -32,6 +32,7 @@ class AppRoutes {
           builder: (_) => SessionDetailScreen(
             sessionId: args.sessionId,
             instanceId: args.instanceId,
+            targetDate: args.targetDate,
           ),
           settings: const RouteSettings(name: AppRoutes.detail),
         );
@@ -65,9 +66,12 @@ class AppRoutes {
         );
 
       case addSession:
-        final fullSession = settings.arguments as FullSessionModel?;
+        final args = settings.arguments! as AddSessionArgs;
         return MaterialPageRoute<dynamic>(
-          builder: (_) => AddSessionScreen(fullSessionModel: fullSession),
+          builder: (_) => AddSessionScreen(
+            fullSessionModel: args.fullSessionModel,
+            fromHomeScreen: args.fromHomeScreen,
+          ),
           settings: const RouteSettings(name: AppRoutes.addSession),
         );
 
@@ -86,7 +90,13 @@ class AppRoutes {
   }
 }
 
-// Argument class for active session
+// -- Argument classes --
+class AddSessionArgs {
+  AddSessionArgs({this.fullSessionModel, this.fromHomeScreen});
+  final FullSessionModel? fullSessionModel;
+  bool? fromHomeScreen = false;
+}
+
 class ActiveSessionArgs {
   ActiveSessionArgs({required this.instanceId, required this.sessionId});
   final int instanceId;
@@ -94,9 +104,14 @@ class ActiveSessionArgs {
 }
 
 class DetailSessionArgs {
-  DetailSessionArgs({required this.sessionId, this.instanceId});
+  DetailSessionArgs({
+    required this.sessionId,
+    required this.targetDate,
+    this.instanceId,
+  });
   final int sessionId;
   final int? instanceId;
+  final DateTime targetDate;
 }
 
 class SessionStatisticsArgs {

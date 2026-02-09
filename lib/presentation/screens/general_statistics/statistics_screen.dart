@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/common_widgets/custom_filter_chip.dart';
 import 'package:srl_app/common_widgets/loading_indicator.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
@@ -17,133 +17,148 @@ class StatisticsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(statisticsViewModelProvider);
+    final isLoading = ref.watch(
+      statisticsViewModelProvider.select((s) => s.isLoading),
+    );
+    final error = ref.watch(statisticsViewModelProvider.select((s) => s.error));
 
-    if (state.isLoading &&
-        state.stats == null &&
-        state.enrichedInstances == null) {
-      return const LoadingIndicator();
-    }
-
-    if (state.error != null && state.stats == null) {
+    if (error != null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Icon(Icons.error_outline, size: 64, color: AppPalette.rose),
             const VerticalSpace(),
-            Text('Fehler: ${state.error}'),
+            Text('Fehler: $error'),
           ],
         ),
       );
     }
+    if (isLoading) return const LoadingIndicator();
 
-    // No data
-    if (state.stats == null) {
-      return const Center(
-        child: Text(
-          '''Noch keine Statistiken verfügbar, beginne, indem du eine Lerneinheit anlegst''',
+    return Scaffold(
+      body: SafeArea(
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverAppBar(
+              centerTitle: true,
+              title: Text(
+                'Gesamt-Statistik',
+                style: context.textTheme.headlineLarge,
+                textAlign: TextAlign.center,
+              ),
+              automaticallyImplyLeading: false,
+            ),
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: Column(
+                  children: [
+                    // Calendar
+                    LearnCalendar(),
+
+                    VerticalSpace(
+                      size: SpaceSize.small,
+                    ),
+
+                    // Stats row
+                    StatsSection(),
+
+                    VerticalSpace(),
+
+                    // Filter buttons
+                    FilterRow(),
+                  ],
+                ),
+              ),
+            ),
+
+            const SliverSessionList(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SliverSessionList extends ConsumerWidget {
+  const SliverSessionList({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filter = ref.watch(
+      statisticsViewModelProvider.select((s) => s.filter),
+    );
+
+    final sessions = ref.watch(
+      statisticsViewModelProvider.select(
+        (s) => filter == StatisticsFilter.running
+            ? s.activeSessions
+            : s.archivedSessions,
+      ),
+    );
+
+    if (sessions.isEmpty) {
+      return const SliverToBoxAdapter(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 32),
+          child: Center(
+            child: Text('Keine Lerneinheiten gefunden'),
+          ),
         ),
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text(
-          'Gesamt-Statistik',
-          textAlign: TextAlign.center,
-          style: context.textTheme.headlineLarge,
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      sliver: SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) {
+            final session = sessions[index];
+            return ArchivedSessionTile(
+              key: ValueKey(session.id),
+              session: session,
+            );
+          },
+          childCount: sessions.length,
         ),
-        automaticallyImplyLeading: false,
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              LearnCalendar(enrichedInstances: state.enrichedInstances!),
+    );
+  }
+}
 
-              const VerticalSpace(
-                size: SpaceSize.small,
-              ),
+class StatsSection extends ConsumerWidget {
+  const StatsSection({super.key});
 
-              if (state.stats!.totalInstances > 0)
-                IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: buildStatColumn(
-                          context,
-                          'Fokuszeit\ninsgesamt',
-                          TimeUtils.formatBarChartTime(
-                            state.stats!.totalFocusMinutes.toDouble(),
-                          ),
-                        ),
-                      ),
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stats = ref.watch(statisticsViewModelProvider.select((s) => s.stats));
 
-                      Expanded(
-                        child: buildStatColumn(
-                          context,
-                          'Durchgeführte Einheiten',
-                          state.stats!.totalInstances.toString(),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+    if (stats == null || stats.totalInstances == 0) {
+      return const SizedBox.shrink();
+    }
 
-              const VerticalSpace(),
-
-              // Filter buttons
-              Row(
-                children: [
-                  if (state.activeSessions.isNotEmpty) ...[
-                    CustomFilterChip(
-                      label: 'Aktuell',
-                      isActive: state.filter == StatisticsFilter.running,
-                      onPressed: () => ref
-                          .read(statisticsViewModelProvider.notifier)
-                          .setFilter(
-                            StatisticsFilter.running,
-                          ),
-                    ),
-                    const HorizontalSpace(
-                      size: SpaceSize.small,
-                    ),
-                  ],
-                  if (state.archivedSessions.isNotEmpty)
-                    CustomFilterChip(
-                      label: 'Archiviert',
-                      isActive: state.filter == StatisticsFilter.archived,
-                      onPressed: () => ref
-                          .read(statisticsViewModelProvider.notifier)
-                          .setFilter(StatisticsFilter.archived),
-                    ),
-                ],
-              ),
-
-              const VerticalSpace(
-                size: SpaceSize.small,
-              ),
-
-              if (state.activeOrArchivedSessions!.isNotEmpty &&
-                  state.filter == StatisticsFilter.running)
-                ...state.activeSessions.map(
-                  (e) => ArchivedSessionTile(session: e),
-                ),
-
-              if (state.activeOrArchivedSessions!.isNotEmpty &&
-                  state.filter == StatisticsFilter.archived)
-                ...state.archivedSessions.map(
-                  (e) => ArchivedSessionTile(session: e),
-                ),
-            ],
+    return Row(
+      children: [
+        Expanded(
+          child: buildStatColumn(
+            context,
+            'Fokuszeit\ninsgesamt',
+            TimeUtils.formatBarChartTime(
+              stats.totalFocusMinutes.toDouble(),
+            ),
           ),
         ),
-      ),
+
+        Expanded(
+          child: buildStatColumn(
+            context,
+            'Durchgeführte Einheiten',
+            stats.totalInstances.toString(),
+          ),
+        ),
+      ],
     );
   }
 
@@ -160,14 +175,57 @@ class StatisticsScreen extends ConsumerWidget {
             ),
           ),
           const VerticalSpace(
-            size: SpaceSize.small,
+            size: SpaceSize.xsmall,
           ),
           Text(
             value,
-            style: context.textTheme.headlineLarge,
+            style: context.textTheme.headlineMedium,
           ),
         ],
       ),
+    );
+  }
+}
+
+class FilterRow extends ConsumerWidget {
+  const FilterRow({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filter = ref.watch(
+      statisticsViewModelProvider.select((s) => s.filter),
+    );
+    final hasActive = ref.watch(
+      statisticsViewModelProvider.select((s) => s.activeSessions.isNotEmpty),
+    );
+    final hasArchived = ref.watch(
+      statisticsViewModelProvider.select((s) => s.archivedSessions.isNotEmpty),
+    );
+
+    return Row(
+      children: [
+        if (hasActive)
+          CustomFilterChip(
+            label: 'Aktuell',
+            isActive: filter == StatisticsFilter.running,
+            onPressed: () => ref
+                .read(statisticsViewModelProvider.notifier)
+                .setFilter(StatisticsFilter.running),
+          ),
+
+        const HorizontalSpace(
+          size: SpaceSize.xsmall,
+        ),
+
+        if (hasArchived)
+          CustomFilterChip(
+            label: 'Archiviert',
+            isActive: filter == StatisticsFilter.archived,
+            onPressed: () => ref
+                .read(statisticsViewModelProvider.notifier)
+                .setFilter(StatisticsFilter.archived),
+          ),
+      ],
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
 
 class VerticalSpace extends StatelessWidget {
   const VerticalSpace({super.key, this.size = SpaceSize.medium, this.custom});

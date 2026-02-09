@@ -3,7 +3,7 @@ import 'package:flutter_heatmap_calendar/flutter_heatmap_calendar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/card_layout.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/session_status_utils.dart';
@@ -14,9 +14,7 @@ import 'package:srl_app/presentation/view_models/general_statistics/ui_model/enr
 /// Shows on which days one has learned;
 /// How many sessions were conducted on that particular day
 class LearnCalendar extends ConsumerStatefulWidget {
-  const LearnCalendar({required this.enrichedInstances, super.key});
-
-  final List<EnrichedSessionInstance> enrichedInstances;
+  const LearnCalendar({super.key});
 
   @override
   ConsumerState<LearnCalendar> createState() => _LearnCalendarState();
@@ -75,15 +73,15 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
               initDate: DateTime.now(),
               flexible: true,
               colorMode: ColorMode.color,
+              activeDate: _selectedDate ?? DateTime.now(),
               onClick: (DateTime date) {
-                _buildCalendarDataset();
                 setState(() {
                   if (_selectedDate == date) {
                     _selectedDate = null;
                   } else {
                     _selectedDate = date;
                     _selectedDateInstances = ref
-                        .watch(statisticsViewModelProvider)
+                        .read(statisticsViewModelProvider)
                         .getInstancesByDateAndSorted(date);
                   }
                 });
@@ -143,7 +141,7 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
                       Text(
                         DateFormat(
                           'HH:mm',
-                        ).format(enrichedInstance.instance.scheduledAt),
+                        ).format(enrichedInstance.instance.completedAt!),
                         style: context.textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -163,16 +161,19 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
 
   Map<DateTime, int> _buildCalendarDataset() {
     final dataset = <DateTime, int>{};
+    final enrichedInstances = ref.watch(
+      statisticsViewModelProvider.select((s) => s.enrichedInstances),
+    );
 
     // Group instances by date
-    for (final enrichedInstance in widget.enrichedInstances) {
+    for (final enrichedInstance in enrichedInstances) {
       if (enrichedInstance.instance.status == SessionStatus.completed ||
           enrichedInstance.instance.status == SessionStatus.skipped) {
         // Normalize to start of day
         final date = DateTime(
-          enrichedInstance.instance.scheduledAt.year,
-          enrichedInstance.instance.scheduledAt.month,
-          enrichedInstance.instance.scheduledAt.day,
+          enrichedInstance.instance.completedAt!.year,
+          enrichedInstance.instance.completedAt!.month,
+          enrichedInstance.instance.completedAt!.day,
         );
         // Increment count for this day
         dataset[date] = (dataset[date] ?? 0) + 1;

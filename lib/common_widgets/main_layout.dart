@@ -44,26 +44,9 @@ class MainLayout extends StatelessWidget {
           : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         centerTitle: true,
         toolbarHeight: 80,
-        title: AutoSizeText(
-          appBarTitle,
-          style: context.textTheme.headlineLarge!.copyWith(
-            color: context.colorScheme.brightness == Brightness.dark
-                ? context.colorScheme.surface
-                : context.colorScheme.onSurface,
-          ),
-          maxLines: 2,
-          textAlign: TextAlign.center,
-          minFontSize: 14,
-        ),
-        backgroundColor: Color.lerp(
-          context.colorScheme.secondary,
-          Colors.white,
-          0.2,
-        ),
-        actions: actions,
+        leadingWidth: 50,
         leading: navigateBack != null
             ? IconButton(
                 onPressed: navigateBack,
@@ -72,7 +55,28 @@ class MainLayout extends StatelessWidget {
                     ? context.colorScheme.surface
                     : context.colorScheme.onSurface,
               )
-            : null,
+            : const SizedBox(width: 50),
+        title: SizedBox(
+          width: context.mediaQuery.size.width - 112,
+          child: AutoSizeText(
+            appBarTitle,
+            style: context.textTheme.headlineLarge!.copyWith(
+              color: context.colorScheme.brightness == Brightness.dark
+                  ? context.colorScheme.surface
+                  : context.colorScheme.onSurface,
+            ),
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            minFontSize: 14,
+          ),
+        ),
+        backgroundColor: Color.lerp(
+          context.colorScheme.secondary,
+          Colors.white,
+          0.2,
+        ),
+        actions: actions,
+
         bottom: bottomBarWidget,
       ),
       body: ClipRRect(
@@ -85,9 +89,12 @@ class MainLayout extends StatelessWidget {
           color: context.colorScheme.brightness == Brightness.dark
               ? context.colorScheme.surface
               : Colors.white,
-          width: context.mediaQuery.size.width,
+          width: double.infinity,
           child: SafeArea(
-            child: Padding(padding: const EdgeInsets.all(24), child: content),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 4),
+              child: content,
+            ),
           ),
         ),
       ),

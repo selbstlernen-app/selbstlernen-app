@@ -1,9 +1,6 @@
 import 'package:srl_app/domain/models/notification_type_setting.dart';
 
 abstract class NotificationRepository {
-  /// Get all type preferences
-  Future<List<NotificationTypeSetting>> getPreferences();
-
   /// Watch preferences for reactive UI
   Stream<List<NotificationTypeSetting>> watchPreferences();
 

@@ -1,91 +1,64 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:srl_app/core/services/notification_service.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
-import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
-import 'package:srl_app/domain/usecases/use_cases.dart';
-import 'package:srl_app/presentation/screens/add_session/validators/add_session_validator.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
+import 'package:srl_app/presentation/view_models/providers.dart';
 
 part 'add_session_view_model.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 class AddSessionViewModel extends _$AddSessionViewModel {
-  late final GetOrCreateInstanceUseCase _getOrCreateInstanceUseCase;
-  late final ManageLearningStrategyUseCase _manageLearningStrategyUseCase;
-
-  StreamSubscription<dynamic>? _strategySubscription;
-
   @override
   AddSessionState build() {
-    _getOrCreateInstanceUseCase = ref.watch(getOrCreateInstanceUseCaseProvider);
-    _manageLearningStrategyUseCase = ref.watch(
-      manageLearningStrategyUseCaseProvider,
+    _listenToDataStreams();
+
+    return AddSessionState(
+      startDate: DateTime.now(),
+      endDate: DateTime.now().add(const Duration(days: 1)),
     );
-
-    ref.onDispose(() {
-      unawaited(_strategySubscription?.cancel());
-    });
-
-    _subscribe();
-
-    return const AddSessionState();
   }
 
-  void _subscribe() {
-    _strategySubscription = _manageLearningStrategyUseCase
-        .watchLearningStrategies()
-        .listen(
-          (List<LearningStrategyModel> strategies) {
-            state = state.copyWith(
-              availableStrategies: strategies,
-              isLoading: false,
-            );
-          },
-          onError: (dynamic error) {
-            state = state.copyWith(isLoading: false);
-          },
+  void _listenToDataStreams() {
+    // Only update the learning strat field on any updates; do NOT trigger whole rebuild
+    ref.listen(learningStrategiesStreamProvider, (previous, next) {
+      next.whenData((strategies) {
+        state = state.copyWith(
+          availableStrategies: strategies,
+          isLoading: false,
         );
+      });
+    });
   }
 
-  // Basic info
+  // -- Setters --
+
   void setTitle(String title) {
-    state = state.copyWith(
-      title: title,
-      titleError: AddSessionValidator.validateTitle(title),
-    );
+    state = state.copyWith(title: title);
   }
 
   void setIsRepeating({required bool isRepeating}) {
     state = state.copyWith(isRepeating: isRepeating);
   }
 
-  void setGoals({required bool setGoals}) {
-    state = state.copyWith(setGoals: setGoals);
+  void setSessionComplexity({required SessionComplexity complexity}) {
+    state = state.copyWith(sessionComplexity: complexity);
   }
 
   void setStartDate(DateTime? date) {
     state = state.copyWith(
       startDate: date,
-      dateError: AddSessionValidator.validateDate(
-        isRepeating: state.isRepeating,
-        startDate: date,
-        endDate: state.endDate,
-      ),
     );
   }
 
   void setEndDate(DateTime? date) {
     state = state.copyWith(
       endDate: date,
-      dateError: AddSessionValidator.validateDate(
-        startDate: state.startDate,
-        isRepeating: state.isRepeating,
-        endDate: date,
-      ),
     );
   }
 
@@ -96,70 +69,60 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     } else {
       days.add(day);
     }
-    state = state.copyWith(
-      selectedDays: days,
-      selectedDaysError: AddSessionValidator.validateDays(
-        isRepeating: state.isRepeating,
-        days,
-      ),
-    );
+    state = state.copyWith(selectedDays: days);
   }
 
-  // Goals and tasks
+  void setPlannedTime(TimeOfDay plannedTime) {
+    state = state.copyWith(plannedTime: plannedTime);
+  }
+
+  Future<void> enableNotifications({required bool isEnabled}) async {
+    final status = await Permission.notification.request();
+    if (status.isGranted) {
+      state = state.copyWith(enableNotifications: isEnabled);
+    } else {
+      await NotificationService().openNotificationSettings();
+    }
+  }
+
   void addGoal(GoalModel goal) {
     state = state.copyWith(goals: <GoalModel>[...state.goals, goal]);
   }
 
-  void addTask(TaskModel task) {
-    state = state.copyWith(tasks: <TaskModel>[...state.tasks, task]);
+  // Check if no id or UUID is given
+  bool _isPersistentId(String? id) {
+    if (id == null) return false;
+    return int.tryParse(id) != null;
   }
 
-  void removeGoal(int index) {
-    final goal = state.goals[index];
-    // If in edit mode, mark for deletion
-    // Only if not just newly created goal (invalid id)
-    if (state.isEditMode && int.tryParse(goal.id!) != null) {
+  void removeGoalById(String goalId) {
+    if (state.isEditMode && _isPersistentId(goalId)) {
       state = state.copyWith(
-        goalIdsToDelete: [
-          ...state.goalIdsToDelete,
-          goal.id!,
-        ],
+        goalIdsToDelete: {...state.goalIdsToDelete, goalId},
       );
     }
-    final goals = [...state.goals]..removeAt(index);
-    state = state.copyWith(goals: goals);
+
+    state = state.copyWith(
+      goals: state.goals.where((g) => g.id != goalId).toList(),
+    );
   }
 
-  void removeTask(int index) {
-    final task = state.tasks[index];
-    // If in edit mode, mark for deletion
-    // Only if not just newly created task (invalid id)
-    if (state.isEditMode && int.tryParse(task.id!) != null) {
+  void removeTask(String taskId) {
+    if (state.isEditMode && _isPersistentId(taskId)) {
       state = state.copyWith(
-        taskIdsToDelete: [
-          ...state.taskIdsToDelete,
-          task.id!,
-        ],
+        taskIdsToDelete: {...state.taskIdsToDelete, taskId},
       );
     }
-    final tasks = [...state.tasks]..removeAt(index);
-    state = state.copyWith(tasks: tasks);
+
+    state = state.copyWith(
+      tasks: state.tasks.where((t) => t.id != taskId).toList(),
+    );
   }
 
   // Creates a task directly linked to a goal
   void addTaskToGoal(TaskModel task, String? goalId) {
     final taskWithGoal = task.copyWith(goalId: goalId);
-    state = state.copyWith(tasks: <TaskModel>[...state.tasks, taskWithGoal]);
-  }
-
-  // Task is udpated and linked to a goal
-  void linkTaskToGoal(int taskIndex, String goalId) {
-    final tasks = List<TaskModel>.from(state.tasks);
-    final task = tasks[taskIndex];
-
-    tasks[taskIndex] = task.copyWith(goalId: goalId);
-
-    state = state.copyWith(tasks: tasks);
+    state = state.copyWith(tasks: [...state.tasks, taskWithGoal]);
   }
 
   void toggleStrategy(String strategy) {
@@ -172,10 +135,6 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     }
 
     state = state.copyWith(learningStrategies: updated);
-  }
-
-  void toggleTimerMode({required bool isSimpleTimer}) {
-    state = state.copyWith(isSimpleTimer: isSimpleTimer);
   }
 
   void setTimerSettings({
@@ -196,188 +155,108 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     bool? focus,
     int? focusPromptInterval,
     bool? showFocusPromptAlways,
-    bool? freetext,
   }) {
     state = state.copyWith(
       hasFocusPrompt: focus ?? state.hasFocusPrompt,
       focusPromptInterval: focusPromptInterval ?? state.focusPromptInterval,
       showFocusPromptAlways:
           showFocusPromptAlways ?? state.showFocusPromptAlways,
-      hasFreetextPrompt: freetext ?? state.hasFreetextPrompt,
     );
   }
 
-  // Initialization (if in edit mode)
+  // -- Actions --
+
+  // Initalize state for edit mode
   void initializeState(FullSessionModel fullSessionModel) {
-    final session = fullSessionModel.session;
-    final hasUngroupedTasks = fullSessionModel.tasks.any(
-      (TaskModel task) => task.goalId == null,
-    );
-
-    state = state.copyWith(
-      sessionId: session.id,
-      isEditMode: session.id != null,
-      title: session.title,
-      isRepeating: session.isRepeating,
-      startDate: session.isRepeating ? session.startDate : null,
-      endDate: session.isRepeating ? session.endDate : null,
-      selectedDays: session.isRepeating ? session.selectedDays : [],
-      setGoals: !hasUngroupedTasks,
-      goals: fullSessionModel.goals,
-      tasks: fullSessionModel.tasks,
-      learningStrategies: session.learningStrategies,
-      focusTimeMin: session.focusTimeMin,
-      breakTimeMin: session.breakTimeMin,
-      longBreakTimeMin: session.longBreakTimeMin,
-      focusPhases: session.focusPhases,
-      hasFocusPrompt: session.hasFocusPrompt,
-      focusPromptInterval: session.focusPromptInterval,
-      showFocusPromptAlways: session.showFocusPromptAlways,
-      hasFreetextPrompt: session.hasFreetextPrompt,
+    state = AddSessionState.fromModel(
+      fullSession: fullSessionModel,
+      existingStrategies: state.availableStrategies,
     );
   }
 
-  bool validateAll() {
-    final titleErr = AddSessionValidator.validateTitle(state.title);
-    final dateErr = AddSessionValidator.validateDate(
-      startDate: state.startDate,
-      isRepeating: state.isRepeating,
-      endDate: state.endDate,
-    );
-    final goalError = AddSessionValidator.validateGoals(
-      setGoals: state.setGoals,
-      goals: state.goals,
-      tasks: state.tasks,
-    );
-    final daysErr = AddSessionValidator.validateDays(
-      state.selectedDays,
-      isRepeating: state.isRepeating,
-    );
-
-    state = state.copyWith(
-      titleError: titleErr,
-      dateError: dateErr,
-      selectedDaysError: daysErr,
-      goalsError: goalError,
-    );
-
-    return titleErr == null &&
-        dateErr == null &&
-        daysErr == null &&
-        goalError == null;
-  }
-
-  bool get isFormValid {
-    // Title must be valid
-    if (state.titleError != null) return false;
-
-    // If repeating, must have date range and selected days
-    if (state.isRepeating) {
-      if (state.startDate == null ||
-          state.endDate == null ||
-          state.selectedDays.isEmpty) {
-        return false;
-      }
-    }
-
-    // Must have either goals or tasks
-    final hasGoals = state.setGoals && state.goals.isNotEmpty;
-    final hasTasks = !state.setGoals && state.tasks.isNotEmpty;
-
-    return hasGoals || hasTasks;
-  }
-
-  // Update session info
-  Future<void> updateSession() async {
-    if (!validateAll()) {
-      throw Exception('Bitte fülle alle Felder korrekt aus!');
-    }
-
-    final service = ref.read(addSessionServiceProvider);
+  // Save or update the session depending on edit mode
+  Future<void> handleSaveSession() async {
     final session = _stateToSessionModel(state);
-
-    await service.updateSessionWithChanges(
-      sessionId: int.parse(state.sessionId!),
-      session: session,
-      goalsToUpdate: state.goals,
-      tasksToUpdate: state.tasks,
-      goalIdsToDelete: state.goalIdsToDelete,
-      taskIdsToDelete: state.taskIdsToDelete,
-    );
-  }
-
-  Future<void> updateSessionAndReset() async {
-    if (!validateAll()) {
-      throw Exception('Bitte fülle alle Felder korrekt aus!');
-    }
-
     final service = ref.read(addSessionServiceProvider);
-    final session = _stateToSessionModel(state);
 
-    await service.updateSessionWithChanges(
-      sessionId: int.parse(state.sessionId!),
-      session: session,
-      goalsToUpdate: state.goals,
-      tasksToUpdate: state.tasks,
-      goalIdsToDelete: state.goalIdsToDelete,
-      taskIdsToDelete: state.taskIdsToDelete,
-    );
-
+    if (state.isEditMode) {
+      await service.updateSessionWithChanges(
+        sessionId: int.parse(state.sessionId!),
+        session: session,
+        goalsToUpdate: state.goals,
+        tasksToUpdate: state.tasks,
+        goalIdsToDelete: state.goalIdsToDelete,
+        taskIdsToDelete: state.taskIdsToDelete,
+      );
+    } else {
+      await service.createSessionWithGoalsAndTasks(
+        session: session,
+        goals: state.goals,
+        tasks: state.tasks,
+      );
+    }
     resetFields();
   }
 
-  // Save all info
-  Future<void> createSession() async {
-    if (!validateAll()) {
-      throw Exception('Bitte fülle alle Felder korrekt aus!');
-    }
-
+  Future<SessionInstanceModel> handleStartSession() async {
     final service = ref.read(addSessionServiceProvider);
     final session = _stateToSessionModel(state);
+    if (state.isEditMode) {
+      await service.updateSessionWithChanges(
+        sessionId: int.parse(state.sessionId!),
+        session: session,
+        goalsToUpdate: state.goals,
+        tasksToUpdate: state.tasks,
+        goalIdsToDelete: state.goalIdsToDelete,
+        taskIdsToDelete: state.taskIdsToDelete,
+      );
+    } else {
+      final sessionId = await service.createSessionWithGoalsAndTasks(
+        session: session,
+        goals: state.goals,
+        tasks: state.tasks,
+      );
 
-    final sessionId = await service.createSessionWithGoalsAndTasks(
-      session: session,
-      goals: state.goals,
-      tasks: state.tasks,
-    );
+      state = state.copyWith(sessionId: sessionId.toString());
+    }
 
-    state = state.copyWith(sessionId: sessionId.toString());
+    final instance = await ref
+        .read(getOrCreateInstanceUseCaseProvider)
+        .call(
+          sessionId: int.parse(state.sessionId!),
+          date: DateTime.now(),
+        );
+
+    return instance;
   }
 
   void resetFields() {
-    // returns default state, with exception of saved available strategies
+    // Returns default state, with exception of saved available strategies
     state = const AddSessionState().copyWith(
       availableStrategies: state.availableStrategies,
     );
   }
 
   SessionModel _stateToSessionModel(AddSessionState state) {
+    // In case of simple sessions adapt all other time properties to 0
+    final isComplex = state.sessionComplexity == SessionComplexity.advanced;
     return SessionModel(
       title: state.title,
       isRepeating: state.isRepeating,
       startDate: state.startDate,
       endDate: state.endDate,
+      plannedTime: state.plannedTime,
+      hasNotification: state.enableNotifications,
+      complexity: state.sessionComplexity,
       selectedDays: state.selectedDays,
       learningStrategies: state.learningStrategies,
       focusTimeMin: state.focusTimeMin,
-      breakTimeMin: state.breakTimeMin,
-      longBreakTimeMin: state.longBreakTimeMin,
-      focusPhases: state.focusPhases,
+      breakTimeMin: isComplex ? state.breakTimeMin : 0,
+      longBreakTimeMin: isComplex ? state.longBreakTimeMin : 0,
+      focusPhases: isComplex ? state.focusPhases : 0,
       hasFocusPrompt: state.hasFocusPrompt,
       focusPromptInterval: state.focusPromptInterval,
       showFocusPromptAlways: state.showFocusPromptAlways,
-      hasFreetextPrompt: state.hasFreetextPrompt,
     );
-  }
-
-  Future<SessionInstanceModel> startSession() async {
-    final now = DateTime.now();
-    final instance = await _getOrCreateInstanceUseCase.call(
-      sessionId: int.parse(state.sessionId!),
-      date: now,
-    );
-
-    resetFields();
-    return instance;
   }
 }

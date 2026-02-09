@@ -47,3 +47,4 @@ app.*.map.json
 # Auto-generated files 
 *.freezed.dart
 *.g.dart 
+*.mock.dart

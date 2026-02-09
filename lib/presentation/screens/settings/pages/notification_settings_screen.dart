@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_text_field.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
+import 'package:srl_app/core/services/notification_service.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
-import 'package:srl_app/notification_service.dart';
 import 'package:srl_app/presentation/screens/settings/widgets/build_section.dart';
 import 'package:srl_app/presentation/screens/settings/widgets/settings_tile.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
@@ -75,9 +75,11 @@ class _NotificationSettingsScreenState
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           'Benachrichtigungen',
           style: context.textTheme.headlineLarge,
+          textAlign: TextAlign.center,
         ),
       ),
       body: SafeArea(
@@ -115,147 +117,230 @@ class _NotificationSettingsScreenState
                     },
                   ),
 
-                  ...state.notificationSettings!.map(
-                    (setting) => SettingsTile(
-                      title: setting.type.displayName,
-                      subtitle: setting.type.description,
-                      isEnabled: setting.enabled,
-                      onToggle: () async {
-                        await notifier.toggleNotificationSetting(
-                          type: setting.type,
-                          isEnabled: !setting.enabled,
-                        );
-                      },
-                      // Expansion to set frequency and preferred time
-                      // of notification
-                      expandedChild: Column(
-                        children: [
-                          // Dropdown
-                          DropdownButtonFormField<NotificationFrequency>(
-                            initialValue: setting.frequency,
-                            decoration: const InputDecoration(
-                              labelText: 'Häufigkeit',
-                              border: OutlineInputBorder(),
-                            ),
-                            items: NotificationFrequency.values
-                                .where((f) => f != NotificationFrequency.never)
-                                .map(
-                                  (f) => DropdownMenuItem(
-                                    value: f,
-                                    child: Text(f.displayName),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (value) async {
-                              if (value == null) return;
-                              await notifier.updateNotification(
-                                setting.type,
-                                setting.copyWith(
-                                  frequency: value,
+                  ...state.notificationSettings!
+                      .where(
+                        (setting) =>
+                            setting.type != NotificationType.sessionReminder,
+                      )
+                      .map(
+                        (setting) => SettingsTile(
+                          title: setting.type.displayName,
+                          subtitle: setting.type.description,
+                          isEnabled: setting.enabled,
+                          onToggle: () async {
+                            await notifier.toggleNotificationSetting(
+                              setting: setting,
+                              type: setting.type,
+                              isEnabled: !setting.enabled,
+                            );
+                          },
+                          // Expansion to set frequency and preferred time
+                          // of notification
+                          expandedChild: Column(
+                            children: [
+                              // Dropdown
+                              DropdownButtonFormField<NotificationFrequency>(
+                                initialValue: setting.frequency,
+                                decoration: const InputDecoration(
+                                  labelText: 'Häufigkeit',
+                                  border: OutlineInputBorder(),
                                 ),
-                              );
-                            },
-                          ),
-                          const VerticalSpace(
-                            size: SpaceSize.small,
-                          ),
-                          // Time Setting
-                          ListTile(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                            ),
-                            title: Text(
-                              'Bevorzugte Uhrzeit',
-                              style: context.textTheme.headlineSmall,
-                            ),
-                            subtitle: Text(
-                              setting.preferredTime?.format(context) ??
-                                  'Keine Uhrzeit gewählt',
-                            ),
-                            trailing: const Icon(Icons.access_time),
-                            onTap: () async {
-                              final time = await showTimePicker(
-                                context: context,
-                                initialTime:
-                                    setting.preferredTime ?? TimeOfDay.now(),
-                              );
-                              if (time != null) {
-                                await notifier.updateNotification(
-                                  setting.type,
-                                  setting.copyWith(preferredTime: time),
-                                );
-                              }
-                            },
-                          ),
-
-                          // Custom message setter
-                          if (setting.type ==
-                              NotificationType.motivationalReminder) ...[
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const VerticalSpace(
-                                  size: SpaceSize.small,
+                                items: NotificationFrequency.values
+                                    .map(
+                                      (f) => DropdownMenuItem(
+                                        value: f,
+                                        child: Text(f.displayName),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (value) async {
+                                  if (value == null) return;
+                                  await notifier.updateNotification(
+                                    setting.type,
+                                    setting.copyWith(
+                                      frequency: value,
+                                    ),
+                                  );
+                                },
+                              ),
+                              const VerticalSpace(
+                                size: SpaceSize.small,
+                              ),
+                              // Time Setting
+                              ListTile(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                CustomTextField(
-                                  onSubmitted: (_) async {
-                                    await _addCustomMessage(setting);
-                                  },
-                                  hintText:
-                                      '''Eigene Erinnerung, z.B. "Dranbleiben! 🧠"''',
-                                  controller: _customMessageController,
-                                  maxLength: 70,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
                                 ),
+                                title: Text(
+                                  'Bevorzugte Uhrzeit',
+                                  style: context.textTheme.headlineSmall,
+                                ),
+                                subtitle: Text(
+                                  setting.preferredTime?.format(context) ??
+                                      'Keine Uhrzeit gewählt',
+                                ),
+                                trailing: const Icon(Icons.access_time),
+                                onTap: () async {
+                                  final time = await showTimePicker(
+                                    context: context,
+                                    initialTime:
+                                        setting.preferredTime ??
+                                        TimeOfDay.now(),
+                                  );
+                                  if (time != null) {
+                                    await notifier.updateNotification(
+                                      setting.type,
+                                      setting.copyWith(preferredTime: time),
+                                    );
+                                  }
+                                },
+                              ),
 
-                                AnimatedOpacity(
-                                  duration: const Duration(milliseconds: 200),
-                                  opacity:
-                                      _customMessageController.text.trim() !=
-                                          (setting.customMessage ?? '')
-                                      ? 1.0
-                                      : 0.0,
-                                  child: IconButton(
-                                    color: context.colorScheme.primary,
-                                    onPressed:
-                                        _customMessageController.text.trim() !=
-                                            (setting.customMessage ?? '')
-                                        ? () async {
-                                            await _addCustomMessage(setting);
+                              // Custom message setter
+                              if (setting.type ==
+                                  NotificationType.motivationalReminder) ...[
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    const VerticalSpace(
+                                      size: SpaceSize.small,
+                                    ),
+                                    CustomTextField(
+                                      onSubmitted: (_) async {
+                                        await _addCustomMessage(setting);
+                                      },
+                                      hintText:
+                                          '''Eigene Erinnerung, z.B. "Dranbleiben! 🧠"''',
+                                      controller: _customMessageController,
+                                      maxLength: 70,
+                                    ),
 
-                                            if (!context.mounted) return;
-                                            FocusScope.of(context).unfocus();
-                                            context.scaffoldMessenger
-                                                .showSnackBar(
-                                                  const SnackBar(
-                                                    duration: Duration(
-                                                      seconds: 1,
-                                                    ),
-                                                    content: Text(
-                                                      'Nachricht gespeichert',
-                                                    ),
-                                                  ),
+                                    AnimatedOpacity(
+                                      duration: const Duration(
+                                        milliseconds: 200,
+                                      ),
+                                      opacity:
+                                          _customMessageController.text
+                                                  .trim() !=
+                                              (setting.customMessage ?? '')
+                                          ? 1.0
+                                          : 0.0,
+                                      child: IconButton(
+                                        color: context.colorScheme.primary,
+                                        onPressed:
+                                            _customMessageController.text
+                                                    .trim() !=
+                                                (setting.customMessage ?? '')
+                                            ? () async {
+                                                await _addCustomMessage(
+                                                  setting,
                                                 );
-                                          }
-                                        : null,
-                                    icon: const Icon(Icons.save_as_outlined),
-                                    tooltip: 'Speichern',
-                                  ),
+
+                                                if (!context.mounted) return;
+                                                FocusScope.of(
+                                                  context,
+                                                ).unfocus();
+                                                context.scaffoldMessenger
+                                                    .showSnackBar(
+                                                      const SnackBar(
+                                                        duration: Duration(
+                                                          seconds: 1,
+                                                        ),
+                                                        content: Text(
+                                                          'Nachricht gespeichert',
+                                                        ),
+                                                      ),
+                                                    );
+                                              }
+                                            : null,
+                                        icon: const Icon(
+                                          Icons.save_as_outlined,
+                                        ),
+                                        tooltip: 'Speichern',
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
-                            ),
-                          ],
-                        ],
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                  const _SettingNotificationList(),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SettingNotificationList extends ConsumerWidget {
+  const _SettingNotificationList();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final activeSessions = ref.watch(
+      settingsViewModelProvider.select((s) => s.activeSessions),
+    );
+
+    final notifier = ref.watch(settingsViewModelProvider.notifier);
+
+    return buildSection(
+      context: context,
+      title: 'Lerneinheit Erinnerungen',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ...activeSessions!.map(
+            (session) => SettingsTile(
+              title: session.title,
+              subtitle: session.isRepeating ? 'Wiederholend' : 'Einmalig',
+              isEnabled: session.hasNotification,
+              onToggle: () async {
+                await notifier.updateSessionSettings(
+                  session.copyWith(hasNotification: !session.hasNotification),
+                  int.parse(session.id!),
+                );
+              },
+              // Expansion to set frequency and preferred time
+              // of notification
+              expandedChild:
+                  // Time Setting
+                  ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                    ),
+                    title: Text(
+                      'Bevorzugte Durchführzeit',
+                      style: context.textTheme.headlineSmall,
+                    ),
+                    subtitle: Text(session.plannedTime.format(context)),
+                    trailing: const Icon(Icons.access_time),
+                    onTap: () async {
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: session.plannedTime,
+                      );
+                      if (time != null) {
+                        await notifier.updateSessionSettings(
+                          session.copyWith(plannedTime: time),
+                          int.parse(session.id!),
+                        );
+                      }
+                    },
+                  ),
+            ),
+          ),
+        ],
       ),
     );
   }

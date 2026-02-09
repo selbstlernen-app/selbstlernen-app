@@ -14,7 +14,7 @@ Future<void> showCustomDialog({
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text(title, style: Theme.of(context).textTheme.titleLarge),
+        title: Text(title, style: Theme.of(context).textTheme.headlineMedium),
         content: content,
         actionsAlignment: centerLabels
             ? MainAxisAlignment.center

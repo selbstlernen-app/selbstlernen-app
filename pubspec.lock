@@ -186,7 +186,7 @@ packages:
     source: hosted
     version: "4.11.1"
   collection:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: collection
       sha256: "2f5709ae4d3d59dd8f7cd309b4e023046b57d8a6c82130785d2b0e5868084e76"
@@ -395,7 +395,7 @@ packages:
     description:
       path: "."
       ref: main
-      resolved-ref: ee10350ebe645501258eaa0d016a62fc1aa53732
+      resolved-ref: ed1022e828d69b4ea993544e46ce933c8e27ea19
       url: "https://github.com/madxox/flutter_heatmap_calendar.git"
     source: git
     version: "1.0.4"
@@ -671,13 +671,13 @@ packages:
     source: hosted
     version: "2.0.0"
   mockito:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: mockito
-      sha256: dac24d461418d363778d53198d9ac0510b9d073869f078450f195766ec48d05e
+      sha256: a45d1aa065b796922db7b9e7e7e45f921aed17adf3a8318a1f47097e7e695566
       url: "https://pub.dev"
     source: hosted
-    version: "5.6.1"
+    version: "5.6.3"
   mocktail:
     dependency: "direct dev"
     description:

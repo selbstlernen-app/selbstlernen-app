@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:srl_app/core/services/notification_service.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/services/add_session_service.dart';
 import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
@@ -16,9 +17,9 @@ ManageSessionUseCase manageSessionUseCase(Ref ref) {
   return ManageSessionUseCase(ref.watch(sessionRepositoryProvider));
 }
 
-@riverpod
-GetSessionsForTodayUseCase getSessionsForTodayUseCase(Ref ref) {
-  return GetSessionsForTodayUseCase(
+@Riverpod(keepAlive: true)
+GetSessionsForDateUseCase getSessionsForDateUseCase(Ref ref) {
+  return GetSessionsForDateUseCase(
     ref.watch(sessionRepositoryProvider),
     ref.watch(sessionInstanceRepositoryProvider),
   );
@@ -129,6 +130,7 @@ ManageSettingsUseCase manageSettingsUseCase(Ref ref) {
 ManageNotificationsUseCase manageNotificationsUseCase(Ref ref) {
   return ManageNotificationsUseCase(
     ref.watch(notificationsRepositoryProvider),
+    notificationService: NotificationService(),
   );
 }
 

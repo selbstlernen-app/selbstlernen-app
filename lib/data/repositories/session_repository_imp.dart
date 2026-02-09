@@ -16,6 +16,7 @@ class SessionRepositoryImp implements SessionRepository {
 
   @override
   Future<void> deleteSession(int sessionId) {
+    print("In repo session delete call rn!");
     return sessionDao.deleteSession(sessionId);
   }
 
@@ -26,16 +27,19 @@ class SessionRepositoryImp implements SessionRepository {
   }
 
   @override
-  Future<List<SessionModel>> getAllActiveSessions() async {
-    final sessions = await sessionDao.getAllActiveSessions();
-    return SessionToModelMapper.mapFromListOfEntity(sessions);
-  }
-
-  @override
   Stream<List<SessionModel>> watchAllActiveSessions() {
     return sessionDao.watchAllActiveSessions().map(
       SessionToModelMapper.mapFromListOfEntity,
     );
+  }
+
+  @override
+  Stream<List<SessionModel>> watchAllActiveSessionsForDate(DateTime day) {
+    return sessionDao
+        .watchAllActiveSessionsForDate(day)
+        .map(
+          SessionToModelMapper.mapFromListOfEntity,
+        );
   }
 
   @override

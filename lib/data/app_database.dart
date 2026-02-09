@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/material.dart' hide Table;
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:srl_app/data/database/daos/goal_dao.dart';
@@ -18,7 +19,9 @@ import 'package:srl_app/data/database/tables/session_instance_table.dart';
 import 'package:srl_app/data/database/tables/session_table.dart';
 import 'package:srl_app/data/database/tables/settings_table.dart';
 import 'package:srl_app/data/database/tables/task_table.dart';
+import 'package:srl_app/data/entity_mappers/session_mapper.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 part 'app_database.g.dart';
 
@@ -46,7 +49,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -61,12 +64,72 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(learningStrategies);
           await _insertDefaultStrategies();
         }
+        if (from == 2 && to == 3) {
+          debugPrint(
+            'Migrating database from v2 to v3 - will recreate all tables',
+          );
+
+          // Drop all existing tables
+          await _dropAllTables(m);
+
+          // Recreate with new schema
+          await m.createAll();
+
+          // Insert default data
+          await _insertDefaultStrategies();
+
+          debugPrint('Migration to v3 complete');
+        }
       },
       beforeOpen: (details) async {
         // Enable cascade delete behavior in SQLite
         await customStatement('PRAGMA foreign_keys = ON');
       },
     );
+  }
+
+  Future<void> _dropAllTables(Migrator m) async {
+    try {
+      await m.drop(notifications);
+    } on Exception catch (e) {
+      debugPrint('Could not drop notifications: $e');
+    }
+
+    try {
+      await m.drop(sessions);
+    } on Exception catch (e) {
+      debugPrint('Could not drop sessions: $e');
+    }
+
+    try {
+      await m.drop(sessionInstances);
+    } on Exception catch (e) {
+      debugPrint('Could not drop sessionInstances: $e');
+    }
+
+    try {
+      await m.drop(goals);
+    } on Exception catch (e) {
+      debugPrint('Could not drop goals: $e');
+    }
+
+    try {
+      await m.drop(settings);
+    } on Exception catch (e) {
+      debugPrint('Could not drop goals: $e');
+    }
+
+    try {
+      await m.drop(tasks);
+    } on Exception catch (e) {
+      debugPrint('Could not drop tasks: $e');
+    }
+
+    try {
+      await m.drop(learningStrategies);
+    } on Exception catch (e) {
+      debugPrint('Could not drop learningStrategies: $e');
+    }
   }
 
   Future<void> _insertDefaultStrategies() async {
@@ -98,7 +161,7 @@ class AppDatabase extends _$AppDatabase {
       LearningStrategiesCompanion.insert(
         title: 'Wiederholen',
         explanation: const Value<String>(
-          ' Regelmäßiges Auffrischen des Gelernten festigt das Wissen langfristig und verbessert die Abrufbarkeit in Prüfungen.',
+          'Regelmäßiges Auffrischen des Gelernten festigt das Wissen langfristig und verbessert die Abrufbarkeit in Prüfungen.',
         ),
       ),
     ];

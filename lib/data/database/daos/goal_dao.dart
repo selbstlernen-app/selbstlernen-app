@@ -55,13 +55,6 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
         .watch();
   }
 
-  // Get goal by ID
-  Stream<Goal?> getGoalById(int id) {
-    return (select(
-      goals,
-    )..where(($GoalsTable s) => s.id.equals(id))).watchSingleOrNull();
-  }
-
   // Update goal
   Future<int> updateGoal(int id, GoalsCompanion companion) async {
     return (update(
@@ -83,12 +76,5 @@ class GoalDao extends DatabaseAccessor<AppDatabase> with _$GoalDaoMixin {
     return (delete(
       goals,
     )..where(($GoalsTable s) => s.id.equals(id))).go();
-  }
-
-  // Delete all goals of a session
-  Future<int> deleteGoalsBySessionId(int sessionId) async {
-    return (delete(
-      goals,
-    )..where(($GoalsTable s) => s.sessionId.equals(sessionId))).go();
   }
 }

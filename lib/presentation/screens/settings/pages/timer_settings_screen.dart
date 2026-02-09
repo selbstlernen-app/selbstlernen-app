@@ -15,7 +15,9 @@ class TimerSettingsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
+          textAlign: TextAlign.center,
           'Timer',
           style: context.textTheme.headlineLarge,
         ),

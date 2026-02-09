@@ -16,47 +16,45 @@ abstract class NotificationTypeSetting with _$NotificationTypeSetting {
 
 /// Types of notifications
 enum NotificationType {
-  // Daily reminder to keep up
-  dailyReminder,
   // Weekly reminder about current progress; generally
   weeklyProgress,
   // Custom motivational message
-  motivationalReminder;
+  motivationalReminder,
+
+  // Session custom
+  sessionReminder;
 
   String get displayName {
     switch (this) {
-      case NotificationType.dailyReminder:
-        return 'Lerneinheit Erinnerung';
       case NotificationType.weeklyProgress:
         return 'Wöchentlicher Fortschritt';
       case NotificationType.motivationalReminder:
         return 'Motivierende Erinnerung';
+      case NotificationType.sessionReminder:
+        return 'Lerneinheit Erinnerung';
     }
   }
 
   String get description {
     switch (this) {
-      case NotificationType.dailyReminder:
-        return 'Erinnere mich an meine Lerneinheiten für den Tag';
       case NotificationType.weeklyProgress:
         return 'Zeige mir meinen Wochenfortschritt';
       case NotificationType.motivationalReminder:
         return 'Motiviere mich, meine Ziele weiterhin zu verfolgen';
+      case NotificationType.sessionReminder:
+        return 'Erinnere mich zu den Zeitpunkten, an denen ich die Lerneinheit durchführen möchte';
     }
   }
 }
 
 /// Notification frequency options
 enum NotificationFrequency {
-  never,
   daily,
   everyOtherDay,
   weekly;
 
   String get displayName {
     switch (this) {
-      case NotificationFrequency.never:
-        return 'Nie';
       case NotificationFrequency.daily:
         return 'Täglich';
       case NotificationFrequency.everyOtherDay:
@@ -68,8 +66,6 @@ enum NotificationFrequency {
 
   int? get daysInterval {
     switch (this) {
-      case NotificationFrequency.never:
-        return null;
       case NotificationFrequency.daily:
         return 1;
       case NotificationFrequency.everyOtherDay:

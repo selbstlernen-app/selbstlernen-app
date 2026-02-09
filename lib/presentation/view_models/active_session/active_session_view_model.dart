@@ -3,7 +3,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/usecases/use_cases.dart';
+import 'package:srl_app/presentation/view_models/active_session/active_session_providers.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/focus_prompter.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
@@ -13,135 +13,71 @@ part 'active_session_view_model.g.dart';
 
 @Riverpod(keepAlive: true)
 class ActiveSessionViewModel extends _$ActiveSessionViewModel {
-  late final ManageGoalUseCase _manageGoalUseCase;
-  late final ManageTasksUseCase _manageTasksUseCase;
-  late final ManageSessionUseCase _manageSessionUseCase;
-  late final ManangeInstanceUseCase _manangeInstanceUseCase;
-
-  late final GetInstanceUseCase _getInstanceUseCase;
-  late final CompleteInstanceUseCase _completeInstanceUseCase;
-  late final int _instanceId;
-
-  late StreamSubscription<dynamic>? _goalsSubscription;
-  late StreamSubscription<dynamic>? _tasksSubscription;
-
   Timer? _timer;
   FocusPrompter? _focusPrompter;
 
   @override
   ActiveSessionState build(int instanceId) {
-    _instanceId = instanceId;
-    _manageSessionUseCase = ref.watch(manageSessionUseCaseProvider);
-    _manageGoalUseCase = ref.watch(manageGoalUseCaseProvider);
-    _manageTasksUseCase = ref.watch(manageTasksUseCaseProvider);
+    _listenToDataStreams(instanceId);
 
-    _manangeInstanceUseCase = ref.watch(manangeInstanceUseCaseProvider);
-    _completeInstanceUseCase = ref.watch(completeInstanceUseCaseProvider);
-    _getInstanceUseCase = ref.watch(getInstanceUseCaseProvider);
-
-    unawaited(_loadData());
-
-    ref.onDispose(() async {
+    ref.onDispose(() {
       _timer?.cancel();
-      unawaited(_goalsSubscription?.cancel());
-      unawaited(_tasksSubscription?.cancel());
+      _focusPrompter?.dispose();
     });
 
     return const ActiveSessionState();
   }
 
-  Future<void> _loadData() async {
-    try {
-      // Load the instance (created either in detail screen or formula)
-      final instance = await _getInstanceUseCase.getInstanceById(_instanceId);
-
-      final sessionId = int.parse(instance.sessionId);
-
-      final session = await _manageSessionUseCase.getSessionById(
-        sessionId,
-      );
-
-      state = state.copyWith(
-        session: session,
-        instance: instance,
-        totalFocusSecondsElapsed: instance.totalFocusSecondsElapsed,
-        totalBreakSecondsElapsed: instance.totalBreakSecondsElapsed,
-        totalFocusPhases: instance.totalFocusPhases,
-        completedBlocks: instance.totalCompletedBlocks,
-        currentPhaseIndex: instance.currentPhaseIndex,
-        currentPhase: phaseFromIndex(
-          instance.currentPhaseIndex,
-          session.focusPhases,
-        ),
-        remainingSeconds:
-            instance.remainingSeconds ??
-            getDefaultDuration(
-              phaseFromIndex(instance.currentPhaseIndex, session.focusPhases),
-              session,
-            ),
-
-        isLoading: false,
-      );
-
-      _goalsSubscription = _manageGoalUseCase
-          .watchGoalsBySessionIdAndDate(sessionId, DateTime.now())
-          .listen((List<GoalModel> goals) {
-            // Filter out deleted goals
-            final filteredGoals = goals
-                .where((goal) => !state.goalIdsToDelete.contains(goal.id))
-                .toList();
-
-            state = state.copyWith(
-              goals: filteredGoals,
-              allOriginalGoals: goals,
-            );
-          });
-
-      _tasksSubscription = _manageTasksUseCase
-          .watchTasksBySessionIdAndDate(sessionId, DateTime.now())
-          .listen((List<TaskModel> tasks) {
-            // Filter out deleted tasks
-            final filteredTasks = tasks
-                .where((task) => !state.taskIdsToDelete.contains(task.id))
-                .toList();
-            state = state.copyWith(
-              tasks: filteredTasks,
-              allOriginalTasks: tasks,
-            );
-          });
-
-      // If we set automatic start in the options, directly start the timer!
-      if (ref
-          .read(
-            settingsViewModelProvider,
-          )
-          .timerStartsAutomatically) {
-        unawaited(startTimer());
-      }
-    } on Exception catch (e) {
-      state = state.copyWith(error: e.toString(), isLoading: false);
-    }
+  void _listenToDataStreams(int instanceId) {
+    // .listen to any update when manual changes in db happen
+    ref
+      ..listen(activeInstanceProvider(instanceId), (prev, next) {
+        next.whenData((instance) {
+          if (state.instance == null) {
+            // Initialise session from the instance if already in progress!
+            _initializeFromInstance(instance);
+          } else {
+            state = state.copyWith(instance: instance);
+          }
+        });
+      })
+      // Watch goals
+      ..listen(activeGoalsProvider(instanceId), (prev, next) {
+        next.whenData((goals) {
+          final filteredGoals = goals
+              .where((goal) => !state.goalIdsToDelete.contains(goal.id))
+              .toList();
+          state = state.copyWith(goals: filteredGoals, allOriginalGoals: goals);
+        });
+      })
+      // Watch tasks
+      ..listen(activeTasksProvider(instanceId), (prev, next) {
+        next.whenData((tasks) {
+          state = state.copyWith(tasks: tasks);
+        });
+      });
   }
 
-  SessionPhase phaseFromIndex(int index, int focusPhases) {
-    if (index.isEven) {
-      return SessionPhase.focus;
-    }
-    // Odd index means either long or short break was last
-    final lastBreakIndex = (focusPhases * 2) - 1;
-    return index == lastBreakIndex
-        ? SessionPhase.longBreak
-        : SessionPhase.shortBreak;
-  }
+  Future<void> _initializeFromInstance(SessionInstanceModel instance) async {
+    // Fetch session once to setup defaults
+    final session = await ref
+        .read(manageSessionUseCaseProvider)
+        .getSessionById(
+          int.parse(instance.sessionId),
+        );
 
-  int getDefaultDuration(SessionPhase phase, SessionModel session) {
-    switch (phase) {
-      case SessionPhase.focus:
-        return session.focusTimeMin * 60;
-      case SessionPhase.shortBreak:
-        return session.breakTimeMin * 60;
-      case SessionPhase.longBreak:
-        return session.longBreakTimeMin * 60;
+    state = state.copyWith(
+      session: session,
+      instance: instance,
+      remainingSeconds:
+          instance.remainingSeconds ??
+          session.getDefaultDuration(SessionPhase.focus),
+      isLoading: false,
+    );
+
+    // Auto-start timer logic here
+    if (ref.read(settingsViewModelProvider).timerStartsAutomatically) {
+      unawaited(startTimer());
     }
   }
 
@@ -179,7 +115,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
     state = state.copyWith(instance: updatedInstance, showFocusPrompt: false);
 
-    await _manangeInstanceUseCase.updateInstance(updatedInstance);
+    await ref
+        .read(manangeInstanceUseCaseProvider)
+        .updateInstance(updatedInstance);
 
     _focusPrompter?.recordInteraction();
   }
@@ -195,24 +133,23 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   Future<void> addTask(String title, {String? goalId}) async {
     if (state.session == null) return;
-
-    try {
-      await _manageTasksUseCase.createTask(
-        TaskModel(
-          sessionId: state.session!.id,
-          title: title,
-          goalId: goalId,
-          keptForFutureSessions: false,
-        ),
-      );
-    } on Exception catch (e) {
-      state = state.copyWith(error: e.toString());
-    }
+    await ref
+        .read(manageTasksUseCaseProvider)
+        .createTask(
+          TaskModel(
+            sessionId: state.session!.id,
+            title: title,
+            goalId: goalId,
+            keptForFutureSessions: false,
+          ),
+        );
   }
 
   Future<void> orphanTask(TaskModel task) async {
     try {
-      await _manageTasksUseCase.updateTask(task.copyWith(goalId: null));
+      await ref
+          .read(manageTasksUseCaseProvider)
+          .updateTask(task.copyWith(goalId: null));
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -221,7 +158,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> deleteTasks(List<String> taskIds) async {
     await Future.wait(
       taskIds.map(
-        (taskId) => _manageTasksUseCase.deleteTask(int.parse(taskId)),
+        (taskId) =>
+            ref.read(manageTasksUseCaseProvider).deleteTask(int.parse(taskId)),
       ),
     );
   }
@@ -230,13 +168,15 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     if (state.session == null) return;
 
     try {
-      await _manageGoalUseCase.createGoal(
-        GoalModel(
-          sessionId: state.session!.id,
-          title: title,
-          keptForFutureSessions: false,
-        ),
-      );
+      await ref
+          .read(manageGoalUseCaseProvider)
+          .createGoal(
+            GoalModel(
+              sessionId: state.session!.id,
+              title: title,
+              keptForFutureSessions: false,
+            ),
+          );
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -245,7 +185,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> deleteGoals(List<String> goalIds) async {
     await Future.wait(
       goalIds.map(
-        (goalId) => _manageGoalUseCase.deleteGoal(int.parse(goalId)),
+        (goalId) =>
+            ref.read(manageGoalUseCaseProvider).deleteGoal(int.parse(goalId)),
       ),
     );
   }
@@ -359,7 +300,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     var nextIndex = state.currentPhaseIndex + 1;
 
     // If we only have focus timer, then we switch no phases visibly
-    if (state.session!.hasSimpleTimer) {
+    if (state.session!.isSimple) {
       nextPhase = SessionPhase.focus;
       duration = session.focusTimeMin * 60;
       nextBlocks++;
@@ -555,7 +496,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         remainingSeconds: state.remainingSeconds,
       );
 
-      await _manangeInstanceUseCase.updateInstance(updatedInstance);
+      await ref
+          .read(manangeInstanceUseCaseProvider)
+          .updateInstance(updatedInstance);
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString());
     }
@@ -595,21 +538,25 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
             : 0.0,
       );
 
-      await _completeInstanceUseCase.call(updatedInstance);
+      await ref.read(completeInstanceUseCaseProvider).call(updatedInstance);
 
       // If user decides to keep the newly added items,
       // set keepForFutureSessions to true
       for (final goalId in goalIdsToKeep) {
-        await _manageGoalUseCase.updateGoalFutureStatus(
-          goalId,
-          keptForFutureSessions: true,
-        );
+        await ref
+            .read(manageGoalUseCaseProvider)
+            .updateGoalFutureStatus(
+              goalId,
+              keptForFutureSessions: true,
+            );
       }
       for (final taskId in taskIdsToKeep) {
-        await _manageTasksUseCase.updateTaskFutureStatus(
-          taskId,
-          keptForFutureSessions: true,
-        );
+        await ref
+            .read(manageTasksUseCaseProvider)
+            .updateTaskFutureStatus(
+              taskId,
+              keptForFutureSessions: true,
+            );
       }
 
       state = state.copyWith(instance: updatedInstance);

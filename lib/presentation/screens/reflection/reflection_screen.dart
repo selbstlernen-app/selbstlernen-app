@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_button.dart';
 import 'package:srl_app/common_widgets/custom_text_field.dart';
 import 'package:srl_app/common_widgets/main_layout.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/common_widgets/time_break_down_item.dart';
 import 'package:srl_app/core/constants/constants.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
@@ -177,7 +177,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
           ),
 
           SizedBox(
-            width: context.mediaQuery.size.width,
+            width: double.infinity,
             child: CustomButton(
               label: 'Abschließen',
               onPressed: submitReflection,

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:srl_app/common_widgets/show_custom_dialog.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/dialogs/show_custom_dialog.dart';
 
 class SessionSelectionDialog {
   static Future<void> show({
@@ -79,21 +79,33 @@ class SessionSelectionDialog {
             .map((e) => e.key)
             .toList();
 
+        // Any tasks which are not clicked to be selected
+        final taskIdsToDiscard = taskSelection.entries
+            .where((e) => !e.value)
+            .map((e) => e.key)
+            .toList();
+
+        // Identify items to DELETE (items checked in the 'Deleted' section)
         final goalIdsToDelete = deletedGoalSelection.entries
             .where((e) => e.value)
             .map((e) => e.key)
             .toList();
 
-        final taskIdsToDelete = deletedTaskSelection.entries
+        final taskIdsToDeleteFromHistory = deletedTaskSelection.entries
             .where((e) => e.value)
             .map((e) => e.key)
             .toList();
+
+        final totalTaskIdsToDelete = {
+          ...taskIdsToDiscard,
+          ...taskIdsToDeleteFromHistory,
+        }.toList();
 
         await onConfirm(
           goalIdsToKeep,
           taskIdsToKeep,
           goalIdsToDelete,
-          taskIdsToDelete,
+          totalTaskIdsToDelete,
         );
       },
     );

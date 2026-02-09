@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_icon_button.dart';
-import 'package:srl_app/common_widgets/spacing.dart';
+import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
@@ -103,6 +103,7 @@ class _LearningStrategySettingsScreenState
         title: Text(
           'Meine Strategien (${strategies.length}/15)',
           style: context.textTheme.headlineLarge,
+          textAlign: TextAlign.center,
         ),
       ),
       body: SafeArea(

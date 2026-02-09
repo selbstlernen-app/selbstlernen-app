@@ -1,16 +1,17 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:srl_app/core/services/notification_service.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
+import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/domain/usecases/manage_learning_strategy_use_case.dart';
-import 'package:srl_app/domain/usecases/manage_notifications_use_case.dart';
 import 'package:srl_app/domain/usecases/manage_settings_use_case.dart';
-import 'package:srl_app/notification_service.dart';
+import 'package:srl_app/presentation/view_models/providers.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_state.dart';
 
 part 'settings_view_model.g.dart';
@@ -18,28 +19,14 @@ part 'settings_view_model.g.dart';
 @riverpod
 class SettingsViewModel extends _$SettingsViewModel {
   late final ManageSettingsUseCase _manageSettingsUseCase;
-  late final ManageNotificationsUseCase _manageNotificationsUseCase;
-  late final ManageLearningStrategyUseCase _manageLearningStrategyUseCase;
-
-  StreamSubscription<dynamic>? _notificationSubscription;
-  StreamSubscription<dynamic>? _strategySubscription;
 
   @override
   SettingsState build() {
     _manageSettingsUseCase = ref.watch(
       manageSettingsUseCaseProvider,
     );
-    _manageNotificationsUseCase = ref.watch(manageNotificationsUseCaseProvider);
-    _manageLearningStrategyUseCase = ref.watch(
-      manageLearningStrategyUseCaseProvider,
-    );
 
-    ref.onDispose(() {
-      unawaited(_notificationSubscription?.cancel());
-      unawaited(_strategySubscription?.cancel());
-    });
-
-    _subscribe();
+    _listenToDataStreams();
 
     unawaited(checkPermission());
 
@@ -52,48 +39,52 @@ class SettingsViewModel extends _$SettingsViewModel {
     );
   }
 
-  void _subscribe() {
-    _notificationSubscription = _manageNotificationsUseCase
-        .watchPreferences()
-        .listen(
-          (List<NotificationTypeSetting> notifications) {
-            state = state.copyWith(
-              notificationSettings: notifications,
-              isLoading: false,
-            );
-          },
-          onError: (dynamic error) {
-            state = state.copyWith(error: error.toString(), isLoading: false);
-          },
-        );
-
-    _strategySubscription = _manageLearningStrategyUseCase
-        .watchLearningStrategies()
-        .listen(
-          (List<LearningStrategyModel> strategies) {
+  void _listenToDataStreams() {
+    ref
+      ..listen(
+        learningStrategiesStreamProvider,
+        (previous, next) {
+          next.whenData((strategies) {
             state = state.copyWith(
               learningStrategies: strategies,
               isLoading: false,
             );
-          },
-          onError: (dynamic error) {
-            state = state.copyWith(error: error.toString(), isLoading: false);
-          },
-        );
+          });
+        },
+      )
+      ..listen(notificationSettingsStreamProvider, (previous, next) {
+        next.whenData((notifications) {
+          state = state.copyWith(
+            notificationSettings: notifications,
+            isLoading: false,
+          );
+        });
+      })
+      ..listen(activeSessionsProvider, (previous, next) {
+        next.whenData((sessions) {
+          state = state.copyWith(activeSessions: sessions, isLoading: false);
+        });
+      });
   }
 
   Future<void> addStrategy(String title, String? explanation) async {
-    await _manageLearningStrategyUseCase.addLearningStrategy(
-      LearningStrategyModel(title: title, explanation: explanation),
-    );
+    await ref
+        .read(manageLearningStrategyUseCaseProvider)
+        .addLearningStrategy(
+          LearningStrategyModel(title: title, explanation: explanation),
+        );
   }
 
   Future<void> deleteStrategy(int id) async {
-    await _manageLearningStrategyUseCase.deleteLearningStrategy(id);
+    await ref
+        .read(manageLearningStrategyUseCaseProvider)
+        .deleteLearningStrategy(id);
   }
 
   Future<void> updateStrategy(LearningStrategyModel model, int id) async {
-    await _manageLearningStrategyUseCase.updateLearningStrategy(model, id);
+    await ref
+        .read(manageLearningStrategyUseCaseProvider)
+        .updateLearningStrategy(model, id);
   }
 
   // UI/Theming Settings
@@ -110,7 +101,7 @@ class SettingsViewModel extends _$SettingsViewModel {
   }
 
   Future<void> toggleTimerAutomaticallyStarted() async {
-    await _manageSettingsUseCase.setTimerStartsAutomatically();
+    await _manageSettingsUseCase.toggleTimerStartsAutomatically();
     state = state.copyWith(
       timerStartsAutomatically: _manageSettingsUseCase
           .getTimerStartsAutomatically(),
@@ -124,13 +115,14 @@ class SettingsViewModel extends _$SettingsViewModel {
 
   // Notification Settings
   Future<void> checkPermission() async {
-    if (!ref.mounted) return;
-
     final hasPermission = await Permission.notification.isGranted;
+    if (!ref.mounted) return;
 
     if (!hasPermission) {
       await _clearAllNotifications();
     }
+
+    if (!ref.mounted) return;
 
     state = state.copyWith(hasNotificationPermission: hasPermission);
   }
@@ -149,25 +141,32 @@ class SettingsViewModel extends _$SettingsViewModel {
 
     if (disabledSettings != null) {
       for (final setting in disabledSettings) {
-        await _manageNotificationsUseCase.updatePreference(
-          setting.type,
-          setting,
-        );
+        await ref
+            .read(manageNotificationsUseCaseProvider)
+            .updatePreference(
+              setting.type,
+              setting,
+            );
       }
     }
   }
 
   Future<void> toggleNotificationSetting({
+    required NotificationTypeSetting setting,
     required NotificationType type,
     required bool isEnabled,
   }) async {
-    await _manageNotificationsUseCase.toggleNotificationType(
-      type: type,
-      isEnabled: isEnabled,
-    );
+    print(type);
+    await ref
+        .read(manageNotificationsUseCaseProvider)
+        .toggleNotificationType(
+          setting: setting,
+          type: type,
+          isEnabled: isEnabled,
+        );
 
     // Schedule notification if toggled
-    final updatedSetting = state.notificationSettings?.firstWhere(
+    final updatedSetting = state.notificationSettings?.firstWhereOrNull(
       (s) => s.type == type,
     );
     // Update the setting so notification is sent
@@ -177,11 +176,22 @@ class SettingsViewModel extends _$SettingsViewModel {
     }
   }
 
+  Future<void> updateSessionSettings(
+    SessionModel updatedModel,
+    int sessionId,
+  ) async {
+    await ref
+        .read(manageSessionUseCaseProvider)
+        .updateSession(sessionId, updatedModel);
+  }
+
   Future<void> updateNotification(
     NotificationType type,
     NotificationTypeSetting settings,
   ) async {
-    await _manageNotificationsUseCase.updatePreference(type, settings);
+    await ref
+        .read(manageNotificationsUseCaseProvider)
+        .updatePreference(type, settings);
 
     // After update, check and adapt scheduling
     await _scheduleNotification(settings);

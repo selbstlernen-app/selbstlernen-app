@@ -23,17 +23,34 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
     return select(sessions).watch();
   }
 
-  Future<List<Session>> getAllActiveSessions() {
+  // Watch all active sessions
+  Stream<List<Session>> watchAllActiveSessions() {
     return (select(
-      sessions,
-    )..where(($SessionsTable tbl) => tbl.isArchived.equals(false))).get();
+          sessions,
+        )..where(
+          ($SessionsTable s) =>
+              // Session is not archived
+              (s.isArchived.equals(false)),
+        ))
+        .watch();
   }
 
   // Watch all sessions which not archived yet
-  Stream<List<Session>> watchAllActiveSessions() {
+  Stream<List<Session>> watchAllActiveSessionsForDate(DateTime today) {
     return (select(
-      sessions,
-    )..where(($SessionsTable s) => s.isArchived.equals(false))).watch();
+          sessions,
+        )..where(
+          ($SessionsTable s) =>
+              // Session is not archived
+              (s.isArchived.equals(false))
+              // Start date is not given (one-time session) or smaller than today
+              &
+              (s.startDate.isNull() | s.startDate.isSmallerOrEqualValue(today))
+              // End date is not given (one-time session) or larger than today
+              &
+              (s.endDate.isNull() | s.endDate.isBiggerOrEqualValue(today)),
+        ))
+        .watch();
   }
 
   // Get session by ID
@@ -59,6 +76,7 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
 
   // Delete session
   Future<int> deleteSession(int id) async {
+    print("In session delete call rn!");
     return (delete(
       sessions,
     )..where(($SessionsTable s) => s.id.equals(id))).go();

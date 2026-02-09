@@ -12,6 +12,7 @@ class CustomButton extends StatelessWidget {
     this.borderRadius,
     this.borderLeft,
     this.borderRight,
+    this.noBorder,
   });
 
   final VoidCallback onPressed;
@@ -21,6 +22,7 @@ class CustomButton extends StatelessWidget {
   final double? borderRadius;
   final bool? borderLeft;
   final bool? borderRight;
+  final bool? noBorder;
 
   BorderRadius _switchRadius() {
     if (borderLeft ?? false) {
@@ -35,6 +37,10 @@ class CustomButton extends StatelessWidget {
         bottomRight: Radius.circular(10),
       );
     }
+    if (noBorder ?? false) {
+      return BorderRadius.zero;
+    }
+
     return BorderRadius.circular(borderRadius ?? 30.0);
   }
 

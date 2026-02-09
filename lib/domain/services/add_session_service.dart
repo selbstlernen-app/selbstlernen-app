@@ -36,8 +36,8 @@ class AddSessionService {
     required SessionModel session,
     required List<GoalModel> goalsToUpdate,
     required List<TaskModel> tasksToUpdate,
-    required List<String> goalIdsToDelete,
-    required List<String> taskIdsToDelete,
+    required Set<String> goalIdsToDelete,
+    required Set<String> taskIdsToDelete,
   }) async {
     // Delete marked goals/tasks
     await _deleteGoals(goalIdsToDelete);
@@ -115,13 +115,13 @@ class AddSessionService {
     }
   }
 
-  Future<void> _deleteGoals(List<String> goalIds) async {
+  Future<void> _deleteGoals(Set<String> goalIds) async {
     for (final goalId in goalIds) {
       await _manageGoalUseCase.deleteGoal(int.parse(goalId));
     }
   }
 
-  Future<void> _deleteTasks(List<String> taskIds) async {
+  Future<void> _deleteTasks(Set<String> taskIds) async {
     for (final taskId in taskIds) {
       await _manageTasksUseCase.deleteTask(int.parse(taskId));
     }

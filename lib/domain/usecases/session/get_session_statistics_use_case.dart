@@ -1,3 +1,4 @@
+import 'package:rxdart/rxdart.dart';
 import 'package:srl_app/core/utils/date_time_utils.dart';
 import 'package:srl_app/domain/goal_repository.dart';
 import 'package:srl_app/domain/models/models.dart';
@@ -20,6 +21,31 @@ class GetSessionStatisticsUseCase {
   final SessionRepository sessionRepository;
   final GoalRepository goalRepository;
   final TaskRepository taskRepository;
+
+  Stream<SessionStatistics> watchStatistics(int sessionId) async* {
+    // Watch all streams for session statistics to update on instance/session edits
+    yield* Rx.combineLatest4(
+      sessionRepository.watchSessionById(sessionId),
+      instanceRepository.watchInstancesBySessionId(sessionId),
+      goalRepository.watchGoalsBySessionId(sessionId),
+      taskRepository.watchTasksBySessionId(sessionId),
+      (session, instances, goals, tasks) {
+        if (instances.isEmpty) {
+          return const SessionStatistics(
+            totalInstances: 0,
+            completedInstances: 0,
+            skippedInstances: 0,
+            missedInstances: 0,
+            totalFocusMinutes: 0,
+            totalBreakMinutes: 0,
+            totalGoalsCompleted: 0,
+            totalTasksCompleted: 0,
+          );
+        }
+        return _calculateStats(instances, session, goals, tasks);
+      },
+    );
+  }
 
   Future<SessionStatistics> call(int sessionId) async {
     final session = await sessionRepository.getSessionById(
