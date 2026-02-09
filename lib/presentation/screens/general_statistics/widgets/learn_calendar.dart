@@ -75,14 +75,13 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
               colorMode: ColorMode.color,
               activeDate: _selectedDate ?? DateTime.now(),
               onClick: (DateTime date) {
-                _buildCalendarDataset();
                 setState(() {
                   if (_selectedDate == date) {
                     _selectedDate = null;
                   } else {
                     _selectedDate = date;
                     _selectedDateInstances = ref
-                        .watch(statisticsViewModelProvider)
+                        .read(statisticsViewModelProvider)
                         .getInstancesByDateAndSorted(date);
                   }
                 });
@@ -172,9 +171,9 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
           enrichedInstance.instance.status == SessionStatus.skipped) {
         // Normalize to start of day
         final date = DateTime(
-          enrichedInstance.instance.scheduledAt.year,
-          enrichedInstance.instance.scheduledAt.month,
-          enrichedInstance.instance.scheduledAt.day,
+          enrichedInstance.instance.completedAt!.year,
+          enrichedInstance.instance.completedAt!.month,
+          enrichedInstance.instance.completedAt!.day,
         );
         // Increment count for this day
         dataset[date] = (dataset[date] ?? 0) + 1;
