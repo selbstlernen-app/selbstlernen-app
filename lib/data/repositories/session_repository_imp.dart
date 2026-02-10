@@ -16,7 +16,6 @@ class SessionRepositoryImp implements SessionRepository {
 
   @override
   Future<void> deleteSession(int sessionId) {
-    print("In repo session delete call rn!");
     return sessionDao.deleteSession(sessionId);
   }
 
