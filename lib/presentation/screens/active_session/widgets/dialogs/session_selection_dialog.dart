@@ -20,12 +20,17 @@ class SessionSelectionDialog {
       List<String> taskIdsToDelete,
     )
     onConfirm,
-    required Future<void> Function() onDiscardAll,
+    required Future<void> Function({
+      required List<String> goalIdsToDelete,
+      required List<String> taskIdsToDelete,
+    })
+    onDiscardAll,
   }) async {
-    // Prepare new goals to show
-    final newGoalIds = newGoals.map((g) => g.id).toSet();
+    // Group tasks by goal
     final tasksByGoal = _groupTasksByGoal(newTasks);
 
+    // Combine new goals with existing goals that have new tasks
+    final newGoalIds = newGoals.map((g) => g.id).toSet();
     final allDisplayedGoals = <GoalModel>[
       ...newGoals,
       ...existingGoalsWithNewTasks.where((g) => !newGoalIds.contains(g.id)),
@@ -40,8 +45,6 @@ class SessionSelectionDialog {
     final taskSelection = <String, bool>{
       for (final task in newTasks) task.id!: true,
     };
-
-    // Initialize selections for deleted items
     final deletedGoalSelection = <String, bool>{
       for (final goal in deleteGoals) goal.id!: true,
     };
@@ -67,8 +70,18 @@ class SessionSelectionDialog {
       ),
       confirmLabel: 'Bestätigen',
       cancelLabel: 'Alle verwerfen',
-      onCancel: onDiscardAll,
+      onCancel: () async {
+        // Discard all new items
+        final allNewGoalIds = newGoals.map((g) => g.id!).toList();
+        final allNewTaskIds = newTasks.map((t) => t.id!).toList();
+
+        await onDiscardAll(
+          goalIdsToDelete: allNewGoalIds,
+          taskIdsToDelete: allNewTaskIds,
+        );
+      },
       onConfirm: () async {
+        // Keep selected items
         final goalIdsToKeep = goalSelection.entries
             .where((e) => e.value)
             .map((e) => e.key)
@@ -79,33 +92,33 @@ class SessionSelectionDialog {
             .map((e) => e.key)
             .toList();
 
-        // Any tasks which are not clicked to be selected
+        // Discard unselected new items
+        final goalIdsToDiscard = goalSelection.entries
+            .where((e) => !e.value)
+            .map((e) => e.key)
+            .toList();
+
         final taskIdsToDiscard = taskSelection.entries
             .where((e) => !e.value)
             .map((e) => e.key)
             .toList();
 
-        // Identify items to DELETE (items checked in the 'Deleted' section)
+        // Delete confirmed deleted items (checked in 'Deleted' section)
         final goalIdsToDelete = deletedGoalSelection.entries
             .where((e) => e.value)
             .map((e) => e.key)
             .toList();
 
-        final taskIdsToDeleteFromHistory = deletedTaskSelection.entries
+        final taskIdsToDelete = deletedTaskSelection.entries
             .where((e) => e.value)
             .map((e) => e.key)
             .toList();
 
-        final totalTaskIdsToDelete = {
-          ...taskIdsToDiscard,
-          ...taskIdsToDeleteFromHistory,
-        }.toList();
-
         await onConfirm(
           goalIdsToKeep,
           taskIdsToKeep,
-          goalIdsToDelete,
-          totalTaskIdsToDelete,
+          [...goalIdsToDiscard, ...goalIdsToDelete],
+          [...taskIdsToDiscard, ...taskIdsToDelete],
         );
       },
     );

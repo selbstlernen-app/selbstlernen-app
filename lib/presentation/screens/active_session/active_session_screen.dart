@@ -8,6 +8,8 @@ import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/main_navigation.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/dialogs/show_custom_dialog.dart';
+import 'package:srl_app/presentation/screens/active_session/widgets/dialogs/stop_session_dialog.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/exit_button.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/focus_prompt_dialog.dart';
 import 'package:srl_app/presentation/screens/active_session/widgets/goals_list_widget.dart';
@@ -51,24 +53,39 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
   @override
   Widget build(BuildContext context) {
     // Focus prompt + wakelock listener
-    ref.listen<ActiveSessionState>(
-      activeSessionViewModelProvider(widget.instanceId),
-      (previous, next) async {
-        // Show dialog when showFocusPrompt becomes true
-        if (next.showFocusPrompt && !(previous?.showFocusPrompt ?? false)) {
-          await _showFocusPromptDialog(
-            ref.read(
-              activeSessionViewModelProvider(widget.instanceId).notifier,
-            ),
-          );
-          if (!mounted) return;
-        }
-        // Stop wakelock when timer status is NOT running
-        if (previous?.timerStatus != next.timerStatus) {
-          await _handleTimerStatusChange(next.timerStatus);
-        }
-      },
-    );
+    ref
+      ..listen<ActiveSessionState>(
+        activeSessionViewModelProvider(widget.instanceId),
+        (previous, next) async {
+          // Show dialog when showFocusPrompt becomes true
+          if (next.showFocusPrompt && !(previous?.showFocusPrompt ?? false)) {
+            await _showFocusPromptDialog(
+              ref.read(
+                activeSessionViewModelProvider(widget.instanceId).notifier,
+              ),
+            );
+            if (!mounted) return;
+          }
+          // Stop wakelock when timer status is NOT running
+          if (previous?.timerStatus != next.timerStatus) {
+            await _handleTimerStatusChange(next.timerStatus);
+          }
+        },
+      )
+      ..listen<ActiveSessionState>(
+        activeSessionViewModelProvider(widget.instanceId),
+        (previous, next) async {
+          // Show dialog when showTimerEndPrompt becomes true
+          if (!previous!.showTimerEndPrompt && next.showTimerEndPrompt) {
+            await _showTimerEndDialog(
+              ref.read(
+                activeSessionViewModelProvider(widget.instanceId).notifier,
+              ),
+            );
+            if (!mounted) return;
+          }
+        },
+      );
 
     final isLoading = ref.watch(
       activeSessionViewModelProvider(
@@ -170,6 +187,45 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
       builder: (context) => FocusPromptDialog(
         onFocusLevelSelected: viewModel.recordFocusLevel,
       ),
+    );
+  }
+
+  Future<void> _showTimerEndDialog(ActiveSessionViewModel viewModel) async {
+    await showCustomDialog(
+      context: context,
+      centerLabels: true,
+      title: 'Zeit abgelaufen! ⏰',
+      content: const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '''Die Zeit, die du dir vorgenommen hast, ist um. Willst du die Einheit abschließen, oder weiterlernen?''',
+          ),
+        ],
+      ),
+      confirmLabel: 'Abschließen',
+      cancelLabel: 'Weiterlernen',
+      onCancel: () async {
+        await viewModel.onContinueTimer();
+      },
+      onConfirm: () async {
+        final state = ref.read(
+          activeSessionViewModelProvider(widget.instanceId),
+        );
+        final viewModel = ref.read(
+          activeSessionViewModelProvider(widget.instanceId).notifier,
+        );
+
+        // Stop the session
+        if (state.timerStatus != TimerStatus.initial) {
+          await viewModel.pauseTimer();
+
+          if (!mounted) return;
+
+          final dialog = StopSessionDialog(context: context, ref: ref);
+          await dialog.showStopSessionFlow(state: state, viewModel: viewModel);
+        }
+      },
     );
   }
 }

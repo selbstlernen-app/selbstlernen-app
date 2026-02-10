@@ -114,7 +114,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
                       TimeBreakdownItem(
                         icon: Icons.timelapse_outlined,
-                        label: 'Gesamte Zeit',
+                        label: 'Gesamtzeit',
                         value: '${reflectionState.totalTimeSpent} Min',
                         color: AppPalette.sky,
                       ),

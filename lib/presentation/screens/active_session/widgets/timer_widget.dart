@@ -45,18 +45,11 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
             TimerStatus.running) {
           if (lifecycleState == AppLifecycleState.paused ||
               lifecycleState == AppLifecycleState.detached) {
-            final currentState = ref.read(
-              activeSessionViewModelProvider(widget.instanceId),
-            );
-
-            // Both platforms save timestamp on leave
-            final targetEndTime = DateTime.now().add(
-              Duration(seconds: currentState.remainingSeconds),
-            );
-
+            // Both platforms save last active time on leave
+            final targetEndTime = DateTime.now();
             await repo.setTimerEndTimestamp(targetEndTime);
           } else if (lifecycleState == AppLifecycleState.resumed) {
-            // Both platoforms sync timer based on last recorded timestamp
+            // Both platforms sync timer based on last recorded timestamp
             if (repo.timerEndTimestamp != null) {
               await notifier.syncTimerAfterBackground();
             }
@@ -138,14 +131,14 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
                     Text(
                       _getPhaseLabel(currentPhase),
-                      style: context.textTheme.labelMedium!.copyWith(
+                      style: context.textTheme.labelLarge!.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
 
                     Text(
                       '${isSimpleTimer ? "Runde" : "Block"} ${completedBlocks + 1}',
-                      style: context.textTheme.labelSmall!.copyWith(
+                      style: context.textTheme.labelMedium!.copyWith(
                         color: context.colorScheme.onSurface.withValues(
                           alpha: 0.5,
                         ),
@@ -208,6 +201,12 @@ class _TimerButtons extends ConsumerWidget {
       activeSessionViewModelProvider(
         instanceId,
       ).select((s) => s.timerStatus),
+    );
+
+    final isSimpleTimer = ref.watch(
+      activeSessionViewModelProvider(
+        instanceId,
+      ).select((s) => s.session!.isSimple),
     );
 
     final timerStartsAutomatically = ref.watch(
@@ -275,13 +274,14 @@ class _TimerButtons extends ConsumerWidget {
           ),
 
         // Skip phase
-        CustomIconButton(
-          icon: const Icon(Icons.skip_next_rounded, size: 25),
-          isActive: true,
-          onPressed: timerStatus == TimerStatus.initial
-              ? null
-              : viewModel.skipPhase,
-        ),
+        if (!isSimpleTimer)
+          CustomIconButton(
+            icon: const Icon(Icons.skip_next_rounded, size: 25),
+            isActive: true,
+            onPressed: timerStatus == TimerStatus.initial
+                ? null
+                : viewModel.skipPhase,
+          ),
       ],
     );
   }

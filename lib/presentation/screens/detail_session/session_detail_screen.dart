@@ -346,7 +346,7 @@ class _TimeSection extends StatelessWidget {
             // Total time
             TimeBreakdownItem(
               icon: Icons.timelapse_outlined,
-              label: 'Gesamte Zeit',
+              label: 'Gesamtzeit',
               value:
                   '${TimeUtils.formatTime(instance!.totalBreakSecondsElapsed + instance!.totalFocusSecondsElapsed)} Min',
               color: AppPalette.sky,

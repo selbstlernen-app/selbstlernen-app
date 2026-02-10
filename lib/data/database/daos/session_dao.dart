@@ -76,7 +76,6 @@ class SessionDao extends DatabaseAccessor<AppDatabase> with _$SessionDaoMixin {
 
   // Delete session
   Future<int> deleteSession(int id) async {
-    print("In session delete call rn!");
     return (delete(
       sessions,
     )..where(($SessionsTable s) => s.id.equals(id))).go();

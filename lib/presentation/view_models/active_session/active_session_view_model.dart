@@ -53,7 +53,14 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       // Watch tasks
       ..listen(activeTasksProvider(instanceId), (prev, next) {
         next.whenData((tasks) {
-          state = state.copyWith(tasks: tasks);
+          final filteredTasks = tasks
+              .where((task) => !state.taskIdsToDelete.contains(task.id))
+              .toList();
+
+          state = state.copyWith(
+            allOriginalTasks: tasks,
+            tasks: filteredTasks,
+          );
         });
       });
   }
@@ -221,8 +228,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
   // ---- TIMER RELATED ----
   Future<void> startTimer() async {
-    if (_timer?.isActive ?? false) return;
-
     // In case of double taps
     if (state.timerStatus == TimerStatus.running) return;
 
@@ -292,33 +297,63 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
 
     final session = state.session!;
+
+    // Simple timer (focus only); always show timer end prompt when complete
+    if (session.isSimple) {
+      await pauseTimer();
+      state = state.copyWith(
+        showTimerEndPrompt: true,
+      );
+      return;
+    }
+
+    // Pomodoro timer logic
     SessionPhase nextPhase;
     int duration;
     var nextTotalFocus = state.totalFocusPhases;
-    var nextBlocks = state.completedBlocks;
-    var nextIndex = state.currentPhaseIndex + 1;
 
-    // If we only have focus timer, then we switch no phases visibly
-    if (state.session!.isSimple) {
+    if (state.currentPhase == SessionPhase.focus) {
+      nextPhase = SessionPhase.shortBreak;
+      duration = session.breakTimeMin * 60;
+    } else {
       nextPhase = SessionPhase.focus;
       duration = session.focusTimeMin * 60;
-      nextBlocks++;
-      nextIndex = 0;
-    } else {
-      if (state.currentPhase == SessionPhase.focus) {
-        nextPhase = SessionPhase.shortBreak;
-        duration = (session.breakTimeMin) * 60;
-      } else {
-        // After either short or long break follows focus time
-        nextPhase = SessionPhase.focus;
-        duration = session.focusTimeMin * 60;
-        nextTotalFocus++;
-        // if (state.currentPhase % session.pomodoroPhases == 0) {
-        //   nextBlocks++;
-        //   nextIndex = 0;
-        // }
-      }
+      nextTotalFocus++;
     }
+
+    final nextPhaseIndex = state.currentPhaseIndex + 1;
+
+    // Check if full pomodoro cycle is completed
+    if (nextTotalFocus > 0 && nextTotalFocus % session.pomodoroPhases == 0) {
+      // Show timer end prompt
+      await pauseTimer();
+      state = state.copyWith(
+        showTimerEndPrompt: true,
+      );
+    } else {
+      // Else continue to next phase
+      await _startPhase(
+        phase: nextPhase,
+        durationSeconds: duration,
+        totalFocusPhases: nextTotalFocus,
+        currentPhaseIndex: nextPhaseIndex,
+        isSyncMode: isSynching,
+      );
+    }
+  }
+
+  /// If timer ends and user wants to continue the session
+  Future<void> onContinueTimer() async {
+    state = state.copyWith(
+      showTimerEndPrompt: false,
+    );
+    final session = state.session!;
+
+    const nextPhase = SessionPhase.focus;
+    final duration = session.focusTimeMin * 60;
+    const nextTotalFocus = 0;
+    final nextBlocks = state.completedBlocks + 1;
+    const nextIndex = 0;
 
     return _startPhase(
       phase: nextPhase,
@@ -326,7 +361,6 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       totalFocusPhases: nextTotalFocus,
       completedBlocks: nextBlocks,
       currentPhaseIndex: nextIndex,
-      isSyncMode: isSynching,
     );
   }
 
@@ -347,13 +381,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       currentPhaseElapsed: 0,
     );
 
-    // Prompting
-    final shouldPrompt = phase == SessionPhase.focus;
-    if (shouldPrompt) {
-      startFocusPrompting();
-    } else {
-      _focusPrompter?.stopPrompting();
-    }
+    await startTimer();
 
     if (!isSyncMode) {
       await _autoSave();
@@ -376,43 +404,30 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     final targetEndTime = ref
         .read(settingsRepositoryProvider)
         .timerEndTimestamp;
+
     if (targetEndTime == null || state.timerStatus != TimerStatus.running) {
       return;
     }
 
     final now = DateTime.now();
-    if (now.isBefore(targetEndTime)) {
-      // Still in the same phase; no need to handle difference much
-      state = state.copyWith(
-        remainingSeconds: targetEndTime.difference(now).inSeconds,
-      );
-      return;
-    }
 
-    var remainingCatchup = now.difference(targetEndTime).inSeconds;
+    var catchUp = now.difference(targetEndTime).inSeconds;
 
-    // Set the new target end time for the phase we currently are in
-    final newTarget = DateTime.now().add(
-      Duration(seconds: state.remainingSeconds),
-    );
-    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(newTarget);
+    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
 
-    while (remainingCatchup > 0) {
-      if (!ref.mounted) return;
-
-      if (remainingCatchup < state.remainingSeconds) {
-        // Case 1: We land inside the CURRENT phase
-        _syncTotals(remainingCatchup);
+    while (catchUp > 0) {
+      if (catchUp <= state.remainingSeconds) {
+        // We are still in current phase, no changes apply
+        _syncTotals(catchUp);
         state = state.copyWith(
-          remainingSeconds: state.remainingSeconds - remainingCatchup,
-          currentPhaseElapsed: state.currentPhaseElapsed + remainingCatchup,
+          remainingSeconds: state.remainingSeconds - catchUp,
+          currentPhaseElapsed: state.currentPhaseElapsed + catchUp,
         );
-        remainingCatchup = 0;
+        catchUp = 0;
       } else {
-        // Case 2: The current phase is definitely finished
-        remainingCatchup -= state.remainingSeconds;
+        // We are in another phase and have to switch
+        catchUp -= state.remainingSeconds;
         _syncTotals(state.remainingSeconds);
-
         await _handlePhaseComplete(isSynching: true);
       }
     }
@@ -507,8 +522,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
 
     try {
       // Delete selected tasks and goals
-      await deleteGoals(goalIdsToDelete);
       await deleteTasks(taskIdsToDelete);
+      await deleteGoals(goalIdsToDelete);
 
       final updatedInstance = state.instance!.copyWith(
         completedAt: DateTime.now(),
@@ -548,7 +563,9 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
             );
       }
 
-      state = state.copyWith(instance: updatedInstance);
+      state = state.copyWith(
+        instance: updatedInstance,
+      );
 
       return updatedInstance;
     } on Exception catch (e) {

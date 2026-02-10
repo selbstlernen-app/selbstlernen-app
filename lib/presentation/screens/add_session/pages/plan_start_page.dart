@@ -18,9 +18,6 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(addSessionViewModelProvider);
-    final plannedTime = ref.watch(
-      addSessionViewModelProvider.select((s) => s.plannedTime),
-    );
 
     final notificationsEnabled = ref.watch(
       addSessionViewModelProvider.select((s) => s.enableNotifications),

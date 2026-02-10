@@ -55,7 +55,7 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final goals = ref.watch(
+    var goals = ref.watch(
       activeSessionViewModelProvider(widget.instanceId).select((s) => s.goals),
     );
     final tasks = ref.watch(
@@ -82,10 +82,19 @@ class _GoalsListWidgetState extends ConsumerState<GoalsListWidget> {
       ).select((s) => s.completedTaskIds),
     );
 
-    // 2. Access the notifier once
+    // Add a temporary goal;
+    // with special goal id to add ungrouped tasks
+    const ungroupedGoal = GoalModel(
+      id: ungroupedGoalId,
+      title: 'Sonstige Aufgaben',
+      keptForFutureSessions: false,
+    );
+
     final viewModel = ref.read(
       activeSessionViewModelProvider(widget.instanceId).notifier,
     );
+
+    goals = <GoalModel>[...goals, ungroupedGoal];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
