@@ -303,6 +303,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       await pauseTimer();
       state = state.copyWith(
         showTimerEndPrompt: true,
+        remainingSeconds: 0,
       );
       return;
     }
@@ -329,6 +330,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       await pauseTimer();
       state = state.copyWith(
         showTimerEndPrompt: true,
+        remainingSeconds: 0,
       );
     } else {
       // Else continue to next phase
@@ -410,13 +412,21 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
 
     final now = DateTime.now();
+    if (now.isBefore(targetEndTime)) {
+      state = state.copyWith(
+        remainingSeconds: targetEndTime.difference(now).inSeconds,
+      );
+      return;
+    }
 
     var catchUp = now.difference(targetEndTime).inSeconds;
-
-    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
+    final newTarget = DateTime.now().add(
+      Duration(seconds: state.remainingSeconds),
+    );
+    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(newTarget);
 
     while (catchUp > 0) {
-      if (catchUp <= state.remainingSeconds) {
+      if (catchUp < state.remainingSeconds) {
         // We are still in current phase, no changes apply
         _syncTotals(catchUp);
         state = state.copyWith(
@@ -429,6 +439,11 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         catchUp -= state.remainingSeconds;
         _syncTotals(state.remainingSeconds);
         await _handlePhaseComplete(isSynching: true);
+
+        // break oout of loop after one completion in case of just focus time!
+        if (state.session!.isSimple) {
+          break;
+        }
       }
     }
 

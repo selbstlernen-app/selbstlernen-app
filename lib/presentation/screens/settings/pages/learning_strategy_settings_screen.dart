@@ -49,13 +49,6 @@ class _LearningStrategySettingsScreenState
     final state = ref.read(settingsViewModelProvider);
     final title = _strategyTitleController.text.trim();
 
-    if ((state.learningStrategies?.length ?? 0) >= 15) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Maximal 15 Strategien erlaubt.')),
-      );
-      return;
-    }
-
     final isDuplicate = state.learningStrategies!.any(
       (strat) =>
           strat.title.toLowerCase() == title.toLowerCase() &&
@@ -101,7 +94,7 @@ class _LearningStrategySettingsScreenState
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          'Meine Strategien (${strategies.length}/15)',
+          'Meine Strategien',
           style: context.textTheme.headlineLarge,
           textAlign: TextAlign.center,
         ),

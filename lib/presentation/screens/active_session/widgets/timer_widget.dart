@@ -45,8 +45,13 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
             TimerStatus.running) {
           if (lifecycleState == AppLifecycleState.paused ||
               lifecycleState == AppLifecycleState.detached) {
-            // Both platforms save last active time on leave
-            final targetEndTime = DateTime.now();
+            // Both platforms save remaining seconds
+            final currentState = ref.read(
+              activeSessionViewModelProvider(widget.instanceId),
+            );
+            final targetEndTime = DateTime.now().add(
+              Duration(seconds: currentState.remainingSeconds),
+            );
             await repo.setTimerEndTimestamp(targetEndTime);
           } else if (lifecycleState == AppLifecycleState.resumed) {
             // Both platforms sync timer based on last recorded timestamp
