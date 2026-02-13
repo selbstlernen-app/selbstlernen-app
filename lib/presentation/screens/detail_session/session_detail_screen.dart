@@ -42,15 +42,30 @@ class SessionDetailScreen extends ConsumerWidget {
       final instance = isRedo
           ? await notifier.redoSession()
           : await notifier.startSession(sessionId);
-      if (context.mounted) {
-        await Navigator.pushNamed(
-          context,
-          AppRoutes.active,
-          arguments: ActiveSessionArgs(
-            instanceId: int.parse(instance.id!),
-            sessionId: sessionId,
-          ),
-        );
+
+      if (instance == null) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Es existiert bereits eine laufende Session für heute. '
+                'Bitte schließe diese zuerst ab.',
+              ),
+            ),
+          );
+        }
+        return;
+      } else {
+        if (context.mounted) {
+          await Navigator.pushNamed(
+            context,
+            AppRoutes.active,
+            arguments: ActiveSessionArgs(
+              instanceId: int.parse(instance.id!),
+              sessionId: sessionId,
+            ),
+          );
+        }
       }
     } on Exception catch (e) {
       if (context.mounted) {
@@ -207,8 +222,8 @@ class SessionDetailScreen extends ConsumerWidget {
               width: double.infinity,
               child: CustomIconButton(
                 isActive: true,
-                icon: const Icon(Icons.redo),
-                label: 'Wiederholen?',
+                icon: const Icon(Icons.add_circle_outline),
+                label: 'Nochmal lernen',
                 onPressed: () => _handleSessionAction(context, ref, true),
               ),
             ),

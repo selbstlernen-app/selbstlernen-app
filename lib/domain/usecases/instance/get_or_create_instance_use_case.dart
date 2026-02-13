@@ -20,10 +20,11 @@ class GetOrCreateInstanceUseCase {
     required DateTime date,
   }) async {
     // Check if instance exists
-    final existingInstance = await instanceRepo.getInstanceForDate(
-      sessionId,
-      date,
-    );
+    final existingInstance = await instanceRepo
+        .getLatestInstanceBySessionIdAndDate(
+          sessionId,
+          date,
+        );
 
     if (existingInstance != null) {
       return existingInstance;

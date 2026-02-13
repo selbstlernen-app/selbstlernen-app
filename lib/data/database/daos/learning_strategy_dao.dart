@@ -56,7 +56,7 @@ class LearningStrategyDao extends DatabaseAccessor<AppDatabase>
 
     final strategyStats = <int, StrategyWithStatsEntity>{};
 
-    // First pass: collect all strategies
+    // Gett all strategies
     for (final row in results) {
       final strategy = row.readTable(learningStrategies);
       if (!strategyStats.containsKey(strategy.id)) {
@@ -70,7 +70,7 @@ class LearningStrategyDao extends DatabaseAccessor<AppDatabase>
       }
     }
 
-    // Second pass: get detailed usage for each strategy
+    // Get detailed usage for each strategy
     for (final strategyId in strategyStats.keys) {
       final usages = await (select(
         sessionInstanceStrategies,

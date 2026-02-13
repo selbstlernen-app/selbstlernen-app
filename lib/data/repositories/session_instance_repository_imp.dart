@@ -129,16 +129,35 @@ class SessionInstanceRepositoryImp implements SessionInstanceRepository {
   }
 
   @override
-  Future<SessionInstanceModel?> getInstanceForDate(
+  Future<SessionInstanceModel?> getLatestInstanceBySessionIdAndDate(
     int sessionId,
     DateTime date,
   ) async {
-    final instance = await sessionInstanceDao.getInstancesBySessionIdAndDate(
-      sessionId,
-      date,
-    );
+    final instance = await sessionInstanceDao
+        .getLatestInstanceBySessionIdAndDate(
+          sessionId,
+          date,
+        );
 
     return instance?.toDomain();
+  }
+
+  @override
+  Future<List<SessionInstanceModel>?> getAllInstancesBySessionIdAndDate(
+    int sessionId,
+    DateTime date,
+  ) async {
+    final instances = await sessionInstanceDao
+        .getAllInstancesBySessionIdAndDate(
+          sessionId,
+          date,
+        );
+
+    if (instances != null) {
+      return SessionInstanceToModelMapper.mapFromListOfEntity(instances);
+    } else {
+      return null;
+    }
   }
 
   @override

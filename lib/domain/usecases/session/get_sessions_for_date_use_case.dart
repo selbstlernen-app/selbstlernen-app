@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:srl_app/core/utils/date_time_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
@@ -13,11 +14,6 @@ class GetSessionsForDateUseCase {
 
   final SessionRepository _sessionRepo;
   final SessionInstanceRepository _instanceRepo;
-
-  bool _isSameDay(DateTime? a, DateTime b) {
-    if (a == null) return false;
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
 
   Stream<List<SessionWithInstanceModel>> call(DateTime date) {
     // Stream all active (non-archived) sessions
@@ -42,21 +38,48 @@ class GetSessionsForDateUseCase {
               )
               .toList();
 
-          // Look for any instances either completed or already scheduled for the date
-          final relevantInstance = sessionInstances.firstWhereOrNull(
-            (i) =>
-                _isSameDay(i.completedAt, date) ||
-                _isSameDay(i.scheduledAt, date),
+          // Look for instances for this date
+          final dateInstances = sessionInstances
+              .where(
+                (i) =>
+                    DateTimeUtils.isSameDay(i.completedAt, date) ||
+                    DateTimeUtils.isSameDay(i.scheduledAt, date),
+              )
+              .toList();
+
+          final relevantInstance =
+              dateInstances.firstWhereOrNull(
+                (i) => i.status == SessionStatus.inProgress,
+              ) ??
+              dateInstances.firstWhereOrNull(
+                (i) =>
+                    i.status != SessionStatus.completed &&
+                    i.status != SessionStatus.skipped,
+              ) ??
+              dateInstances.firstOrNull;
+
+          // Show if there's an in-progress instance OR no instances are done yet
+          final hasInProgress = dateInstances.any(
+            (i) => i.status == SessionStatus.inProgress,
           );
 
-          // Check the status of the instance;
-          // if its completed or skipped, then mark as done
-          final isDone =
-              relevantInstance?.status == SessionStatus.completed ||
-              relevantInstance?.status == SessionStatus.skipped;
+          final allCompleted =
+              dateInstances.isNotEmpty &&
+              dateInstances.every(
+                (i) =>
+                    i.status == SessionStatus.completed ||
+                    i.status == SessionStatus.skipped,
+              );
 
-          // Add a pending instance, if it is not done or null (no instance recorded yet)
-          if (!isDone) {
+          // Show if there's an in-progress instance
+          // OR no completed instance exists
+          final shouldShow = hasInProgress || !allCompleted;
+
+          // Add a pending instance, if it is not done
+          // or null (no instance recorded yet)
+          if (shouldShow) {
+            print("occurences");
+            print(relevantInstance);
             occurrences.add(
               SessionWithInstanceModel(
                 session: session,

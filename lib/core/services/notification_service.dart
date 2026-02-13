@@ -83,8 +83,11 @@ class NotificationService {
     final scheduledDate = _calculateNextInstance(plannedTime);
     await _executeSchedule(
       id: sessionId * 10,
-      title: sessionTitle,
-      body: _getNotificationBody(NotificationType.sessionReminder),
+      title: _getNotificationTitle(NotificationType.sessionReminder),
+      body: _getNotificationBody(
+        NotificationType.sessionReminder,
+        sessionTitle,
+      ),
       scheduledDate: scheduledDate,
       type: NotificationType.sessionReminder,
       matchComponents: DateTimeComponents.time,
@@ -108,8 +111,8 @@ class NotificationService {
 
       await _executeSchedule(
         id: _getUniqueId(sessionId, dayOfWeek),
-        title: _getNotificationTitle(NotificationType.sessionReminder, title),
-        body: _getNotificationBody(NotificationType.sessionReminder),
+        title: _getNotificationTitle(NotificationType.sessionReminder),
+        body: _getNotificationBody(NotificationType.sessionReminder, title),
         scheduledDate: scheduledDate,
         type: NotificationType.sessionReminder,
         matchComponents: _getMatchDateTimeComponents(
@@ -169,9 +172,6 @@ class NotificationService {
         endDate!,
       );
     }
-
-    print("PENDING NOTIFS");
-    await pendingNotifications();
   }
 
   // Schedule a notification based on type, frequency, and preferred time
@@ -267,7 +267,7 @@ class NotificationService {
   String _getNotificationTitle(NotificationType type, [String? customMessage]) {
     switch (type) {
       case NotificationType.sessionReminder:
-        return 'Deine Einheit $customMessage wartet darauf, bearbeitet zu werden 🎯';
+        return 'Zeit zu arbeiten! 🎯';
       case NotificationType.weeklyProgress:
         return 'Dein Wochenfortschritt 📍';
       case NotificationType.motivationalReminder:
@@ -275,10 +275,10 @@ class NotificationService {
     }
   }
 
-  String _getNotificationBody(NotificationType type) {
+  String _getNotificationBody(NotificationType type, [String? customMessage]) {
     switch (type) {
       case NotificationType.sessionReminder:
-        return '';
+        return 'Deine Einheit $customMessage wartet auf dich';
       case NotificationType.weeklyProgress:
         return 'Schau dir an, wie weit du diese Woche gekommen bist!';
       case NotificationType.motivationalReminder:

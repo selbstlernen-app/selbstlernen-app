@@ -9,9 +9,9 @@ abstract class StrategyUsageForSession with _$StrategyUsageForSession {
   const factory StrategyUsageForSession({
     required int strategyId,
     required String strategyTitle,
-    String? strategyExplanation,
     required int timesUsed,
     required List<int> ratings,
+    String? strategyExplanation,
   }) = _StrategyUsageForSession;
 
   const StrategyUsageForSession._();

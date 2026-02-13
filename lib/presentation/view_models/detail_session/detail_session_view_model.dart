@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:srl_app/core/utils/date_time_utils.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
@@ -77,12 +78,30 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   }
 
   /// Creates a new session instance that can be re-done
-  Future<SessionInstanceModel> redoSession() async {
+  Future<SessionInstanceModel?> redoSession() async {
     var newInstance = SessionInstanceModel(
       scheduledAt: targetDate,
       sessionId: sessionId.toString(),
       status: SessionStatus.inProgress,
     );
+    final existingInstances = await ref
+        .read(getInstanceUseCaseProvider)
+        .getAllInstancesBySessionIdAndDate(
+          sessionId,
+          targetDate,
+        );
+
+    final hasInProgress = existingInstances!.any(
+      (i) =>
+          i.status == SessionStatus.inProgress &&
+          DateTimeUtils.isSameDay(i.scheduledAt, targetDate),
+    );
+
+    if (hasInProgress) {
+      // Already have an in-progress instance, don't create another
+      return null;
+    }
+
     final id = await ref
         .read(manangeInstanceUseCaseProvider)
         .createInstance(newInstance);

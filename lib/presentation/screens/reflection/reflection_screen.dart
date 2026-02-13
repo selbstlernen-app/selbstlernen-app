@@ -257,7 +257,7 @@ class LearningStrategyReflection extends ConsumerWidget {
 
                           // Effectiveness rating in stars
                           _buildRatingBar(
-                            currentValue: strat.effectivenessRating ?? 5,
+                            currentValue: strat.effectivenessRating ?? 0,
                             onChanged: (val) => notifier.updateRating(
                               instanceId,
                               strat.strategyId,

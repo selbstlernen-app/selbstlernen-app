@@ -88,11 +88,13 @@ extension SessionInstanceToCompanion on SessionInstanceModel {
 
   SessionInstancesCompanion toUpdateCompanion() {
     return SessionInstancesCompanion(
-      completedAt: completedAt != null
-          ? Value<DateTime>(completedAt!)
-          : const Value<
-              DateTime
-            >.absent(), // should not update; only when passed
+      completedAt: status == SessionStatus.completed
+          ? Value<DateTime>(completedAt ?? DateTime.now())
+          : (completedAt != null
+                ? Value<DateTime>(completedAt!)
+                : const Value<
+                    DateTime
+                  >.absent()), // should always update on completion
       status: Value<SessionStatus>(status),
       totalFocusPhases: Value<int>(totalFocusPhases),
       totalCompletedBlocks: Value<int>(totalCompletedBlocks),

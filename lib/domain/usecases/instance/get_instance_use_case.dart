@@ -23,10 +23,15 @@ class GetInstanceUseCase {
   Future<SessionInstanceModel> getInstanceById(int sessionInstanceId) =>
       repository.getInstanceById(sessionInstanceId);
 
-  Future<SessionInstanceModel?> getInstanceBySessionIdAndDate(
+  Future<SessionInstanceModel?> getLatestInstanceBySessionIdAndDate(
     int sessionId,
     DateTime date,
-  ) => repository.getInstanceForDate(sessionId, date);
+  ) => repository.getLatestInstanceBySessionIdAndDate(sessionId, date);
+
+  Future<List<SessionInstanceModel>?> getAllInstancesBySessionIdAndDate(
+    int sessionId,
+    DateTime date,
+  ) => repository.getAllInstancesBySessionIdAndDate(sessionId, date);
 
   Future<List<SessionInstanceModel>> getInstancesBySessionId(int sessionId) =>
       repository.getAllInstancesBySessionId(sessionId);
