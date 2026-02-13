@@ -30,6 +30,8 @@ class CompletedSessionTile extends StatelessWidget {
     final session = sessionWithInstance.session;
     final instance = sessionWithInstance.instance!;
 
+    final instanceId = int.parse(instance.id!);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: Card(
@@ -39,7 +41,7 @@ class CompletedSessionTile extends StatelessWidget {
             AppRoutes.detail,
             arguments: DetailSessionArgs(
               sessionId: int.parse(session.id!),
-              instanceId: int.parse(instance.id!),
+              instanceId: instanceId,
               targetDate: instance.completedAt!,
             ),
           ),

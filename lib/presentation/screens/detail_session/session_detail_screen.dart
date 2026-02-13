@@ -13,7 +13,10 @@ import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
+import 'package:srl_app/presentation/screens/home/home_screen.dart';
+import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_view_model.dart';
+import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 import 'package:srl_app/presentation/view_models/providers.dart';
 
 class SessionDetailScreen extends ConsumerWidget {
@@ -97,160 +100,180 @@ class SessionDetailScreen extends ConsumerWidget {
       ),
     );
 
-    if (state.isLoading) {
-      return const Scaffold(body: Center(child: LoadingIndicator()));
-    }
-    if (state.hasError || !state.hasSession) {
-      return Scaffold(
-        body: Center(
-          child: Text(
-            state.hasError
-                ? 'Fehler: ${state.error}'
-                : 'Lerneinheit nicht gefunden',
-          ),
-        ),
-      );
-    }
+    return state.when(
+      data: (state) {
+        if (!state.hasSession) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Lerneinheit nicht gefunden'),
+            ),
+          );
+        }
 
-    final session = state.session!;
-    final instance = state.instance;
-    final goals = state.goals;
-    final ungroupedTasks = state.fullSession!.ungroupedTasks;
+        final session = state.session!;
+        final instance = state.instance;
+        final goals = state.goals;
+        final ungroupedTasks = state.fullSession!.ungroupedTasks;
 
-    return MainLayout(
-      navigateBack: () {
-        Navigator.of(context).pop();
-      },
-      appBarTitle: session.title,
-      actions: <Widget>[
-        if (state.canArchive)
-          CustomIconButton(
-            isActive: true,
-            icon: const Icon(Icons.mode_edit_outline_rounded),
-            onPressed: () => _navigateToEdit(context, state.fullSession!),
-          ),
-      ],
-      content: Column(
-        children: <Widget>[
-          Expanded(
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  if (session.isArchived) _ArchivedBanner(),
+        // Your normal UI here
+        return MainLayout(
+          navigateBack: () {
+            Navigator.of(context).pop();
+          },
+          appBarTitle: session.title,
+          actions: <Widget>[
+            if (state.canArchive)
+              CustomIconButton(
+                isActive: true,
+                icon: const Icon(Icons.mode_edit_outline_rounded),
+                onPressed: () => _navigateToEdit(context, state.fullSession!),
+              ),
+          ],
+          content: Column(
+            children: <Widget>[
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      if (session.isArchived) _ArchivedBanner(),
 
-                  if (state.hasInstance && !session.isArchived)
-                    _CompletedBanner(),
+                      if (state.hasInstance && !session.isArchived)
+                        _CompletedBanner(),
 
-                  _TimeSection(
-                    session: session,
-                    instance: instance,
+                      _TimeSection(
+                        session: session,
+                        instance: instance,
+                      ),
+
+                      const VerticalSpace(size: SpaceSize.large),
+
+                      if (!state.hasInstance)
+                        _StrategiesSection(sessionId: int.parse(session.id!)),
+
+                      const VerticalSpace(size: SpaceSize.large),
+
+                      // Goals and tasks column
+                      _GoalsAndTasksSection(
+                        goals: goals,
+                        ungroupedTasks: ungroupedTasks,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // BUTTONS
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  // Delete Instance button -> only when repeating session!
+                  if (instanceId != null && session.isRepeating)
+                    IconButton(
+                      icon: const Icon(Icons.delete_forever),
+                      onPressed: () => SessionDialogs.showDeleteInstance(
+                        context,
+                        onConfirm: () async {
+                          final useCase = ref.read(
+                            manangeInstanceUseCaseProvider,
+                          );
+                          await useCase.deleteInstanceById(instanceId!);
+
+                          ref.invalidate(sessionsForDateProvider(targetDate));
+
+                          if (context.mounted) {
+                            await Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (_) => const HomeScreen(),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+
+                  // Delete session button -> shown whenever
+                  IconButton(
+                    color: AppPalette.rose,
+                    icon: const Icon(Icons.delete_sweep_rounded),
+                    onPressed: () => SessionDialogs.showDeleteSession(
+                      context,
+                      isRepeating: state.session!.isRepeating,
+                      shouldNavigateHome: true,
+                      onConfirm: () async {
+                        final useCase = ref.read(fullSessionUseCaseProvider);
+                        await useCase.deleteFullModel(sessionId);
+                      },
+                    ),
                   ),
 
-                  const VerticalSpace(size: SpaceSize.large),
-
-                  if (!state.hasInstance)
-                    _StrategiesSection(sessionId: int.parse(session.id!)),
-
-                  const VerticalSpace(size: SpaceSize.large),
-
-                  // Goals and tasks column
-                  _GoalsAndTasksSection(
-                    goals: goals,
-                    ungroupedTasks: ungroupedTasks,
-                  ),
+                  if (state.canArchive && state.hasPastSessions)
+                    IconButton(
+                      color: AppPalette.orange,
+                      icon: const Icon(Icons.archive_outlined),
+                      onPressed: () => SessionDialogs.showArchive(
+                        context,
+                        onConfirm: () async {
+                          final useCase = ref.read(
+                            manageSessionUseCaseProvider,
+                          );
+                          final updated = state.fullSession!.session.copyWith(
+                            isArchived: true,
+                          );
+                          await useCase.updateSession(
+                            sessionId,
+                            updated,
+                          );
+                        },
+                      ),
+                    ),
                 ],
               ),
-            ),
-          ),
 
-          // BUTTONS
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              // Delete Instance button -> only when repeating session!
-              if (instanceId != null && session.isRepeating)
-                IconButton(
-                  icon: const Icon(Icons.delete_forever),
-                  onPressed: () => SessionDialogs.showDeleteInstance(
-                    context,
-                    onConfirm: () async {
-                      final useCase = ref.read(manangeInstanceUseCaseProvider);
-                      await useCase.deleteInstanceById(instanceId!);
-                    },
+              if (state.hasInstance) ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomIconButton(
+                    isActive: true,
+                    icon: const Icon(Icons.add_circle_outline),
+                    label: 'Nochmal lernen',
+                    onPressed: () => _handleSessionAction(context, ref, true),
                   ),
                 ),
-
-              // Delete session button -> shown whenever
-              IconButton(
-                color: AppPalette.rose,
-                icon: const Icon(Icons.delete_sweep_rounded),
-                onPressed: () => SessionDialogs.showDeleteSession(
-                  context,
-                  isRepeating: state.session!.isRepeating,
-                  shouldNavigateHome: true,
-                  onConfirm: () async {
-                    final useCase = ref.read(fullSessionUseCaseProvider);
-                    await useCase.deleteFullModel(sessionId);
-                  },
+                const VerticalSpace(size: SpaceSize.xsmall),
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomButton(
+                    label: 'Zur statistischen Auswertung',
+                    onPressed: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.stats,
+                      arguments: SessionStatisticsArgs(
+                        sessionId: sessionId,
+                        showGeneralStatsOnly: false,
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-
-              if (state.canArchive && state.hasPastSessions)
-                IconButton(
-                  color: AppPalette.orange,
-                  icon: const Icon(Icons.archive_outlined),
-                  onPressed: () => SessionDialogs.showArchive(
-                    context,
-                    onConfirm: () async {
-                      final useCase = ref.read(manageSessionUseCaseProvider);
-                      final updated = state.fullSession!.session.copyWith(
-                        isArchived: true,
-                      );
-                      await useCase.updateSession(
-                        sessionId,
-                        updated,
-                      );
-                    },
+              ] else if (instanceId == null && !state.session!.isArchived)
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomButton(
+                    label: 'Starten',
+                    onPressed: () => _handleSessionAction(context, ref, false),
                   ),
                 ),
             ],
           ),
-
-          if (state.hasInstance) ...[
-            SizedBox(
-              width: double.infinity,
-              child: CustomIconButton(
-                isActive: true,
-                icon: const Icon(Icons.add_circle_outline),
-                label: 'Nochmal lernen',
-                onPressed: () => _handleSessionAction(context, ref, true),
-              ),
-            ),
-            const VerticalSpace(size: SpaceSize.xsmall),
-            SizedBox(
-              width: double.infinity,
-              child: CustomButton(
-                label: 'Zur statistischen Auswertung',
-                onPressed: () => Navigator.pushNamed(
-                  context,
-                  AppRoutes.stats,
-                  arguments: SessionStatisticsArgs(
-                    sessionId: sessionId,
-                    showGeneralStatsOnly: false,
-                  ),
-                ),
-              ),
-            ),
-          ] else if (instanceId == null && !state.session!.isArchived)
-            SizedBox(
-              width: double.infinity,
-              child: CustomButton(
-                label: 'Starten',
-                onPressed: () => _handleSessionAction(context, ref, false),
-              ),
-            ),
-        ],
+        );
+      },
+      loading: () => const Scaffold(
+        body: Center(child: LoadingIndicator()),
+      ),
+      error: (error, stack) => Scaffold(
+        body: Center(
+          child: Text('Fehler: $error'),
+        ),
       ),
     );
   }

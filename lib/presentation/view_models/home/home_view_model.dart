@@ -47,19 +47,34 @@ class HomeViewModel extends _$HomeViewModel {
     state = state.copyWith(filter: filter);
   }
 
-  Future<void> skipSession({required String sessionId}) async {
+  Future<void> skipSession({
+    required String sessionId,
+    SessionInstanceModel? pendingInstance,
+  }) async {
     try {
-      // Create the instance in the database with skipped status
-      final newInstance = SessionInstanceModel(
-        sessionId: sessionId,
-        scheduledAt: state.dateToFilterFor,
-        status: SessionStatus.skipped,
-        completedAt: DateTime.now(),
-      );
+      if (pendingInstance != null) {
+        // Update the instance with status skipped
+        await ref
+            .read(manangeInstanceUseCaseProvider)
+            .updateInstance(
+              pendingInstance.copyWith(
+                status: SessionStatus.skipped,
+                completedAt: DateTime.now(),
+              ),
+            );
+      } else {
+        // Create the instance in the database with skipped status
+        final newInstance = SessionInstanceModel(
+          sessionId: sessionId,
+          scheduledAt: state.dateToFilterFor,
+          status: SessionStatus.skipped,
+          completedAt: DateTime.now(),
+        );
 
-      await ref
-          .read(manangeInstanceUseCaseProvider)
-          .createInstance(newInstance);
+        await ref
+            .read(manangeInstanceUseCaseProvider)
+            .createInstance(newInstance);
+      }
     } on Exception catch (e) {
       state = state.copyWith(error: e.toString());
     }
