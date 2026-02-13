@@ -136,10 +136,9 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
                     color: context.colorScheme.primary,
                   ),
                   const HorizontalSpace(size: SpaceSize.small),
-                  Expanded(
+                  const Expanded(
                     child: Text(
                       '''Die Uhrzeit dient nur der Planung und Benachrichtigung. Du kannst die Einheit trotzdem jederzeit starten.''',
-                      style: context.textTheme.bodySmall,
                     ),
                   ),
                 ],

@@ -25,13 +25,6 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     return select(sessionInstances).get();
   }
 
-  // Get an instance by its session id
-  Future<SessionInstance?> getInstanceBySessionId(int sessionId) {
-    return (select(sessionInstances)
-          ..where(($SessionInstancesTable s) => s.sessionId.equals(sessionId)))
-        .getSingleOrNull();
-  }
-
   // Watch session instance by ID
   Stream<SessionInstance?> watchSessionInstanceById(int id) {
     return (select(sessionInstances)

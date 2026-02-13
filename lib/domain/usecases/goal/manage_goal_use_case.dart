@@ -1,5 +1,5 @@
-import 'package:srl_app/domain/goal_repository.dart';
 import 'package:srl_app/domain/models/models.dart';
+import 'package:srl_app/domain/repositories/goal_repository.dart';
 
 /// Use case handling all CRUD operations for goal repository
 class ManageGoalUseCase {
@@ -18,9 +18,6 @@ class ManageGoalUseCase {
     int sessionId,
     DateTime date,
   ) => repository.watchGoalsBySessionIdAndDate(sessionId, date);
-
-  Future<List<GoalModel>> getAllGoalsBySessionId(int sessionId) =>
-      repository.getGoalsBySessionId(sessionId);
 
   // Update
   Future<int> updateGoal(GoalModel goal) =>

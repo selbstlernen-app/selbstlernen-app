@@ -5,8 +5,8 @@ import 'package:rxdart/rxdart.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/domain/models/session_with_instance_model.dart';
-import 'package:srl_app/domain/session_instance_repository.dart';
-import 'package:srl_app/domain/session_repository.dart';
+import 'package:srl_app/domain/repositories/session_instance_repository.dart';
+import 'package:srl_app/domain/repositories/session_repository.dart';
 
 class GetSessionsForDateUseCase {
   GetSessionsForDateUseCase(this._sessionRepo, this._instanceRepo);

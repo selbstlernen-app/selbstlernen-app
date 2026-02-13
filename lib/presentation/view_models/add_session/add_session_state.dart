@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
-import 'package:srl_app/domain/models/learning_strategy_model.dart';
+import 'package:srl_app/domain/models/learning_strategy/learning_strategy_with_stats.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_validator.dart';
 
@@ -31,8 +31,8 @@ abstract class AddSessionState with _$AddSessionState {
     @Default(<String>{}) Set<String> goalIdsToDelete,
 
     // Strategies
-    @Default(<String>[]) List<String> learningStrategies,
-    List<LearningStrategyModel>? availableStrategies,
+    @Default(<int>[]) List<int> learningStrategyIds,
+    List<LearningStrategyWithStats>? availableStrategies,
 
     // Time
     @Default(25) int focusTimeMin,
@@ -54,7 +54,7 @@ abstract class AddSessionState with _$AddSessionState {
   // Factory to initialize the state from the given model in edit mode
   factory AddSessionState.fromModel({
     required FullSessionModel fullSession,
-    List<LearningStrategyModel>? existingStrategies,
+    List<LearningStrategyWithStats>? existingStrategies,
   }) {
     final session = fullSession.session;
     return AddSessionState(
@@ -67,7 +67,7 @@ abstract class AddSessionState with _$AddSessionState {
       selectedDays: session.selectedDays,
       goals: fullSession.goals,
       tasks: fullSession.tasks,
-      learningStrategies: session.learningStrategies,
+      learningStrategyIds: session.learningStrategyIds,
       availableStrategies: existingStrategies,
       sessionComplexity: session.complexity,
       focusTimeMin: session.focusTimeMin,

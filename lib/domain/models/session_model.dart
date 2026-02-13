@@ -22,7 +22,7 @@ abstract class SessionModel with _$SessionModel {
     @Default(TimeOfDay(hour: 10, minute: 0)) TimeOfDay plannedTime,
     @Default(false) bool hasNotification,
 
-    @Default(<String>[]) List<String> learningStrategies,
+    @Default(<int>[]) List<int> learningStrategyIds,
 
     @Default(25) int focusTimeMin,
     @Default(5) int breakTimeMin,

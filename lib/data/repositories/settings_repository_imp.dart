@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:srl_app/domain/settings_repository.dart';
+import 'package:srl_app/domain/repositories/settings_repository.dart';
 
 class SettingsRepositoryImp implements SettingsRepository {
   SettingsRepositoryImp(this._prefs);
@@ -69,10 +69,5 @@ class SettingsRepositoryImp implements SettingsRepository {
     } else {
       await _prefs.setString(_timerEndKey, timestamp.toIso8601String());
     }
-  }
-
-  @override
-  Future<void> clearAll() async {
-    await _prefs.clear();
   }
 }

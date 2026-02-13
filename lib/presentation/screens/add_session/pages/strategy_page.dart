@@ -4,7 +4,6 @@ import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/info_dialogs.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/presentation/screens/settings/pages/learning_strategy_settings_screen.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
@@ -55,11 +54,11 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
     final available = ref.watch(
       addSessionViewModelProvider.select((s) => s.availableStrategies),
     );
-    final selected = ref.watch(
-      addSessionViewModelProvider.select((s) => s.learningStrategies),
+    final selectedIds = ref.watch(
+      addSessionViewModelProvider.select((s) => s.learningStrategyIds),
     );
 
-    final canNavigate = selected.isNotEmpty;
+    final canNavigate = selectedIds.isNotEmpty;
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -113,9 +112,12 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
               itemCount: available?.length ?? 0,
               itemBuilder: (context, index) {
                 final strategy = available![index];
+                final strategyId = strategy.strategyId;
+
                 return _StrategyItem(
-                  strategy: strategy,
-                  isSelected: selected.contains(strategy.title),
+                  strategyId: strategyId,
+                  title: strategy.title,
+                  isSelected: selectedIds.contains(strategyId),
                 );
               },
             ),
@@ -164,20 +166,25 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
 }
 
 class _StrategyItem extends ConsumerWidget {
-  const _StrategyItem({required this.strategy, required this.isSelected});
-  final LearningStrategyModel strategy;
+  const _StrategyItem({
+    required this.title,
+    required this.strategyId,
+    required this.isSelected,
+  });
+  final String title;
+  final int strategyId;
   final bool isSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CheckboxListTile(
-      title: Text(strategy.title, style: context.textTheme.bodyMedium),
+      title: Text(title, style: context.textTheme.bodyMedium),
       value: isSelected,
       controlAffinity: ListTileControlAffinity.leading,
       contentPadding: EdgeInsets.zero,
       onChanged: (_) => ref
           .read(addSessionViewModelProvider.notifier)
-          .toggleStrategy(strategy.title),
+          .toggleStrategy(strategyId),
     );
   }
 }

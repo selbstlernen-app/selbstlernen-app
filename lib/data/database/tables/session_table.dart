@@ -18,8 +18,6 @@ class Sessions extends Table with AutoIncrementingPrimaryKey {
   DateTimeColumn get endDate => dateTime().nullable()();
   TextColumn get selectedDays => text().nullable()();
 
-  TextColumn get learningStrategies => text()();
-
   IntColumn get focusTimeMin => integer()();
   IntColumn get breakTimeMin => integer()();
   IntColumn get pomodoroPhases => integer()();

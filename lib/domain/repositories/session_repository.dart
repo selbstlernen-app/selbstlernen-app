@@ -1,3 +1,4 @@
+import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
 
 /// Abstract repository class for the session repository
@@ -14,6 +15,10 @@ abstract class SessionRepository {
   Future<int> addSession(SessionModel session);
   Future<void> deleteSession(int sessionId);
   Future<int> updateSession(int sessionId, SessionModel updatedSession);
+
+  Stream<List<LearningStrategyModel>> watchLearningStrategiesForSession(
+    int sessionId,
+  );
 
   /// "Touches" the session, to solely udpating the updatedAt attribute
   Future<int> touchSession(int sessionId);

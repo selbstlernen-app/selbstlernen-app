@@ -5,6 +5,7 @@ import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/domain/models/learning_strategy/learning_strategy_with_stats.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
@@ -22,7 +23,7 @@ class _LearningStrategySettingsScreenState
   late final _strategyExplanationController = TextEditingController();
 
   bool _isEditMode = false;
-  String _isEditId = '';
+  int? _isEditId;
 
   @override
   void initState() {
@@ -37,9 +38,9 @@ class _LearningStrategySettingsScreenState
     super.dispose();
   }
 
-  void _editStrategy(LearningStrategyModel strategy) {
+  void _editStrategy(LearningStrategyWithStats strategy) {
     setState(() {
-      _isEditId = strategy.id!;
+      _isEditId = strategy.strategyId;
       _strategyTitleController.text = strategy.title;
       _strategyExplanationController.text = strategy.explanation ?? '';
     });
@@ -52,7 +53,7 @@ class _LearningStrategySettingsScreenState
     final isDuplicate = state.learningStrategies!.any(
       (strat) =>
           strat.title.toLowerCase() == title.toLowerCase() &&
-          strat.id != _isEditId,
+          strat.strategyId != _isEditId,
     );
     if (isDuplicate) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,25 +64,47 @@ class _LearningStrategySettingsScreenState
 
     final notifier = ref.read(settingsViewModelProvider.notifier);
 
-    if (_isEditId.isNotEmpty) {
-      await notifier.updateStrategy(
-        LearningStrategyModel(
-          title: title,
-          explanation: _strategyExplanationController.text.trim(),
-        ),
-        int.parse(_isEditId),
-      );
+    if (_isEditId != null) {
+      try {
+        await notifier.updateStrategy(
+          LearningStrategyModel(
+            title: title,
+            explanation: _strategyExplanationController.text.trim(),
+          ),
+          _isEditId!,
+        );
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Strategie erfolgreich bearbeitet!')),
+        );
+      } on Exception catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Etwas ist schiefgelaufen: $e!')),
+        );
+      }
     } else {
-      await notifier.addStrategy(
-        title,
-        _strategyExplanationController.text.trim(),
-      );
+      try {
+        await notifier.addStrategy(
+          title,
+          _strategyExplanationController.text.trim(),
+        );
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Strategie erfolgreich hinzufgefügt!')),
+        );
+      } on Exception catch (e) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Etwas ist schiefgelaufen: $e!')),
+        );
+      }
     }
 
     _strategyTitleController.clear();
     _strategyExplanationController.clear();
     setState(() {
-      _isEditId = '';
+      _isEditId = null;
     });
   }
 
@@ -198,7 +221,9 @@ class _LearningStrategySettingsScreenState
                   itemBuilder: (context, index) {
                     final strat = state.learningStrategies![index];
 
-                    if (strat.id == _isEditId) return const SizedBox.shrink();
+                    if (strat.strategyId == _isEditId) {
+                      return const SizedBox.shrink();
+                    }
 
                     return _StrategyTile(
                       strat: strat,
@@ -206,9 +231,7 @@ class _LearningStrategySettingsScreenState
                       onDelete: () => ref
                           .read(settingsViewModelProvider.notifier)
                           .deleteStrategy(
-                            int.parse(
-                              strat.id!,
-                            ),
+                            strat.strategyId,
                           ),
                       onEdit: () => _editStrategy(strat),
                     );
@@ -233,7 +256,7 @@ class _StrategyTile extends StatefulWidget {
     required this.onEdit,
   });
 
-  final LearningStrategyModel strat;
+  final LearningStrategyWithStats strat;
   final bool isEditMode;
   final VoidCallback onDelete;
   final VoidCallback onEdit;

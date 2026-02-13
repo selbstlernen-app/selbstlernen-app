@@ -1,11 +1,12 @@
 import 'package:rxdart/rxdart.dart';
 import 'package:srl_app/core/utils/date_time_utils.dart';
-import 'package:srl_app/domain/goal_repository.dart';
+import 'package:srl_app/domain/models/learning_strategy/strategy_usage_for_session.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
-import 'package:srl_app/domain/session_instance_repository.dart';
-import 'package:srl_app/domain/session_repository.dart';
-import 'package:srl_app/domain/task_repository.dart';
+import 'package:srl_app/domain/repositories/goal_repository.dart';
+import 'package:srl_app/domain/repositories/session_instance_repository.dart';
+import 'package:srl_app/domain/repositories/session_repository.dart';
+import 'package:srl_app/domain/repositories/task_repository.dart';
 
 /// Use case when wanting to get statistics for a specific session;
 /// Shown after a session has been conducted
@@ -24,12 +25,13 @@ class GetSessionStatisticsUseCase {
 
   Stream<SessionStatistics> watchStatistics(int sessionId) async* {
     // Watch all streams for session statistics to update on instance/session edits
-    yield* Rx.combineLatest4(
+    yield* Rx.combineLatest5(
       sessionRepository.watchSessionById(sessionId),
       instanceRepository.watchInstancesBySessionId(sessionId),
       goalRepository.watchGoalsBySessionId(sessionId),
       taskRepository.watchTasksBySessionId(sessionId),
-      (session, instances, goals, tasks) {
+      instanceRepository.watchStrategyUsageForSession(sessionId),
+      (session, instances, goals, tasks, strategies) {
         if (instances.isEmpty) {
           return const SessionStatistics(
             totalInstances: 0,
@@ -40,43 +42,12 @@ class GetSessionStatisticsUseCase {
             totalBreakMinutes: 0,
             totalGoalsCompleted: 0,
             totalTasksCompleted: 0,
+            strategyUsage: [],
           );
         }
-        return _calculateStats(instances, session, goals, tasks);
+        return _calculateStats(instances, session, goals, tasks, strategies);
       },
     );
-  }
-
-  Future<SessionStatistics> call(int sessionId) async {
-    final session = await sessionRepository.getSessionById(
-      sessionId,
-    );
-
-    final instances = await instanceRepository.getAllInstancesBySessionId(
-      sessionId,
-    );
-
-    final goals = await goalRepository.getGoalsBySessionId(
-      sessionId,
-    );
-    final tasks = await taskRepository.getTasksBySessionId(
-      sessionId,
-    );
-
-    if (instances.isEmpty) {
-      return const SessionStatistics(
-        totalInstances: 0,
-        completedInstances: 0,
-        skippedInstances: 0,
-        missedInstances: 0,
-        totalFocusMinutes: 0,
-        totalBreakMinutes: 0,
-        totalGoalsCompleted: 0,
-        totalTasksCompleted: 0,
-      );
-    }
-
-    return _calculateStats(instances, session, goals, tasks);
   }
 
   SessionStatistics _calculateStats(
@@ -84,6 +55,7 @@ class GetSessionStatisticsUseCase {
     SessionModel session,
     List<GoalModel> goals,
     List<TaskModel> tasks,
+    List<StrategyUsageForSession> strategies,
   ) {
     // Sort instances by date
     final sortedInstances = <SessionInstanceModel>[...instances]
@@ -166,6 +138,7 @@ class GetSessionStatisticsUseCase {
       averageMood: averageMood,
       lastSessionDate: sortedInstances.last.scheduledAt,
       firstSessionDate: sortedInstances.first.scheduledAt,
+      strategyUsage: strategies,
     );
   }
 }

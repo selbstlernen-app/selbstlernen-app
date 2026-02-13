@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:srl_app/data/database/daos/notification_dao.dart';
 import 'package:srl_app/data/entity_mappers/notification_mapper.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
-import 'package:srl_app/domain/notification_repository.dart';
+import 'package:srl_app/domain/repositories/notification_repository.dart';
 
 class NotificationRepositoryImp implements NotificationRepository {
   NotificationRepositoryImp(this.notificationDao);

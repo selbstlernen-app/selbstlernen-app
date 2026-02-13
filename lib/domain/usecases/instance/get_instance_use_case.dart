@@ -1,5 +1,5 @@
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/session_instance_repository.dart';
+import 'package:srl_app/domain/repositories/session_instance_repository.dart';
 
 /// Gets instances by different measures
 class GetInstanceUseCase {

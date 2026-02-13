@@ -126,16 +126,18 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(tasks: [...state.tasks, taskWithGoal]);
   }
 
-  void toggleStrategy(String strategy) {
-    final updated = List<String>.from(state.learningStrategies);
+  void toggleStrategy(int strategyId) {
+    final current = state.learningStrategyIds;
 
-    if (updated.contains(strategy)) {
-      updated.remove(strategy);
+    if (current.contains(strategyId)) {
+      state = state.copyWith(
+        learningStrategyIds: current.where((id) => id != strategyId).toList(),
+      );
     } else {
-      updated.add(strategy);
+      state = state.copyWith(
+        learningStrategyIds: [...current, strategyId],
+      );
     }
-
-    state = state.copyWith(learningStrategies: updated);
   }
 
   void setTimerSettings({
@@ -249,7 +251,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       hasNotification: state.enableNotifications,
       complexity: state.sessionComplexity,
       selectedDays: state.selectedDays,
-      learningStrategies: state.learningStrategies,
+      learningStrategyIds: state.learningStrategyIds,
       focusTimeMin: state.focusTimeMin,
       breakTimeMin: isComplex ? state.breakTimeMin : 0,
       pomodoroPhases: isComplex ? state.pomodoroPhases : 1,

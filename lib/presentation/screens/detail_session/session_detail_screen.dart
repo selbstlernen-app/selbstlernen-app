@@ -14,6 +14,7 @@ import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_view_model.dart';
+import 'package:srl_app/presentation/view_models/providers.dart';
 
 class SessionDetailScreen extends ConsumerWidget {
   const SessionDetailScreen({
@@ -134,7 +135,7 @@ class SessionDetailScreen extends ConsumerWidget {
                   const VerticalSpace(size: SpaceSize.large),
 
                   if (!state.hasInstance)
-                    _StrategiesSection(strategies: session.learningStrategies),
+                    _StrategiesSection(sessionId: int.parse(session.id!)),
 
                   const VerticalSpace(size: SpaceSize.large),
 
@@ -358,23 +359,43 @@ class _TimeSection extends StatelessWidget {
   }
 }
 
-class _StrategiesSection extends StatelessWidget {
-  const _StrategiesSection({required this.strategies});
+class _StrategiesSection extends ConsumerWidget {
+  const _StrategiesSection({required this.sessionId});
 
-  final List<String> strategies;
+  final int sessionId;
 
   @override
-  Widget build(BuildContext context) {
-    if (strategies.isEmpty) return const SizedBox.shrink();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strategiesWithDetails = ref.watch(
+      sessionStrategiesProvider(sessionId),
+    );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Deine Strategien', style: context.textTheme.headlineSmall),
-        const VerticalSpace(size: SpaceSize.small),
-        ...strategies.map(Text.new),
-        const VerticalSpace(size: SpaceSize.large),
-      ],
+    return strategiesWithDetails.when(
+      loading: () => const CircularProgressIndicator(),
+      error: (err, stack) => Text('Fehler: $err'),
+      data: (strategies) {
+        if (strategies.isEmpty) {
+          return const Text('Keine Strategien ausgewählt');
+        }
+        return Column(
+          children: strategies.map((strategy) {
+            return Card(
+              child: ListTile(
+                title: Text(
+                  strategy.title,
+                  style: context.textTheme.labelMedium,
+                ),
+                subtitle: strategy.explanation != null
+                    ? Text(
+                        strategy.explanation!,
+                        style: context.textTheme.bodySmall,
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            );
+          }).toList(),
+        );
+      },
     );
   }
 }

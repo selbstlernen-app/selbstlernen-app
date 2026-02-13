@@ -1,5 +1,5 @@
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/task_repository.dart';
+import 'package:srl_app/domain/repositories/task_repository.dart';
 
 /// Use case handling all CRUD operations for task repository
 class ManageTasksUseCase {
@@ -18,9 +18,6 @@ class ManageTasksUseCase {
     int sessionId,
     DateTime date,
   ) => repository.watchTasksBySessionIdAndDate(sessionId, date);
-
-  Future<List<TaskModel>> getAllTasksBySessionId(int sessionId) =>
-      repository.getTasksBySessionId(sessionId);
 
   // Update
   Future<int> updateTask(TaskModel task) =>

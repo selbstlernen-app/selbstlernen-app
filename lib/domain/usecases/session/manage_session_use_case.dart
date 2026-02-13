@@ -1,6 +1,6 @@
 import 'package:srl_app/core/services/notification_service.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/session_repository.dart';
+import 'package:srl_app/domain/repositories/session_repository.dart';
 
 /// Use case handling all CRUD operations for session repository
 class ManageSessionUseCase {
@@ -53,6 +53,7 @@ class ManageSessionUseCase {
       startDate: updatedSession.isRepeating ? updatedSession.startDate : null,
       endDate: updatedSession.isRepeating ? updatedSession.endDate : null,
     );
+
     return repository.updateSession(sessionId, updatedSession);
   }
 }

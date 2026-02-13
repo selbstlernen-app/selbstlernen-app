@@ -5,7 +5,7 @@ import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 extension SessionToModelMapper on Session {
-  SessionModel toDomain() {
+  SessionModel toDomain(List<int>? strategyIds) {
     return SessionModel(
       id: id.toString(),
       title: title,
@@ -16,7 +16,7 @@ extension SessionToModelMapper on Session {
       startDate: startDate,
       endDate: endDate,
       selectedDays: selectedDays?.split(',').map(int.parse).toList() ?? <int>[],
-      learningStrategies: learningStrategies.split(',').toList(),
+      learningStrategyIds: strategyIds ?? <int>[],
       focusTimeMin: focusTimeMin,
       breakTimeMin: breakTimeMin,
       pomodoroPhases: pomodoroPhases,
@@ -29,8 +29,14 @@ extension SessionToModelMapper on Session {
     );
   }
 
-  static List<SessionModel> mapFromListOfEntity(List<Session> entities) {
-    return entities.map((Session e) => e.toDomain()).toList();
+  static List<SessionModel> mapFromListOfEntity(
+    List<Session> entities, [
+    Map<int, List<int>>? sessionStrategyMap,
+  ]) {
+    return entities.map((Session e) {
+      final strategyIds = sessionStrategyMap?[e.id] ?? <int>[];
+      return e.toDomain(strategyIds);
+    }).toList();
   }
 }
 
@@ -49,7 +55,7 @@ extension SessionToCompanionMapper on SessionModel {
       selectedDays: Value<String?>(
         selectedDays.isNotEmpty ? selectedDays.join(',') : null,
       ),
-      learningStrategies: Value<String>(learningStrategies.join(',')),
+
       focusTimeMin: Value<int>(focusTimeMin),
       breakTimeMin: Value<int>(breakTimeMin),
       pomodoroPhases: Value<int>(pomodoroPhases),
@@ -76,7 +82,7 @@ extension SessionToCompanionMapper on SessionModel {
       selectedDays: Value<String?>(
         selectedDays.isNotEmpty ? selectedDays.join(',') : null,
       ),
-      learningStrategies: Value<String>(learningStrategies.join(',')),
+
       focusTimeMin: Value<int>(focusTimeMin),
       breakTimeMin: Value<int>(breakTimeMin),
       pomodoroPhases: Value<int>(pomodoroPhases),

@@ -14,5 +14,4 @@ abstract class TaskRepository {
     int taskId, {
     required bool keptForFutureSessions,
   });
-  Future<void> deleteTasksBySessionId(int sessionId);
 }

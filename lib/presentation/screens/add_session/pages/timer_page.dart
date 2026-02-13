@@ -159,10 +159,9 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                 color: context.colorScheme.primary,
               ),
               const HorizontalSpace(size: SpaceSize.small),
-              Expanded(
+              const Expanded(
                 child: Text(
                   '''Nach dem die Fokuszeit abgelaufen ist, kann die Einheit entweder fortgeführt oder beendet werden.''',
-                  style: context.textTheme.bodySmall,
                 ),
               ),
             ],

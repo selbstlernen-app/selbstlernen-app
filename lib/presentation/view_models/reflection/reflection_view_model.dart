@@ -31,4 +31,20 @@ class ReflectionViewModel extends _$ReflectionViewModel {
 
     await _updateInstanceUseCase.updateInstance(updated);
   }
+
+  Future<bool> updateRating(
+    int instanceId,
+    int strategyId,
+    int effectivenessRating,
+  ) async {
+    final result = await ref
+        .read(manageLearningStrategyUseCaseProvider)
+        .rateStrategy(
+          instanceId: instanceId,
+          strategyId: strategyId,
+          effectivenessRating: effectivenessRating,
+        );
+
+    return result;
+  }
 }

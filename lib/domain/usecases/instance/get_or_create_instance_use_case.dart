@@ -1,5 +1,5 @@
 import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/domain/session_instance_repository.dart';
+import 'package:srl_app/domain/repositories/session_instance_repository.dart';
 import 'package:srl_app/domain/usecases/instance/manange_instance_use_case.dart';
 
 /// Looks up if any instance was created for a given date

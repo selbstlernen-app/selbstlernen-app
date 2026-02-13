@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:srl_app/domain/settings_repository.dart';
+import 'package:srl_app/domain/repositories/settings_repository.dart';
 
 class ManageSettingsUseCase {
   const ManageSettingsUseCase(this._repository);

@@ -58,7 +58,7 @@ void main() {
         expect(state.selectedDays, isEmpty);
         expect(state.goals, isEmpty);
         expect(state.tasks, isEmpty);
-        expect(state.learningStrategies, isEmpty);
+        expect(state.learningStrategyIds, isEmpty);
         expect(state.enableNotifications, false);
         expect(state.isEditMode, false);
       });
@@ -164,41 +164,39 @@ void main() {
 
     group('toggleStrategy', () {
       test('adds strategy when not present', () {
-        container
-            .read(addSessionViewModelProvider.notifier)
-            .toggleStrategy('Pomodoro');
+        container.read(addSessionViewModelProvider.notifier).toggleStrategy(1);
 
         final strategies = container
             .read(addSessionViewModelProvider)
-            .learningStrategies;
-        expect(strategies, contains('Pomodoro'));
+            .learningStrategyIds;
+        expect(strategies, contains(1));
         expect(strategies.length, 1);
       });
 
       test('removes strategy when already present', () {
         container.read(addSessionViewModelProvider.notifier)
-          ..toggleStrategy('Pomodoro')
-          ..toggleStrategy('Pomodoro');
+          ..toggleStrategy(1)
+          ..toggleStrategy(1);
 
         final strategies = container
             .read(addSessionViewModelProvider)
-            .learningStrategies;
-        expect(strategies, isNot(contains('Pomodoro')));
+            .learningStrategyIds;
+        expect(strategies, isNot(contains(1)));
         expect(strategies, isEmpty);
       });
 
       test('can toggle multiple strategies', () {
         container.read(addSessionViewModelProvider.notifier)
-          ..toggleStrategy('Pomodoro')
-          ..toggleStrategy('Spaced Repetition')
-          ..toggleStrategy('Active Recall');
+          ..toggleStrategy(1)
+          ..toggleStrategy(2)
+          ..toggleStrategy(3);
 
         final strategies = container
             .read(addSessionViewModelProvider)
-            .learningStrategies;
+            .learningStrategyIds;
         expect(
           strategies,
-          containsAll(['Pomodoro', 'Spaced Repetition', 'Active Recall']),
+          containsAll([1, 2, 3]),
         );
         expect(strategies.length, 3);
       });
@@ -994,7 +992,7 @@ void main() {
           ..setPlannedTime(plannedTime)
           ..toggleDay(1)
           ..toggleDay(3)
-          ..toggleStrategy('Pomodoro')
+          ..toggleStrategy(1)
           ..setPrompts(focus: true, focusPromptInterval: 10);
 
         when(
@@ -1023,7 +1021,7 @@ void main() {
         expect(captured.endDate, endDate);
         expect(captured.plannedTime, plannedTime);
         expect(captured.selectedDays, [1, 3]);
-        expect(captured.learningStrategies, ['Pomodoro']);
+        expect(captured.learningStrategyIds, [1]);
         expect(captured.hasFocusPrompt, true);
         expect(captured.focusPromptInterval, 10);
       });

@@ -1,3 +1,5 @@
+import 'package:srl_app/domain/models/learning_strategy/instance_strategy_with_details.dart';
+import 'package:srl_app/domain/models/learning_strategy/strategy_usage_for_session.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
 /// Abstract repository class for the session instance repository
@@ -29,4 +31,19 @@ abstract class SessionInstanceRepository {
   );
 
   Future<int> countTotalInstancesBySessionId(int sessionId);
+
+  // Strategy related
+  Stream<List<InstanceStrategyWithDetails>> watchStrategiesForInstance(
+    int instanceId,
+  );
+  Future<bool> rateStrategy({
+    required int instanceId,
+    required int strategyId,
+    required int effectivenessRating,
+    String? userReflection,
+  });
+  // For session statistics card
+  Stream<List<StrategyUsageForSession>> watchStrategyUsageForSession(
+    int sessionId,
+  );
 }
