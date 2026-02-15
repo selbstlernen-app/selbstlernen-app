@@ -21,8 +21,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static const Map<NotificationType, int> _notificationIds = {
-    NotificationType.weeklyProgress: 2,
-    NotificationType.motivationalReminder: 3,
+    NotificationType.motivationalReminder: 1,
   };
 
   Future<void> init() async {
@@ -92,6 +91,7 @@ class NotificationService {
       type: NotificationType.sessionReminder,
       matchComponents: DateTimeComponents.time,
     );
+    pendingNotifications();
   }
 
   Future<void> _scheduleWeeklySessions(
@@ -217,6 +217,7 @@ class NotificationService {
     for (final note in notificiations) {
       print(note.id);
       print(note.title);
+      print(note.body);
     }
   }
 
@@ -268,8 +269,6 @@ class NotificationService {
     switch (type) {
       case NotificationType.sessionReminder:
         return 'Zeit zu arbeiten! 🎯';
-      case NotificationType.weeklyProgress:
-        return 'Dein Wochenfortschritt 📍';
       case NotificationType.motivationalReminder:
         return customMessage ?? 'Bleib dran und gib alles! 🔥';
     }
@@ -279,8 +278,6 @@ class NotificationService {
     switch (type) {
       case NotificationType.sessionReminder:
         return 'Deine Einheit $customMessage wartet auf dich';
-      case NotificationType.weeklyProgress:
-        return 'Schau dir an, wie weit du diese Woche gekommen bist!';
       case NotificationType.motivationalReminder:
         return '';
     }
@@ -290,8 +287,6 @@ class NotificationService {
     switch (type) {
       case NotificationType.sessionReminder:
         return 'Session specific reminder';
-      case NotificationType.weeklyProgress:
-        return 'Weekly progress summaries';
       case NotificationType.motivationalReminder:
         return 'Motivational reminders';
     }

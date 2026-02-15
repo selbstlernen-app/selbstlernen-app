@@ -90,6 +90,7 @@ class _NotificationSettingsScreenState
               context: context,
               title: 'Benachrichtigungen',
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SettingsTile(
                     title: 'Benachrichtigungen erlauben',
@@ -269,6 +270,7 @@ class _NotificationSettingsScreenState
                           ),
                         ),
                       ),
+                  const VerticalSpace(size: SpaceSize.small),
                   const _SettingNotificationList(),
                 ],
               ),
@@ -296,6 +298,7 @@ class _SettingNotificationList extends ConsumerWidget {
       title: 'Lerneinheit Erinnerungen',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           ...activeSessions!.map(
             (session) => SettingsTile(

@@ -71,7 +71,9 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Text(
-                    TimeOfDay.now().format(context),
+                    state.plannedTime != null
+                        ? state.plannedTime!.format(context)
+                        : TimeOfDay.now().format(context),
                     style: context.textTheme.bodyLarge,
                   ),
                 ),
