@@ -104,6 +104,21 @@ class _NotificationSettingsScreenState
                         // turn them off in settings of device:
                         await NotificationService().openNotificationSettings();
                         await NotificationService().cancelAllNotifications();
+                        final activeSessions = ref.watch(
+                          settingsViewModelProvider.select(
+                            (s) => s.activeSessions,
+                          ),
+                        );
+                        if (activeSessions!.isNotEmpty) {
+                          for (final session in activeSessions) {
+                            await notifier.updateSessionSettings(
+                              session.copyWith(
+                                hasNotification: !session.hasNotification,
+                              ),
+                              int.parse(session.id!),
+                            );
+                          }
+                        }
                       } else {
                         // If they are off enable request
                         final granted = await NotificationService()

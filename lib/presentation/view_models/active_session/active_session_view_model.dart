@@ -413,6 +413,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     }
 
     final now = DateTime.now();
+
     if (now.isBefore(targetEndTime)) {
       state = state.copyWith(
         remainingSeconds: targetEndTime.difference(now).inSeconds,
@@ -420,33 +421,35 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       return;
     }
 
-    var catchUp = now.difference(targetEndTime).inSeconds;
-    final newTarget = DateTime.now().add(
-      Duration(seconds: state.remainingSeconds),
-    );
-    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(newTarget);
-
-    while (catchUp > 0) {
-      if (catchUp < state.remainingSeconds) {
-        // We are still in current phase, no changes apply
-        _syncTotals(catchUp);
+    final secondsAway = targetEndTime.difference(now).inSeconds;
+    var remainingCatchUp = secondsAway;
+    while (remainingCatchUp > 0) {
+      if (remainingCatchUp < state.remainingSeconds) {
+        // Still in the current phase
+        _syncTotals(remainingCatchUp);
         state = state.copyWith(
-          remainingSeconds: state.remainingSeconds - catchUp,
-          currentPhaseElapsed: state.currentPhaseElapsed + catchUp,
+          remainingSeconds: state.remainingSeconds - remainingCatchUp,
+          currentPhaseElapsed: state.currentPhaseElapsed + remainingCatchUp,
         );
-        catchUp = 0;
+        remainingCatchUp = 0;
       } else {
-        // We are in another phase and have to switch
-        catchUp -= state.remainingSeconds;
+        // Phase completed while away -> move to next phase
+        remainingCatchUp -= state.remainingSeconds;
         _syncTotals(state.remainingSeconds);
         await _handlePhaseComplete(isSynching: true);
 
-        // break oout of loop after one completion in case of just focus time!
+        // Break out if simple timer (focus only; no phase change needed)
         if (state.session!.isSimple) {
           break;
         }
       }
     }
+
+    // Update end timestamp for the new current phase
+    final newEndTime = DateTime.now().add(
+      Duration(seconds: state.remainingSeconds),
+    );
+    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(newEndTime);
 
     await _autoSave();
   }

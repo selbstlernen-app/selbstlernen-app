@@ -53,11 +53,11 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
     await Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.stats,
+      ModalRoute.withName(AppRoutes.home),
       arguments: SessionStatisticsArgs(
         sessionId: int.parse(widget.instance.sessionId),
         showGeneralStatsOnly: false,
       ),
-      (Route<dynamic> route) => false,
     );
   }
 

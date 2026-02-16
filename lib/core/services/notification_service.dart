@@ -91,7 +91,6 @@ class NotificationService {
       type: NotificationType.sessionReminder,
       matchComponents: DateTimeComponents.time,
     );
-    pendingNotifications();
   }
 
   Future<void> _scheduleWeeklySessions(

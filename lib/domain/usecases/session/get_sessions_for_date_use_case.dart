@@ -78,8 +78,6 @@ class GetSessionsForDateUseCase {
           // Add a pending instance, if it is not done
           // or null (no instance recorded yet)
           if (shouldShow) {
-            print("occurences");
-            print(relevantInstance);
             occurrences.add(
               SessionWithInstanceModel(
                 session: session,

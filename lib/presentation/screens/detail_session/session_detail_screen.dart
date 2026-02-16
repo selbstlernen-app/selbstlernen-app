@@ -13,8 +13,6 @@ import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/providers.dart';
-import 'package:srl_app/presentation/screens/home/home_screen.dart';
-import 'package:srl_app/presentation/view_models/detail_session/detail_session_state.dart';
 import 'package:srl_app/presentation/view_models/detail_session/detail_session_view_model.dart';
 import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 import 'package:srl_app/presentation/view_models/providers.dart';
@@ -182,11 +180,9 @@ class SessionDetailScreen extends ConsumerWidget {
                           ref.invalidate(sessionsForDateProvider(targetDate));
 
                           if (context.mounted) {
-                            await Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (_) => const HomeScreen(),
-                              ),
-                            );
+                            await Navigator.of(
+                              context,
+                            ).pushNamed(AppRoutes.home);
                           }
                         },
                       ),
@@ -231,15 +227,17 @@ class SessionDetailScreen extends ConsumerWidget {
               ),
 
               if (state.hasInstance) ...[
-                SizedBox(
-                  width: double.infinity,
-                  child: CustomIconButton(
-                    isActive: true,
-                    icon: const Icon(Icons.add_circle_outline),
-                    label: 'Nochmal lernen',
-                    onPressed: () => _handleSessionAction(context, ref, true),
+                // One-time session should NOT be repeatable -> they are one-off
+                if (!session.isArchived)
+                  SizedBox(
+                    width: double.infinity,
+                    child: CustomIconButton(
+                      isActive: true,
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: 'Erneut durchführen',
+                      onPressed: () => _handleSessionAction(context, ref, true),
+                    ),
                   ),
-                ),
                 const VerticalSpace(size: SpaceSize.xsmall),
                 SizedBox(
                   width: double.infinity,
