@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/models.dart';
@@ -77,6 +78,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     state = state.copyWith(
       session: session,
       instance: instance,
+      completedBlocks: instance.totalCompletedBlocks,
       remainingSeconds:
           instance.remainingSeconds ??
           session.getDefaultDuration(SessionPhase.focus),
@@ -247,7 +249,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   Future<void> pauseTimer() async {
     _timer?.cancel();
 
-    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
+    await ref.read(settingsRepositoryProvider).setTimeStamp(null);
 
     _focusPrompter?.stopPrompting();
     state = state.copyWith(timerStatus: TimerStatus.paused);
@@ -404,25 +406,23 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }
 
   Future<void> syncTimerAfterBackground() async {
-    final targetEndTime = ref
-        .read(settingsRepositoryProvider)
-        .timerEndTimestamp;
+    final lastTimeActive = ref.read(settingsRepositoryProvider).timeStamp;
 
-    if (targetEndTime == null || state.timerStatus != TimerStatus.running) {
+    if (state.timerStatus != TimerStatus.running || lastTimeActive == null) {
       return;
     }
 
     final now = DateTime.now();
+    debugPrint('Zeit nachdem wiederkommen: $now');
+    debugPrint('Letzte Zeit online war: $lastTimeActive');
+    debugPrint(
+      'Vergangene Sekunden sind: ${now.difference(lastTimeActive).inSeconds}',
+    );
 
-    if (now.isBefore(targetEndTime)) {
-      state = state.copyWith(
-        remainingSeconds: targetEndTime.difference(now).inSeconds,
-      );
-      return;
-    }
+    final secondsAway = now.difference(lastTimeActive).inSeconds;
 
-    final secondsAway = targetEndTime.difference(now).inSeconds;
     var remainingCatchUp = secondsAway;
+
     while (remainingCatchUp > 0) {
       if (remainingCatchUp < state.remainingSeconds) {
         // Still in the current phase
@@ -438,18 +438,17 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
         _syncTotals(state.remainingSeconds);
         await _handlePhaseComplete(isSynching: true);
 
-        // Break out if simple timer (focus only; no phase change needed)
-        if (state.session!.isSimple) {
+        // Break out if simple timer (focus only; no phase change needed) OR
+        // When the timer prompt has shown -> we need to manually continue and do NOT
+        // count any minutes away
+        if (state.session!.isSimple || state.showTimerEndPrompt) {
           break;
         }
       }
     }
 
-    // Update end timestamp for the new current phase
-    final newEndTime = DateTime.now().add(
-      Duration(seconds: state.remainingSeconds),
-    );
-    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(newEndTime);
+    // Reset timestamp
+    await ref.read(settingsRepositoryProvider).setTimeStamp(null);
 
     await _autoSave();
   }
@@ -537,7 +536,7 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
   }) async {
     if (state.instance == null) return state.instance!;
 
-    await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
+    await ref.read(settingsRepositoryProvider).setTimeStamp(null);
 
     try {
       // Delete selected tasks and goals

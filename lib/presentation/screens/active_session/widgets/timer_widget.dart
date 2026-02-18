@@ -29,7 +29,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
     _lifecycleListener = AppLifecycleListener(
       onDetach: () async {
-        await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
+        await ref.read(settingsRepositoryProvider).setTimeStamp(null);
       },
       onStateChange: (lifecycleState) async {
         if (!mounted) return;
@@ -43,21 +43,17 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                 .read(activeSessionViewModelProvider(widget.instanceId))
                 .timerStatus ==
             TimerStatus.running) {
-          if (lifecycleState == AppLifecycleState.paused ||
-              lifecycleState == AppLifecycleState.detached) {
-            // Both platforms save remaining seconds
-            final currentState = ref.read(
-              activeSessionViewModelProvider(widget.instanceId),
-            );
-            final targetEndTime = DateTime.now().add(
-              Duration(seconds: currentState.remainingSeconds),
-            );
-            await repo.setTimerEndTimestamp(targetEndTime);
-          } else if (lifecycleState == AppLifecycleState.resumed) {
-            // Both platforms sync timer based on last recorded timestamp
-            if (repo.timerEndTimestamp != null) {
+          switch (lifecycleState) {
+            // If app is left; save the last time stamp we were active
+            case AppLifecycleState.detached:
+            case AppLifecycleState.paused:
+              await repo.setTimeStamp(DateTime.now());
+            // When app is in foreground again; sync with the passed time
+            case AppLifecycleState.resumed:
               await notifier.syncTimerAfterBackground();
-            }
+            case AppLifecycleState.inactive:
+            case AppLifecycleState.hidden:
+              break;
           }
         }
       },
