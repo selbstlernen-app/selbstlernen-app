@@ -102,10 +102,8 @@ class SliverSessionList extends ConsumerWidget {
     if (sessions.isEmpty) {
       return const SliverToBoxAdapter(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 32),
-          child: Center(
-            child: Text('Keine Lerneinheiten gefunden'),
-          ),
+          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          child: Text('Keine Lerneinheiten gefunden'),
         ),
       );
     }
