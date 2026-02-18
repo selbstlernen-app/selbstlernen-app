@@ -89,7 +89,7 @@ class NotificationService {
       ),
       scheduledDate: scheduledDate,
       type: NotificationType.sessionReminder,
-      matchComponents: DateTimeComponents.time,
+      matchComponents: null,
     );
   }
 
@@ -298,7 +298,6 @@ class NotificationService {
       case NotificationFrequency.daily:
         return DateTimeComponents.time; // Same time every day
       case NotificationFrequency.weekly:
-      case NotificationFrequency.everyOtherDay:
         return DateTimeComponents
             .dayOfWeekAndTime; // Same day and time every week
     }
@@ -317,7 +316,7 @@ class NotificationService {
       startDate.month,
       startDate.day,
       plannedTime.hour,
-      plannedTime.minute - 2,
+      plannedTime.minute,
     );
 
     while ((scheduledDate.weekday - 1) != dayOfWeek ||
