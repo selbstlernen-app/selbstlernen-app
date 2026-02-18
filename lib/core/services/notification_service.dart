@@ -276,7 +276,7 @@ class NotificationService {
   String _getNotificationBody(NotificationType type, [String? customMessage]) {
     switch (type) {
       case NotificationType.sessionReminder:
-        return 'Deine Einheit $customMessage wartet auf dich';
+        return 'Deine Einheit "$customMessage" wartet auf dich';
       case NotificationType.motivationalReminder:
         return '';
     }
