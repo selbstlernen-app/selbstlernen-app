@@ -44,15 +44,13 @@ enum NotificationType {
 /// Notification frequency options
 enum NotificationFrequency {
   daily,
-  everyOtherDay,
+
   weekly;
 
   String get displayName {
     switch (this) {
       case NotificationFrequency.daily:
         return 'Täglich';
-      case NotificationFrequency.everyOtherDay:
-        return 'Jeden 2. Tag';
       case NotificationFrequency.weekly:
         return 'Wöchentlich';
     }
@@ -62,8 +60,6 @@ enum NotificationFrequency {
     switch (this) {
       case NotificationFrequency.daily:
         return 1;
-      case NotificationFrequency.everyOtherDay:
-        return 2;
       case NotificationFrequency.weekly:
         return 7;
     }
