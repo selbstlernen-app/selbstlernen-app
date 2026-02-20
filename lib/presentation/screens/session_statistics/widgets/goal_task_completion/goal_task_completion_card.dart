@@ -237,7 +237,7 @@ class _ProductivitySquare extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       decoration: BoxDecoration(
         color: iconColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
@@ -272,11 +272,12 @@ class _ProductivitySquare extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           if (average > 0) ...<Widget>[
-            const VerticalSpace(size: SpaceSize.small),
+            const VerticalSpace(size: SpaceSize.xsmall),
             Text(
               'Ø ${average.toStringAsFixed(1)}/Einheit',
-              style: context.textTheme.bodyMedium?.copyWith(
+              style: context.textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w500,
+                color: AppPalette.grey,
               ),
             ),
           ],

@@ -25,8 +25,8 @@ class ReflectionViewModel extends _$ReflectionViewModel {
 
   Future<void> complete({required String notes, int? mood}) async {
     final updated = state.instance.copyWith(
-      notes: state.notes,
-      mood: state.mood,
+      notes: notes,
+      mood: mood,
     );
 
     await _updateInstanceUseCase.updateInstance(updated);

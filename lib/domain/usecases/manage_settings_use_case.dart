@@ -36,8 +36,7 @@ class ManageSettingsUseCase {
   }
 
   // Toggles the intro screen
-  Future<void> toggleIntroScreen() async {
-    final current = _repository.playIntro;
-    await _repository.setPlayIntro(value: !current);
+  Future<void> turnOffIntroScreen() async {
+    await _repository.setPlayIntro(value: false);
   }
 }

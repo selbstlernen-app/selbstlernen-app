@@ -18,7 +18,7 @@ class OnBoardingScreenState extends ConsumerState<OnBoardingScreen> {
   final introKey = GlobalKey<IntroductionScreenState>();
 
   Future<void> _onIntroEnd(BuildContext context) async {
-    await ref.read(manageSettingsUseCaseProvider).toggleIntroScreen();
+    await ref.read(manageSettingsUseCaseProvider).turnOffIntroScreen();
     if (!context.mounted) return;
     await Navigator.of(context).pushReplacementNamed(AppRoutes.home);
   }

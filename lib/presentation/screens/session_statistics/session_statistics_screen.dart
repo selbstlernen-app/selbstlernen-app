@@ -103,6 +103,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
                       /// Focus time spent on last sessions
                       FocusTimeSpentCard(
+                        sessionType: state.session!.complexity,
                         stats: state.stats!,
                         completedInstances: allCompletedInstances,
                         targetFocusMinutes: state.session!.focusTimeMin
