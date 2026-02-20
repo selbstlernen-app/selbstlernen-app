@@ -255,7 +255,7 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       learningStrategyIds: state.learningStrategyIds,
       focusTimeMin: state.focusTimeMin,
       breakTimeMin: isComplex ? state.breakTimeMin : 0,
-      pomodoroPhases: isComplex ? state.pomodoroPhases : 1,
+      pomodoroPhases: isComplex ? state.pomodoroPhases : 0,
       hasFocusPrompt: state.hasFocusPrompt,
       focusPromptInterval: state.focusPromptInterval,
       showFocusPromptAlways: state.showFocusPromptAlways,
