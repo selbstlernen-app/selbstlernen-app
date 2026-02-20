@@ -115,12 +115,6 @@ abstract class AddSessionState with _$AddSessionState {
     return null;
   }
 
-  String? get goalError {
-    return (goals.isEmpty && tasks.isEmpty)
-        ? 'Es muss mind. ein Ziel oder eine Aufgaben definiert worden sein.'
-        : null;
-  }
-
   String? get dateError {
     return AddSessionValidator.validateDate(
       startDate: startDate,

@@ -167,7 +167,6 @@ class _GoalSettingPageState extends ConsumerState<GoalSettingPage> {
                 onPressed: _handleAddGoal,
                 controller: _goalController,
                 hintText: 'Ich will...',
-                hasError: state.goalError != null,
                 markEditMode: state.isEditMode,
               ),
             const VerticalSpace(
@@ -183,9 +182,6 @@ class _GoalSettingPageState extends ConsumerState<GoalSettingPage> {
                 ),
               ),
             ),
-
-            if (state.goalError != null)
-              CustomErrorText(errorText: state.goalError!),
 
             const VerticalSpace(
               size: SpaceSize.small,
@@ -219,11 +215,8 @@ class _GoalSettingPageState extends ConsumerState<GoalSettingPage> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomButton(
-                    isActive: state.goalError == null,
                     label: 'Weiter',
-                    onPressed: () => state.goalError == null
-                        ? widget.navigateForward()
-                        : null,
+                    onPressed: () => widget.navigateForward(),
                   ),
                 ),
               ],

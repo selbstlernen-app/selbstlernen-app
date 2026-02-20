@@ -103,7 +103,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
                     _buildSectionTile(
                       title: 'Lernstrategien',
-                      icon: Icons.document_scanner_outlined,
+                      icon: Icons.psychology_rounded,
                       subtitle: 'Lernstrategien anpassen und konfigurieren',
                       onTap: () =>
                           _navigateToLearningStrategiesSettings(context),

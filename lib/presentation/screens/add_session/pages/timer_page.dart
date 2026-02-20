@@ -161,7 +161,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
               const HorizontalSpace(size: SpaceSize.small),
               const Expanded(
                 child: Text(
-                  '''Nach dem die Fokuszeit abgelaufen ist, kann die Einheit entweder fortgeführt oder beendet werden.''',
+                  '''Nachdem die Fokuszeit abgelaufen ist, kann die Einheit entweder fortgeführt oder beendet werden.''',
                 ),
               ),
             ],

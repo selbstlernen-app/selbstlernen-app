@@ -71,7 +71,7 @@ class _StrategyPageState extends ConsumerState<StrategyPage> {
                   child: Row(
                     children: <Widget>[
                       const Icon(
-                        Icons.wb_incandescent_outlined,
+                        Icons.psychology_rounded,
                       ),
                       const HorizontalSpace(size: SpaceSize.small),
                       Text(
