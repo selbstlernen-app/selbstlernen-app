@@ -150,7 +150,6 @@ class CompletionLineChart extends StatelessWidget {
                     ),
                     labelResolver: (_) => 'Ø Avg',
                   ),
-
                   y: avg,
                   dashArray: [6, 4],
                   color: AppPalette.indigoLight,

@@ -176,6 +176,10 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
               viewMode: viewMode,
             ),
 
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+
             Text(
               'Dein Fortschritt über alle abgeschlossenen Sitzungen',
               style: context.textTheme.bodySmall!.copyWith(

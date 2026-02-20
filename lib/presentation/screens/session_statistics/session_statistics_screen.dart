@@ -114,6 +114,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
                       const VerticalSpace(),
 
+                      // Show learning time
                       SessionTimingCard(
                         allDoneInstances: allCompletedInstances,
                         currentInstance: latestInstance,
@@ -121,12 +122,15 @@ class SessionStatisticsScreen extends ConsumerWidget {
                         plannedTime: state.session!.plannedTime,
                       ),
 
-                      const VerticalSpace(),
-
-                      StrategyComparisonChart(
-                        strategies: state.stats!.strategyUsage,
-                        currentStrategyIds: state.session!.learningStrategyIds,
-                      ),
+                      // Shows the strategies effectiveness if given
+                      if (state.stats!.strategyUsage.isEmpty) ...[
+                        const VerticalSpace(),
+                        StrategyComparisonChart(
+                          strategies: state.stats!.strategyUsage,
+                          currentStrategyIds:
+                              state.session!.learningStrategyIds,
+                        ),
+                      ],
 
                       const VerticalSpace(),
 
@@ -217,7 +221,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
               ),
               const VerticalSpace(size: SpaceSize.small),
               Text(
-                'Schließe deine erste Einheit ab, um detaillierte Statistiken und Analysen zu sehen.',
+                '''Schließe deine erste Einheit ab, um detaillierte Statistiken und Analysen zu sehen.''',
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: context.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
