@@ -18,6 +18,7 @@ class FocusTimeSpentCard extends StatefulWidget {
     required this.stats,
     required this.completedInstances,
     required this.targetFocusMinutes,
+    required this.showGeneralStatsOnly,
     this.sessionType = SessionComplexity.simple,
     super.key,
   });
@@ -26,6 +27,7 @@ class FocusTimeSpentCard extends StatefulWidget {
   final List<SessionInstanceModel> completedInstances;
   final double targetFocusMinutes;
   final SessionComplexity sessionType;
+  final bool showGeneralStatsOnly;
 
   @override
   State<FocusTimeSpentCard> createState() => _FocusTimeSpentCardState();
@@ -47,6 +49,7 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
     final todayStr = TimeUtils.formatTimeString(
       totalSeconds: todayFocusSeconds,
     );
+
     final avgStr = TimeUtils.formatTimeString(
       totalSeconds: (widget.stats.averageFocusMinutesPerSession * 60).toInt(),
     );
@@ -104,11 +107,12 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _TimeStatChip(
-                label: hitTarget ? 'Ziel erreicht 🎯' : 'Heute',
-                timeString: todayStr,
-                color: hitTarget ? AppPalette.emerald : AppPalette.fuchsia,
-              ),
+              if (!widget.showGeneralStatsOnly)
+                _TimeStatChip(
+                  label: hitTarget ? 'Ziel erreicht 🎯' : 'Heute',
+                  timeString: todayStr,
+                  color: hitTarget ? AppPalette.emerald : AppPalette.fuchsia,
+                ),
 
               _TimeStatChip(
                 label: 'Erwartet',

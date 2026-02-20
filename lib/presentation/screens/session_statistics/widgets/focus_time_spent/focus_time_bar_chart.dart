@@ -60,6 +60,7 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
 
   /// Returns visually fitting interval depending on the max y value
   double _calculateInterval(double maxY) {
+    if (maxY <= 20) return 2;
     if (maxY <= 45) return 5;
     if (maxY <= 90) return 15;
     if (maxY <= 180) return 30;
@@ -220,7 +221,7 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
       horizontalLines: [
         HorizontalLine(
           y: widget.targetFocusMinutes,
-          color: AppPalette.tealLight,
+          color: AppPalette.teal,
           strokeWidth: 3,
           dashArray: [6, 7],
           label: HorizontalLineLabel(
@@ -283,22 +284,16 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
                     BarChartRodStackItem(
                       0,
                       focusMinutes,
-                      touchedGroupIndex == index
-                          ? AppPalette.pink
-                          : AppPalette.pinkLight,
+                      AppPalette.pink,
                     ),
                     BarChartRodStackItem(
                       focusMinutes,
                       focusMinutes + breakMinutes,
-                      AppPalette.blueLight,
+                      AppPalette.orange,
                     ),
                   ]
                 : null,
-            color: isAdvanced
-                ? null
-                : (touchedGroupIndex == index
-                      ? AppPalette.pink
-                      : AppPalette.pinkLight),
+            color: isAdvanced ? null : (AppPalette.pink),
           ),
         ],
         showingTooltipIndicators: touchedGroupIndex == index
