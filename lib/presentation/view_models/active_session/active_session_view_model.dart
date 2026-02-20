@@ -7,7 +7,6 @@ import 'package:srl_app/domain/providers.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_providers.dart';
 import 'package:srl_app/presentation/view_models/active_session/active_session_state.dart';
 import 'package:srl_app/presentation/view_models/active_session/focus_prompter.dart';
-import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 import 'package:vibration/vibration.dart';
 

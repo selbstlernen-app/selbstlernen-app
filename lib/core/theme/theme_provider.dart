@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/core/theme/theme.dart';
+import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/presentation/view_models/settings/settings_view_model.dart';
 
 part 'theme_provider.g.dart';
@@ -29,4 +30,9 @@ ThemeData theme(Ref ref) {
   return isDark
       ? CustomTheme.darkTheme(primaryColor: primaryColor)
       : CustomTheme.lightTheme(primaryColor: primaryColor);
+}
+
+@riverpod
+bool playIntro(Ref ref) {
+  return ref.watch(settingsRepositoryProvider).playIntro;
 }

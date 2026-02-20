@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
+import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/presentation/screens/settings/pages/learning_strategy_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/notification_settings_screen.dart';
@@ -51,6 +52,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         builder: (context) => const LearningStrategySettingsScreen(),
       ),
     );
+  }
+
+  Future<void> _navigateToIntroScreen(BuildContext context) async {
+    await Navigator.pushNamed(context, AppRoutes.onboarding);
   }
 
   @override
@@ -115,6 +120,17 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           'Timer-Einstellungen anpassen und konfigurieren',
                       onTap: () => _navigateToTimerSettings(context),
                     ),
+
+                    const VerticalSpace(
+                      size: SpaceSize.xsmall,
+                    ),
+
+                    _buildSectionTile(
+                      title: 'Hilfe',
+                      icon: Icons.question_mark_rounded,
+                      subtitle: 'Wiederhole das Onboarding',
+                      onTap: () => _navigateToIntroScreen(context),
+                    ),
                   ],
                 ),
               ),
@@ -147,7 +163,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
         subtitle: Text(
           subtitle,
-          style: context.textTheme.bodySmall,
+          style: context.textTheme.bodyMedium,
         ),
         trailing: Icon(
           Icons.chevron_right,

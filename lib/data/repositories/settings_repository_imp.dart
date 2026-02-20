@@ -13,6 +13,7 @@ class SettingsRepositoryImp implements SettingsRepository {
   static const _timerStartsAutomaticallyKey = 'timer_starts_automatically';
 
   static const _timerEndKey = 'time_stamp';
+  static const _playIntroKey = 'play_intro';
 
   // Getters
   @override
@@ -36,6 +37,9 @@ class SettingsRepositoryImp implements SettingsRepository {
     final iso = _prefs.getString(_timerEndKey);
     return iso != null ? DateTime.tryParse(iso) : null;
   }
+
+  @override
+  bool get playIntro => _prefs.getBool(_playIntroKey) ?? true;
 
   // Setters
   @override
@@ -69,5 +73,10 @@ class SettingsRepositoryImp implements SettingsRepository {
     } else {
       await _prefs.setString(_timerEndKey, timestamp.toIso8601String());
     }
+  }
+
+  @override
+  Future<void> setPlayIntro({required bool value}) async {
+    await _prefs.setBool(_playIntroKey, value);
   }
 }

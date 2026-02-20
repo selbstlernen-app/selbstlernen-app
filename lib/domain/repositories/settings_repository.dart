@@ -6,10 +6,12 @@ abstract class SettingsRepository {
   Color? get primaryColor;
   bool get timerStartsAutomatically;
   DateTime? get timeStamp;
+  bool get playIntro;
 
   Future<void> setTimerStartsAutomatically({required bool value});
   Future<void> setDarkMode({required bool value});
   Future<void> setFollowSystem({required bool value});
   Future<void> setPrimaryColor(Color colorValue);
   Future<void> setTimeStamp(DateTime? timestamp);
+  Future<void> setPlayIntro({required bool value});
 }

@@ -40,6 +40,7 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(themeProvider);
+    final playIntro = ref.read(playIntroProvider);
 
     return MaterialApp(
       title: 'SRL-App',
@@ -50,7 +51,7 @@ class MyApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       theme: theme,
-      initialRoute: AppRoutes.home,
+      initialRoute: playIntro ? AppRoutes.onboarding : AppRoutes.home,
       onGenerateRoute: AppRoutes.onGenerateRoute,
       debugShowCheckedModeBanner: false,
     );
