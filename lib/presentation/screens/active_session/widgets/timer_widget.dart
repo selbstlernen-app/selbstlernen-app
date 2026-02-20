@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/custom_icon_button.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
+import 'package:srl_app/common_widgets/timer_widgets.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/data/providers.dart';
@@ -28,7 +29,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
     _lifecycleListener = AppLifecycleListener(
       onDetach: () async {
-        await ref.read(settingsRepositoryProvider).setTimerEndTimestamp(null);
+        await ref.read(settingsRepositoryProvider).setTimeStamp(null);
       },
       onStateChange: (lifecycleState) async {
         if (!mounted) return;
@@ -42,23 +43,17 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
                 .read(activeSessionViewModelProvider(widget.instanceId))
                 .timerStatus ==
             TimerStatus.running) {
-          if (lifecycleState == AppLifecycleState.paused ||
-              lifecycleState == AppLifecycleState.detached) {
-            final currentState = ref.read(
-              activeSessionViewModelProvider(widget.instanceId),
-            );
-
-            // Both platforms save timestamp on leave
-            final targetEndTime = DateTime.now().add(
-              Duration(seconds: currentState.remainingSeconds),
-            );
-
-            await repo.setTimerEndTimestamp(targetEndTime);
-          } else if (lifecycleState == AppLifecycleState.resumed) {
-            // Both platoforms sync timer based on last recorded timestamp
-            if (repo.timerEndTimestamp != null) {
+          switch (lifecycleState) {
+            // If app is left; save the last time stamp we were active
+            case AppLifecycleState.detached:
+            case AppLifecycleState.paused:
+              await repo.setTimeStamp(DateTime.now());
+            // When app is in foreground again; sync with the passed time
+            case AppLifecycleState.resumed:
               await notifier.syncTimerAfterBackground();
-            }
+            case AppLifecycleState.inactive:
+            case AppLifecycleState.hidden:
+              break;
           }
         }
       },
@@ -76,9 +71,7 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
       case SessionPhase.focus:
         return 'Fokuszeit';
       case SessionPhase.shortBreak:
-        return 'Kurze Pause';
-      case SessionPhase.longBreak:
-        return 'Lange Pause';
+        return 'Pausenzeit';
     }
   }
 
@@ -139,14 +132,14 @@ class _$TimerWidgetState extends ConsumerState<TimerWidget> {
 
                     Text(
                       _getPhaseLabel(currentPhase),
-                      style: context.textTheme.labelMedium!.copyWith(
+                      style: context.textTheme.labelLarge!.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
 
                     Text(
                       '${isSimpleTimer ? "Runde" : "Block"} ${completedBlocks + 1}',
-                      style: context.textTheme.labelSmall!.copyWith(
+                      style: context.textTheme.labelMedium!.copyWith(
                         color: context.colorScheme.onSurface.withValues(
                           alpha: 0.5,
                         ),
@@ -209,6 +202,12 @@ class _TimerButtons extends ConsumerWidget {
       activeSessionViewModelProvider(
         instanceId,
       ).select((s) => s.timerStatus),
+    );
+
+    final isSimpleTimer = ref.watch(
+      activeSessionViewModelProvider(
+        instanceId,
+      ).select((s) => s.session!.isSimple),
     );
 
     final timerStartsAutomatically = ref.watch(
@@ -276,13 +275,14 @@ class _TimerButtons extends ConsumerWidget {
           ),
 
         // Skip phase
-        CustomIconButton(
-          icon: const Icon(Icons.skip_next_rounded, size: 25),
-          isActive: true,
-          onPressed: timerStatus == TimerStatus.initial
-              ? null
-              : viewModel.skipPhase,
-        ),
+        if (!isSimpleTimer)
+          CustomIconButton(
+            icon: const Icon(Icons.skip_next_rounded, size: 25),
+            isActive: true,
+            onPressed: timerStatus == TimerStatus.initial
+                ? null
+                : viewModel.skipPhase,
+          ),
       ],
     );
   }
@@ -299,87 +299,42 @@ class _PhaseIndicator extends ConsumerWidget {
         instanceId,
       ).select((s) => s.currentPhaseIndex),
     );
-    final focusPhases = ref.watch(
+    final pomodoroPhases = ref.watch(
       activeSessionViewModelProvider(
         instanceId,
-      ).select((s) => s.session!.focusPhases),
+      ).select((s) => s.session!.pomodoroPhases),
     );
     return Wrap(
       runSpacing: 4,
-      children: List<Widget>.generate(focusPhases, (int index) {
+      children: List<Widget>.generate(pomodoroPhases, (int index) {
         final focusBlockIndex = index * 2;
         final breakBlockIndex = focusBlockIndex + 1;
-        if (index < focusPhases - 1) {
-          return Container(
-            margin: const EdgeInsets.only(right: 4),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Opacity(
-                  opacity: currentBlock == focusBlockIndex ? 1.0 : 0.2,
-                  child: _buildPreviewBlock(
-                    context,
-                    'F',
-                    context.colorScheme.primary,
-                  ),
-                ),
-                const HorizontalSpace(custom: 2),
-                Opacity(
-                  opacity: currentBlock == breakBlockIndex ? 1.0 : 0.2,
-                  child: _buildPreviewBlock(
-                    context,
-                    'K',
-                    context.colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-          );
-        } else {
-          return Row(
+        return Container(
+          margin: const EdgeInsets.only(right: 4),
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Opacity(
                 opacity: currentBlock == focusBlockIndex ? 1.0 : 0.2,
-                child: _buildPreviewBlock(
-                  context,
-                  'F',
-                  context.colorScheme.primary,
+                child: PreviewBlock(
+                  color: context.colorScheme.secondary,
+                  label: 'F',
+                  size: 17,
                 ),
               ),
               const HorizontalSpace(custom: 2),
               Opacity(
                 opacity: currentBlock == breakBlockIndex ? 1.0 : 0.2,
-                child: _buildPreviewBlock(
-                  context,
-                  'L',
-                  context.colorScheme.primary,
+                child: PreviewBlock(
+                  color: context.colorScheme.secondary,
+                  label: 'P',
+                  size: 17,
                 ),
               ),
             ],
-          );
-        }
-      }),
-    );
-  }
-
-  Widget _buildPreviewBlock(BuildContext context, String label, Color color) {
-    return Container(
-      width: 17,
-      height: 17,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Center(
-        child: Text(
-          label,
-          style: context.textTheme.labelSmall!.copyWith(
-            color: context.colorScheme.onPrimary,
           ),
-          textAlign: TextAlign.center,
-        ),
-      ),
+        );
+      }),
     );
   }
 }

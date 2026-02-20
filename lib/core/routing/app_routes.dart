@@ -6,6 +6,7 @@ import 'package:srl_app/presentation/screens/active_session/active_session_scree
 import 'package:srl_app/presentation/screens/add_session/add_session_screen.dart';
 import 'package:srl_app/presentation/screens/detail_session/session_detail_screen.dart';
 import 'package:srl_app/presentation/screens/general_statistics/statistics_screen.dart';
+import 'package:srl_app/presentation/screens/onboarding/on_boarding_screen.dart';
 import 'package:srl_app/presentation/screens/reflection/reflection_screen.dart';
 import 'package:srl_app/presentation/screens/session_statistics/session_statistics_screen.dart';
 
@@ -17,6 +18,7 @@ class AppRoutes {
   static const String stats = '/stats';
   static const String addSession = '/add-session';
   static const String overallStatistics = '/overall-statistics';
+  static const String onboarding = '/onboarding';
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
@@ -80,6 +82,13 @@ class AppRoutes {
           builder: (_) => const StatisticsScreen(),
           settings: const RouteSettings(name: AppRoutes.overallStatistics),
         );
+
+      case onboarding:
+        return MaterialPageRoute<dynamic>(
+          builder: (_) => const OnBoardingScreen(),
+          settings: const RouteSettings(name: AppRoutes.onboarding),
+        );
+
       default:
         return MaterialPageRoute<dynamic>(
           builder: (_) => Scaffold(

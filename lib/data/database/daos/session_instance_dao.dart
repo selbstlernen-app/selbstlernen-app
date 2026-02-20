@@ -25,13 +25,6 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     return select(sessionInstances).get();
   }
 
-  // Get an instance by its session id
-  Future<SessionInstance?> getInstanceBySessionId(int sessionId) {
-    return (select(sessionInstances)
-          ..where(($SessionInstancesTable s) => s.sessionId.equals(sessionId)))
-        .getSingleOrNull();
-  }
-
   // Watch session instance by ID
   Stream<SessionInstance?> watchSessionInstanceById(int id) {
     return (select(sessionInstances)
@@ -132,7 +125,7 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
   }
 
   // Get scheduled instance if it exists
-  Future<SessionInstance?> getInstancesBySessionIdAndDate(
+  Future<SessionInstance?> getLatestInstanceBySessionIdAndDate(
     int sessionId,
     DateTime date,
   ) async {
@@ -156,6 +149,28 @@ class SessionInstanceDao extends DatabaseAccessor<AppDatabase>
     );
 
     return instances.first;
+  }
+
+  // Get scheduled instance if it exists
+  Future<List<SessionInstance>?> getAllInstancesBySessionIdAndDate(
+    int sessionId,
+    DateTime date,
+  ) async {
+    final startOfDay = DateTime(date.year, date.month, date.day);
+    final endOfDay = startOfDay.add(const Duration(days: 1));
+
+    final instances =
+        await (select(sessionInstances)..where(
+              ($SessionInstancesTable s) =>
+                  s.sessionId.equals(sessionId) &
+                  s.scheduledAt.isBiggerOrEqualValue(startOfDay) &
+                  s.scheduledAt.isSmallerThanValue(endOfDay),
+            ))
+            .get();
+
+    if (instances.isEmpty) return null;
+
+    return instances;
   }
 
   Future<int> countTotalInstancesBySessionId(int sessionId) async {

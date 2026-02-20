@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:srl_app/domain/models/learning_strategy_model.dart';
+import 'package:srl_app/domain/models/learning_strategy/learning_strategy_with_stats.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
 import 'package:srl_app/domain/models/session_model.dart';
 
@@ -18,7 +18,7 @@ abstract class SettingsState with _$SettingsState {
     List<NotificationTypeSetting>? notificationSettings,
     bool? hasNotificationPermission,
 
-    List<LearningStrategyModel>? learningStrategies,
+    List<LearningStrategyWithStats>? learningStrategies,
 
     List<SessionModel>? activeSessions,
 

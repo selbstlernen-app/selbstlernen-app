@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:srl_app/core/utils/date_time_utils.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
@@ -17,53 +18,38 @@ Stream<FullSessionModel> fullSessionModel(Ref ref, int sessionId) {
 @riverpod
 class DetailSessionViewModel extends _$DetailSessionViewModel {
   @override
-  DetailSessionState build(
+  Future<DetailSessionState> build(
     int sessionId, {
     required DateTime targetDate,
     int? instanceId,
-  }) {
-    _listenToDataStreams(sessionId);
+  }) async {
+    final fullSession = await ref.watch(
+      fullSessionModelProvider(sessionId).future,
+    );
 
-    unawaited(_initializeDetailSession(sessionId, targetDate, instanceId));
-
-    return const DetailSessionState();
-  }
-
-  void _listenToDataStreams(int sessionId) {
-    ref.listen(fullSessionModelProvider(sessionId), (prev, next) {
-      next.whenData((fullSession) {
-        state = state.copyWith(fullSession: fullSession);
-      });
-    });
-  }
-
-  Future<void> _initializeDetailSession(
-    int sessionId,
-    DateTime targetDate,
-    int? instanceId,
-  ) async {
-    try {
-      final getInstanceUseCase = ref.read(getInstanceUseCaseProvider);
-
-      // Fetch specific instance if given
-      SessionInstanceModel? instance;
-      if (instanceId != null) {
-        instance = await getInstanceUseCase.getInstanceById(instanceId);
+    // Get instance if provided
+    SessionInstanceModel? instance;
+    if (instanceId != null) {
+      try {
+        instance = await ref
+            .read(getInstanceUseCaseProvider)
+            .getInstanceById(instanceId);
+      } on Exception catch (e) {
+        print('Instance $instanceId not found: $e');
+        // Continue without instance
       }
-
-      // Fetch all instances from past
-      final allInstances = await getInstanceUseCase.getInstancesBySessionId(
-        sessionId,
-      );
-
-      state = state.copyWith(
-        instance: instance,
-        pastInstancesLength: allInstances.length,
-        isLoading: false,
-      );
-    } on Exception catch (e) {
-      state = state.copyWith(error: e.toString(), isLoading: false);
     }
+
+    final allInstances = await ref
+        .read(getInstanceUseCaseProvider)
+        .getInstancesBySessionId(sessionId);
+
+    return DetailSessionState(
+      fullSession: fullSession,
+      instance: instance,
+      pastInstancesLength: allInstances.length,
+      isLoading: false,
+    );
   }
 
   Future<SessionInstanceModel> startSession(int sessionId) async {
@@ -77,12 +63,30 @@ class DetailSessionViewModel extends _$DetailSessionViewModel {
   }
 
   /// Creates a new session instance that can be re-done
-  Future<SessionInstanceModel> redoSession() async {
+  Future<SessionInstanceModel?> redoSession() async {
     var newInstance = SessionInstanceModel(
       scheduledAt: targetDate,
       sessionId: sessionId.toString(),
       status: SessionStatus.inProgress,
     );
+    final existingInstances = await ref
+        .read(getInstanceUseCaseProvider)
+        .getAllInstancesBySessionIdAndDate(
+          sessionId,
+          targetDate,
+        );
+
+    final hasInProgress = existingInstances!.any(
+      (i) =>
+          i.status == SessionStatus.inProgress &&
+          DateTimeUtils.isSameDay(i.scheduledAt, targetDate),
+    );
+
+    if (hasInProgress) {
+      // Already have an in-progress instance, don't create another
+      return null;
+    }
+
     final id = await ref
         .read(manangeInstanceUseCaseProvider)
         .createInstance(newInstance);

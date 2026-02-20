@@ -1,7 +1,7 @@
 import 'package:srl_app/data/database/daos/task_dao.dart';
 import 'package:srl_app/data/entity_mappers/task_mapper.dart';
 import 'package:srl_app/domain/models/task_model.dart';
-import 'package:srl_app/domain/task_repository.dart';
+import 'package:srl_app/domain/repositories/task_repository.dart';
 
 class TaskRepositoryImp implements TaskRepository {
   TaskRepositoryImp(this.taskDao);
@@ -16,11 +16,6 @@ class TaskRepositoryImp implements TaskRepository {
   @override
   Future<void> deleteTask(int taskId) {
     return taskDao.deleteTask(taskId);
-  }
-
-  @override
-  Future<void> deleteTasksBySessionId(int sessionId) {
-    return taskDao.deleteTasksBySessionId(sessionId);
   }
 
   @override

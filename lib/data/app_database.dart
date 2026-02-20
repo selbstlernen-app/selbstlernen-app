@@ -10,10 +10,13 @@ import 'package:srl_app/data/database/daos/learning_strategy_dao.dart';
 import 'package:srl_app/data/database/daos/notification_dao.dart';
 import 'package:srl_app/data/database/daos/session_dao.dart';
 import 'package:srl_app/data/database/daos/session_instance_dao.dart';
+import 'package:srl_app/data/database/daos/session_instance_strategy_dao.dart';
 import 'package:srl_app/data/database/daos/settings_dao.dart';
 import 'package:srl_app/data/database/daos/task_dao.dart';
 import 'package:srl_app/data/database/tables/goal_table.dart';
-import 'package:srl_app/data/database/tables/learning_strategy_table.dart';
+import 'package:srl_app/data/database/tables/learning_strategy/learning_strategy_table.dart';
+import 'package:srl_app/data/database/tables/learning_strategy/session_instance_strategy_table.dart';
+import 'package:srl_app/data/database/tables/learning_strategy/session_strategy_table.dart';
 import 'package:srl_app/data/database/tables/notifications_table.dart';
 import 'package:srl_app/data/database/tables/session_instance_table.dart';
 import 'package:srl_app/data/database/tables/session_table.dart';
@@ -34,6 +37,8 @@ part 'app_database.g.dart';
     Settings,
     Notifications,
     LearningStrategies,
+    SessionStrategies,
+    SessionInstanceStrategies,
   ],
   daos: <Type>[
     SessionDao,
@@ -43,6 +48,7 @@ part 'app_database.g.dart';
     SettingsDao,
     NotificationDao,
     LearningStrategyDao,
+    SessionInstanceStrategyDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {

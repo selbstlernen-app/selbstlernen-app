@@ -13,7 +13,7 @@ class SessionDialogs {
       context,
       title: 'Lerneinheit überspringen?',
       content:
-          'Wenn du diese Einheit überspringst, wird diese als übersprungen markiert und muss nicht mehr durchgeführt werden.',
+          '''Wenn du diese Einheit überspringst, wird diese als übersprungen markiert und muss nicht mehr durchgeführt werden.''',
       onConfirm: onConfirm,
       successMessage: 'Einheit übersprungen',
       shouldNavigateHome: false,
@@ -30,8 +30,8 @@ class SessionDialogs {
       context,
       title: 'Lerneinheit löschen?',
       content:
-          'Wenn du diese Einheit löschst, löschst du auch alle bisher durchgeführten Instanzen und Daten.\n'
-          '${isRepeating ? 'Willst du diese und alle zukünftigen Einheiten löschen?' : 'Willst du diese Einheit wirklich löschen?'}',
+          '''Wenn du diese Einheit löschst, löschst du auch alle bisher durchgeführten Instanzen und Daten.\n'''
+          '''${isRepeating ? 'Willst du diese und alle zukünftigen Einheiten löschen?' : 'Willst du diese Einheit wirklich löschen?'}''',
       onConfirm: onConfirm,
       successMessage: Constants.successDeleted,
       shouldNavigateHome: shouldNavigateHome,

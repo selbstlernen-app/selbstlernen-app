@@ -131,7 +131,7 @@ class HomeSectionActive extends ConsumerWidget {
             emptyLabel: 'Keine offene Lerneinheit',
             itemBuilder: (data) => PendingSessionTile(
               session: data.session,
-              hasInstance: data.instance != null,
+              pendingInstance: data.instance,
             ),
           ),
         );

@@ -12,6 +12,7 @@ import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_ti
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion/goal_task_completion_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/mood/mood_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/progress_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/strategy_comparison_chart.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_state.dart';
 import 'package:srl_app/presentation/view_models/session_statistics/session_statistics_view_model.dart';
 
@@ -106,6 +107,13 @@ class SessionStatisticsScreen extends ConsumerWidget {
                         completedInstances: allCompletedInstances,
                         targetFocusMinutes: state.session!.focusTimeMin
                             .toDouble(),
+                      ),
+
+                      const VerticalSpace(),
+
+                      StrategyComparisonChart(
+                        strategies: state.stats!.strategyUsage,
+                        currentStrategyIds: state.session!.learningStrategyIds,
                       ),
 
                       const VerticalSpace(),

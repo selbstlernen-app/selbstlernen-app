@@ -10,6 +10,7 @@ import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/presentation/view_models/providers.dart';
 import 'package:srl_app/presentation/view_models/reflection/reflection_view_model.dart';
 
 class ReflectionScreen extends ConsumerStatefulWidget {
@@ -52,11 +53,11 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
     await Navigator.pushNamedAndRemoveUntil(
       context,
       AppRoutes.stats,
+      ModalRoute.withName(AppRoutes.home),
       arguments: SessionStatisticsArgs(
         sessionId: int.parse(widget.instance.sessionId),
         showGeneralStatsOnly: false,
       ),
-      (Route<dynamic> route) => false,
     );
   }
 
@@ -90,7 +91,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                   Column(
                     children: <Widget>[
                       TimeBreakdownItem(
-                        icon: Icons.psychology,
+                        icon: Icons.timer_rounded,
                         label: 'Fokuszeit',
                         value: '${reflectionState.totalTimeFocused} Min',
                         color: AppPalette.pink,
@@ -114,11 +115,18 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
                       TimeBreakdownItem(
                         icon: Icons.timelapse_outlined,
-                        label: 'Gesamte Zeit',
+                        label: 'Gesamtzeit',
                         value: '${reflectionState.totalTimeSpent} Min',
                         color: AppPalette.sky,
                       ),
                     ],
+                  ),
+
+                  const VerticalSpace(size: SpaceSize.large),
+
+                  // Learning Strategy Reflection
+                  LearningStrategyReflection(
+                    instance: widget.instance,
                   ),
 
                   const VerticalSpace(size: SpaceSize.large),
@@ -128,7 +136,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                     'Wie fühlst du dich?',
                     style: context.textTheme.headlineSmall,
                   ),
-                  const VerticalSpace(size: SpaceSize.small),
+                  const VerticalSpace(),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: Constants.emojiMoods.asMap().entries.map((
@@ -161,7 +169,9 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                     }).toList(),
                   ),
 
-                  const VerticalSpace(),
+                  const VerticalSpace(
+                    size: SpaceSize.large,
+                  ),
 
                   // Notes Field
                   Text('Notizen', style: context.textTheme.headlineSmall),
@@ -171,6 +181,8 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                     maxLines: 5,
                     hintText: 'Was hast du gelernt? Wie lief die Einheit?',
                   ),
+
+                  const VerticalSpace(),
                 ],
               ),
             ),
@@ -185,6 +197,105 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class LearningStrategyReflection extends ConsumerWidget {
+  const LearningStrategyReflection({required this.instance, super.key});
+
+  final SessionInstanceModel instance;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final instanceId = int.parse(instance.id!);
+
+    final strategiesWithDetails = ref.watch(
+      instanceStrategiesProvider(instanceId),
+    );
+
+    final notifier = ref.read(reflectionViewModelProvider(instance).notifier);
+
+    return strategiesWithDetails.when(
+      loading: () => const CircularProgressIndicator(),
+      error: (err, stack) => Text('Fehler: $err'),
+      data: (strategies) {
+        if (strategies.isEmpty) {
+          return const Text('Keine Strategien ausgewählt');
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '''Wie effektiv waren deine Lernstrategien?''',
+              style: context.textTheme.headlineSmall,
+            ),
+            const VerticalSpace(size: SpaceSize.xsmall),
+            const Text(
+              '''Eine effektive Strategie hilft dir beim Erreichen deiner Ziele und Aufgaben.''',
+            ),
+
+            const VerticalSpace(),
+
+            ...strategies.map(
+              (strat) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              strat.strategyTitle,
+                              style: context.textTheme.titleMedium,
+                            ),
+                          ),
+                          const HorizontalSpace(),
+
+                          // Effectiveness rating in stars
+                          _buildRatingBar(
+                            currentValue: strat.effectivenessRating ?? 0,
+                            onChanged: (val) => notifier.updateRating(
+                              instanceId,
+                              strat.strategyId,
+                              val,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildRatingBar({
+    required int currentValue,
+    required ValueChanged<int> onChanged,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (index) {
+        final starValue = index + 1;
+        return GestureDetector(
+          onTap: () => onChanged(starValue),
+          child: Icon(
+            starValue <= currentValue ? Icons.star : Icons.star_border,
+            color: starValue <= currentValue
+                ? AppPalette.amber
+                : AppPalette.grey,
+            size: 24,
+          ),
+        );
+      }),
     );
   }
 }

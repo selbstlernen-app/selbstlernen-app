@@ -5,6 +5,7 @@ import 'package:srl_app/data/database/daos/learning_strategy_dao.dart';
 import 'package:srl_app/data/database/daos/notification_dao.dart';
 import 'package:srl_app/data/database/daos/session_dao.dart';
 import 'package:srl_app/data/database/daos/session_instance_dao.dart';
+import 'package:srl_app/data/database/daos/session_instance_strategy_dao.dart';
 import 'package:srl_app/data/database/daos/settings_dao.dart';
 import 'package:srl_app/data/database/daos/task_dao.dart';
 import 'package:srl_app/data/repositories/goal_repository_imp.dart';
@@ -13,13 +14,13 @@ import 'package:srl_app/data/repositories/session_instance_repository_imp.dart';
 import 'package:srl_app/data/repositories/session_repository_imp.dart';
 import 'package:srl_app/data/repositories/strategy_repository_imp.dart';
 import 'package:srl_app/data/repositories/task_repository_imp.dart';
-import 'package:srl_app/domain/goal_repository.dart';
-import 'package:srl_app/domain/notification_repository.dart';
-import 'package:srl_app/domain/session_instance_repository.dart';
-import 'package:srl_app/domain/session_repository.dart';
-import 'package:srl_app/domain/settings_repository.dart';
-import 'package:srl_app/domain/strategy_repository.dart';
-import 'package:srl_app/domain/task_repository.dart';
+import 'package:srl_app/domain/repositories/goal_repository.dart';
+import 'package:srl_app/domain/repositories/notification_repository.dart';
+import 'package:srl_app/domain/repositories/session_instance_repository.dart';
+import 'package:srl_app/domain/repositories/session_repository.dart';
+import 'package:srl_app/domain/repositories/settings_repository.dart';
+import 'package:srl_app/domain/repositories/strategy_repository.dart';
+import 'package:srl_app/domain/repositories/task_repository.dart';
 
 part 'providers.g.dart';
 
@@ -64,15 +65,27 @@ LearningStrategyDao learningStrategyDao(Ref ref) {
   return LearningStrategyDao(ref.watch(appDatabaseProvider));
 }
 
+@riverpod
+SessionInstanceStrategyDao sessionInstanceStrategyDao(Ref ref) {
+  return SessionInstanceStrategyDao(ref.watch(appDatabaseProvider));
+}
+
 // --- Repositories ---
 @riverpod
 SessionRepository sessionRepository(Ref ref) {
-  return SessionRepositoryImp(ref.watch(sessionDaoProvider));
+  return SessionRepositoryImp(
+    ref.watch(sessionDaoProvider),
+    ref.watch(learningStrategyDaoProvider),
+  );
 }
 
 @riverpod
 SessionInstanceRepository sessionInstanceRepository(Ref ref) {
-  return SessionInstanceRepositoryImp(ref.watch(sessionInstanceDaoProvider));
+  return SessionInstanceRepositoryImp(
+    ref.watch(sessionInstanceDaoProvider),
+    ref.watch(sessionInstanceStrategyDaoProvider),
+    ref.watch(sessionDaoProvider),
+  );
 }
 
 @riverpod

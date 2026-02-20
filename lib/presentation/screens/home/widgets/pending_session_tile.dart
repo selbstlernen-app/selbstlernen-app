@@ -12,16 +12,18 @@ import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 class PendingSessionTile extends ConsumerWidget {
   const PendingSessionTile({
     required this.session,
-    required this.hasInstance,
+    required this.pendingInstance,
     super.key,
   });
 
   final SessionModel session;
-  final bool hasInstance;
+  final SessionInstanceModel? pendingInstance;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final homeState = ref.watch(homeViewModelProvider);
+
+    final hasInstance = pendingInstance != null;
 
     return Stack(
       clipBehavior: Clip.antiAlias,
@@ -47,7 +49,10 @@ class PendingSessionTile extends ConsumerWidget {
                       onConfirm: () async {
                         await ref
                             .read(homeViewModelProvider.notifier)
-                            .skipSession(sessionId: session.id!);
+                            .skipSession(
+                              sessionId: session.id!,
+                              pendingInstance: pendingInstance,
+                            );
 
                         if (slidableContext.mounted) {
                           ScaffoldMessenger.of(slidableContext).showSnackBar(

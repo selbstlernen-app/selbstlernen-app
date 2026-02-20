@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:srl_app/domain/models/full_session_model.dart';
-import 'package:srl_app/domain/models/learning_strategy_model.dart';
+import 'package:srl_app/domain/models/learning_strategy/learning_strategy_with_stats.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_validator.dart';
 
@@ -14,7 +14,8 @@ abstract class AddSessionState with _$AddSessionState {
     @Default('') String title,
     @Default(false) bool isRepeating,
 
-    @Default(TimeOfDay(hour: 10, minute: 0)) TimeOfDay plannedTime,
+    @Default(SessionComplexity.simple) SessionComplexity sessionComplexity,
+    TimeOfDay? plannedTime,
     @Default(false) bool enableNotifications,
 
     // In case of repeating sessions
@@ -30,15 +31,13 @@ abstract class AddSessionState with _$AddSessionState {
     @Default(<String>{}) Set<String> goalIdsToDelete,
 
     // Strategies
-    @Default(<String>[]) List<String> learningStrategies,
-    List<LearningStrategyModel>? availableStrategies,
+    @Default(<int>[]) List<int> learningStrategyIds,
+    List<LearningStrategyWithStats>? availableStrategies,
 
     // Time
-    @Default(SessionComplexity.simple) SessionComplexity sessionComplexity,
     @Default(25) int focusTimeMin,
     @Default(5) int breakTimeMin,
-    @Default(15) int longBreakTimeMin,
-    @Default(4) int focusPhases,
+    @Default(4) int pomodoroPhases,
 
     // Prompts
     @Default(false) bool hasFocusPrompt,
@@ -55,7 +54,7 @@ abstract class AddSessionState with _$AddSessionState {
   // Factory to initialize the state from the given model in edit mode
   factory AddSessionState.fromModel({
     required FullSessionModel fullSession,
-    List<LearningStrategyModel>? existingStrategies,
+    List<LearningStrategyWithStats>? existingStrategies,
   }) {
     final session = fullSession.session;
     return AddSessionState(
@@ -68,13 +67,12 @@ abstract class AddSessionState with _$AddSessionState {
       selectedDays: session.selectedDays,
       goals: fullSession.goals,
       tasks: fullSession.tasks,
-      learningStrategies: session.learningStrategies,
+      learningStrategyIds: session.learningStrategyIds,
       availableStrategies: existingStrategies,
       sessionComplexity: session.complexity,
       focusTimeMin: session.focusTimeMin,
       breakTimeMin: session.breakTimeMin,
-      longBreakTimeMin: session.longBreakTimeMin,
-      focusPhases: session.focusPhases,
+      pomodoroPhases: session.pomodoroPhases,
       hasFocusPrompt: session.hasFocusPrompt,
       focusPromptInterval: session.focusPromptInterval,
       showFocusPromptAlways: session.showFocusPromptAlways,
@@ -92,9 +90,9 @@ abstract class AddSessionState with _$AddSessionState {
 
   int get totalPages {
     if (isEditMode) {
-      return sessionComplexity == SessionComplexity.advanced ? 5 : 4;
+      return 5;
     }
-    return sessionComplexity == SessionComplexity.advanced ? 6 : 5;
+    return 6;
   }
 
   // Can go to prompter page
@@ -115,12 +113,6 @@ abstract class AddSessionState with _$AddSessionState {
       return 'Titel muss mind. 3 Charaktere lang sein';
     }
     return null;
-  }
-
-  String? get goalError {
-    return (goals.isEmpty && tasks.isEmpty)
-        ? 'Es muss mind. ein Ziel oder eine Aufgaben definiert worden sein.'
-        : null;
   }
 
   String? get dateError {

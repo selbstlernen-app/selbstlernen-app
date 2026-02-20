@@ -19,13 +19,15 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     _listenToDataStreams();
 
     return AddSessionState(
+      plannedTime: TimeOfDay.now(),
       startDate: DateTime.now(),
       endDate: DateTime.now().add(const Duration(days: 1)),
     );
   }
 
   void _listenToDataStreams() {
-    // Only update the learning strat field on any updates; do NOT trigger whole rebuild
+    // Only update the learning strat field on any updates;
+    // do NOT trigger whole rebuild
     ref.listen(learningStrategiesStreamProvider, (previous, next) {
       next.whenData((strategies) {
         state = state.copyWith(
@@ -125,29 +127,30 @@ class AddSessionViewModel extends _$AddSessionViewModel {
     state = state.copyWith(tasks: [...state.tasks, taskWithGoal]);
   }
 
-  void toggleStrategy(String strategy) {
-    final updated = List<String>.from(state.learningStrategies);
+  void toggleStrategy(int strategyId) {
+    final current = state.learningStrategyIds;
 
-    if (updated.contains(strategy)) {
-      updated.remove(strategy);
+    if (current.contains(strategyId)) {
+      state = state.copyWith(
+        learningStrategyIds: current.where((id) => id != strategyId).toList(),
+      );
     } else {
-      updated.add(strategy);
+      state = state.copyWith(
+        learningStrategyIds: [...current, strategyId],
+      );
     }
-
-    state = state.copyWith(learningStrategies: updated);
   }
 
   void setTimerSettings({
     int? focusTime,
     int? breakTime,
     int? longBreakTime,
-    int? focusPhases,
+    int? pomodoroPhases,
   }) {
     state = state.copyWith(
       focusTimeMin: focusTime ?? state.focusTimeMin,
       breakTimeMin: breakTime ?? state.breakTimeMin,
-      longBreakTimeMin: longBreakTime ?? state.longBreakTimeMin,
-      focusPhases: focusPhases ?? state.focusPhases,
+      pomodoroPhases: pomodoroPhases ?? state.pomodoroPhases,
     );
   }
 
@@ -245,15 +248,14 @@ class AddSessionViewModel extends _$AddSessionViewModel {
       isRepeating: state.isRepeating,
       startDate: state.startDate,
       endDate: state.endDate,
-      plannedTime: state.plannedTime,
+      plannedTime: state.plannedTime ?? TimeOfDay.now(),
       hasNotification: state.enableNotifications,
       complexity: state.sessionComplexity,
       selectedDays: state.selectedDays,
-      learningStrategies: state.learningStrategies,
+      learningStrategyIds: state.learningStrategyIds,
       focusTimeMin: state.focusTimeMin,
       breakTimeMin: isComplex ? state.breakTimeMin : 0,
-      longBreakTimeMin: isComplex ? state.longBreakTimeMin : 0,
-      focusPhases: isComplex ? state.focusPhases : 0,
+      pomodoroPhases: isComplex ? state.pomodoroPhases : 0,
       hasFocusPrompt: state.hasFocusPrompt,
       focusPromptInterval: state.focusPromptInterval,
       showFocusPromptAlways: state.showFocusPromptAlways,

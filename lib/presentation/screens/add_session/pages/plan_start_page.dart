@@ -18,9 +18,6 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(addSessionViewModelProvider);
-    final plannedTime = ref.watch(
-      addSessionViewModelProvider.select((s) => s.plannedTime),
-    );
 
     final notificationsEnabled = ref.watch(
       addSessionViewModelProvider.select((s) => s.enableNotifications),
@@ -74,7 +71,9 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(12),
                   child: Text(
-                    plannedTime.format(context),
+                    state.plannedTime != null
+                        ? state.plannedTime!.format(context)
+                        : TimeOfDay.now().format(context),
                     style: context.textTheme.bodyLarge,
                   ),
                 ),
@@ -82,7 +81,7 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
               onTap: () async {
                 final time = await showTimePicker(
                   context: context,
-                  initialTime: plannedTime,
+                  initialTime: TimeOfDay.now(),
                 );
                 if (time != null) {
                   ref
@@ -139,10 +138,9 @@ class _PlanStartPageState extends ConsumerState<PlanStartPage> {
                     color: context.colorScheme.primary,
                   ),
                   const HorizontalSpace(size: SpaceSize.small),
-                  Expanded(
+                  const Expanded(
                     child: Text(
                       '''Die Uhrzeit dient nur der Planung und Benachrichtigung. Du kannst die Einheit trotzdem jederzeit starten.''',
-                      style: context.textTheme.bodySmall,
                     ),
                   ),
                 ],

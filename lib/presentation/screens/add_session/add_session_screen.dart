@@ -10,7 +10,6 @@ import 'package:srl_app/presentation/screens/add_session/pages/prompt_page.dart'
 import 'package:srl_app/presentation/screens/add_session/pages/setup_wizard_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/strategy_page.dart';
 import 'package:srl_app/presentation/screens/add_session/pages/timer_page.dart';
-import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 
 class AddSessionScreen extends ConsumerStatefulWidget {
@@ -37,7 +36,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   void initState() {
     super.initState();
 
-    _progress = 1 / 5;
+    _progress = 1 / 6;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.fullSessionModel != null) {
@@ -159,10 +158,8 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
         onPageChanged: (index) {
           setState(() {
             currentPage = index;
-            // Recalculate progress here based on dynamic page count
-            final total = state.sessionComplexity == SessionComplexity.advanced
-                ? 6
-                : 5;
+            // Recalculate progress based on page count
+            final total = !state.isEditMode ? 6 : 5;
             _progress = (index + 1) / total;
           });
         },
@@ -173,13 +170,11 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
 
           PlanStartPage(navigateForward: _navigateForward),
 
+          TimerPage(navigateForward: _navigateForward),
+
           GoalSettingPage(navigateForward: _navigateForward),
 
           StrategyPage(navigateForward: _navigateForward),
-
-          // Only show complex timer page on separate page when clicked
-          if (state.sessionComplexity == SessionComplexity.advanced)
-            TimerPage(navigateForward: _navigateForward),
 
           const PromptPage(),
         ],

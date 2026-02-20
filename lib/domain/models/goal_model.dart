@@ -9,7 +9,6 @@ abstract class GoalModel with _$GoalModel {
     required bool keptForFutureSessions,
     String? id,
     String? sessionId,
-    DateTime? completedAt,
     DateTime? createdAt,
   }) = _GoalModel;
   const GoalModel._();

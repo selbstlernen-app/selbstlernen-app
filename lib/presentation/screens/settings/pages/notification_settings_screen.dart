@@ -90,6 +90,7 @@ class _NotificationSettingsScreenState
               context: context,
               title: 'Benachrichtigungen',
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SettingsTile(
                     title: 'Benachrichtigungen erlauben',
@@ -103,6 +104,21 @@ class _NotificationSettingsScreenState
                         // turn them off in settings of device:
                         await NotificationService().openNotificationSettings();
                         await NotificationService().cancelAllNotifications();
+                        final activeSessions = ref.watch(
+                          settingsViewModelProvider.select(
+                            (s) => s.activeSessions,
+                          ),
+                        );
+                        if (activeSessions!.isNotEmpty) {
+                          for (final session in activeSessions) {
+                            await notifier.updateSessionSettings(
+                              session.copyWith(
+                                hasNotification: !session.hasNotification,
+                              ),
+                              int.parse(session.id!),
+                            );
+                          }
+                        }
                       } else {
                         // If they are off enable request
                         final granted = await NotificationService()
@@ -269,6 +285,7 @@ class _NotificationSettingsScreenState
                           ),
                         ),
                       ),
+                  const VerticalSpace(size: SpaceSize.small),
                   const _SettingNotificationList(),
                 ],
               ),
@@ -296,50 +313,54 @@ class _SettingNotificationList extends ConsumerWidget {
       title: 'Lerneinheit Erinnerungen',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
-          ...activeSessions!.map(
-            (session) => SettingsTile(
-              title: session.title,
-              subtitle: session.isRepeating ? 'Wiederholend' : 'Einmalig',
-              isEnabled: session.hasNotification,
-              onToggle: () async {
-                await notifier.updateSessionSettings(
-                  session.copyWith(hasNotification: !session.hasNotification),
-                  int.parse(session.id!),
-                );
-              },
-              // Expansion to set frequency and preferred time
-              // of notification
-              expandedChild:
-                  // Time Setting
-                  ListTile(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                    ),
-                    title: Text(
-                      'Bevorzugte Durchführzeit',
-                      style: context.textTheme.headlineSmall,
-                    ),
-                    subtitle: Text(session.plannedTime.format(context)),
-                    trailing: const Icon(Icons.access_time),
-                    onTap: () async {
-                      final time = await showTimePicker(
-                        context: context,
-                        initialTime: session.plannedTime,
-                      );
-                      if (time != null) {
-                        await notifier.updateSessionSettings(
-                          session.copyWith(plannedTime: time),
-                          int.parse(session.id!),
+          if (activeSessions != null && activeSessions.isEmpty)
+            const Text('Keine offene Lerneinheit')
+          else
+            ...activeSessions!.map(
+              (session) => SettingsTile(
+                title: session.title,
+                subtitle: session.isRepeating ? 'Wiederholend' : 'Einmalig',
+                isEnabled: session.hasNotification,
+                onToggle: () async {
+                  await notifier.updateSessionSettings(
+                    session.copyWith(hasNotification: !session.hasNotification),
+                    int.parse(session.id!),
+                  );
+                },
+                // Expansion to set frequency and preferred time
+                // of notification
+                expandedChild:
+                    // Time Setting
+                    ListTile(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                      ),
+                      title: Text(
+                        'Bevorzugte Durchführzeit',
+                        style: context.textTheme.headlineSmall,
+                      ),
+                      subtitle: Text(session.plannedTime.format(context)),
+                      trailing: const Icon(Icons.access_time),
+                      onTap: () async {
+                        final time = await showTimePicker(
+                          context: context,
+                          initialTime: session.plannedTime,
                         );
-                      }
-                    },
-                  ),
+                        if (time != null) {
+                          await notifier.updateSessionSettings(
+                            session.copyWith(plannedTime: time),
+                            int.parse(session.id!),
+                          );
+                        }
+                      },
+                    ),
+              ),
             ),
-          ),
         ],
       ),
     );

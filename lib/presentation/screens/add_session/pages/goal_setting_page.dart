@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/common_widgets.dart';
 import 'package:srl_app/common_widgets/custom_add_item_field.dart';
-import 'package:srl_app/common_widgets/custom_error_text.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/models.dart';
@@ -167,7 +166,6 @@ class _GoalSettingPageState extends ConsumerState<GoalSettingPage> {
                 onPressed: _handleAddGoal,
                 controller: _goalController,
                 hintText: 'Ich will...',
-                hasError: state.goalError != null,
                 markEditMode: state.isEditMode,
               ),
             const VerticalSpace(
@@ -183,9 +181,6 @@ class _GoalSettingPageState extends ConsumerState<GoalSettingPage> {
                 ),
               ),
             ),
-
-            if (state.goalError != null)
-              CustomErrorText(errorText: state.goalError!),
 
             const VerticalSpace(
               size: SpaceSize.small,
@@ -219,11 +214,8 @@ class _GoalSettingPageState extends ConsumerState<GoalSettingPage> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomButton(
-                    isActive: state.goalError == null,
                     label: 'Weiter',
-                    onPressed: () => state.goalError == null
-                        ? widget.navigateForward()
-                        : null,
+                    onPressed: () => widget.navigateForward(),
                   ),
                 ),
               ],

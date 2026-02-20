@@ -10,7 +10,6 @@ abstract class TaskModel with _$TaskModel {
     String? id,
     String? sessionId,
     String? goalId,
-    DateTime? completedAt,
     DateTime? createdAt,
   }) = _TaskModel;
   const TaskModel._();

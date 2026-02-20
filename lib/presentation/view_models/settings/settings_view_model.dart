@@ -156,7 +156,6 @@ class SettingsViewModel extends _$SettingsViewModel {
     required NotificationType type,
     required bool isEnabled,
   }) async {
-    print(type);
     await ref
         .read(manageNotificationsUseCaseProvider)
         .toggleNotificationType(

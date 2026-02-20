@@ -25,10 +25,10 @@ class TestData extends _$TestData {
       startDate: DateTime(2025, 11),
       endDate: DateTime(2026, 1, 15),
       selectedDays: <int>[0, 1, 2, 3, 4, 5, 6],
-      learningStrategies: <String>['Karteinkarten schreiben', 'Active Recall'],
+      learningStrategyIds: <int>[1, 4],
       focusTimeMin: 50,
       breakTimeMin: 10,
-      longBreakTimeMin: 20,
+
       createdAt: DateTime(2025, 11, 20),
     );
 

@@ -1,5 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:srl_app/domain/models/goal_model.dart';
+import 'package:srl_app/domain/models/learning_strategy/instance_strategy_with_details.dart';
+import 'package:srl_app/domain/models/learning_strategy/learning_strategy_with_stats.dart';
 import 'package:srl_app/domain/models/learning_strategy_model.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
@@ -10,12 +12,34 @@ import 'package:srl_app/domain/providers.dart';
 
 part 'providers.g.dart';
 
-/// Returns a stream of all learning strategies
+/// Returns a stream of all learning strategies (rated across all sessions)
 @riverpod
-Stream<List<LearningStrategyModel>> learningStrategiesStream(Ref ref) {
+Stream<List<LearningStrategyWithStats>> learningStrategiesStream(Ref ref) {
   return ref
       .watch(manageLearningStrategyUseCaseProvider)
-      .watchLearningStrategies();
+      .watchAllStrategiesWithStats();
+}
+
+/// Returns a stream of all strategies for a session
+@riverpod
+Stream<List<LearningStrategyModel>> sessionStrategies(
+  Ref ref,
+  int sessionId,
+) {
+  return ref
+      .watch(manageLearningStrategyUseCaseProvider)
+      .watchLearningStrategiesForSession(sessionId);
+}
+
+/// Returns a straem of all strategies specific to an instance
+@riverpod
+Stream<List<InstanceStrategyWithDetails>> instanceStrategies(
+  Ref ref,
+  int instanceId,
+) {
+  return ref
+      .watch(manageLearningStrategyUseCaseProvider)
+      .watchStrategiesForInstance(instanceId);
 }
 
 /// Returns a stream of notification settings

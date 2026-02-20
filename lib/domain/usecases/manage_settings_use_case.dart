@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:srl_app/domain/settings_repository.dart';
+import 'package:srl_app/domain/repositories/settings_repository.dart';
 
 class ManageSettingsUseCase {
   const ManageSettingsUseCase(this._repository);
@@ -29,8 +29,15 @@ class ManageSettingsUseCase {
     await _repository.setPrimaryColor(color);
   }
 
+  // Toggles the automatic timer start
   Future<void> toggleTimerStartsAutomatically() async {
     final current = _repository.timerStartsAutomatically;
     await _repository.setTimerStartsAutomatically(value: !current);
+  }
+
+  // Toggles the intro screen
+  Future<void> toggleIntroScreen() async {
+    final current = _repository.playIntro;
+    await _repository.setPlayIntro(value: !current);
   }
 }

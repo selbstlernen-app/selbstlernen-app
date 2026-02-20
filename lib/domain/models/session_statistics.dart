@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:srl_app/domain/models/learning_strategy/strategy_usage_for_session.dart';
 
 part 'session_statistics.freezed.dart';
 
@@ -20,6 +21,9 @@ abstract class SessionStatistics with _$SessionStatistics {
 
     /// All tasks ever completed, across session instances
     required int totalTasksCompleted,
+
+    /// Learning Strategies most commonly used in the session
+    required List<StrategyUsageForSession> strategyUsage,
 
     double? averageMood,
     DateTime? lastSessionDate,

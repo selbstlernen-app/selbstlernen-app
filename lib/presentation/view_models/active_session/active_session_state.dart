@@ -3,7 +3,10 @@ import 'package:srl_app/domain/models/models.dart';
 
 part 'active_session_state.freezed.dart';
 
-enum SessionPhase { focus, shortBreak, longBreak }
+enum SessionPhase {
+  focus,
+  shortBreak,
+}
 
 enum TimerStatus { initial, running, paused, completed }
 
@@ -16,13 +19,21 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     // The time stamp marking the last time app was on actively on foreground
     DateTime? lastActiveTimestamp,
 
-    // Goals and tasks that are displayed in the session
+    // -- GOALS & TASKS
+    // Currently displayed goals and tasks
     @Default(<GoalModel>[]) List<GoalModel> goals,
     @Default(<TaskModel>[]) List<TaskModel> tasks,
 
-    // Original goals and tasks to be compared at the end of a session
     @Default(<GoalModel>[]) List<GoalModel> allOriginalGoals,
     @Default(<TaskModel>[]) List<TaskModel> allOriginalTasks,
+
+    @Default(<String>{}) Set<String> goalIdsToDelete,
+    @Default(<String>{}) Set<String> taskIdsToDelete,
+    @Default(<String>{}) Set<String> completedGoalIds,
+    @Default(<String>{}) Set<String> completedTaskIds,
+
+    // Check which goal is currently expanded if any
+    @Default(null) String? expandedGoalId,
 
     // Current session phase
     @Default(SessionPhase.focus) SessionPhase currentPhase,
@@ -51,17 +62,6 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     // Index of a current phase; used for visual display
     @Default(0) int currentPhaseIndex,
 
-    // Check which goal is currently expanded if any
-    @Default(null) String? expandedGoalId,
-
-    // Goal and task completion tracking
-    @Default(<String>{}) Set<String> completedGoalIds,
-    @Default(<String>{}) Set<String> completedTaskIds,
-
-    // Keep track of ids to delete
-    @Default(<String>{}) Set<String> goalIdsToDelete,
-    @Default(<String>{}) Set<String> taskIdsToDelete,
-
     // Flag to enable edit mode
     @Default(false) bool isEditMode,
 
@@ -70,6 +70,8 @@ abstract class ActiveSessionState with _$ActiveSessionState {
 
     // Toggle focus prompt
     @Default(false) bool showFocusPrompt,
+    // Toggle timer end prompt
+    @Default(false) bool showTimerEndPrompt,
 
     @Default(true) bool isLoading,
     String? error,
@@ -99,11 +101,15 @@ abstract class ActiveSessionState with _$ActiveSessionState {
     return existingGoalsWithNewTasks;
   }
 
-  List<TaskModel> get deleteTasks => allOriginalTasks
-      .where((TaskModel task) => taskIdsToDelete.contains(task.id))
-      .toList();
+  List<TaskModel> get deleteTasks {
+    return allOriginalTasks.where((task) {
+      return taskIdsToDelete.contains(task.id.toString());
+    }).toList();
+  }
 
-  List<GoalModel> get deleteGoals => allOriginalGoals
-      .where((GoalModel goal) => goalIdsToDelete.contains(goal.id))
-      .toList();
+  List<GoalModel> get deleteGoals {
+    return allOriginalGoals.where((goal) {
+      return goalIdsToDelete.contains(goal.id.toString());
+    }).toList();
+  }
 }

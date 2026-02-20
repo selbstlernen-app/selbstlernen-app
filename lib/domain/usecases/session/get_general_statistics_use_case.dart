@@ -1,8 +1,8 @@
-import 'package:srl_app/domain/goal_repository.dart';
 import 'package:srl_app/domain/models/models.dart';
-import 'package:srl_app/domain/session_instance_repository.dart';
-import 'package:srl_app/domain/session_repository.dart';
-import 'package:srl_app/domain/task_repository.dart';
+import 'package:srl_app/domain/repositories/goal_repository.dart';
+import 'package:srl_app/domain/repositories/session_instance_repository.dart';
+import 'package:srl_app/domain/repositories/session_repository.dart';
+import 'package:srl_app/domain/repositories/task_repository.dart';
 
 /// Use case to calculate session statistics from all sessions
 /// and their instances that exist and are active/archived in the database

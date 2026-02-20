@@ -138,5 +138,7 @@ ManageNotificationsUseCase manageNotificationsUseCase(Ref ref) {
 ManageLearningStrategyUseCase manageLearningStrategyUseCase(Ref ref) {
   return ManageLearningStrategyUseCase(
     ref.watch(strategyRepositoryProvider),
+    ref.watch(sessionRepositoryProvider),
+    ref.watch(sessionInstanceRepositoryProvider),
   );
 }

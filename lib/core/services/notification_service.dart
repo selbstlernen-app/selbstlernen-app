@@ -21,8 +21,7 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static const Map<NotificationType, int> _notificationIds = {
-    NotificationType.weeklyProgress: 2,
-    NotificationType.motivationalReminder: 3,
+    NotificationType.motivationalReminder: 1,
   };
 
   Future<void> init() async {
@@ -83,11 +82,14 @@ class NotificationService {
     final scheduledDate = _calculateNextInstance(plannedTime);
     await _executeSchedule(
       id: sessionId * 10,
-      title: sessionTitle,
-      body: _getNotificationBody(NotificationType.sessionReminder),
+      title: _getNotificationTitle(NotificationType.sessionReminder),
+      body: _getNotificationBody(
+        NotificationType.sessionReminder,
+        sessionTitle,
+      ),
       scheduledDate: scheduledDate,
       type: NotificationType.sessionReminder,
-      matchComponents: DateTimeComponents.time,
+      matchComponents: null,
     );
   }
 
@@ -108,8 +110,8 @@ class NotificationService {
 
       await _executeSchedule(
         id: _getUniqueId(sessionId, dayOfWeek),
-        title: _getNotificationTitle(NotificationType.sessionReminder, title),
-        body: _getNotificationBody(NotificationType.sessionReminder),
+        title: _getNotificationTitle(NotificationType.sessionReminder),
+        body: _getNotificationBody(NotificationType.sessionReminder, title),
         scheduledDate: scheduledDate,
         type: NotificationType.sessionReminder,
         matchComponents: _getMatchDateTimeComponents(
@@ -169,9 +171,6 @@ class NotificationService {
         endDate!,
       );
     }
-
-    print("PENDING NOTIFS");
-    await pendingNotifications();
   }
 
   // Schedule a notification based on type, frequency, and preferred time
@@ -217,6 +216,7 @@ class NotificationService {
     for (final note in notificiations) {
       print(note.id);
       print(note.title);
+      print(note.body);
     }
   }
 
@@ -267,20 +267,16 @@ class NotificationService {
   String _getNotificationTitle(NotificationType type, [String? customMessage]) {
     switch (type) {
       case NotificationType.sessionReminder:
-        return 'Deine Einheit $customMessage wartet darauf, bearbeitet zu werden 🎯';
-      case NotificationType.weeklyProgress:
-        return 'Dein Wochenfortschritt 📍';
+        return 'Zeit zu arbeiten! 🎯';
       case NotificationType.motivationalReminder:
         return customMessage ?? 'Bleib dran und gib alles! 🔥';
     }
   }
 
-  String _getNotificationBody(NotificationType type) {
+  String _getNotificationBody(NotificationType type, [String? customMessage]) {
     switch (type) {
       case NotificationType.sessionReminder:
-        return '';
-      case NotificationType.weeklyProgress:
-        return 'Schau dir an, wie weit du diese Woche gekommen bist!';
+        return 'Deine Einheit "$customMessage" wartet auf dich';
       case NotificationType.motivationalReminder:
         return '';
     }
@@ -290,8 +286,6 @@ class NotificationService {
     switch (type) {
       case NotificationType.sessionReminder:
         return 'Session specific reminder';
-      case NotificationType.weeklyProgress:
-        return 'Weekly progress summaries';
       case NotificationType.motivationalReminder:
         return 'Motivational reminders';
     }
@@ -304,7 +298,6 @@ class NotificationService {
       case NotificationFrequency.daily:
         return DateTimeComponents.time; // Same time every day
       case NotificationFrequency.weekly:
-      case NotificationFrequency.everyOtherDay:
         return DateTimeComponents
             .dayOfWeekAndTime; // Same day and time every week
     }
@@ -323,7 +316,7 @@ class NotificationService {
       startDate.month,
       startDate.day,
       plannedTime.hour,
-      plannedTime.minute - 2,
+      plannedTime.minute,
     );
 
     while ((scheduledDate.weekday - 1) != dayOfWeek ||

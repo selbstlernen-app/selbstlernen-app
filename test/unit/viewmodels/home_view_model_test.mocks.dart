@@ -8,8 +8,9 @@ import 'dart:async' as _i5;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:srl_app/domain/models/session_instance_model.dart' as _i9;
 import 'package:srl_app/domain/models/session_with_instance_model.dart' as _i6;
-import 'package:srl_app/domain/session_instance_repository.dart' as _i3;
-import 'package:srl_app/domain/session_repository.dart' as _i2;
+import 'package:srl_app/domain/repositories/session_instance_repository.dart'
+    as _i3;
+import 'package:srl_app/domain/repositories/session_repository.dart' as _i2;
 import 'package:srl_app/domain/usecases/instance/manange_instance_use_case.dart'
     as _i8;
 import 'package:srl_app/domain/usecases/session/get_completed_sessions_for_today_use_case.dart'

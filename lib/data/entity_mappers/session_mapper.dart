@@ -5,7 +5,7 @@ import 'package:srl_app/domain/models/session_model.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 extension SessionToModelMapper on Session {
-  SessionModel toDomain() {
+  SessionModel toDomain(List<int>? strategyIds) {
     return SessionModel(
       id: id.toString(),
       title: title,
@@ -16,11 +16,10 @@ extension SessionToModelMapper on Session {
       startDate: startDate,
       endDate: endDate,
       selectedDays: selectedDays?.split(',').map(int.parse).toList() ?? <int>[],
-      learningStrategies: learningStrategies?.split(',').toList() ?? <String>[],
+      learningStrategyIds: strategyIds ?? <int>[],
       focusTimeMin: focusTimeMin,
       breakTimeMin: breakTimeMin,
-      longBreakTimeMin: longBreakTimeMin,
-      focusPhases: focusPhases,
+      pomodoroPhases: pomodoroPhases,
       hasFocusPrompt: hasFocusPrompt,
       focusPromptInterval: focusPromptInterval,
       showFocusPromptAlways: showFocusPromptAlways,
@@ -30,8 +29,14 @@ extension SessionToModelMapper on Session {
     );
   }
 
-  static List<SessionModel> mapFromListOfEntity(List<Session> entities) {
-    return entities.map((Session e) => e.toDomain()).toList();
+  static List<SessionModel> mapFromListOfEntity(
+    List<Session> entities, [
+    Map<int, List<int>>? sessionStrategyMap,
+  ]) {
+    return entities.map((Session e) {
+      final strategyIds = sessionStrategyMap?[e.id] ?? <int>[];
+      return e.toDomain(strategyIds);
+    }).toList();
   }
 }
 
@@ -40,21 +45,20 @@ extension SessionToCompanionMapper on SessionModel {
     return SessionsCompanion(
       title: Value<String>(title),
       isRepeating: Value<bool>(isRepeating),
+
+      plannedTime: Value<TimeOfDay>(plannedTime),
+      hasNotification: Value<bool>(hasNotification),
+      complexity: Value<SessionComplexity>(complexity),
+
       startDate: Value<DateTime?>(startDate),
       endDate: Value<DateTime?>(endDate),
       selectedDays: Value<String?>(
         selectedDays.isNotEmpty ? selectedDays.join(',') : null,
       ),
-      learningStrategies: Value<String?>(
-        learningStrategies.isNotEmpty ? learningStrategies.join(',') : null,
-      ),
-      plannedTime: Value<TimeOfDay>(plannedTime),
-      hasNotification: Value<bool>(hasNotification),
-      complexity: Value<SessionComplexity>(complexity),
+
       focusTimeMin: Value<int>(focusTimeMin),
       breakTimeMin: Value<int>(breakTimeMin),
-      longBreakTimeMin: Value<int>(longBreakTimeMin),
-      focusPhases: Value<int>(focusPhases),
+      pomodoroPhases: Value<int>(pomodoroPhases),
       hasFocusPrompt: Value<bool>(hasFocusPrompt),
       focusPromptInterval: Value<int>(focusPromptInterval),
       showFocusPromptAlways: Value<bool>(showFocusPromptAlways),
@@ -69,20 +73,19 @@ extension SessionToCompanionMapper on SessionModel {
     return SessionsCompanion(
       title: Value<String>(title),
       isRepeating: Value<bool>(isRepeating),
+
+      plannedTime: Value<TimeOfDay>(plannedTime),
+      hasNotification: Value<bool>(hasNotification),
+
       startDate: Value<DateTime?>(startDate),
       endDate: Value<DateTime?>(endDate),
       selectedDays: Value<String?>(
         selectedDays.isNotEmpty ? selectedDays.join(',') : null,
       ),
-      learningStrategies: Value<String?>(
-        learningStrategies.isNotEmpty ? learningStrategies.join(',') : null,
-      ),
+
       focusTimeMin: Value<int>(focusTimeMin),
       breakTimeMin: Value<int>(breakTimeMin),
-      plannedTime: Value<TimeOfDay>(plannedTime),
-      hasNotification: Value<bool>(hasNotification),
-      longBreakTimeMin: Value<int>(longBreakTimeMin),
-      focusPhases: Value<int>(focusPhases),
+      pomodoroPhases: Value<int>(pomodoroPhases),
       hasFocusPrompt: Value<bool>(hasFocusPrompt),
       focusPromptInterval: Value<int>(focusPromptInterval),
       showFocusPromptAlways: Value<bool>(showFocusPromptAlways),

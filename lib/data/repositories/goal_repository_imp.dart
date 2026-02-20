@@ -1,7 +1,7 @@
 import 'package:srl_app/data/database/daos/goal_dao.dart';
 import 'package:srl_app/data/entity_mappers/goal_mapper.dart';
-import 'package:srl_app/domain/goal_repository.dart';
 import 'package:srl_app/domain/models/goal_model.dart';
+import 'package:srl_app/domain/repositories/goal_repository.dart';
 
 class GoalRepositoryImp implements GoalRepository {
   GoalRepositoryImp(this.goalDao);

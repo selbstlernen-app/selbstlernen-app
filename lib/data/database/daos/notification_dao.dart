@@ -17,11 +17,6 @@ class NotificationDao extends DatabaseAccessor<AppDatabase>
     return into(notifications).insert(notification);
   }
 
-  /// Get all notification type settings
-  Future<List<Notification>> getAllSettings() {
-    return select(notifications).get();
-  }
-
   /// Watch all notification type settings
   Stream<List<Notification>> watchAllSettings() {
     return select(notifications).watch();

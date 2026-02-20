@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:srl_app/domain/settings_repository.dart';
+import 'package:srl_app/domain/repositories/settings_repository.dart';
 
 class SettingsRepositoryImp implements SettingsRepository {
   SettingsRepositoryImp(this._prefs);
@@ -12,7 +12,8 @@ class SettingsRepositoryImp implements SettingsRepository {
   static const _primaryColorKey = 'primary_color';
   static const _timerStartsAutomaticallyKey = 'timer_starts_automatically';
 
-  static const _timerEndKey = 'timer_end_timestamp';
+  static const _timerEndKey = 'time_stamp';
+  static const _playIntroKey = 'play_intro';
 
   // Getters
   @override
@@ -32,10 +33,13 @@ class SettingsRepositoryImp implements SettingsRepository {
       _prefs.getBool(_timerStartsAutomaticallyKey) ?? true;
 
   @override
-  DateTime? get timerEndTimestamp {
+  DateTime? get timeStamp {
     final iso = _prefs.getString(_timerEndKey);
     return iso != null ? DateTime.tryParse(iso) : null;
   }
+
+  @override
+  bool get playIntro => _prefs.getBool(_playIntroKey) ?? true;
 
   // Setters
   @override
@@ -63,7 +67,7 @@ class SettingsRepositoryImp implements SettingsRepository {
   }
 
   @override
-  Future<void> setTimerEndTimestamp(DateTime? timestamp) async {
+  Future<void> setTimeStamp(DateTime? timestamp) async {
     if (timestamp == null) {
       await _prefs.remove(_timerEndKey);
     } else {
@@ -72,7 +76,7 @@ class SettingsRepositoryImp implements SettingsRepository {
   }
 
   @override
-  Future<void> clearAll() async {
-    await _prefs.clear();
+  Future<void> setPlayIntro({required bool value}) async {
+    await _prefs.setBool(_playIntroKey, value);
   }
 }

@@ -1,6 +1,6 @@
 import 'package:srl_app/core/services/notification_service.dart';
 import 'package:srl_app/domain/models/notification_type_setting.dart';
-import 'package:srl_app/domain/notification_repository.dart';
+import 'package:srl_app/domain/repositories/notification_repository.dart';
 
 class ManageNotificationsUseCase {
   const ManageNotificationsUseCase(

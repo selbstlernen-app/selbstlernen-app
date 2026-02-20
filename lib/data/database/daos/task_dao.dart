@@ -20,13 +20,6 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
     )..where(($TasksTable task) => task.sessionId.equals(sessionId))).get();
   }
 
-  // Get task by ID
-  Stream<Task?> getTaskById(int id) {
-    return (select(
-      tasks,
-    )..where(($TasksTable s) => s.id.equals(id))).watchSingleOrNull();
-  }
-
   Stream<List<Task>> watchTasksBySessionId(int sessionId) {
     return (select(tasks)..where(
           ($TasksTable task) =>
