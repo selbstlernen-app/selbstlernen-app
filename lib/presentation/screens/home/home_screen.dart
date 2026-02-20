@@ -202,7 +202,7 @@ class ProgressBar extends ConsumerWidget {
     String getMotivationalSubtext() {
       final remaining = activeSessions.length;
       if (remaining == 0 && completedSessions.isNotEmpty) {
-        return 'Du hast alles erledigt! Zeit zum Entspannen. ✨';
+        return 'Du hast alles erledigt! Zeit zum Entspannen ✨';
       }
       if (remaining > 0) {
         return 'Du hast heute noch $remaining Einheiten vor dir.';

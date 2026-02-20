@@ -26,7 +26,8 @@ class AddSessionViewModel extends _$AddSessionViewModel {
   }
 
   void _listenToDataStreams() {
-    // Only update the learning strat field on any updates; do NOT trigger whole rebuild
+    // Only update the learning strat field on any updates;
+    // do NOT trigger whole rebuild
     ref.listen(learningStrategiesStreamProvider, (previous, next) {
       next.whenData((strategies) {
         state = state.copyWith(

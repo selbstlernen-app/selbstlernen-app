@@ -34,8 +34,8 @@ class TimerSettingsScreen extends ConsumerWidget {
                   SettingsTile(
                     title: 'Start Modus',
                     subtitle: state.timerStartsAutomatically
-                        ? 'Der Timer soll automatisch beim Eintreten der Lerneinheit gestartet werden'
-                        : 'Der Timer muss bei jeder Lerneinheit manuell gestartet werden',
+                        ? '''Der Timer soll automatisch beim Eintreten der Lerneinheit gestartet werden'''
+                        : '''Der Timer muss bei jeder Lerneinheit manuell gestartet werden''',
                     isEnabled: state.timerStartsAutomatically,
                     onToggle: notifier.toggleTimerAutomaticallyStarted,
                   ),

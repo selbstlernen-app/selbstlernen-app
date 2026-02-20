@@ -33,10 +33,10 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
     // .listen to any update when manual changes in db happen
     ref
       ..listen(activeInstanceProvider(instanceId), (prev, next) {
-        next.whenData((instance) {
+        next.whenData((instance) async {
           if (state.instance == null) {
             // Initialise session from the instance if already in progress!
-            _initializeFromInstance(instance);
+            await _initializeFromInstance(instance);
           } else {
             state = state.copyWith(instance: instance);
           }

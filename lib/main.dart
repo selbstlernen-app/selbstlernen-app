@@ -43,7 +43,7 @@ class MyApp extends ConsumerWidget {
     final playIntro = ref.read(playIntroProvider);
 
     return MaterialApp(
-      title: 'SRL-App',
+      title: 'Selbstlernen.app 2.0',
       supportedLocales: const <Locale>[Locale('de')],
       localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
         GlobalMaterialLocalizations.delegate,

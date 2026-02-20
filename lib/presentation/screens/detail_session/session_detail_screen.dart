@@ -337,7 +337,7 @@ class _TimeSection extends StatelessWidget {
 
         // Planned focus time
         TimeBreakdownItem(
-          icon: Icons.psychology,
+          icon: Icons.timer_outlined,
           label: 'Fokuszeit',
           value: '${TimeUtils.formatTime(session.focusTimeMin * 60)} Min',
           color: AppPalette.pink,
@@ -346,7 +346,7 @@ class _TimeSection extends StatelessWidget {
         // Actual focus time (if instance exists)
         if (instance != null) ...[
           TimeBreakdownItem(
-            icon: Icons.psychology,
+            icon: Icons.timer_rounded,
             label: 'Durchgeführte Fokuszeit',
             value:
                 '${TimeUtils.formatTime(instance!.totalFocusSecondsElapsed)} Min',
@@ -358,7 +358,7 @@ class _TimeSection extends StatelessWidget {
         // Break time if not simple timer
         if (!session.isSimple) ...[
           TimeBreakdownItem(
-            icon: Icons.coffee,
+            icon: Icons.coffee_outlined,
             label: 'Pausenzeit',
             value: '${TimeUtils.formatTime(session.breakTimeMin * 60)} Min',
             color: AppPalette.orange,
@@ -414,22 +414,46 @@ class _StrategiesSection extends ConsumerWidget {
           return const Text('Keine Strategien ausgewählt');
         }
         return Column(
-          children: strategies.map((strategy) {
-            return Card(
-              child: ListTile(
-                title: Text(
-                  strategy.title,
-                  style: context.textTheme.labelMedium,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.psychology_rounded, size: 32),
+                const HorizontalSpace(size: SpaceSize.small),
+
+                Text(
+                  'Ausgewählte Lernstrategien',
+                  style: context.textTheme.headlineSmall,
                 ),
-                subtitle: strategy.explanation != null
-                    ? Text(
-                        strategy.explanation!,
-                        style: context.textTheme.bodySmall,
-                      )
-                    : const SizedBox.shrink(),
-              ),
-            );
-          }).toList(),
+              ],
+            ),
+            const VerticalSpace(
+              size: SpaceSize.small,
+            ),
+            ...strategies.map((strategy) {
+              return Card(
+                child: ListTile(
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        strategy.title,
+                        style: context.textTheme.labelMedium,
+                      ),
+                      const VerticalSpace(
+                        size: SpaceSize.xsmall,
+                      ),
+                    ],
+                  ),
+                  subtitle: strategy.explanation != null
+                      ? Text(
+                          strategy.explanation!,
+                          style: context.textTheme.bodySmall,
+                        )
+                      : const SizedBox.shrink(),
+                ),
+              );
+            }),
+          ],
         );
       },
     );

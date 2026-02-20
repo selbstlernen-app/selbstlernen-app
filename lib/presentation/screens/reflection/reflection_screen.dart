@@ -91,7 +91,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
                   Column(
                     children: <Widget>[
                       TimeBreakdownItem(
-                        icon: Icons.psychology,
+                        icon: Icons.timer_rounded,
                         label: 'Fokuszeit',
                         value: '${reflectionState.totalTimeFocused} Min',
                         color: AppPalette.pink,
