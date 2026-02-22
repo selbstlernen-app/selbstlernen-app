@@ -102,6 +102,12 @@ abstract class AddSessionState with _$AddSessionState {
   }
 
   // Can go to second page
+  bool get hasOneGoalTask {
+    if (goals.isNotEmpty || tasks.isNotEmpty) return true;
+    return false;
+  }
+
+  // Can go to second page
   bool get canGoToSecondStep {
     if (title.trim().isEmpty || titleError != null) return false;
     return true;

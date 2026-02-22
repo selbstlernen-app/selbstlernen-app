@@ -214,8 +214,12 @@ class _GoalSettingPageState extends ConsumerState<GoalSettingPage> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomButton(
-                    label: 'Weiter',
-                    onPressed: () => widget.navigateForward(),
+                    isActive: state.hasOneGoalTask,
+                    label: state.hasOneGoalTask
+                        ? 'Weiter'
+                        : 'Definiere mind. ein Ziel oder eine Aufgabe',
+                    onPressed: () =>
+                        state.hasOneGoalTask ? widget.navigateForward() : null,
                   ),
                 ),
               ],

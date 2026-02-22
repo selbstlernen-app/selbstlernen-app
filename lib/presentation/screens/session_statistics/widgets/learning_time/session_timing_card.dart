@@ -82,7 +82,7 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Lernzeiten',
+                showAllInstances ? 'Lernzeiten' : 'Lernzeit',
                 style: context.textTheme.headlineMedium,
               ),
               IconButton(
@@ -146,6 +146,7 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
 
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
+                            shadowColor: Colors.transparent,
                             padding: const EdgeInsets.symmetric(
                               horizontal: 4,
                             ),
