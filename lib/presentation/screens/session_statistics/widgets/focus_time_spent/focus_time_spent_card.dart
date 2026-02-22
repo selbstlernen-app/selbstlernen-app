@@ -77,7 +77,10 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Fokuszeit', style: context.textTheme.headlineMedium),
+              Text(
+                isAdvancedTimer ? 'Lernzeit' : 'Fokuszeit',
+                style: context.textTheme.headlineMedium,
+              ),
               IconButton(
                 color: AppPalette.grey.withValues(alpha: 0.5),
                 icon: const Icon(Icons.history_rounded),
