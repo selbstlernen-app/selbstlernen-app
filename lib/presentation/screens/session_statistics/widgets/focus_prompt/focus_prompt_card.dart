@@ -109,7 +109,9 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
                   },
                   collapsedLabel: 'Heutige',
                   expandedLabel: 'Trends anzeigen',
-                ),
+                )
+              else
+                const Spacer(),
 
               if (widget.allDoneInstances.length > 4 &&
                   averageMoodIndex != null &&

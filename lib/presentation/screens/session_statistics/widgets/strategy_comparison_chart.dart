@@ -40,8 +40,6 @@ class _StrategyComparisonChartState
         .where((s) => !widget.currentStrategyIds.contains(s.strategyId))
         .toList();
 
-    if (currentStrategies.isEmpty) return const SizedBox.shrink();
-
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

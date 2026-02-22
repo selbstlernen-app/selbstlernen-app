@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/card_layout.dart';
+import 'package:srl_app/common_widgets/custom_filter_chip.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
@@ -8,6 +9,12 @@ import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion/completion_line_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
+
+enum CompletionViewMode {
+  combined,
+  goals,
+  tasks,
+}
 
 class GoalTaskCompletionCard extends StatefulWidget {
   const GoalTaskCompletionCard({
@@ -32,25 +39,37 @@ class GoalTaskCompletionCard extends StatefulWidget {
 
 class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
   bool showAllInstances = false;
+  CompletionViewMode viewMode = CompletionViewMode.combined;
 
   List<SessionInstanceModel> get allDoneInstances => widget.pastInstances
       .where((instance) => instance.status == SessionStatus.completed)
       .toList();
 
-  double _calcAverage(List<SessionInstanceModel> instances, bool isGoal) {
+  double _calcAvg(List<SessionInstanceModel> instances) {
     if (instances.isEmpty) return 0;
-    final total = instances.fold<double>(
-      0,
-      (sum, i) => sum + (isGoal ? i.completedGoalsRate : i.completedTasksRate),
-    );
-    return total / instances.length;
+    if (viewMode == CompletionViewMode.combined) {
+      final total = instances.fold<double>(
+        0,
+        (sum, i) => sum + ((i.completedGoalsRate + i.completedTasksRate) / 2),
+      );
+      return total / instances.length;
+    } else {
+      final total = instances.fold<double>(
+        0,
+        (sum, i) =>
+            sum +
+            (viewMode == CompletionViewMode.goals
+                ? i.completedGoalsRate
+                : i.completedTasksRate),
+      );
+      return total / instances.length;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final done = allDoneInstances;
-    final avgGoals = _calcAverage(done, true);
-    final avgTasks = _calcAverage(done, false);
+    final avgCombined = _calcAvg(done);
 
     final hasData = done.isNotEmpty || widget.stats.totalGoalsCompleted > 0;
 
@@ -98,27 +117,71 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Ø ${avgGoals.toStringAsFixed(0)}% Ziele',
-                      style: context.textTheme.bodyMedium,
+                      'Ø ${avgCombined.toStringAsFixed(0)}% Gesamt',
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     Text(
-                      'Ø ${avgTasks.toStringAsFixed(0)}% Aufgaben',
-                      style: context.textTheme.bodyMedium,
+                      avgCombined >= 80
+                          ? 'Sehr konstant 🎯'
+                          : avgCombined >= 60
+                          ? 'Gute Entwicklung'
+                          : 'Noch Luft nach oben',
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: AppPalette.grey,
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
 
-            const VerticalSpace(size: SpaceSize.small),
+            const VerticalSpace(),
+
+            Wrap(
+              spacing: 8,
+              children: [
+                CustomFilterChip(
+                  label: 'Gesamt',
+                  isActive: viewMode == CompletionViewMode.combined,
+                  onPressed: () => setState(() {
+                    viewMode = CompletionViewMode.combined;
+                  }),
+                ),
+                CustomFilterChip(
+                  label: 'Ziele',
+                  isActive: viewMode == CompletionViewMode.goals,
+                  onPressed: () => setState(() {
+                    viewMode = CompletionViewMode.goals;
+                  }),
+                ),
+
+                CustomFilterChip(
+                  label: 'Aufgaben',
+                  isActive: viewMode == CompletionViewMode.tasks,
+                  onPressed: () => setState(() {
+                    viewMode = CompletionViewMode.tasks;
+                  }),
+                ),
+              ],
+            ),
+
+            const VerticalSpace(),
 
             CompletionLineChart(
-              instances: allDoneInstances,
+              instances: done,
+              avg: avgCombined,
               showAllInstances: showAllInstances,
+              viewMode: viewMode,
+            ),
+
+            const VerticalSpace(
+              size: SpaceSize.small,
             ),
 
             Text(
-              'Abgeschlossene Aufgaben und Ziele über alle Sitzungen hinweg',
+              'Dein Fortschritt über alle abgeschlossenen Sitzungen',
               style: context.textTheme.bodySmall!.copyWith(
                 color: AppPalette.grey,
               ),
@@ -178,22 +241,35 @@ class _ProductivitySquare extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
       decoration: BoxDecoration(
         color: iconColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Icon(icon, color: iconColor, size: 32),
-          const VerticalSpace(size: SpaceSize.xsmall),
-          Text(
-            '$total',
-            style: context.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: iconColor,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '$total',
+                style: context.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: iconColor,
+                ),
+              ),
+              const HorizontalSpace(size: SpaceSize.xsmall),
+              Icon(
+                icon,
+                color: iconColor,
+                size: 20,
+              ),
+            ],
           ),
+
+          const VerticalSpace(size: SpaceSize.small),
+
           Text(
             label,
             style: context.textTheme.bodySmall!.copyWith(color: iconColor),
@@ -203,9 +279,9 @@ class _ProductivitySquare extends StatelessWidget {
             const VerticalSpace(size: SpaceSize.xsmall),
             Text(
               'Ø ${average.toStringAsFixed(1)}/Einheit',
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: AppPalette.grey,
+              style: context.textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w500,
+                color: AppPalette.grey,
               ),
             ),
           ],

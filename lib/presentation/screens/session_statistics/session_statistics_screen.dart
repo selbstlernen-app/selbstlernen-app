@@ -10,6 +10,7 @@ import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/focus_prompt_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/focus_time_spent_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion/goal_task_completion_card.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/learning_time/session_timing_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/mood/mood_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/progress_card.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/strategy_comparison_chart.dart';
@@ -103,18 +104,33 @@ class SessionStatisticsScreen extends ConsumerWidget {
 
                       /// Focus time spent on last sessions
                       FocusTimeSpentCard(
+                        sessionType: state.session!.complexity,
                         stats: state.stats!,
                         completedInstances: allCompletedInstances,
                         targetFocusMinutes: state.session!.focusTimeMin
                             .toDouble(),
+                        showGeneralStatsOnly: showGeneralStatsOnly,
                       ),
 
                       const VerticalSpace(),
 
-                      StrategyComparisonChart(
-                        strategies: state.stats!.strategyUsage,
-                        currentStrategyIds: state.session!.learningStrategyIds,
+                      // Show learning time
+                      SessionTimingCard(
+                        allDoneInstances: allCompletedInstances,
+                        currentInstance: latestInstance,
+                        showGeneralStatsOnly: showGeneralStatsOnly,
+                        plannedTime: state.session!.plannedTime,
                       ),
+
+                      // Shows the strategies effectiveness if given
+                      if (state.stats!.strategyUsage.isEmpty) ...[
+                        const VerticalSpace(),
+                        StrategyComparisonChart(
+                          strategies: state.stats!.strategyUsage,
+                          currentStrategyIds:
+                              state.session!.learningStrategyIds,
+                        ),
+                      ],
 
                       const VerticalSpace(),
 
@@ -205,7 +221,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
               ),
               const VerticalSpace(size: SpaceSize.small),
               Text(
-                'Schließe deine erste Einheit ab, um detaillierte Statistiken und Analysen zu sehen.',
+                '''Schließe deine erste Einheit ab, um detaillierte Statistiken und Analysen zu sehen.''',
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: context.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),

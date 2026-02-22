@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/constants/constants.dart';
@@ -27,13 +28,35 @@ class MoodCard extends StatefulWidget {
 class _MoodCardState extends State<MoodCard> {
   bool showAllInstances = false;
 
+  List<SessionInstanceModel> get _ratedInstances =>
+      widget.instances
+          .where((i) => i.mood != null && i.completedAt != null)
+          .toList()
+        ..sort((a, b) => a.completedAt!.compareTo(b.completedAt!));
+
+  String _reflectiveQuestion(double avg) {
+    if (avg < 1.5) {
+      return 'Du wirkst häufig belastet. Was macht dir das Lernen gerade schwer?';
+    } else if (avg < 2.5) {
+      return 'Deine Stimmung ist oft gedrückt. Was könnte dir helfen, zufriedener mit deinem Lernen zu sein?';
+    } else if (avg < 3.5) {
+      return 'Du bist mal gut, mal weniger gut drauf. Was unterscheidet deine guten von deinen schwierigen Sitzungen?';
+    } else {
+      return 'Du bist meistens gut gestimmt! Was läuft gerade besonders gut für dich?';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final ratedInstances = widget.instances
-        .where((i) => i.mood != null)
+    final rated = _ratedInstances;
+    final hasEnoughForChart = rated.length > 1;
+    // Last 3 sessions with notes — surfaced inline
+    final withNotes = rated
+        .where((i) => i.notes != null && i.notes!.trim().isNotEmpty)
+        .toList()
+        .reversed
+        .take(2)
         .toList();
-    final hasEnoughDataForChart = ratedInstances.length > 1;
-    final showToggle = ratedInstances.length > 5;
 
     return CardLayout(
       content: Column(
@@ -42,10 +65,7 @@ class _MoodCardState extends State<MoodCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Stimmung',
-                style: context.textTheme.headlineMedium,
-              ),
+              Text('Stimmung', style: context.textTheme.headlineMedium),
               IconButton(
                 color: AppPalette.grey.withValues(alpha: 0.5),
                 icon: const Icon(Icons.history_rounded),
@@ -53,9 +73,15 @@ class _MoodCardState extends State<MoodCard> {
                   context,
                   widget.instances,
                   'Stimmung',
-                  (instance) => instance.mood != null
-                      ? Constants.emojiMoods[instance.mood!]
-                      : '-',
+                  (instance) {
+                    final emoji = instance.mood != null
+                        ? Constants.emojiMoods[instance.mood!]
+                        : '-';
+                    final note = (instance.notes?.trim().isNotEmpty ?? false)
+                        ? '\n„${instance.notes!.trim()}"'
+                        : '';
+                    return '$emoji$note';
+                  },
                 ),
               ),
             ],
@@ -67,7 +93,7 @@ class _MoodCardState extends State<MoodCard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                if (showToggle)
+                if (rated.length > 4)
                   ToggleShowAllButton(
                     showAll: showAllInstances,
                     thresholdExceeded: true,
@@ -106,12 +132,80 @@ class _MoodCardState extends State<MoodCard> {
 
             const VerticalSpace(size: SpaceSize.small),
 
-            if (hasEnoughDataForChart)
+            Text(
+              _reflectiveQuestion(widget.stats.averageMood!),
+              style: context.textTheme.bodySmall?.copyWith(
+                color: AppPalette.grey,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+
+            const VerticalSpace(),
+
+            if (hasEnoughForChart)
               MoodLineChart(
-                instances: ratedInstances,
+                instances: rated,
                 showAllInstances: showAllInstances,
               ),
+
+            // Show recent notes
+            if (withNotes.isNotEmpty) ...[
+              const VerticalSpace(size: SpaceSize.small),
+              Text(
+                'Deine letzten Notizen',
+                style: context.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const VerticalSpace(size: SpaceSize.xsmall),
+              ...withNotes.map(
+                (instance) => _NoteSnippet(instance: instance),
+              ),
+            ],
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _NoteSnippet extends StatelessWidget {
+  const _NoteSnippet({required this.instance});
+  final SessionInstanceModel instance;
+
+  @override
+  Widget build(BuildContext context) {
+    final emoji = Constants.emojiMoods[instance.mood!.clamp(0, 4)];
+    final date = instance.completedAt != null
+        ? DateFormat('dd.MM.yy').format(instance.completedAt!)
+        : '';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Text(emoji, style: const TextStyle(fontSize: 20)),
+          const HorizontalSpace(size: SpaceSize.xsmall),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  date,
+                  style: context.textTheme.labelSmall?.copyWith(
+                    color: AppPalette.grey,
+                  ),
+                ),
+                Text(
+                  // Truncate long notes
+                  instance.notes!.length > 120
+                      ? '${instance.notes!.substring(0, 120).trimRight()}…'
+                      : instance.notes!,
+                  style: context.textTheme.bodySmall,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

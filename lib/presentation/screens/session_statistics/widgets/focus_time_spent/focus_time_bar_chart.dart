@@ -5,10 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/core/utils/session_utils.dart';
 import 'package:srl_app/core/utils/statistics_ui_utils.dart';
-import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 class FocusTimeBarChart extends StatefulWidget {
   const FocusTimeBarChart({
@@ -16,6 +15,7 @@ class FocusTimeBarChart extends StatefulWidget {
     required this.dates,
     required this.targetFocusMinutes,
     required this.averageFocusMinutes,
+    required this.sessionType,
     super.key,
   });
 
@@ -23,6 +23,7 @@ class FocusTimeBarChart extends StatefulWidget {
   final List<DateTime> dates;
   final double targetFocusMinutes;
   final double averageFocusMinutes;
+  final SessionComplexity sessionType;
 
   @override
   State<FocusTimeBarChart> createState() => _StatsBarChartState();
@@ -32,37 +33,43 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
   int? touchedGroupIndex;
   Timer? _tooltipTimer;
 
-  late Map<String, int> _dayCounts;
-
   double get _maxY {
-    final maxInstance = widget.lastInstances.isNotEmpty
-        ? widget.lastInstances
-              .map(
-                (instance) => instance.totalFocusSecondsElapsed / 60.0,
-              )
-              .reduce(max)
-        : 0.0;
+    if (widget.lastInstances.isEmpty) return 0;
+
+    final maxInstance = widget.lastInstances
+        .map((instance) {
+          final focus = instance.totalFocusSecondsElapsed / 60.0;
+
+          if (widget.sessionType == SessionComplexity.advanced) {
+            final breakMinutes = instance.totalBreakSecondsElapsed / 60.0;
+            return focus + breakMinutes;
+          }
+
+          return focus;
+        })
+        .reduce(max);
+
     final maxValue = max(maxInstance, widget.targetFocusMinutes);
     final computedMax = max(maxValue, widget.averageFocusMinutes);
 
-    // Add 20 minutes for UI/UX
-    return (computedMax + 20).ceilToDouble();
+    return (computedMax * 1.2).ceilToDouble();
   }
 
   double get _interval => _calculateInterval(_maxY);
 
   /// Returns visually fitting interval depending on the max y value
   double _calculateInterval(double maxY) {
-    if (maxY <= 60) return 10;
-    if (maxY <= 120) return 30;
-    if (maxY <= 300) return 60;
-    return 180;
+    if (maxY <= 20) return 2;
+    if (maxY <= 45) return 5;
+    if (maxY <= 90) return 15;
+    if (maxY <= 180) return 30;
+    if (maxY <= 360) return 60;
+    return 120;
   }
 
   @override
   void initState() {
     super.initState();
-    _dayCounts = calculateDateOccurences(widget.lastInstances);
   }
 
   @override
@@ -126,25 +133,21 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
           if (groupIndex >= widget.lastInstances.length) return null;
 
           final instance = widget.lastInstances[groupIndex];
-          final date = instance.completedAt!;
-          final key = DateFormat('yyyyMMdd').format(date);
 
-          final dateTitle = (_dayCounts[key] ?? 0) > 1
-              ? DateFormat('dd.MM HH:mm').format(date)
-              : null;
+          final focusMinutes = instance.totalFocusSecondsElapsed ~/ 60;
 
-          final timeString = TimeUtils.formatTimeString(
-            totalSeconds: instance.totalFocusSecondsElapsed,
-          );
+          final isAdvanced = widget.sessionType == SessionComplexity.advanced;
 
-          var seconds = '';
-          if (timeString.seconds != '00') {
-            seconds = '\n${timeString.seconds}s';
+          var text = '$focusMinutes min Fokus';
+
+          if (isAdvanced) {
+            final breakMinutes = instance.totalBreakSecondsElapsed ~/ 60;
+
+            text += '\n$breakMinutes min Pause';
           }
 
           return BarTooltipItem(
-            '${dateTitle != null ? '$dateTitle\n' : ''}'
-            '''${timeString.hours != null ? '${timeString.hours} h ${timeString.minutes} min' : '${timeString.minutes} min $seconds'}''',
+            text,
             TextStyle(
               color: context.colorScheme.onInverseSurface,
               fontWeight: FontWeight.bold,
@@ -217,7 +220,7 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
       horizontalLines: [
         HorizontalLine(
           y: widget.targetFocusMinutes,
-          color: AppPalette.tealLight,
+          color: AppPalette.teal,
           strokeWidth: 3,
           dashArray: [6, 7],
           label: HorizontalLineLabel(
@@ -252,33 +255,50 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
   }
 
   List<BarChartGroupData> _buildBarGroups() {
-    return List<BarChartGroupData>.generate(
-      widget.lastInstances.length,
-      (int index) {
-        final minutes =
-            widget.lastInstances[index].totalFocusSecondsElapsed / 60.0;
+    final isAdvanced = widget.sessionType == SessionComplexity.advanced;
 
-        return BarChartGroupData(
-          x: index,
-          barRods: <BarChartRodData>[
-            BarChartRodData(
-              borderRadius: const BorderRadius.only(
-                topRight: Radius.circular(5),
-                topLeft: Radius.circular(5),
-              ),
-              // if no minutes were completed, still show a bar
-              toY: minutes == 0 ? 0.1 : minutes,
-              color: touchedGroupIndex == index
-                  ? AppPalette.pink
-                  : AppPalette.pinkLight,
-              width: 24,
+    return List.generate(widget.lastInstances.length, (index) {
+      final instance = widget.lastInstances[index];
+
+      final focusMinutes = instance.totalFocusSecondsElapsed / 60.0;
+
+      final breakMinutes = isAdvanced
+          ? instance.totalBreakSecondsElapsed / 60.0
+          : 0.0;
+
+      final total = focusMinutes + breakMinutes;
+
+      return BarChartGroupData(
+        x: index,
+        barRods: [
+          BarChartRodData(
+            toY: total == 0 ? 0.1 : total,
+            width: 24,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(5),
+              topRight: Radius.circular(5),
             ),
-          ],
-          showingTooltipIndicators: touchedGroupIndex == index
-              ? const <int>[0]
-              : const <int>[],
-        );
-      },
-    );
+            rodStackItems: isAdvanced
+                ? [
+                    BarChartRodStackItem(
+                      0,
+                      focusMinutes,
+                      AppPalette.pink,
+                    ),
+                    BarChartRodStackItem(
+                      focusMinutes,
+                      focusMinutes + breakMinutes,
+                      AppPalette.orange,
+                    ),
+                  ]
+                : null,
+            color: isAdvanced ? null : (AppPalette.pink),
+          ),
+        ],
+        showingTooltipIndicators: touchedGroupIndex == index
+            ? const [0]
+            : const [],
+      );
+    });
   }
 }

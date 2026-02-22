@@ -5,16 +5,25 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/statistics_ui_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion/goal_task_completion_card.dart';
 
 class CompletionLineChart extends StatelessWidget {
   const CompletionLineChart({
     required this.instances,
+    required this.avg,
     this.showAllInstances = false,
+    this.viewMode = CompletionViewMode.combined,
+
     super.key,
   });
-
   final List<SessionInstanceModel> instances;
   final bool showAllInstances;
+  final CompletionViewMode viewMode;
+  final double avg;
+
+  double _combinedRate(SessionInstanceModel m) {
+    return (m.completedGoalsRate + m.completedTasksRate) / 2;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -128,18 +137,39 @@ class CompletionLineChart extends StatelessWidget {
             maxX: (displayInstances.length - 1).toDouble(),
             minY: 0,
             maxY: 100,
+            extraLinesData: ExtraLinesData(
+              horizontalLines: [
+                HorizontalLine(
+                  label: HorizontalLineLabel(
+                    show: true,
+                    alignment: Alignment.topRight,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: AppPalette.indigo,
+                    ),
+                    labelResolver: (_) => 'Ø Avg',
+                  ),
+                  y: avg,
+                  dashArray: [6, 4],
+                  color: AppPalette.indigoLight,
+                ),
+              ],
+            ),
             lineBarsData: [
               buildLineChartData(
                 context: context,
                 instances: displayInstances,
-                valueSelector: (m) => m.completedGoalsRate,
-                color: AppPalette.sky,
-              ),
-              buildLineChartData(
-                context: context,
-                instances: displayInstances,
-                valueSelector: (m) => m.completedTasksRate,
-                color: AppPalette.emerald,
+                valueSelector: viewMode == CompletionViewMode.combined
+                    ? _combinedRate
+                    : viewMode == CompletionViewMode.goals
+                    ? (m) => m.completedGoalsRate
+                    : (m) => m.completedTasksRate,
+                color: viewMode == CompletionViewMode.goals
+                    ? AppPalette.sky
+                    : viewMode == CompletionViewMode.tasks
+                    ? AppPalette.emerald
+                    : AppPalette.indigo,
               ),
             ],
             lineTouchData: LineTouchData(
@@ -153,26 +183,30 @@ class CompletionLineChart extends StatelessWidget {
                   final x = touchedSpots.first.x.toInt();
                   final instance = displayInstances[x];
 
-                  final key = DateFormat(
-                    'yyyyMMdd',
+                  final date = DateFormat(
+                    'dd.MM',
                   ).format(instance.completedAt!);
 
-                  final tooltip = LineTooltipItem(
-                    '''${dayCounts[key]! > 1 ? DateFormat('dd.MM HH:mm').format(instance.completedAt!) : DateFormat('dd.MM').format(instance.completedAt!)}\n'''
-                    '''Ziele: ${instance.completedGoalsRate.toStringAsFixed(1)}%\n'''
-                    '''Aufgaben: ${instance.completedTasksRate.toStringAsFixed(1)}%''',
-                    TextStyle(
-                      color: context.colorScheme.onInverseSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  );
+                  final value = viewMode == CompletionViewMode.combined
+                      ? _combinedRate(instance)
+                      : (viewMode == CompletionViewMode.goals
+                            ? instance.completedGoalsRate
+                            : instance.completedTasksRate);
 
-                  // Returns list matching number of touched spots
-                  // Dince there are two points; first one is shown
-                  // other is null
+                  final label = viewMode == CompletionViewMode.combined
+                      ? 'Gesamt'
+                      : (viewMode == CompletionViewMode.goals
+                            ? 'Ziele'
+                            : 'Aufgaben');
+
                   return [
-                    tooltip,
-                    ...List.filled(touchedSpots.length - 1, null),
+                    LineTooltipItem(
+                      '$date\n$label: ${value.toStringAsFixed(1)}%',
+                      TextStyle(
+                        color: context.colorScheme.onInverseSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ];
                 },
               ),
