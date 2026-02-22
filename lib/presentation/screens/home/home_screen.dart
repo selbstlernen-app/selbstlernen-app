@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/custom_filter_chip.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
-import 'package:srl_app/data/test_data.dart';
 import 'package:srl_app/presentation/screens/home/widgets/calendar_widget.dart';
 import 'package:srl_app/presentation/screens/home/widgets/session_sections.dart';
 import 'package:srl_app/presentation/view_models/home/home_state.dart';
@@ -43,12 +42,6 @@ class _$HomeScreenState extends ConsumerState<HomeScreen> {
                     const ProgressBar(),
                     const VerticalSpace(),
                     const _FilterButtonRow(),
-
-                    ElevatedButton(
-                      onPressed: () =>
-                          ref.read(testDataProvider.notifier).insertTestData(),
-                      child: Text("hello"),
-                    ),
 
                     const ButtonAction(),
 

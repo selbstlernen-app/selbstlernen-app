@@ -146,9 +146,9 @@ extension LearningTimeTypeDetails on LearningTimeType {
             'deine Wachheit optimal.';
       case LearningTimeType.morningLearner:
         return 'Der Vormittag ist deine produktivste Zeit. Plane '
-            'anspruchsvolle Inhalte gezielt in diese Stunden.';
+            'anspruchsvolle Inhalte gezielt in diesen Stunden.';
       case LearningTimeType.afternoonLearner:
-        return 'Du arbeitest am häufig nachmittags. Schütze dieses Zeitfenster '
+        return 'Du arbeitest am häufigsten nachmittags. Schütze dieses Zeitfenster '
             'vor anderen Verpflichtungen.';
       case LearningTimeType.eveningLearner:
         return 'Du lernst häufig abends. Achte darauf, '
