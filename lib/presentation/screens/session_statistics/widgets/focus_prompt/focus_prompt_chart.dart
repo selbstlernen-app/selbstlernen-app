@@ -105,7 +105,7 @@ class FocusLevelChart extends StatelessWidget {
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
-                  reservedSize: 20,
+                  reservedSize: 30,
                   interval: _calculateInterval(maxX),
                   getTitlesWidget: (value, meta) {
                     final totalMinutes = value.toInt();
