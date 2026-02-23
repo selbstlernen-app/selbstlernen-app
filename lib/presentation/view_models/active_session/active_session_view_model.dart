@@ -78,6 +78,8 @@ class ActiveSessionViewModel extends _$ActiveSessionViewModel {
       session: session,
       instance: instance,
       completedBlocks: instance.totalCompletedBlocks,
+      totalFocusSecondsElapsed: instance.totalFocusSecondsElapsed,
+      totalBreakSecondsElapsed: instance.totalBreakSecondsElapsed,
       remainingSeconds:
           instance.remainingSeconds ??
           session.getDefaultDuration(SessionPhase.focus),
