@@ -154,7 +154,7 @@ class _LearningStrategySettingsScreenState
                   ],
                 ),
 
-                if (strategies.length < 15 && _isEditMode)
+                if (_isEditMode)
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),

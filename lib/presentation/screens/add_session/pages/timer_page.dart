@@ -93,6 +93,10 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
               _buildSimpleTimeSettings()
             else
               _buildAdvancedTimeSettings(),
+
+            const VerticalSpace(),
+
+            _InfoBox(),
           ]),
         ),
         SliverFillRemaining(
@@ -142,31 +146,6 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
         const VerticalSpace(size: SpaceSize.xsmall),
 
         _calculateTotalTime(isSimpleTimer: true),
-
-        const VerticalSpace(),
-
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: context.colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.info_outline_rounded,
-                size: 24,
-                color: context.colorScheme.primary,
-              ),
-              const HorizontalSpace(size: SpaceSize.small),
-              const Expanded(
-                child: Text(
-                  '''Nachdem die Fokuszeit abgelaufen ist, kann die Einheit entweder fortgeführt oder beendet werden.''',
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -214,7 +193,7 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
                       .read(addSessionViewModelProvider.notifier)
                       .setTimerSettings(pomodoroPhases: value);
                 },
-                maxValue: 15,
+                maxValue: 10,
               ),
             ),
           ],
@@ -236,6 +215,31 @@ class _$TimerPageState extends ConsumerState<TimerPage> {
 
         _calculateTotalTime(isSimpleTimer: false),
       ],
+    );
+  }
+
+  Widget _InfoBox() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: context.colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.info_outline_rounded,
+            size: 24,
+            color: context.colorScheme.primary,
+          ),
+          const HorizontalSpace(size: SpaceSize.small),
+          const Expanded(
+            child: Text(
+              '''Nach Ablauf der Zeit, kann die Einheit entweder fortgeführt oder beendet werden.''',
+            ),
+          ),
+        ],
+      ),
     );
   }
 
