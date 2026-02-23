@@ -13,21 +13,24 @@ import 'package:srl_app/presentation/view_models/home/home_view_model.dart';
 class SessionSectionSliver extends StatelessWidget {
   const SessionSectionSliver({
     required this.items,
-    required this.emptyLabel,
+
     required this.itemBuilder,
+    this.emptyLabel,
     super.key,
     this.title,
   });
   final String? title;
   final List<SessionWithInstanceModel> items;
-  final String emptyLabel;
+  final String? emptyLabel;
   final Widget Function(SessionWithInstanceModel) itemBuilder;
 
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) {
       return SliverToBoxAdapter(
-        child: Text(emptyLabel, style: context.textTheme.bodyMedium),
+        child: emptyLabel != null
+            ? Text(emptyLabel!, style: context.textTheme.bodyMedium)
+            : const SizedBox.shrink(),
       );
     }
 
@@ -95,11 +98,11 @@ class ButtonAction extends ConsumerWidget {
             return const SizedBox.shrink();
           },
           loading: () => const SizedBox.shrink(),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }
@@ -128,7 +131,7 @@ class HomeSectionActive extends ConsumerWidget {
           sliver: SessionSectionSliver(
             title: isAllFilter ? 'Anstehende Lerneinheiten' : null,
             items: data,
-            emptyLabel: 'Keine offene Lerneinheit',
+            emptyLabel: !isAllFilter ? 'Keine offene Lerneinheit' : null,
             itemBuilder: (data) => PendingSessionTile(
               session: data.session,
               pendingInstance: data.instance,
@@ -157,10 +160,14 @@ class HomeSectionCompleted extends ConsumerWidget {
     final completedSessions = ref.watch(
       completedSessionsForDateProvider(selectedDate),
     );
-    final isAllFilter = ref.watch(
+    final isAllOrDoneFilter = ref.watch(
       homeViewModelProvider.select(
         (s) => s.filter == SessionFilter.all || s.filter == SessionFilter.done,
       ),
+    );
+
+    final isAllFilter = ref.watch(
+      homeViewModelProvider.select((s) => s.filter == SessionFilter.all),
     );
 
     return completedSessions.when(
@@ -168,9 +175,9 @@ class HomeSectionCompleted extends ConsumerWidget {
         return SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           sliver: SessionSectionSliver(
-            title: isAllFilter ? 'Erledigte Lerneinheiten' : null,
+            title: isAllOrDoneFilter ? 'Erledigte Lerneinheiten' : null,
             items: data,
-            emptyLabel: 'Keine Lerneinheiten erledigt',
+            emptyLabel: !isAllFilter ? 'Keine Lerneinheiten erledigt' : null,
             itemBuilder: (data) => CompletedSessionTile(
               sessionWithInstance: data,
             ),
