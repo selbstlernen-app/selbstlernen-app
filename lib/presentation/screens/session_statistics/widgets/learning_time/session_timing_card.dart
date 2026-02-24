@@ -72,7 +72,7 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
         ? completedInstances.isNotEmpty
         : widget.currentInstance.completedAt != null;
 
-    final chronotype = _getAvgLearningTimeType(completedInstances);
+    final avgLearningTimeType = _getAvgLearningTimeType(completedInstances);
 
     return CardLayout(
       content: Column(
@@ -114,8 +114,9 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
               else
                 const Spacer(),
 
-              if (showAllInstances && chronotype != LearningTimeType.undefined)
-                TimeTypeBadge(timeType: chronotype),
+              if (showAllInstances &&
+                  avgLearningTimeType != LearningTimeType.undefined)
+                TimeTypeBadge(timeType: avgLearningTimeType),
             ],
           ),
 
@@ -179,9 +180,10 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
             ),
 
           // Learning Time Type description
-          if (showAllInstances && chronotype != LearningTimeType.undefined) ...[
+          if (showAllInstances &&
+              avgLearningTimeType != LearningTimeType.undefined) ...[
             const VerticalSpace(size: SpaceSize.small),
-            LearningTimeInsight(type: chronotype),
+            LearningTimeInsight(type: avgLearningTimeType),
           ],
         ],
       ),

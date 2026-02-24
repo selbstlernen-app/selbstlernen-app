@@ -56,12 +56,11 @@ class TestData extends _$TestData {
           sessionId: sessionId.toString(),
           status: SessionStatus.completed,
           scheduledAt: date,
-          totalFocusPhases: 4,
-          totalCompletedBlocks: 4,
-          totalFocusSecondsElapsed: 50 * 60,
-          totalBreakSecondsElapsed: 10 * 60,
-          totalCompletedGoals: 2,
-          totalCompletedTasks: 4,
+          totalCompletedBlocks: Random().nextInt(5),
+          totalFocusSecondsElapsed: Random().nextInt(31) * 60,
+          totalBreakSecondsElapsed: Random().nextInt(5) * 60,
+          totalCompletedGoals: Random().nextInt(6),
+          totalCompletedTasks: Random().nextInt(4),
           focusChecks: [
             FocusCheck(
               atElapsedSeconds: 60,

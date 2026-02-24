@@ -59,8 +59,8 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
 
   /// Returns visually fitting interval depending on the max y value
   double _calculateInterval(double maxY) {
-    if (maxY <= 20) return 2;
-    if (maxY <= 45) return 5;
+    if (maxY <= 20) return 5;
+    if (maxY <= 45) return 10;
     if (maxY <= 90) return 15;
     if (maxY <= 180) return 30;
     if (maxY <= 360) return 60;
