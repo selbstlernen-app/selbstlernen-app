@@ -36,13 +36,13 @@ class _MoodCardState extends State<MoodCard> {
 
   String _reflectiveQuestion(double avg) {
     if (avg < 1.5) {
-      return 'Du wirkst häufig belastet. Was macht dir das Lernen gerade schwer?';
+      return '''Du wirkst häufig belastet. Was macht dir das Lernen gerade schwer?''';
     } else if (avg < 2.5) {
-      return 'Deine Stimmung ist oft gedrückt. Was könnte dir helfen, zufriedener mit deinem Lernen zu sein?';
+      return '''Deine Stimmung ist oft gedrückt. Was könnte dir helfen, zufriedener mit deinem Lernen zu sein?''';
     } else if (avg < 3.5) {
-      return 'Du bist mal gut, mal weniger gut drauf. Was unterscheidet deine guten von deinen schwierigen Sitzungen?';
+      return '''Du bist mal gut, mal weniger gut drauf. Was unterscheidet deine guten von deinen schwierigen Sitzungen?''';
     } else {
-      return 'Du bist meistens gut gestimmt! Was läuft gerade besonders gut für dich?';
+      return '''Du bist meistens gut gestimmt! Was läuft gerade besonders gut für dich?''';
     }
   }
 
@@ -50,7 +50,8 @@ class _MoodCardState extends State<MoodCard> {
   Widget build(BuildContext context) {
     final rated = _ratedInstances;
     final hasEnoughForChart = rated.length > 1;
-    // Last 3 sessions with notes — surfaced inline
+
+    // Last 3 sessions with notes
     final withNotes = rated
         .where((i) => i.notes != null && i.notes!.trim().isNotEmpty)
         .toList()
