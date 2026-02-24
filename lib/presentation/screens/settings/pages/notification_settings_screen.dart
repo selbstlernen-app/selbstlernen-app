@@ -229,7 +229,7 @@ class _NotificationSettingsScreenState
                                         await _addCustomMessage(setting);
                                       },
                                       hintText:
-                                          '''Eigene Erinnerung, z.B. "Dranbleiben! 🧠"''',
+                                          '''Eigene Erinnerung, z.B. "Bleib dran und gib alles! 🔥"''',
                                       controller: _customMessageController,
                                       maxLength: 70,
                                     ),

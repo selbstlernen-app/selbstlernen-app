@@ -16,6 +16,9 @@ abstract class NotificationTypeSetting with _$NotificationTypeSetting {
 
 /// Types of notifications
 enum NotificationType {
+  // Daily reminder
+  dailyReminder,
+
   // Custom motivational message
   motivationalReminder,
 
@@ -24,6 +27,8 @@ enum NotificationType {
 
   String get displayName {
     switch (this) {
+      case NotificationType.dailyReminder:
+        return 'Tägliche Erinnerung';
       case NotificationType.motivationalReminder:
         return 'Motivierende Erinnerung';
       case NotificationType.sessionReminder:
@@ -33,6 +38,8 @@ enum NotificationType {
 
   String get description {
     switch (this) {
+      case NotificationType.dailyReminder:
+        return 'Erinnert dich täglich daran, deine Lerneinheiten abzuschließen';
       case NotificationType.motivationalReminder:
         return 'Motiviere mich, meine Ziele weiterhin zu verfolgen';
       case NotificationType.sessionReminder:

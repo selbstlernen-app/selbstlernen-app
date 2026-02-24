@@ -22,6 +22,7 @@ class NotificationService {
 
   static const Map<NotificationType, int> _notificationIds = {
     NotificationType.motivationalReminder: 1,
+    NotificationType.dailyReminder: 2,
   };
 
   Future<void> init() async {
@@ -266,6 +267,8 @@ class NotificationService {
   // -- Helper methods --
   String _getNotificationTitle(NotificationType type, [String? customMessage]) {
     switch (type) {
+      case NotificationType.dailyReminder:
+        return 'Zeit zu lernen! ⏰';
       case NotificationType.sessionReminder:
         return 'Zeit zu arbeiten! 🎯';
       case NotificationType.motivationalReminder:
@@ -275,6 +278,8 @@ class NotificationService {
 
   String _getNotificationBody(NotificationType type, [String? customMessage]) {
     switch (type) {
+      case NotificationType.dailyReminder:
+        return 'Vergiss nicht, deine Lerneinheiten für heute abzuschließen!';
       case NotificationType.sessionReminder:
         return 'Deine Einheit "$customMessage" wartet auf dich';
       case NotificationType.motivationalReminder:
@@ -284,6 +289,8 @@ class NotificationService {
 
   String _getChannelDescription(NotificationType type) {
     switch (type) {
+      case NotificationType.dailyReminder:
+        return 'Daily reminder';
       case NotificationType.sessionReminder:
         return 'Session specific reminder';
       case NotificationType.motivationalReminder:
