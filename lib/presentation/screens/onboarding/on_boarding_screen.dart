@@ -46,6 +46,7 @@ class OnBoardingScreenState extends ConsumerState<OnBoardingScreen> {
             width: double.infinity,
             height: 60,
             child: ElevatedButton(
+              style: ElevatedButton.styleFrom(shadowColor: Colors.transparent),
               child: const Text('Lass mich sofort loslegen!'),
               onPressed: () => _onIntroEnd(context),
             ),
