@@ -35,7 +35,9 @@ class OnBoardingScreenState extends ConsumerState<OnBoardingScreen> {
 
     return IntroductionScreen(
       key: introKey,
-      globalBackgroundColor: context.colorScheme.surface,
+      globalBackgroundColor: context.colorScheme.brightness == Brightness.dark
+          ? context.colorScheme.surface
+          : Colors.white,
       globalFooter: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
