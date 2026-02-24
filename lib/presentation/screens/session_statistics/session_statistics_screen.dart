@@ -123,7 +123,7 @@ class SessionStatisticsScreen extends ConsumerWidget {
                       ),
 
                       // Shows the strategies effectiveness if given
-                      if (state.stats!.strategyUsage.isEmpty) ...[
+                      if (state.stats!.strategyUsage.isNotEmpty) ...[
                         const VerticalSpace(),
                         StrategyComparisonChart(
                           strategies: state.stats!.strategyUsage,
