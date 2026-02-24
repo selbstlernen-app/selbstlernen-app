@@ -5,6 +5,7 @@ import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/domain/models/focus_check.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_model.dart';
+import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
 part 'test_data.g.dart';
 
@@ -20,15 +21,14 @@ class TestData extends _$TestData {
     );
 
     final testSession = SessionModel(
-      title: 'Vorlesung 3 Nachbereiten',
+      title: 'Vorlesung Nacharbeit - Informatik 1',
       isRepeating: true,
-      startDate: DateTime(2025, 11),
-      endDate: DateTime(2026, 1, 15),
+      startDate: DateTime(2026, 2),
+      endDate: DateTime(2026, 2, 28),
       selectedDays: <int>[0, 1, 2, 3, 4, 5, 6],
       learningStrategyIds: <int>[1, 4],
-      focusTimeMin: 50,
-      breakTimeMin: 10,
-
+      focusTimeMin: 30,
+      complexity: SessionComplexity.advanced,
       createdAt: DateTime(2025, 11, 20),
     );
 
@@ -38,11 +38,11 @@ class TestData extends _$TestData {
       // Completed sessions
       ...List<SessionInstanceModel>.generate(10, (int i) {
         final date = DateTime(
-          2025,
-          11,
-          1,
+          2026,
+          2,
+          Random().nextInt(29),
           6 + Random().nextInt(12),
-          0 + Random().nextInt(60),
+          Random().nextInt(61),
         ).add(Duration(days: i));
 
         final randomStatus = Random().nextInt(3);
@@ -88,26 +88,20 @@ class TestData extends _$TestData {
           completedTasksRate: Random().nextDouble() * 100,
           mood: Random().nextInt(5),
           notes: 'Completed successfully',
-          completedAt: DateTime(
-            2025,
-            11,
-            1,
-            6 + Random().nextInt(12),
-            Random().nextInt(61),
-          ).add(Duration(days: i)),
-          createdAt: DateTime(2025, 11, 20),
+          completedAt: date,
+          createdAt: date,
         );
       }),
 
       // Skipped sessions
       ...List<SessionInstanceModel>.generate(5, (int i) {
-        final date = DateTime(2025, 10, 5).add(Duration(days: i * 3));
+        final date = DateTime(2026, 2).add(Duration(days: i * 3));
         return SessionInstanceModel(
           sessionId: sessionId.toString(),
           status: SessionStatus.skipped,
           scheduledAt: date,
           completedAt: date,
-          createdAt: DateTime(2025, 11, 20),
+          createdAt: DateTime(2026, 11, 20),
         );
       }),
     ];
