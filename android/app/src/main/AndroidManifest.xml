@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools" >
   <application
-        android:label="Mobile SRL"
+        android:label="Selbstlernen.app 2.0"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

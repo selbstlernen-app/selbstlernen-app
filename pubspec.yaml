@@ -82,6 +82,7 @@ dependencies:
   collection: ^1.19.1
   mockito: ^5.6.3
   introduction_screen: ^4.0.0
+  flutter_native_splash: ^2.4.7
 
 dev_dependencies:
   build_runner: ^2.6.0
@@ -90,6 +91,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   riverpod_generator: ^3.0.3
+  flutter_launcher_icons: ^0.14.4
 
   # Testing
   mocktail: ^1.0.0
@@ -97,3 +99,30 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
+
+# Icons specified for Android and iOS
+flutter_launcher_icons:
+  image_path: "assets/launcher/android_foreground.png"
+
+  ios: true
+  remove_alpha_ios: true
+  background_color_ios: "#F5F5F5"
+  image_path_ios: "assets/launcher/ios.png"
+
+  android: true
+  image_path_android: "assets/launcher/android_foreground.png"
+  adaptive_icon_background: "assets/launcher/android_background.png"
+  adaptive_icon_foreground: "assets/launcher/android_foreground.png"
+
+# Splash screen
+flutter_native_splash:
+  color: "#F5F5F5"
+  color_dark: "#121212"
+  image: assets/launcher/splash_icon-2.png
+
+  android_12:
+    # background color
+    color: "#F5F5F5"
+    color_dark: "#121212"
+
+    image: assets/launcher/splash_icon-2.png

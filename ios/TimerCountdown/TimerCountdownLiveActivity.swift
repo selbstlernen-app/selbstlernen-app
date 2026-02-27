@@ -33,7 +33,7 @@ struct TimerCountdownLiveActivity: Widget {
             HStack(alignment: .center, spacing: 12) {
                 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("Mobile SRL")
+                    Text("Selbstlernen.app 2.0")
                         .font(.system(size: 11, weight: .semibold))
                         .foregroundStyle(.secondary)
                         .textCase(.uppercase)
@@ -74,7 +74,7 @@ struct TimerCountdownLiveActivity: Widget {
                                 HStack {
                                     Image(systemName: "graduationcap.fill")
                                         .foregroundColor(.accentColor)
-                                    Text("Mobile SRL")
+                                    Text("Selbstlernen.app 2.0")
                                         .font(.system(size: 14, weight: .bold))
                                         .foregroundColor(.secondary)
                                 }
