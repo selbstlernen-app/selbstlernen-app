@@ -50,12 +50,10 @@ class SingularSessionTimeLine extends StatelessWidget {
               _TimeMarker(
                 fraction: plannedFraction,
                 color: AppPalette.grey.withValues(alpha: 0.6),
-                label: 'Geplant',
               ),
             _TimeMarker(
               fraction: completedFraction,
               color: AppPalette.sky,
-              label: DateFormat('HH:mm').format(completedAt),
             ),
           ],
         ),
@@ -76,11 +74,74 @@ class SingularSessionTimeLine extends StatelessWidget {
               .toList(),
         ),
 
-        // Delta chip
-        if (differenceMinutes != null) ...[
-          const VerticalSpace(size: SpaceSize.small),
-          _TrendChip(differenceMinutes: differenceMinutes),
-        ],
+        const VerticalSpace(
+          size: SpaceSize.small,
+        ),
+
+        Row(
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (showPlannedTime)
+                  Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: AppPalette.grey.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      const HorizontalSpace(
+                        size: SpaceSize.small,
+                      ),
+                      Text(
+                        'Geplant ${plannedTime.format(context)}',
+                        style: context.textTheme.labelSmall?.copyWith(
+                          color: AppPalette.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                const VerticalSpace(
+                  size: SpaceSize.xsmall,
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: AppPalette.sky,
+                      ),
+                    ),
+                    const HorizontalSpace(
+                      size: SpaceSize.small,
+                    ),
+                    Text(
+                      'Durchgeführt ${DateFormat('HH:mm').format(completedAt)}',
+                      style: context.textTheme.labelSmall?.copyWith(
+                        color: AppPalette.sky,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            const HorizontalSpace(
+              size: SpaceSize.xlarge,
+            ),
+
+            // Trend showing difference in planned vs actual time
+            if (differenceMinutes != null) ...[
+              Expanded(child: _TrendChip(differenceMinutes: differenceMinutes)),
+            ],
+          ],
+        ),
       ],
     );
   }
@@ -90,11 +151,9 @@ class _TimeMarker {
   const _TimeMarker({
     required this.fraction,
     required this.color,
-    required this.label,
   });
   final double fraction;
   final Color color;
-  final String label;
 }
 
 class _TimelineBar extends StatelessWidget {
@@ -107,17 +166,17 @@ class _TimelineBar extends StatelessWidget {
       builder: (context, constraints) {
         final width = constraints.maxWidth;
         return SizedBox(
-          height: 30,
+          height: 16,
           child: Stack(
             clipBehavior: Clip.none,
             children: [
               // Timeline track
               Positioned(
-                top: 20,
+                top: 10,
                 left: 0,
                 right: 0,
                 child: Container(
-                  height: 6,
+                  height: 8,
                   decoration: BoxDecoration(
                     color: context.colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(10),
@@ -130,15 +189,9 @@ class _TimelineBar extends StatelessWidget {
                 final x = m.fraction * width;
                 return Positioned(
                   left: x,
-                  top: -10,
-                  child: Column(
+                  top: -2,
+                  child: Row(
                     children: [
-                      Text(
-                        m.label,
-                        style: context.textTheme.labelSmall?.copyWith(
-                          color: m.color,
-                        ),
-                      ),
                       Container(
                         width: 4,
                         height: 28,
@@ -192,9 +245,11 @@ class _TrendChip extends StatelessWidget {
       children: [
         Icon(icon, color: color, size: 16),
         const HorizontalSpace(size: SpaceSize.xsmall),
-        Text(
-          label,
-          style: context.textTheme.bodySmall?.copyWith(color: color),
+        Expanded(
+          child: Text(
+            label,
+            style: context.textTheme.bodySmall?.copyWith(color: color),
+          ),
         ),
       ],
     );

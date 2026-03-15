@@ -17,7 +17,6 @@ class LiveActivityService extends _$LiveActivityService {
     required int secondsRemaining,
     required String title,
   }) async {
-    // Clean up any existing activities to avoid "Maximum Limit" error
     await stop();
 
     final endTime = DateTime.now().add(Duration(seconds: secondsRemaining));

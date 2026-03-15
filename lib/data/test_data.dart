@@ -39,7 +39,7 @@ class TestData extends _$TestData {
       ...List<SessionInstanceModel>.generate(10, (int i) {
         final date = DateTime(
           2026,
-          2,
+          3,
           Random().nextInt(29),
           6 + Random().nextInt(12),
           Random().nextInt(61),
@@ -86,7 +86,7 @@ class TestData extends _$TestData {
           completedGoalsRate: Random().nextDouble() * 100,
           completedTasksRate: Random().nextDouble() * 100,
           mood: Random().nextInt(5),
-          notes: 'Completed successfully',
+          notes: 'Alles erledigt',
           completedAt: date,
           createdAt: date,
         );
