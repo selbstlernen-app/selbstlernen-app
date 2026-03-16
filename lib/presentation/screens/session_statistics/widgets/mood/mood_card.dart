@@ -34,15 +34,15 @@ class _MoodCardState extends State<MoodCard> {
           .toList()
         ..sort((a, b) => a.completedAt!.compareTo(b.completedAt!));
 
-  String _reflectiveQuestion(double avg) {
+  String _moodQuestion(double avg) {
     if (avg < 1.5) {
-      return '''Du wirkst häufig belastet. Was macht dir das Lernen gerade schwer?''';
+      return '''Deine Stimmung ist schlecht''';
     } else if (avg < 2.5) {
-      return '''Deine Stimmung ist oft gedrückt. Was könnte dir helfen, zufriedener mit deinem Lernen zu sein?''';
+      return '''Deine Stimmung ist oft gedrückt''';
     } else if (avg < 3.5) {
-      return '''Du bist mal gut, mal weniger gut drauf. Was unterscheidet deine guten von deinen schwierigen Sitzungen?''';
+      return '''Du bist mal gut, mal weniger gut drauf''';
     } else {
-      return '''Du bist meistens gut gestimmt! Was läuft gerade besonders gut für dich?''';
+      return '''Du bist meistens gut gestimmt''';
     }
   }
 
@@ -134,7 +134,7 @@ class _MoodCardState extends State<MoodCard> {
             const VerticalSpace(size: SpaceSize.small),
 
             Text(
-              _reflectiveQuestion(widget.stats.averageMood!),
+              '${_moodQuestion(widget.stats.averageMood!)}, was könnten Gründe hierfür sein?',
               style: context.textTheme.bodySmall?.copyWith(
                 color: AppPalette.grey,
                 fontStyle: FontStyle.italic,

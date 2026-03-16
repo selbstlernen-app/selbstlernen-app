@@ -209,7 +209,7 @@ class AppDatabase extends _$AppDatabase {
           'mood',
           'focus_check_count',
           'focus_check_avg_level',
-          // -> the lower the better
+          // -> the lower the worse
           // Get header for each focus check level
           ...FocusLevel.values.map((l) => 'focus_check_${l.name}_count'),
           // Notes excluded for privacy
@@ -307,9 +307,7 @@ class AppDatabase extends _$AppDatabase {
       }).toList();
 
       final avgLevel =
-          checks
-              .map((e) => (FocusLevel.values.length - 1 - e.index).toDouble())
-              .reduce((a, b) => a + b) /
+          checks.map((e) => e.index.toDouble()).reduce((a, b) => a + b) /
           checks.length;
 
       final levelCounts = <String, int>{};

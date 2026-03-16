@@ -142,9 +142,9 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
             const _EmptyFocusState()
           else
             AnimatedSwitcher(
-              duration: const Duration(seconds: 2),
-              switchInCurve: Curves.fastEaseInToSlowEaseOut,
-              switchOutCurve: Curves.fastEaseInToSlowEaseOut,
+              duration: const Duration(milliseconds: 200),
+              switchInCurve: Curves.easeInCubic,
+              switchOutCurve: Curves.easeOutCubic,
               child:
                   (showAllInstances // show average chart if clicked; else not
                   ? AverageFocusChart(

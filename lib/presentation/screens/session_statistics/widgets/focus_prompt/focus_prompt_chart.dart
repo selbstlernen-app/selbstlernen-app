@@ -17,7 +17,7 @@ class FocusLevelChart extends StatelessWidget {
 
   /// Returns visually fitting interval depending on the max y value
   double _calculateInterval(double maxY) {
-    if (maxY <= 10) return 1;
+    if (maxY <= 10) return 2;
     if (maxY <= 30) return 5;
     if (maxY <= 60) return 10;
     if (maxY <= 120) return 30;
