@@ -123,24 +123,33 @@ class ProgressBarRating extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(
-                  strategy.strategyTitle,
-                  style: context.textTheme.bodyMedium,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strategy.strategyTitle,
+                      style: context.textTheme.labelMedium,
+                    ),
+                    Text(
+                      '${strategy.timesUsed}x verwendet',
+                      style: context.textTheme.bodySmall?.copyWith(
+                        color: AppPalette.grey,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+
+              const HorizontalSpace(size: SpaceSize.small),
+
               Text(
-                strategy.averageRating!.toStringAsFixed(2),
-                style: context.textTheme.bodySmall?.copyWith(
+                strategy.averageRating!.toStringAsFixed(1),
+                style: context.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const HorizontalSpace(
-                size: SpaceSize.xsmall,
-              ),
-              const Icon(
-                Icons.star,
-                size: 14,
-              ),
+              const Icon(Icons.star, size: 14),
             ],
           ),
           const VerticalSpace(

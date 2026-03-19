@@ -46,8 +46,24 @@ class AllSessionsScatterPlot extends StatelessWidget {
     }).toList();
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        // Legend
+        Wrap(
+          alignment: WrapAlignment.end,
+          spacing: 4,
+          runSpacing: 4,
+          children: LearningTimeType.values
+              .where((t) => t != LearningTimeType.undefined)
+              .map(
+                (type) => _ScatterLegendItem(
+                  color: type.color,
+                  label: type.timeRange,
+                ),
+              )
+              .toList(),
+        ),
+
         SizedBox(
           height: 220,
           child: ScatterChart(
@@ -149,21 +165,6 @@ class AllSessionsScatterPlot extends StatelessWidget {
         ),
 
         const VerticalSpace(),
-
-        // Legend
-        Wrap(
-          spacing: 4,
-          runSpacing: 8,
-          children: LearningTimeType.values
-              .where((t) => t != LearningTimeType.undefined)
-              .map(
-                (type) => _ScatterLegendItem(
-                  color: type.color,
-                  label: '${type.label} (${type.timeRange})',
-                ),
-              )
-              .toList(),
-        ),
       ],
     );
   }
@@ -176,22 +177,27 @@ class _ScatterLegendItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const HorizontalSpace(
-          size: SpaceSize.small,
-        ),
-        Text(
-          label,
-          style: context.textTheme.labelSmall?.copyWith(color: AppPalette.grey),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const HorizontalSpace(
+            size: SpaceSize.xsmall,
+          ),
+          Text(
+            label,
+            style: context.textTheme.labelSmall?.copyWith(
+              color: AppPalette.grey,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

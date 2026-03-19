@@ -10,6 +10,7 @@ import 'package:srl_app/domain/models/session_statistics.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/chart_header.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/empty_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/mood/mood_line_chart.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/reflection_box.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
 class MoodCard extends StatefulWidget {
@@ -127,19 +128,18 @@ class _MoodCardState extends State<MoodCard> {
 
             const VerticalSpace(size: SpaceSize.small),
 
-            Text(
-              '''Was sind Gründe für deine ${_getMoodString(widget.stats.averageMood!)} Stimmung?''',
-              style: context.textTheme.bodySmall?.copyWith(
-                color: AppPalette.grey,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-
             const VerticalSpace(),
 
             MoodLineChart(
               instances: rated,
               showAllInstances: showAllInstances,
+            ),
+
+            ReflectionBox(
+              color: AppPalette.sky,
+              iconData: Icons.question_answer_outlined,
+              reflection:
+                  'Was könnten Gründe für deine ${_getMoodString(widget.stats.averageMood!)} Stimmung sein?',
             ),
 
             // Show recent notes

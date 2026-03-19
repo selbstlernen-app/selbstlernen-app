@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
-import 'package:srl_app/core/utils/build_context_extensions.dart';
 
 /// Learning time type a user can be
 enum LearningTimeType {
@@ -11,71 +9,6 @@ enum LearningTimeType {
   eveningLearner,
   nightOwl,
   undefined,
-}
-
-/// Badge given related to the time of learning
-class TimeTypeBadge extends StatelessWidget {
-  const TimeTypeBadge({required this.timeType, super.key});
-  final LearningTimeType timeType;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: timeType.color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: timeType.color,
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-
-        children: [
-          Text(timeType.emoji, style: const TextStyle(fontSize: 16)),
-          const HorizontalSpace(size: SpaceSize.xsmall),
-          Text(
-            timeType.label,
-            style: context.textTheme.bodySmall?.copyWith(
-              color: timeType.color,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Text box with the insights gained from the learning time type
-class LearningTimeInsight extends StatelessWidget {
-  const LearningTimeInsight({required this.type, super.key});
-  final LearningTimeType type;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: type.color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(type.emoji, style: const TextStyle(fontSize: 16)),
-          const HorizontalSpace(size: SpaceSize.xsmall),
-          Expanded(
-            child: Text(
-              type.timeInsight,
-              style: context.textTheme.bodySmall,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 /// Extensions for the learning time type
@@ -133,7 +66,7 @@ extension LearningTimeTypeDetails on LearningTimeType {
       case LearningTimeType.eveningLearner:
         return 'Abendtyp';
       case LearningTimeType.nightOwl:
-        return 'Nachteulen-Typ';
+        return 'Nachteule';
       case LearningTimeType.undefined:
         return '';
     }
@@ -164,15 +97,15 @@ extension LearningTimeTypeDetails on LearningTimeType {
   Color get color {
     switch (this) {
       case LearningTimeType.earlyBird:
-        return AppPalette.yellowLight;
-      case LearningTimeType.morningLearner:
         return AppPalette.amber;
+      case LearningTimeType.morningLearner:
+        return AppPalette.orange;
       case LearningTimeType.afternoonLearner:
         return AppPalette.emerald;
       case LearningTimeType.eveningLearner:
-        return AppPalette.orange;
+        return AppPalette.fuchsia;
       case LearningTimeType.nightOwl:
-        return AppPalette.indigo;
+        return AppPalette.purple;
       case LearningTimeType.undefined:
         return AppPalette.grey;
     }

@@ -9,6 +9,7 @@ import 'package:srl_app/presentation/screens/session_statistics/widgets/empty_ch
 import 'package:srl_app/presentation/screens/session_statistics/widgets/learning_time/all_sessions_scatter_plot.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/learning_time/learning_time_type.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/learning_time/singular_session_time_line.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/reflection_box.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
 class SessionTimingCard extends StatefulWidget {
@@ -102,7 +103,7 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
 
               if (showAllInstances &&
                   avgLearningTimeType != LearningTimeType.undefined)
-                TimeTypeBadge(timeType: avgLearningTimeType),
+                _TimeTypeBadge(timeType: avgLearningTimeType),
             ],
           ),
 
@@ -111,9 +112,9 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
           if (!hasData)
             const EmptyChart(
               iconData: Icons.schedule_rounded,
-              infoTitle: 'Noch keine Zeitdaten',
+              infoTitle: 'Noch keine Lernzeit-Daten',
               infoSubtitle:
-                  'Schließe deine nächste Sitzung ab, um dein Lernmuster zu sehen.',
+                  '''Schließe deine nächste Sitzung ab, um zu sehen wann du am häufigsten lernst.''',
             )
           else
             AnimatedSwitcher(
@@ -170,12 +171,50 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
                     ),
             ),
 
-          // Learning Time Type description
+          // Reflection Box
           if (showAllInstances &&
               avgLearningTimeType != LearningTimeType.undefined) ...[
-            const VerticalSpace(size: SpaceSize.small),
-            LearningTimeInsight(type: avgLearningTimeType),
+            ReflectionBox(
+              color: avgLearningTimeType.color,
+              reflection: avgLearningTimeType.timeInsight,
+              emoji: avgLearningTimeType.emoji,
+            ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Badge given related to the time of learning
+class _TimeTypeBadge extends StatelessWidget {
+  const _TimeTypeBadge({required this.timeType});
+  final LearningTimeType timeType;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: timeType.color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: timeType.color,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+
+        children: [
+          Text(timeType.emoji, style: const TextStyle(fontSize: 16)),
+          const HorizontalSpace(size: SpaceSize.xsmall),
+          Text(
+            timeType.label,
+            style: context.textTheme.bodySmall?.copyWith(
+              color: timeType.color,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
