@@ -22,6 +22,12 @@ class CompletionLineChart extends StatelessWidget {
   final double avg;
 
   double _combinedRate(SessionInstanceModel m) {
+    if (m.completedTasksRate == 0 && m.completedGoalsRate > 0) {
+      return m.completedGoalsRate;
+    }
+    if (m.completedGoalsRate == 0 && m.completedTasksRate > 0) {
+      return m.completedTasksRate;
+    }
     return (m.completedGoalsRate + m.completedTasksRate) / 2;
   }
 
@@ -31,21 +37,6 @@ class CompletionLineChart extends StatelessWidget {
     final sortedInstances =
         instances.where((i) => i.completedAt != null).toList()
           ..sort((a, b) => a.completedAt!.compareTo(b.completedAt!));
-
-    if (sortedInstances.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            '''Noch keine Einheit abgeschlossen.\nSchließe Ziele und Aufgaben in deiner Lerneinheiten ab, um Trends zu erkennen!''',
-            textAlign: TextAlign.center,
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-      );
-    }
 
     // Get last 5 or all instances based on toggle
     final displayInstances = showAllInstances

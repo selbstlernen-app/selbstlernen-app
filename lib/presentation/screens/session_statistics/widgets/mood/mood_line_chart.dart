@@ -23,21 +23,6 @@ class MoodLineChart extends StatelessWidget {
     final moodInstances = instances.where((i) => i.mood != null).toList()
       ..sort((a, b) => a.completedAt!.compareTo(b.completedAt!));
 
-    if (moodInstances.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            '''Noch keine Stimmungsdaten vorhanden.\nBewerte deine Lerneinheiten, um Trends zu erkennen!''',
-            textAlign: TextAlign.center,
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-      );
-    }
-
     // Get last 5 or all instances based on toggle
     final displayInstances = showAllInstances
         ? moodInstances

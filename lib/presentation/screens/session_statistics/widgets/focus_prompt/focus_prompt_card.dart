@@ -6,10 +6,10 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/focus_check.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/chart_header.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/average_focus_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/focus_check_utils.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/focus_prompt_chart.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
 class FocusPromptCard extends StatefulWidget {
@@ -72,28 +72,11 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Fokus-Verlauf',
-                style: context.textTheme.headlineMedium,
-              ),
-
-              IconButton(
-                color: AppPalette.grey.withValues(alpha: 0.5),
-                icon: const Icon(
-                  Icons.history_rounded,
-                ),
-                onPressed: () => showHistoryBottomSheet(
-                  context,
-                  widget.allDoneInstances,
-                  'Fokus-Verlauf',
-                  (instance) =>
-                      '''Ø ${calculateSessionAverageFocus(instance).toStringAsFixed(2)} Fokus''',
-                ),
-              ),
-            ],
+          ChartHeader(
+            title: 'Fokus-Verlauf',
+            instances: widget.allDoneInstances,
+            getAttributeValue: (instance) =>
+                '''Ø ${calculateSessionAverageFocus(instance).toStringAsFixed(2)} Fokus''',
           ),
 
           Row(

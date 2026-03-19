@@ -5,6 +5,7 @@ import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/learning_strategy/strategy_usage_for_session.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/empty_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
 class StrategyComparisonChart extends ConsumerStatefulWidget {
@@ -13,6 +14,7 @@ class StrategyComparisonChart extends ConsumerStatefulWidget {
     required this.currentStrategyIds,
     super.key,
   });
+
   final List<StrategyUsageForSession> strategies;
   final List<int> currentStrategyIds;
 
@@ -44,43 +46,55 @@ class _StrategyComparisonChartState
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Lernstrategien im Vergleich',
-            style: context.textTheme.headlineMedium,
+          Row(
+            children: [
+              Text(
+                'Lernstrategien im Vergleich',
+                style: context.textTheme.headlineMedium,
+              ),
+            ],
           ),
 
           const VerticalSpace(),
 
-          // Current strategies
-          ...currentStrategies.map((strategy) {
-            return ProgressBarRating(strategy: strategy);
-          }),
+          if (currentStrategies.isEmpty)
+            const EmptyChart(
+              iconData: Icons.star_outline_rounded,
+              infoTitle: 'Noch keine Ratingdaten',
+              infoSubtitle:
+                  '''Bewerte am Ende deiner nächsten Einheit deine Lernstrategien, um ihre Effektvität zu verfolgen.''',
+            )
+          else ...[
+            ...currentStrategies.map((strategy) {
+              return ProgressBarRating(strategy: strategy);
+            }),
 
-          const VerticalSpace(),
+            const VerticalSpace(),
 
-          ToggleShowAllButton(
-            showAll: showPastStrategies,
-            onToggle: () {
-              setState(() => showPastStrategies = !showPastStrategies);
-            },
-            thresholdExceeded: pastStrategies.isNotEmpty,
-            expandedLabel: 'Vergangene Strategien anzeigen',
-          ),
+            ToggleShowAllButton(
+              showAll: showPastStrategies,
+              onToggle: () {
+                setState(() => showPastStrategies = !showPastStrategies);
+              },
+              thresholdExceeded: pastStrategies.isNotEmpty,
+              expandedLabel: 'Vergangene Strategien anzeigen',
+            ),
 
-          // Past strategies
-          AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            child: showPastStrategies
-                ? Column(
-                    children: [
-                      const VerticalSpace(),
-                      ...pastStrategies.map((strategy) {
-                        return ProgressBarRating(strategy: strategy);
-                      }),
-                    ],
-                  )
-                : const SizedBox.shrink(),
-          ),
+            // Past strategies
+            AnimatedSize(
+              duration: const Duration(milliseconds: 200),
+              child: showPastStrategies
+                  ? Column(
+                      children: [
+                        const VerticalSpace(),
+                        ...pastStrategies.map((strategy) {
+                          return ProgressBarRating(strategy: strategy);
+                        }),
+                      ],
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ],
         ],
       ),
     );
@@ -135,7 +149,7 @@ class ProgressBarRating extends ConsumerWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
-              value: strategy.averageRating,
+              value: (strategy.averageRating ?? 0) / 5.0,
               minHeight: 8,
               backgroundColor: context.colorScheme.surfaceContainerHighest,
               valueColor: AlwaysStoppedAnimation<Color>(
