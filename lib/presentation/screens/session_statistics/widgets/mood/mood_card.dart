@@ -138,7 +138,7 @@ class _MoodCardState extends State<MoodCard> {
               color: AppPalette.teal,
               iconData: Icons.question_answer_outlined,
               reflection:
-                  'Was sind Gründe für deine ${_getMoodString(widget.stats.averageMood!)} Stimmung?',
+                  'Was sind Gründe für deine durchschnittlich ${_getMoodString(widget.stats.averageMood!)} Stimmung?',
             ),
 
             // Show recent notes
