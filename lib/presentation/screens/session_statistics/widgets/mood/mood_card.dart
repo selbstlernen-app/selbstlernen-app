@@ -82,7 +82,7 @@ class _MoodCardState extends State<MoodCard> {
               iconData: Icons.emoji_emotions_outlined,
               infoTitle: 'Noch keine Stimmungs-Daten',
               infoSubtitle:
-                  '''Bewerte am Ende deiner nächsten Einheit deine Stimmung, um deinen Verlauf zu sehen.''',
+                  '''Bewerte am Ende deiner nächsten Einheit deine Stimmung, um Trends zu verfolgen.''',
             )
           else ...[
             Row(
@@ -138,7 +138,7 @@ class _MoodCardState extends State<MoodCard> {
               color: AppPalette.teal,
               iconData: Icons.question_answer_outlined,
               reflection:
-                  'Was sind Gründe für deine durchschnittlich ${_getMoodString(widget.stats.averageMood!)} Stimmung?',
+                  '''Was sind Gründe für deine durchschnittlich ${_getMoodString(widget.stats.averageMood!)} Stimmung?''',
             ),
 
             // Show recent notes
