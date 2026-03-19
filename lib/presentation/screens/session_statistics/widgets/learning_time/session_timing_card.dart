@@ -133,39 +133,7 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
                         SingularSessionTimeLine(
                           key: const ValueKey('single'),
                           instance: widget.currentInstance,
-                          showPlannedTime: showPlannedTime,
                           plannedTime: widget.plannedTime,
-                        ),
-
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            shadowColor: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
-                            ),
-                            textStyle: context.textTheme.labelSmall,
-                          ),
-                          onPressed: () => setState(() {
-                            showPlannedTime = !showPlannedTime;
-                          }),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                showPlannedTime
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
-                              const HorizontalSpace(
-                                size: SpaceSize.xsmall,
-                              ),
-                              Text(
-                                showPlannedTime
-                                    ? 'Ausblenden'
-                                    : 'Geplante Zeit einblenden',
-                              ),
-                            ],
-                          ),
                         ),
                       ],
                     ),

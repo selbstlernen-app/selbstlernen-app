@@ -7,9 +7,11 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/focus_check.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/chart_header.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/empty_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/average_focus_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/focus_check_utils.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/focus_prompt_chart.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/reflection_box.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
 class FocusPromptCard extends StatefulWidget {
@@ -41,17 +43,27 @@ class FocusPromptCard extends StatefulWidget {
 class _FocusPromptCardState extends State<FocusPromptCard> {
   late bool showAllInstances = widget.showGeneralStatsOnly;
 
+  String _getReflectionText(double avg) {
+    if (avg >= 2.5) {
+      return 'Deine Aufmerksamkeit ist super! Was hilft dir besonders konzentriert zu bleiben?';
+    } else if (avg >= 1.5) {
+      return 'Deine Aufmerksamkeit ist eher im mittleren Bereich. Wodurch lässt du dich ablenken?';
+    } else {
+      return 'Dein Fokus ist eher niedrig. Lag es am Thema, an der Umgebung oder brauchst du vielleicht längere Pausen?';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Check if current session has any focus checks before calculating
     final hasCurrentFocusChecks = widget.currentInstance.focusChecks.isNotEmpty;
-    final hasAnyFocusChecks = widget.allDoneInstances.any(
-      (instance) => instance.focusChecks.isNotEmpty,
-    );
+    final instancesWithFocusChecks = widget.allDoneInstances
+        .where((i) => i.focusChecks.isNotEmpty)
+        .toList();
 
     // Only calculate if data is given
     int? averageMoodIndex;
-    if (showAllInstances && hasAnyFocusChecks) {
+    if (showAllInstances && instancesWithFocusChecks.isNotEmpty) {
       final avg = calculateOverallAverageFocus(widget.allDoneInstances);
       if (!avg.isNaN && !avg.isInfinite) {
         averageMoodIndex = avg.toInt() - 1;
@@ -65,18 +77,22 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
 
     // Determine if any data given for the current view mode
     final hasDataToShow = showAllInstances
-        ? hasAnyFocusChecks
+        ? instancesWithFocusChecks.isNotEmpty
         : hasCurrentFocusChecks;
+
+    final displayedAvg = showAllInstances
+        ? calculateOverallAverageFocus(widget.allDoneInstances)
+        : calculateSessionAverageFocus(widget.currentInstance);
 
     return CardLayout(
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ChartHeader(
-            title: 'Fokus-Verlauf',
-            instances: widget.allDoneInstances,
+            title: 'Aufmerksamkeit',
+            instances: instancesWithFocusChecks,
             getAttributeValue: (instance) =>
-                '''Ø ${calculateSessionAverageFocus(instance).toStringAsFixed(2)} Fokus''',
+                '''Ø ${calculateSessionAverageFocus(instance).toStringAsFixed(2)} aufmerksam''',
           ),
 
           Row(
@@ -100,6 +116,7 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
                   averageMoodIndex != null &&
                   averageMoodIndex >= 0)
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
                       Constants.focusEmojis[averageMoodIndex],
@@ -107,11 +124,7 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
                     ),
                     const HorizontalSpace(size: SpaceSize.small),
                     Text(
-                      showAllInstances
-                          ? '''Ø '''
-                                '''${calculateOverallAverageFocus(widget.allDoneInstances).toStringAsFixed(1)}'''
-                          : '''Ø '''
-                                ''' ${calculateSessionAverageFocus(widget.currentInstance)}''',
+                      '''Ø ${displayedAvg.toStringAsFixed(1)}''',
                       style: context.textTheme.bodyLarge,
                     ),
                   ],
@@ -122,7 +135,12 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
           const VerticalSpace(size: SpaceSize.small),
 
           if (!hasDataToShow)
-            const _EmptyFocusState()
+            const EmptyChart(
+              iconData: Icons.insights_rounded,
+              infoTitle: 'Noch keine Fokusdaten',
+              infoSubtitle:
+                  '''Beantworte Fokusabfragen während deiner Lerneinheit, um deinen Aufmerksamkeits-Verlauf sehen zu können.''',
+            )
           else
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
@@ -141,39 +159,13 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
                       instance: widget.currentInstance,
                     )),
             ),
+          ReflectionBox(
+            color: AppPalette.teal,
+            iconData: Icons.lightbulb_outlined,
+            reflection: _getReflectionText(displayedAvg),
+          ),
         ],
       ),
-    );
-  }
-}
-
-class _EmptyFocusState extends StatelessWidget {
-  const _EmptyFocusState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(
-          Icons.insights_rounded,
-          size: 48,
-          color: AppPalette.grey.withValues(alpha: 0.3),
-        ),
-        const VerticalSpace(size: SpaceSize.small),
-        Text(
-          'Noch keine Fokus-Daten',
-          style: context.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          '''Beantworte Fokus-Abfragen während deiner Lerneinheit, um deinen Verlauf zu sehen.''',
-          textAlign: TextAlign.center,
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: AppPalette.grey,
-          ),
-        ),
-      ],
     );
   }
 }

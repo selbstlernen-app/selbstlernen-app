@@ -8,13 +8,14 @@ import 'package:srl_app/core/utils/statistics_ui_utils.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_prompt/focus_check_utils.dart';
 
+/// Shows the focus across all session instances
 class AverageFocusChart extends StatelessWidget {
   const AverageFocusChart({
     required this.instances,
     super.key,
   });
 
-  // List of instances where focus checks is not empty
+  /// List of all instances where focus checks are not empty
   final List<SessionInstanceModel> instances;
 
   @override

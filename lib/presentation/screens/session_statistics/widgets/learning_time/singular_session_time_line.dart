@@ -5,43 +5,50 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 
-class SingularSessionTimeLine extends StatelessWidget {
+class SingularSessionTimeLine extends StatefulWidget {
   const SingularSessionTimeLine({
     required this.instance,
     required this.plannedTime,
-    required this.showPlannedTime,
     super.key,
   });
 
   final SessionInstanceModel instance;
-  final bool showPlannedTime;
   final TimeOfDay plannedTime;
 
+  @override
+  State<SingularSessionTimeLine> createState() =>
+      _SingularSessionTimeLineState();
+}
+
+class _SingularSessionTimeLineState extends State<SingularSessionTimeLine> {
+  bool showPlannedTime = false;
   double _hourFraction(int hour, int minute) => (hour + minute / 60.0) / 24.0;
 
   @override
   Widget build(BuildContext context) {
-    final completedAt = instance.completedAt!;
+    final completedAt = widget.instance.completedAt!;
     final completedFraction = _hourFraction(
       completedAt.hour,
       completedAt.minute,
     );
-
     final plannedFraction = showPlannedTime
-        ? _hourFraction(
-            plannedTime.hour,
-            plannedTime.minute,
-          )
+        ? _hourFraction(widget.plannedTime.hour, widget.plannedTime.minute)
         : null;
 
-    // Difference in minutes from planned time
-    // (positive = late, negative = early)
-    final differenceMinutes = plannedFraction != null
-        ? ((completedFraction - plannedFraction) * 24 * 60).round()
+    final plannedDateTime = DateTime(
+      completedAt.year,
+      completedAt.month,
+      completedAt.day,
+      widget.plannedTime.hour,
+      widget.plannedTime.minute,
+    );
+
+    final differenceMinutes = showPlannedTime
+        ? completedAt.difference(plannedDateTime).inMinutes
         : null;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         // 24h bar
         _TimelineBar(
@@ -98,7 +105,7 @@ class SingularSessionTimeLine extends StatelessWidget {
                         size: SpaceSize.small,
                       ),
                       Text(
-                        'Geplant ${plannedTime.format(context)}',
+                        'Geplant ${widget.plannedTime.format(context)}',
                         style: context.textTheme.labelSmall?.copyWith(
                           color: AppPalette.grey,
                         ),
@@ -142,6 +149,31 @@ class SingularSessionTimeLine extends StatelessWidget {
             ],
           ],
         ),
+
+        const VerticalSpace(
+          size: SpaceSize.xsmall,
+        ),
+
+        TextButton.icon(
+          style: TextButton.styleFrom(
+            backgroundColor: context.colorScheme.tertiary,
+            foregroundColor: AppPalette.grey,
+            visualDensity: VisualDensity.compact,
+          ),
+          onPressed: () => setState(() => showPlannedTime = !showPlannedTime),
+          icon: Icon(
+            showPlannedTime ? Icons.visibility_off : Icons.visibility,
+            color: context.colorScheme.onTertiary,
+            size: 16,
+          ),
+          label: Text(
+            showPlannedTime ? 'Verstecken' : 'Geplante Zeit anzeigen',
+            style: context.textTheme.labelSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: context.colorScheme.onTertiary,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -165,36 +197,34 @@ class _TimelineBar extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
+        const markerWidth = 4.0;
+
         return SizedBox(
-          height: 16,
+          height: 32,
           child: Stack(
             clipBehavior: Clip.none,
+            alignment: Alignment.centerLeft,
             children: [
-              // Timeline track
-              Positioned(
-                top: 10,
-                left: 0,
-                right: 0,
-                child: Container(
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: context.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+              // Track
+              Container(
+                height: 8,
+                width: width,
+                decoration: BoxDecoration(
+                  color: context.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(10),
                 ),
               ),
 
-              // Markers (planned // actual time)
+              // Markers (planned and actual time)
               ...markers.map((m) {
-                final x = m.fraction * width;
+                final x = (m.fraction * width) - (markerWidth / 2);
                 return Positioned(
                   left: x,
-                  top: -2,
                   child: Row(
                     children: [
                       Container(
-                        width: 4,
-                        height: 28,
+                        width: markerWidth,
+                        height: 24,
                         decoration: BoxDecoration(
                           color: m.color,
                           borderRadius: BorderRadius.circular(2),

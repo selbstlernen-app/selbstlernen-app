@@ -66,11 +66,10 @@ class _MoodCardState extends State<MoodCard> {
         children: [
           ChartHeader(
             title: 'Stimmung',
-            instances: widget.instances,
+            instances: _ratedInstances,
             getAttributeValue: (instance) {
-              final emoji = instance.mood != null
-                  ? Constants.emojiMoods[instance.mood!]
-                  : '-';
+              final emoji = Constants.emojiMoods[instance.mood!];
+
               final note = (instance.notes?.trim().isNotEmpty ?? false)
                   ? '\n„${instance.notes!.trim()}"'
                   : '';
@@ -136,10 +135,10 @@ class _MoodCardState extends State<MoodCard> {
             ),
 
             ReflectionBox(
-              color: AppPalette.sky,
+              color: AppPalette.teal,
               iconData: Icons.question_answer_outlined,
               reflection:
-                  'Was könnten Gründe für deine ${_getMoodString(widget.stats.averageMood!)} Stimmung sein?',
+                  'Was sind Gründe für deine ${_getMoodString(widget.stats.averageMood!)} Stimmung?',
             ),
 
             // Show recent notes
