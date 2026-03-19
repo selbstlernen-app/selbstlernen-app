@@ -117,37 +117,42 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
                   '''Schließe deine nächste Sitzung ab, um zu sehen wann du am häufigsten lernst.''',
             )
           else
-            AnimatedSwitcher(
+            AnimatedSize(
               duration: const Duration(milliseconds: 300),
-              switchInCurve: Curves.easeOut,
-              switchOutCurve: Curves.easeIn,
-              child: showAllInstances
-                  ? AllSessionsScatterPlot(
-                      key: const ValueKey('all'),
-                      instances: completedInstances,
-                      plannedTime: widget.plannedTime,
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SingularSessionTimeLine(
-                          key: const ValueKey('single'),
-                          instance: widget.currentInstance,
-                          plannedTime: widget.plannedTime,
-                        ),
-                      ],
-                    ),
-            ),
+              curve: Curves.easeInOut,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
 
-          // Reflection Box
-          if (showAllInstances &&
-              avgLearningTimeType != LearningTimeType.undefined) ...[
-            ReflectionBox(
-              color: avgLearningTimeType.color,
-              reflection: avgLearningTimeType.timeInsight,
-              emoji: avgLearningTimeType.emoji,
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                child: showAllInstances
+                    ? Column(
+                        children: [
+                          AllSessionsScatterPlot(
+                            key: const ValueKey('all'),
+                            instances: completedInstances,
+                            plannedTime: widget.plannedTime,
+                          ),
+                          if (avgLearningTimeType != LearningTimeType.undefined)
+                            ReflectionBox(
+                              color: avgLearningTimeType.color,
+                              reflection: avgLearningTimeType.timeInsight,
+                              emoji: avgLearningTimeType.emoji,
+                            ),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SingularSessionTimeLine(
+                            key: const ValueKey('single'),
+                            instance: widget.currentInstance,
+                            plannedTime: widget.plannedTime,
+                          ),
+                        ],
+                      ),
+              ),
             ),
-          ],
         ],
       ),
     );
