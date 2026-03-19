@@ -13,7 +13,7 @@ class SessionDialogs {
       context,
       title: 'Lerneinheit überspringen?',
       content:
-          '''Wenn du diese Einheit überspringst, wird diese als übersprungen markiert und muss nicht mehr durchgeführt werden.''',
+          '''Wenn eine Einheit übersprungen wird, musst du diese für den Tag nicht mehr durchgeführen.''',
       onConfirm: onConfirm,
       successMessage: 'Einheit übersprungen',
       shouldNavigateHome: false,
@@ -30,8 +30,8 @@ class SessionDialogs {
       context,
       title: 'Lerneinheit löschen?',
       content:
-          '''Wenn du diese Einheit löschst, löschst du auch alle bisher durchgeführten Instanzen und Daten.\n'''
-          '''${isRepeating ? 'Willst du diese und alle zukünftigen Einheiten löschen?' : 'Willst du diese Einheit wirklich löschen?'}''',
+          '''Alle jemals aufgenommenen Daten und Statistiken dieser Einheit gehen dabei verloren und können nicht wiederhergestellt werden.'''
+          '''\nWillst du diese Einheit wirklich löschen?''',
       onConfirm: onConfirm,
       successMessage: Constants.successDeleted,
       shouldNavigateHome: shouldNavigateHome,
@@ -44,9 +44,8 @@ class SessionDialogs {
   }) {
     return _show(
       context,
-      title: 'Durchgeführte Lerneinheit löschen?',
-      content:
-          'Wenn du diese durchgeführte Lerneinheit löschst, verschwinden alle Daten, die dafür aufgenommen wurden.',
+      title: 'Durchgeführte Sitzung löschen?',
+      content: 'Alle aufgenommenen Daten dieser Einheit gehen dabei verloren.',
       onConfirm: onConfirm,
       successMessage: Constants.successDeleted,
       shouldNavigateHome: false,
@@ -91,10 +90,11 @@ class SessionDialogs {
           ),
           TextButton(
             onPressed: () async {
-              await onConfirm();
-              if (context.mounted) {
-                Navigator.pop(context); // Close dialog first
+              Navigator.pop(context); // Close dialog first
 
+              await onConfirm();
+
+              if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     duration: const Duration(seconds: 2),
