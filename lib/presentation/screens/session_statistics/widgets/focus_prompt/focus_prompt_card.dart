@@ -102,7 +102,7 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
               if (!widget.showGeneralStatsOnly)
                 ToggleShowAllButton(
                   showAll: showAllInstances,
-                  thresholdExceeded: widget.allDoneInstances.length > 4,
+                  thresholdExceeded: instancesWithFocusChecks.length > 4,
                   onToggle: () {
                     setState(() => showAllInstances = !showAllInstances);
                   },
@@ -112,7 +112,7 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
               else
                 const Spacer(),
 
-              if (widget.allDoneInstances.length > 4 &&
+              if (instancesWithFocusChecks.length > 4 &&
                   averageMoodIndex != null &&
                   averageMoodIndex >= 0)
                 Row(
@@ -142,12 +142,12 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
                   '''Beantworte Fokusabfragen während deiner Lerneinheit, um deinen Aufmerksamkeits-Verlauf sehen zu können.''',
             )
           else
+            // Switch between average and current chart
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 200),
               switchInCurve: Curves.easeInCubic,
               switchOutCurve: Curves.easeOutCubic,
-              child:
-                  (showAllInstances // show average chart if clicked; else not
+              child: (showAllInstances
                   ? AverageFocusChart(
                       key: const ValueKey('avg_chart'),
                       instances: instancesWithFocusChecks,
