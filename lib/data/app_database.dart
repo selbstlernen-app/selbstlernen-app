@@ -214,6 +214,8 @@ class AppDatabase extends _$AppDatabase {
           ...FocusLevel.values.map((l) => 'focus_check_${l.name}_count'),
           // Notes excluded for privacy
           'has_notes',
+          // Learning strategy data
+          'learning_strategy_and_rating',
         ].join(','),
       );
 
@@ -243,6 +245,7 @@ class AppDatabase extends _$AppDatabase {
           '',
           ...FocusLevel.values.map((_) => ''),
           '',
+          '',
         ].join(','),
       );
 
@@ -253,6 +256,30 @@ class AppDatabase extends _$AppDatabase {
 
       for (final instance in instances) {
         final checks = _parseFocusChecks(instance.focusChecksJson);
+
+        // Get all strategies with titles for the specific instance
+        final strategiesWithTitles =
+            await (select(sessionInstanceStrategies).join([
+                  innerJoin(
+                    learningStrategies,
+                    learningStrategies.id.equalsExp(
+                      sessionInstanceStrategies.strategyId,
+                    ),
+                  ),
+                ])..where(
+                  sessionInstanceStrategies.instanceId.equals(instance.id),
+                ))
+                .get();
+
+        // Get the strategy and rating; e.g. "Wiederholen: 5 | Karteikarten machen: 2"
+        final strategyString = strategiesWithTitles
+            .map((row) {
+              final strategy = row.readTable(learningStrategies);
+              final mapping = row.readTable(sessionInstanceStrategies);
+
+              return '${strategy.title}: ${mapping.effectivenessRating}';
+            })
+            .join(' | ');
 
         buffer.writeln(
           [
@@ -273,6 +300,7 @@ class AppDatabase extends _$AppDatabase {
             checks.avgLevel.toStringAsFixed(2),
             ...FocusLevel.values.map((l) => checks.levelCounts[l.name] ?? 0),
             if (instance.notes != null) 1 else 0,
+            strategyString,
           ].join(','),
         );
       }
