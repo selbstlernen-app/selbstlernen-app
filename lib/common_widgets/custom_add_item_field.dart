@@ -9,9 +9,8 @@ class CustomAddItemField extends StatelessWidget {
     required this.onPressed,
     required this.controller,
     required this.hintText,
-    super.key,
     this.hasError,
-    this.markEditMode = false,
+    super.key,
   });
 
   /// Function called when item is to be added
@@ -29,9 +28,6 @@ class CustomAddItemField extends StatelessWidget {
   /// Indicates if error is shown or not
   final bool? hasError;
 
-  /// Indicates if edit mode field should be marked as such
-  final bool markEditMode;
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -43,7 +39,6 @@ class CustomAddItemField extends StatelessWidget {
             controller: controller,
             hintText: hintText,
             hasError: hasError ?? false,
-            markEditMode: markEditMode,
           ),
         ),
         const HorizontalSpace(size: SpaceSize.small),

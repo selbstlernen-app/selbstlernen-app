@@ -26,10 +26,6 @@ class GoalWithTasksCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isEditMode = ref.watch(
-      addSessionViewModelProvider.select((s) => s.isEditMode),
-    );
-
     return Card(
       elevation: 0.1,
       child: Padding(
@@ -180,7 +176,6 @@ class GoalWithTasksCard extends ConsumerWidget {
 
                     // Add task input
                     InputList<TaskModel>(
-                      markEditMode: isEditMode,
                       controller: taskController,
                       onEnter: onAddTask,
                       isBigGoal: false,
