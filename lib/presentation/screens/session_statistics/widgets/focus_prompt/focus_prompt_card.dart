@@ -150,20 +150,20 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
                   (showAllInstances // show average chart if clicked; else not
                   ? AverageFocusChart(
                       key: const ValueKey('avg_chart'),
-                      instances: widget.allDoneInstances
-                          .where((i) => i.focusChecks.isNotEmpty)
-                          .toList(),
+                      instances: instancesWithFocusChecks,
                     )
                   : FocusLevelChart(
                       key: const ValueKey('level_chart'),
                       instance: widget.currentInstance,
                     )),
             ),
-          ReflectionBox(
-            color: AppPalette.teal,
-            iconData: Icons.lightbulb_outlined,
-            reflection: _getReflectionText(displayedAvg),
-          ),
+
+          if (instancesWithFocusChecks.isNotEmpty)
+            ReflectionBox(
+              color: AppPalette.teal,
+              iconData: Icons.lightbulb_outlined,
+              reflection: _getReflectionText(displayedAvg),
+            ),
         ],
       ),
     );
