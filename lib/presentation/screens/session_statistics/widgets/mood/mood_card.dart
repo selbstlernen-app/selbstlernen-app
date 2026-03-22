@@ -7,8 +7,10 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/chart_header.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/empty_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/mood/mood_line_chart.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/reflection_box.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
 class MoodCard extends StatefulWidget {
@@ -34,22 +36,21 @@ class _MoodCardState extends State<MoodCard> {
           .toList()
         ..sort((a, b) => a.completedAt!.compareTo(b.completedAt!));
 
-  String _reflectiveQuestion(double avg) {
+  String _getMoodString(double avg) {
     if (avg < 1.5) {
-      return '''Du wirkst häufig belastet. Was macht dir das Lernen gerade schwer?''';
+      return 'schlechte';
     } else if (avg < 2.5) {
-      return '''Deine Stimmung ist oft gedrückt. Was könnte dir helfen, zufriedener mit deinem Lernen zu sein?''';
+      return 'gedrückte';
     } else if (avg < 3.5) {
-      return '''Du bist mal gut, mal weniger gut drauf. Was unterscheidet deine guten von deinen schwierigen Sitzungen?''';
+      return 'gehobene';
     } else {
-      return '''Du bist meistens gut gestimmt! Was läuft gerade besonders gut für dich?''';
+      return 'gute';
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final rated = _ratedInstances;
-    final hasEnoughForChart = rated.length > 1;
 
     // Last 3 sessions with notes
     final withNotes = rated
@@ -63,33 +64,26 @@ class _MoodCardState extends State<MoodCard> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Stimmung', style: context.textTheme.headlineMedium),
-              IconButton(
-                color: AppPalette.grey.withValues(alpha: 0.5),
-                icon: const Icon(Icons.history_rounded),
-                onPressed: () => showHistoryBottomSheet(
-                  context,
-                  widget.instances,
-                  'Stimmung',
-                  (instance) {
-                    final emoji = instance.mood != null
-                        ? Constants.emojiMoods[instance.mood!]
-                        : '-';
-                    final note = (instance.notes?.trim().isNotEmpty ?? false)
-                        ? '\n„${instance.notes!.trim()}"'
-                        : '';
-                    return '$emoji$note';
-                  },
-                ),
-              ),
-            ],
+          ChartHeader(
+            title: 'Stimmung',
+            instances: _ratedInstances,
+            getAttributeValue: (instance) {
+              final emoji = Constants.emojiMoods[instance.mood!];
+
+              final note = (instance.notes?.trim().isNotEmpty ?? false)
+                  ? '\n„${instance.notes!.trim()}"'
+                  : '';
+              return '$emoji$note';
+            },
           ),
 
           if (widget.stats.averageMood == null)
-            const _EmptyMoodState()
+            const EmptyChart(
+              iconData: Icons.emoji_emotions_outlined,
+              infoTitle: 'Noch keine Stimmungs-Daten',
+              infoSubtitle:
+                  '''Bewerte am Ende deiner nächsten Einheit deine Stimmung, um Trends zu verfolgen.''',
+            )
           else ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -133,21 +127,19 @@ class _MoodCardState extends State<MoodCard> {
 
             const VerticalSpace(size: SpaceSize.small),
 
-            Text(
-              _reflectiveQuestion(widget.stats.averageMood!),
-              style: context.textTheme.bodySmall?.copyWith(
-                color: AppPalette.grey,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-
             const VerticalSpace(),
 
-            if (hasEnoughForChart)
-              MoodLineChart(
-                instances: rated,
-                showAllInstances: showAllInstances,
-              ),
+            MoodLineChart(
+              instances: rated,
+              showAllInstances: showAllInstances,
+            ),
+
+            ReflectionBox(
+              color: AppPalette.teal,
+              iconData: Icons.question_answer_outlined,
+              reflection:
+                  '''Was sind Gründe für deine durchschnittlich ${_getMoodString(widget.stats.averageMood!)} Stimmung?''',
+            ),
 
             // Show recent notes
             if (withNotes.isNotEmpty) ...[
@@ -209,38 +201,6 @@ class _NoteSnippet extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _EmptyMoodState extends StatelessWidget {
-  const _EmptyMoodState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const VerticalSpace(size: SpaceSize.small),
-        Icon(
-          Icons.emoji_emotions_outlined,
-          size: 48,
-          color: AppPalette.grey.withValues(alpha: 0.3),
-        ),
-        const VerticalSpace(size: SpaceSize.small),
-        Text(
-          'Noch keine Stimmungs-Daten',
-          style: context.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          '''Bewerte am Ende deiner nächsten Einheit deine Stimmung, um deinen Verlauf zu sehen.''',
-          textAlign: TextAlign.center,
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: AppPalette.grey,
-          ),
-        ),
-      ],
     );
   }
 }

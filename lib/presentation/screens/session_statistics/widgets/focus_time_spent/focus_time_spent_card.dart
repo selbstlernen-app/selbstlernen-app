@@ -8,8 +8,8 @@ import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/core/utils/time_utils.dart';
 import 'package:srl_app/domain/models/models.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/chart_header.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/focus_time_spent/focus_time_bar_chart.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 import 'package:srl_app/presentation/view_models/add_session/add_session_state.dart';
 
@@ -73,32 +73,17 @@ class _FocusTimeSpentCardState extends State<FocusTimeSpentCard> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          // Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Fokuszeit',
-                style: context.textTheme.headlineMedium,
-              ),
-              IconButton(
-                color: AppPalette.grey.withValues(alpha: 0.5),
-                icon: const Icon(Icons.history_rounded),
-                onPressed: () => showHistoryBottomSheet(
-                  context,
-                  widget.completedInstances,
-                  'Fokuszeit',
-                  (instance) {
-                    final timeString = TimeUtils.formatTimeString(
-                      totalSeconds: instance.totalFocusSecondsElapsed,
-                    );
-                    return timeString.hours != null
-                        ? '${timeString.hours} h ${timeString.minutes} min'
-                        : '${timeString.minutes} min ${timeString.seconds}s';
-                  },
-                ),
-              ),
-            ],
+          ChartHeader(
+            title: 'Fokuszeit',
+            instances: widget.completedInstances,
+            getAttributeValue: (instance) {
+              final timeString = TimeUtils.formatTimeString(
+                totalSeconds: instance.totalFocusSecondsElapsed,
+              );
+              return timeString.hours != null
+                  ? '${timeString.hours} h ${timeString.minutes} min'
+                  : '${timeString.minutes} min ${timeString.seconds}s';
+            },
           ),
 
           const VerticalSpace(

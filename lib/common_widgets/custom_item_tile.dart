@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
+/// Item (either goal or task) displayed as text with icon next to it
 class CustomItemTile extends StatelessWidget {
   const CustomItemTile({
     required this.text,

@@ -16,7 +16,6 @@ class InputList<T> extends StatelessWidget {
     this.hideHeadline = false,
     this.toolTip,
     this.errorText,
-    this.markEditMode = false,
     this.onDelete,
   });
 
@@ -27,7 +26,6 @@ class InputList<T> extends StatelessWidget {
   final List<T> items;
   final String? toolTip;
   final String? errorText;
-  final bool markEditMode;
   final void Function(int index)? onDelete;
 
   @override
@@ -41,7 +39,6 @@ class InputList<T> extends StatelessWidget {
           controller: controller,
           hintText: 'Ich will...',
           hasError: errorText != null,
-          markEditMode: markEditMode,
         ),
         if ((toolTip?.isNotEmpty ?? false) && errorText == null)
           _buildTooltip(context),

@@ -12,13 +12,15 @@ class CompletedSessionTile extends StatelessWidget {
   Widget _getIconBox(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: getColor(sessionWithInstance.instance!.status),
+        color: SessionStatusUtils.getColor(
+          sessionWithInstance.instance!.status,
+        ),
         borderRadius: BorderRadius.circular(5),
       ),
       child: Padding(
         padding: const EdgeInsets.all(10),
         child: Icon(
-          getIcon(sessionWithInstance.instance!.status),
+          SessionStatusUtils.getIcon(sessionWithInstance.instance!.status),
           color: context.colorScheme.onPrimary,
         ),
       ),

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
+import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/presentation/screens/settings/pages/learning_strategy_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/notification_settings_screen.dart';
 import 'package:srl_app/presentation/screens/settings/pages/theme_settings_screen.dart';
@@ -130,6 +131,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       icon: Icons.question_mark_rounded,
                       subtitle: 'Wiederhole das Onboarding',
                       onTap: () => _navigateToIntroScreen(context),
+                    ),
+
+                    _buildSectionTile(
+                      title: 'Daten herunterladen',
+                      icon: Icons.download,
+                      onTap: () => ref
+                          .read(appDatabaseProvider)
+                          .createResearchCsvExport(),
+                      subtitle:
+                          'Lade alle deine Daten in einer CSV-Datei herunter',
                     ),
                   ],
                 ),

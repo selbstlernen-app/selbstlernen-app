@@ -107,6 +107,7 @@ class _ActiveSessionScreenState extends ConsumerState<ActiveSessionScreen> {
     );
 
     if (isLoading) return const LoadingIndicator();
+
     if (error != null) {
       return Scaffold(body: Center(child: Text('Fehler: $error')));
     }

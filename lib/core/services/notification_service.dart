@@ -211,15 +211,15 @@ class NotificationService {
   }
 
   /// Function to check what notifications are pending; for debugging
-  Future<void> pendingNotifications() async {
-    final notificiations = await flutterLocalNotificationsPlugin
-        .pendingNotificationRequests();
-    for (final note in notificiations) {
-      print(note.id);
-      print(note.title);
-      print(note.body);
-    }
-  }
+  // Future<void> pendingNotifications() async {
+  //   final notificiations = await flutterLocalNotificationsPlugin
+  //       .pendingNotificationRequests();
+  //   for (final note in notificiations) {
+  //     print(note.id);
+  //     print(note.title);
+  //     print(note.body);
+  //   }
+  // }
 
   /// Cancel all scheduled notifications
   Future<void> cancelAllNotifications() async {

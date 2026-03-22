@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:srl_app/common_widgets/card_layout.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
-import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
-import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/chart_header.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/empty_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/learning_time/all_sessions_scatter_plot.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/learning_time/learning_time_type.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/learning_time/singular_session_time_line.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/reflection_box.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
 
 class SessionTimingCard extends StatefulWidget {
@@ -53,15 +54,6 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
     return LearningTimeType.nightOwl;
   }
 
-  String _historyLabel(SessionInstanceModel instance) {
-    if (instance.completedAt == null) return '–';
-    final completed = DateFormat('HH:mm').format(instance.completedAt!);
-    final planned =
-        '${widget.plannedTime.hour.toString().padLeft(2, '0')}:'
-        '${widget.plannedTime.minute.toString().padLeft(2, '0')}';
-    return 'Geplant: $planned\nAbgeschlossen: $completed';
-  }
-
   @override
   Widget build(BuildContext context) {
     final completedInstances =
@@ -78,27 +70,22 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                showAllInstances ? 'Lernzeiten' : 'Lernzeit',
-                style: context.textTheme.headlineMedium,
-              ),
-              IconButton(
-                color: AppPalette.grey.withValues(alpha: 0.5),
-                icon: const Icon(Icons.history_rounded),
-                onPressed: () => showHistoryBottomSheet(
-                  context,
-                  widget.allDoneInstances,
-                  'Lernzeiten',
-                  _historyLabel,
-                ),
-              ),
-            ],
+          ChartHeader(
+            title: showAllInstances ? 'Lernzeiten' : 'Lernzeit',
+            instances: widget.allDoneInstances,
+            getAttributeValue: (instance) {
+              if (instance.completedAt == null) return '–';
+              final completed = DateFormat(
+                'HH:mm',
+              ).format(instance.completedAt!);
+              final planned =
+                  '${widget.plannedTime.hour.toString().padLeft(2, '0')}:'
+                  '${widget.plannedTime.minute.toString().padLeft(2, '0')}';
+              return 'Geplant: $planned\nAbgeschlossen: $completed';
+            },
           ),
 
-          // Toggle + TimeBagge
+          // Toggle + TimeBadge
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -116,107 +103,93 @@ class _SessionTimingCardState extends State<SessionTimingCard> {
 
               if (showAllInstances &&
                   avgLearningTimeType != LearningTimeType.undefined)
-                TimeTypeBadge(timeType: avgLearningTimeType),
+                _TimeTypeBadge(timeType: avgLearningTimeType),
             ],
           ),
 
           const VerticalSpace(),
 
           if (!hasData)
-            const _EmptyTimingState()
+            const EmptyChart(
+              iconData: Icons.schedule_rounded,
+              infoTitle: 'Noch keine Lernzeit-Daten',
+              infoSubtitle:
+                  '''Schließe deine nächste Sitzung ab, um zu sehen wann du am häufigsten lernst.''',
+            )
           else
-            AnimatedSwitcher(
+            AnimatedSize(
               duration: const Duration(milliseconds: 300),
-              switchInCurve: Curves.easeOut,
-              switchOutCurve: Curves.easeIn,
-              child: showAllInstances
-                  ? AllSessionsScatterPlot(
-                      key: const ValueKey('all'),
-                      instances: completedInstances,
-                      plannedTime: widget.plannedTime,
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SingularSessionTimeLine(
-                          key: const ValueKey('single'),
-                          instance: widget.currentInstance,
-                          showPlannedTime: showPlannedTime,
-                          plannedTime: widget.plannedTime,
-                        ),
+              curve: Curves.easeInOut,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
 
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            shadowColor: Colors.transparent,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 4,
+                switchInCurve: Curves.easeOut,
+                switchOutCurve: Curves.easeIn,
+                child: showAllInstances
+                    ? Column(
+                        children: [
+                          AllSessionsScatterPlot(
+                            key: const ValueKey('all'),
+                            instances: completedInstances,
+                            plannedTime: widget.plannedTime,
+                          ),
+                          if (avgLearningTimeType != LearningTimeType.undefined)
+                            ReflectionBox(
+                              color: avgLearningTimeType.color,
+                              reflection: avgLearningTimeType.timeInsight,
+                              emoji: avgLearningTimeType.emoji,
                             ),
-                            textStyle: context.textTheme.labelSmall,
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SingularSessionTimeLine(
+                            key: const ValueKey('single'),
+                            instance: widget.currentInstance,
+                            plannedTime: widget.plannedTime,
                           ),
-                          onPressed: () => setState(() {
-                            showPlannedTime = !showPlannedTime;
-                          }),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                showPlannedTime
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                              ),
-                              const HorizontalSpace(
-                                size: SpaceSize.xsmall,
-                              ),
-                              Text(
-                                showPlannedTime
-                                    ? 'Ausblenden'
-                                    : 'Geplante Zeit einblenden',
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+              ),
             ),
-
-          // Learning Time Type description
-          if (showAllInstances &&
-              avgLearningTimeType != LearningTimeType.undefined) ...[
-            const VerticalSpace(size: SpaceSize.small),
-            LearningTimeInsight(type: avgLearningTimeType),
-          ],
         ],
       ),
     );
   }
 }
 
-class _EmptyTimingState extends StatelessWidget {
-  const _EmptyTimingState();
+/// Badge given related to the time of learning
+class _TimeTypeBadge extends StatelessWidget {
+  const _TimeTypeBadge({required this.timeType});
+  final LearningTimeType timeType;
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const VerticalSpace(size: SpaceSize.small),
-        Icon(
-          Icons.schedule_rounded,
-          size: 48,
-          color: AppPalette.grey.withValues(alpha: 0.3),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: timeType.color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: timeType.color,
         ),
-        const VerticalSpace(size: SpaceSize.small),
-        Text(
-          'Noch keine Zeitdaten',
-          style: context.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.bold,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+
+        children: [
+          Text(timeType.emoji, style: const TextStyle(fontSize: 16)),
+          const HorizontalSpace(size: SpaceSize.xsmall),
+          Text(
+            timeType.label,
+            style: context.textTheme.bodySmall?.copyWith(
+              color: timeType.color,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        Text(
-          'Schließe deine nächste Sitzung ab, um dein Lernmuster zu sehen.',
-          textAlign: TextAlign.center,
-          style: context.textTheme.bodyMedium?.copyWith(color: AppPalette.grey),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

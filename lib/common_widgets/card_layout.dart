@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Card layout for any statistic
 class CardLayout extends StatelessWidget {
   const CardLayout({required this.content, super.key});
 

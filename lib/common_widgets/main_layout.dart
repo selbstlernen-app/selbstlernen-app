@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
+/// Main layout used for the creation, detail and reflection screen
+/// Primary color background with title and rectangular content card
 class MainLayout extends StatelessWidget {
   const MainLayout({
     required this.appBarTitle,

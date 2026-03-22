@@ -166,7 +166,6 @@ class _GoalSettingPageState extends ConsumerState<GoalSettingPage> {
                 onPressed: _handleAddGoal,
                 controller: _goalController,
                 hintText: 'Ich will...',
-                markEditMode: state.isEditMode,
               ),
             const VerticalSpace(
               size: SpaceSize.xsmall,

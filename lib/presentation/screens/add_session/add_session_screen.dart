@@ -103,9 +103,11 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
   }
 
   String _getAppBarTitle(String title) {
-    if (currentPage == 0) return 'Lerneinheit erstellen';
     if (widget.fullSessionModel != null) {
       return '${widget.fullSessionModel!.session.title} bearbeiten';
+    }
+    if (currentPage == 0) {
+      return 'Lerneinheit erstellen';
     } else {
       return '$title konfigurieren';
     }
@@ -128,7 +130,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
             .handleSaveSession();
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          context.scaffoldMessenger.showSnackBar(
             SnackBar(
               duration: const Duration(seconds: 2),
               content: Text(Constants.successModified),

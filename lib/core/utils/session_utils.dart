@@ -1,6 +1,3 @@
-import 'package:intl/intl.dart';
-import 'package:srl_app/domain/models/session_instance_model.dart';
-
 /// Generates an iterable list of all dates on which a repeating
 /// session should take place
 Iterable<DateTime> generateScheduledDates(
@@ -18,14 +15,4 @@ Iterable<DateTime> generateScheduledDates(
     }
     current = current.add(const Duration(days: 1));
   }
-}
-
-/// Returns a map with the amount of instances occuring on a given date
-Map<String, int> calculateDateOccurences(List<SessionInstanceModel> instances) {
-  final map = <String, int>{};
-  for (final instance in instances) {
-    final key = DateFormat('yyyyMMdd').format(instance.completedAt!);
-    map[key] = (map[key] ?? 0) + 1;
-  }
-  return map;
 }

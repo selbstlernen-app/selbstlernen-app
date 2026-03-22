@@ -3,15 +3,15 @@ import 'package:srl_app/common_widgets/custom_text_field.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
+/// Text field and button next to the field to add items
 class CustomAddItemField extends StatelessWidget {
   const CustomAddItemField({
     required this.onSubmitted,
     required this.onPressed,
     required this.controller,
     required this.hintText,
-    super.key,
     this.hasError,
-    this.markEditMode = false,
+    super.key,
   });
 
   /// Function called when item is to be added
@@ -29,9 +29,6 @@ class CustomAddItemField extends StatelessWidget {
   /// Indicates if error is shown or not
   final bool? hasError;
 
-  /// Indicates if edit mode field should be marked as such
-  final bool markEditMode;
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -43,7 +40,6 @@ class CustomAddItemField extends StatelessWidget {
             controller: controller,
             hintText: hintText,
             hasError: hasError ?? false,
-            markEditMode: markEditMode,
           ),
         ),
         const HorizontalSpace(size: SpaceSize.small),

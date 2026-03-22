@@ -10,6 +10,7 @@ import 'package:srl_app/presentation/screens/onboarding/on_boarding_screen.dart'
 import 'package:srl_app/presentation/screens/reflection/reflection_screen.dart';
 import 'package:srl_app/presentation/screens/session_statistics/session_statistics_screen.dart';
 
+/// Routes of all screens and required parameters
 class AppRoutes {
   static const String home = '/';
   static const String detail = '/detail';

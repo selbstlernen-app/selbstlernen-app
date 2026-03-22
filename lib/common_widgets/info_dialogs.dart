@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
-/// Class keeping all dialogs for the detail session screen
+/// Central class for all dialogs of the detail session screen
 class InfoDialogs {
   static Future<void> showLearningStrategyInfo(
     BuildContext context,

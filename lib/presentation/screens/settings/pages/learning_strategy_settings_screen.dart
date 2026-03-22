@@ -56,7 +56,7 @@ class _LearningStrategySettingsScreenState
           strat.strategyId != _isEditId,
     );
     if (isDuplicate) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      context.scaffoldMessenger.showSnackBar(
         const SnackBar(content: Text('Diese Strategie existiert bereits.')),
       );
       return;
@@ -74,12 +74,12 @@ class _LearningStrategySettingsScreenState
           _isEditId!,
         );
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        context.scaffoldMessenger.showSnackBar(
           const SnackBar(content: Text('Strategie erfolgreich bearbeitet!')),
         );
       } on Exception catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        context.scaffoldMessenger.showSnackBar(
           SnackBar(content: Text('Etwas ist schiefgelaufen: $e!')),
         );
       }
@@ -90,12 +90,12 @@ class _LearningStrategySettingsScreenState
           _strategyExplanationController.text.trim(),
         );
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        context.scaffoldMessenger.showSnackBar(
           const SnackBar(content: Text('Strategie erfolgreich hinzufgefügt!')),
         );
       } on Exception catch (e) {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(
+        context.scaffoldMessenger.showSnackBar(
           SnackBar(content: Text('Etwas ist schiefgelaufen: $e!')),
         );
       }

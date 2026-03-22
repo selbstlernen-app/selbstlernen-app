@@ -55,7 +55,7 @@ class PendingSessionTile extends ConsumerWidget {
                             );
 
                         if (slidableContext.mounted) {
-                          ScaffoldMessenger.of(slidableContext).showSnackBar(
+                          slidableContext.scaffoldMessenger.showSnackBar(
                             const SnackBar(
                               duration: Duration(seconds: 2),
                               content: Text('Lerneinheit übersprungen!'),
@@ -86,7 +86,7 @@ class PendingSessionTile extends ConsumerWidget {
                   style: context.textTheme.headlineSmall,
                 ),
                 subtitle: Text(
-                  getSubtitle(
+                  SessionStatusUtils.getSubtitle(
                     hasInstance
                         ? SessionStatus.inProgress
                         : SessionStatus.scheduled,
@@ -95,7 +95,7 @@ class PendingSessionTile extends ConsumerWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                leading: getIconBox(
+                leading: SessionStatusUtils.getIconBox(
                   status: hasInstance
                       ? SessionStatus.inProgress
                       : SessionStatus.scheduled,

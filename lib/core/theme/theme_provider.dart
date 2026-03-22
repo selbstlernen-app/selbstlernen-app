@@ -6,6 +6,9 @@ import 'package:srl_app/presentation/view_models/settings/settings_view_model.da
 
 part 'theme_provider.g.dart';
 
+/// Provider class of the theme called when app launches; relies on
+/// SharedPreferences
+
 @riverpod
 bool isDarkMode(Ref ref) {
   return ref.watch(settingsViewModelProvider).isDarkMode;

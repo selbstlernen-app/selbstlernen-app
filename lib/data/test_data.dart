@@ -40,7 +40,7 @@ class TestData extends _$TestData {
         final date = DateTime(
           2026,
           3,
-          Random().nextInt(29),
+          Random().nextInt(10),
           6 + Random().nextInt(12),
           Random().nextInt(61),
         ).add(Duration(days: i));

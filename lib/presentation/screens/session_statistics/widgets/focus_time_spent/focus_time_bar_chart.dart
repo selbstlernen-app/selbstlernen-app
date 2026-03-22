@@ -165,7 +165,7 @@ class _StatsBarChartState extends State<FocusTimeBarChart> {
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
-          reservedSize: 40,
+          reservedSize: 48,
           interval: 1,
           getTitlesWidget: (value, meta) {
             final index = value.toInt();

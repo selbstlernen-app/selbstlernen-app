@@ -6,6 +6,8 @@ import 'package:srl_app/core/theme/app_palette.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 import 'package:srl_app/domain/models/session_instance_model.dart';
 import 'package:srl_app/domain/models/session_statistics.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/chart_header.dart';
+import 'package:srl_app/presentation/screens/session_statistics/widgets/empty_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/goal_task_completion/completion_line_chart.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/history_dialog.dart';
 import 'package:srl_app/presentation/screens/session_statistics/widgets/toggle_show_all_button.dart';
@@ -47,11 +49,30 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
 
   double _calcAvg(List<SessionInstanceModel> instances) {
     if (instances.isEmpty) return 0;
+
     if (viewMode == CompletionViewMode.combined) {
-      final total = instances.fold<double>(
-        0,
-        (sum, i) => sum + ((i.completedGoalsRate + i.completedTasksRate) / 2),
-      );
+      final total = instances.fold<double>(0, (sum, i) {
+        var activeCategories = 0;
+        double instanceSum = 0;
+
+        // Check if there were either any goals and/or tasks any goals to complete
+        if (i.totalCompletedGoals > 0) {
+          instanceSum += i.completedGoalsRate;
+          activeCategories++;
+        }
+        if (i.totalCompletedTasks > 0) {
+          instanceSum += i.completedTasksRate;
+          activeCategories++;
+        }
+
+        // If both are empty, this instance contributes 0;
+        // Else, divide by 1 or 2 depending on what was present
+        final instanceAvg = activeCategories > 0
+            ? instanceSum / activeCategories
+            : 0;
+        return sum + instanceAvg;
+      });
+
       return total / instances.length;
     } else {
       final total = instances.fold<double>(
@@ -77,29 +98,20 @@ class _GoalTaskCompletionCardState extends State<GoalTaskCompletionCard> {
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Ziele & Aufgaben', style: context.textTheme.headlineMedium),
-
-              IconButton(
-                color: AppPalette.grey.withValues(alpha: 0.5),
-                icon: const Icon(
-                  Icons.history_rounded,
-                ),
-                onPressed: () => showHistoryBottomSheet(
-                  context,
-                  widget.pastInstances,
-                  'Ziele und Aufgaben',
-                  (instance) =>
-                      '''${instance.totalCompletedGoals} Ziele erledigt\n${instance.totalCompletedTasks} Aufgaben erledigt''',
-                ),
-              ),
-            ],
+          ChartHeader(
+            title: 'Ziele & Aufgaben',
+            instances: widget.pastInstances,
+            getAttributeValue: (instance) =>
+                '''${instance.totalCompletedGoals} Ziele erledigt\n${instance.totalCompletedTasks} Aufgaben erledigt''',
           ),
 
           if (!hasData)
-            const _EmptyState()
+            const EmptyChart(
+              iconData: Icons.task_alt_rounded,
+              infoTitle: 'Noch keine Ziel oder Aufgaben-Daten',
+              infoSubtitle:
+                  '''Hake Ziele oder Aufgaben in deiner nächsten Einheit ab, um deinen Verlauf zu sehen.''',
+            )
           else ...[
             // LINE CHART BUTTON AND AVG STATS
             Row(
@@ -287,38 +299,6 @@ class _ProductivitySquare extends StatelessWidget {
           ],
         ],
       ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const VerticalSpace(size: SpaceSize.small),
-        Icon(
-          Icons.task_alt_rounded,
-          size: 48,
-          color: AppPalette.grey.withValues(alpha: 0.3),
-        ),
-        const VerticalSpace(size: SpaceSize.small),
-        Text(
-          'Noch keine Ziel oder Aufgaben-Daten',
-          style: context.textTheme.bodyLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(
-          '''Hake Ziele oder Aufgaben in deiner nächsten Einheit ab, um deinen Verlauf zu sehen.''',
-          textAlign: TextAlign.center,
-          style: context.textTheme.bodyMedium?.copyWith(
-            color: AppPalette.grey,
-          ),
-        ),
-      ],
     );
   }
 }

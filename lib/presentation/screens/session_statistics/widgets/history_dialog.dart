@@ -158,7 +158,9 @@ class _HistorySection extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: ListTile(
-                  leading: getIconBox(status: instance.status),
+                  leading: SessionStatusUtils.getIconBox(
+                    status: instance.status,
+                  ),
                   title: Text(
                     displayDate,
                     style: context.textTheme.bodyLarge,

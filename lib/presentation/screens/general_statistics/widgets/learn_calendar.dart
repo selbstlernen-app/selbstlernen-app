@@ -132,7 +132,10 @@ class _LearnCalendarState extends ConsumerState<LearnCalendar> {
             margin: const EdgeInsets.only(bottom: 8),
             child: Row(
               children: [
-                getIconBox(status: enrichedInstance.instance.status, size: 16),
+                SessionStatusUtils.getIconBox(
+                  status: enrichedInstance.instance.status,
+                  size: 16,
+                ),
                 const HorizontalSpace(),
                 Expanded(
                   child: Column(

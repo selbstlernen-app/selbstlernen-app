@@ -47,7 +47,7 @@ class ProgressCard extends StatelessWidget {
                   context,
                   instances,
                   'Einheiten-Fortschritt',
-                  (instance) => getSubtitle(instance.status),
+                  (instance) => SessionStatusUtils.getSubtitle(instance.status),
                 ),
               ),
             ],
@@ -74,18 +74,28 @@ class ProgressCard extends StatelessWidget {
                     Expanded(
                       flex: (completionRate * 100).toInt(),
                       child: Container(
-                        color: getColor(SessionStatus.completed),
+                        color: SessionStatusUtils.getColor(
+                          SessionStatus.completed,
+                        ),
                       ),
                     ),
                   if (missRate > 0)
                     Expanded(
                       flex: (missRate * 100).toInt(),
-                      child: Container(color: getColor(SessionStatus.missed)),
+                      child: Container(
+                        color: SessionStatusUtils.getColor(
+                          SessionStatus.missed,
+                        ),
+                      ),
                     ),
                   if (skipRate > 0)
                     Expanded(
                       flex: (skipRate * 100).toInt(),
-                      child: Container(color: getColor(SessionStatus.skipped)),
+                      child: Container(
+                        color: SessionStatusUtils.getColor(
+                          SessionStatus.skipped,
+                        ),
+                      ),
                     ),
                   // Rest is filled by open instances
                   if (combinedRate < 1)
@@ -110,19 +120,19 @@ class ProgressCard extends StatelessWidget {
               _StatChip(
                 label: 'Durchgeführt',
                 value: completed,
-                color: getColor(SessionStatus.completed),
+                color: SessionStatusUtils.getColor(SessionStatus.completed),
               ),
               if (missed > 0)
                 _StatChip(
                   label: 'Verpasst',
                   value: missed,
-                  color: getColor(SessionStatus.missed),
+                  color: SessionStatusUtils.getColor(SessionStatus.missed),
                 ),
               if (skipped > 0)
                 _StatChip(
                   label: 'Übersprungen',
                   value: skipped,
-                  color: getColor(SessionStatus.skipped),
+                  color: SessionStatusUtils.getColor(SessionStatus.skipped),
                 ),
               if (open > 0)
                 _StatChip(
