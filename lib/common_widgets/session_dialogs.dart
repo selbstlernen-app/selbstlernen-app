@@ -95,7 +95,7 @@ class SessionDialogs {
               await onConfirm();
 
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                context.scaffoldMessenger.showSnackBar(
                   SnackBar(
                     duration: const Duration(seconds: 2),
                     content: Text(successMessage),

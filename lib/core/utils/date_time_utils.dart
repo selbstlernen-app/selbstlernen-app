@@ -1,6 +1,7 @@
+/// Class for date time utils used across the app
 class DateTimeUtils {
   /// Counts the total number of days between given start and end date
-  ///  and a list of weekdays
+  /// and a list of weekdays
   static int countDaysBetweenDates(
     DateTime start,
     DateTime end,

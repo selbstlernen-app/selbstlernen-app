@@ -46,7 +46,7 @@ class SessionDetailScreen extends ConsumerWidget {
 
       if (instance == null) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          context.scaffoldMessenger.showSnackBar(
             const SnackBar(
               content: Text(
                 'Es existiert bereits eine laufende Session für heute. '
@@ -265,9 +265,7 @@ class SessionDetailScreen extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Scaffold(
-        body: Center(child: LoadingIndicator()),
-      ),
+      loading: () => const LoadingIndicator(),
       error: (error, stack) => Scaffold(
         body: Center(
           child: Text('Fehler: $error'),

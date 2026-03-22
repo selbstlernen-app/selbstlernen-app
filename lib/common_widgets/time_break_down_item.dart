@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
+/// Text with a specified colored icon and a value to display next to it
 class TimeBreakdownItem extends StatelessWidget {
   const TimeBreakdownItem({
     required this.icon,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Loading indicator
 class LoadingIndicator extends StatelessWidget {
   const LoadingIndicator({super.key});
 

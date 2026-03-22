@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
+/// Error text displayed underneath fields in creation process
 class CustomErrorText extends StatelessWidget {
   const CustomErrorText({required this.errorText, super.key});
   final String errorText;

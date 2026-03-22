@@ -3,6 +3,7 @@ import 'package:srl_app/common_widgets/custom_text_field.dart';
 import 'package:srl_app/common_widgets/spacing/spacing.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
+/// Text field and button next to the field to add items
 class CustomAddItemField extends StatelessWidget {
   const CustomAddItemField({
     required this.onSubmitted,

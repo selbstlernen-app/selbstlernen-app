@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
+/// Button with an icon next to a text
 class CustomIconButton extends StatelessWidget {
   const CustomIconButton({
     required this.icon,

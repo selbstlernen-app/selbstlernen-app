@@ -43,7 +43,7 @@ class _ReflectionScreenState extends ConsumerState<ReflectionScreen> {
 
     if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    context.scaffoldMessenger.showSnackBar(
       SnackBar(
         duration: const Duration(seconds: 2),
         content: Text(Constants.successCompleted),

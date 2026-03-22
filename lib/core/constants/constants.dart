@@ -1,3 +1,5 @@
+/// Constants used across screens, mainly keeping
+/// For snackbar labels
 class Constants {
   static const List<String> emojiMoods = ['😢', '😟', '😐', '😊', '🤩'];
   static const List<String> focusEmojis = [

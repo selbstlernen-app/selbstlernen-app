@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+/// All colors used in the app; from tailwindcss
+/// Similar to tailwind's palette with colors 300 and 400 respectively
 class AppPalette {
   static Color skyLight = const Color(0xFF74D4FF);
   static Color sky = const Color(0xFF00BCFF);
@@ -13,8 +15,8 @@ class AppPalette {
   static Color greenLight = const Color(0xFF7BF1A8);
   static Color green = const Color(0xFF05DF72);
 
-  static Color emeraldLight = const Color(0xFF5EE9B5); // Emerald 300
-  static Color emerald = const Color(0xFF00D492); // Emerald 400
+  static Color emeraldLight = const Color(0xFF5EE9B5);
+  static Color emerald = const Color(0xFF00D492);
 
   static const Color tealLight = Color(0xFF53EAFD);
   static const Color teal = Color(0xFF00D3F2);
@@ -28,8 +30,8 @@ class AppPalette {
   static const Color fuchsiaLight = Color(0xFFF4A8FF);
   static const Color fuchsia = Color(0xFFED6AFF);
 
-  static const Color pinkLight = Color(0xFFFDA5D5); // Pink 300
-  static const Color pink = Color(0xFFfb64b6); // Pink 400
+  static const Color pinkLight = Color(0xFFFDA5D5);
+  static const Color pink = Color(0xFFfb64b6);
 
   static const Color roseLight = Color(0xFFffa1ad);
   static const Color rose = Color(0xFFff637e);
@@ -49,7 +51,7 @@ class AppPalette {
   static Color grey = Colors.grey[600]!;
   static Color darkGrey = Colors.grey[900]!;
 
-  // List of all available theme colors in the settings
+  /// List of all available theme colors in the settings to pick from
   static List<Color> themeColors = [
     sky,
     blue,

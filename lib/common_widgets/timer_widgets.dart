@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:srl_app/core/utils/build_context_extensions.dart';
 
+/// Preview block used on creation and in active session
+/// Rectangular block with a label inside
 class PreviewBlock extends StatelessWidget {
   const PreviewBlock({
     required this.color,

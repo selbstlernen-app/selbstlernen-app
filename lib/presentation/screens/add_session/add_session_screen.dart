@@ -130,7 +130,7 @@ class _AddSessionScreenState extends ConsumerState<AddSessionScreen> {
             .handleSaveSession();
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
+          context.scaffoldMessenger.showSnackBar(
             SnackBar(
               duration: const Duration(seconds: 2),
               content: Text(Constants.successModified),

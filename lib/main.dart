@@ -5,7 +5,6 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:srl_app/core/routing/app_routes.dart';
 import 'package:srl_app/core/services/notification_service.dart';
-import 'package:srl_app/core/services/timer_background_service.dart';
 import 'package:srl_app/core/theme/theme_provider.dart';
 import 'package:srl_app/data/providers.dart';
 import 'package:srl_app/data/repositories/settings_repository_imp.dart';
@@ -17,9 +16,6 @@ void main() async {
 
   await NotificationService().init();
   await initializeDateFormatting('de_DE');
-
-  // Initialize background service for timer
-  await initializeBackgroundService();
 
   runApp(
     ProviderScope(
