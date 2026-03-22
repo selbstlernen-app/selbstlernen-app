@@ -682,6 +682,15 @@ class MockAppDatabase extends _i1.Mock implements _i6.AppDatabase {
           as _i5.DatabaseConnectionUser);
 
   @override
+  _i16.Future<void> createResearchCsvExport() =>
+      (super.noSuchMethod(
+            Invocation.method(#createResearchCsvExport, []),
+            returnValue: _i16.Future<void>.value(),
+            returnValueForMissingStub: _i16.Future<void>.value(),
+          )
+          as _i16.Future<void>);
+
+  @override
   _i5.Migrator createMigrator() =>
       (super.noSuchMethod(
             Invocation.method(#createMigrator, []),
