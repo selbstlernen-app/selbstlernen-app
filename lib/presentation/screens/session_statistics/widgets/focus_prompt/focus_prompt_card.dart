@@ -158,7 +158,8 @@ class _FocusPromptCardState extends State<FocusPromptCard> {
                     )),
             ),
 
-          if (instancesWithFocusChecks.isNotEmpty)
+          if ((instancesWithFocusChecks.isNotEmpty && showAllInstances) ||
+              hasCurrentFocusChecks)
             ReflectionBox(
               color: AppPalette.teal,
               iconData: Icons.lightbulb_outlined,
