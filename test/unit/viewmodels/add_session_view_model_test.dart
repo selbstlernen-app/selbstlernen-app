@@ -15,7 +15,6 @@ import 'package:srl_app/presentation/view_models/add_session/add_session_state.d
 import 'package:srl_app/presentation/view_models/add_session/add_session_view_model.dart';
 import 'package:srl_app/presentation/view_models/providers.dart';
 
-// Generate mocks with: flutter pub run build_runner build
 @GenerateMocks([AddSessionService, GetOrCreateInstanceUseCase, AppDatabase])
 import 'add_session_view_model_test.mocks.dart';
 
