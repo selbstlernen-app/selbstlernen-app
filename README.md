@@ -17,21 +17,23 @@ To set up the application, and or develop it locally, following set up is needed
 
 ## 📦 Packages Used
 
-The project uses the following packages:
+The project uses various packages with the following marking the most important ones:
 
 💻 General Packages
 
-- drift for database management.
-- riverpod for state management.
-- freezed for code generation of models.
-- async & rxdart for stream management.
-- intl for language formatting.
-- fl_chart for charts.
-- mocktail for writing tests.
-- very_good_analysis for linting.
-- permission_handler for permission handling.
+- drift and shared_preferences for database management
+- permission_handler for permission handling 
+- riverpod for state management
+- freezed for code generation of models
+- async & rxdart for stream management
+- intl for date formatting 
+- fl_chart for charts 
+- mocktail for writing tests
+- very_good_analysis as linter
 
 💄 UI Packages
 
-- flutter_heatmap_calendar for visualizing learning intensity.
-- flutter_slidable for slidable tiles.
+- flutter_heatmap_calendar for visualizing learning intensity; forked version used (see https://github.com/madxox/flutter_heatmap_calendar.git)
+- flutter_slidable for slidable tiles
+- flutter_native_splash and flutter_launcher_icons for the splash screen and launcher icon
+
