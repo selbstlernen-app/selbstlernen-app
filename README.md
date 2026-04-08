@@ -1,6 +1,6 @@
 # SRL-App
 
-Repository for the development of a mobile SRL application.
+Repository for the development of a mobile SRL application, also accessible at https://github.com/madxox/SRL-App.
 
 ## 📍 Getting started
 
@@ -22,12 +22,12 @@ The project uses various packages with the following marking the most important 
 💻 General Packages
 
 - drift and shared_preferences for database management
-- permission_handler for permission handling 
+- permission_handler for permission handling
 - riverpod for state management
 - freezed for code generation of models
 - async & rxdart for stream management
-- intl for date formatting 
-- fl_chart for charts 
+- intl for date formatting
+- fl_chart for charts
 - mocktail for writing tests
 - very_good_analysis as linter
 
@@ -36,4 +36,3 @@ The project uses various packages with the following marking the most important 
 - flutter_heatmap_calendar for visualizing learning intensity; forked version used (see https://github.com/madxox/flutter_heatmap_calendar.git)
 - flutter_slidable for slidable tiles
 - flutter_native_splash and flutter_launcher_icons for the splash screen and launcher icon
-
