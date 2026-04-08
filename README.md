@@ -1,6 +1,6 @@
-# SRL-App
+# Selbstlernen.app V2.0
 
-Repository for the development of a mobile SRL application, also accessible at https://github.com/madxox/SRL-App.
+Repository for the developed SRL application of the thesis, also accessible at https://github.com/madxox/SRL-App.
 
 ## 📍 Getting started
 
