@@ -6,7 +6,7 @@ During a learning session, features such as timers, reminders, and focus prompts
 
 By combining principles of self-regulated learning with accessible learning analytics, Selbstlernen.app 2.0 supports the development of sustainable learning routines — flexibly, mobile, and independent of the learning location.
 
-The app was developed by [Madeleine Dormeyer](https://github.com/madxox/) as part of her master’s thesis. An academic paper describing the application will soon be presented at the 21st International Conference on Design Science Research in Information Systems and Technology:
+The app was developed by [Madeleine Dormeyer](https://github.com/madxox/) as part of her master’s thesis in computer science at the University of Cologne, Germany. An academic paper describing the application will soon be presented at the 21st International Conference on Design Science Research in Information Systems and Technology:
 
 > Dormeyer, M., & Herwix, A. (2026). *Selbstlernen.app 2.0 – A Feedback-Oriented Mobile Application for Supporting Self-Regulated Learning in Higher Education*. The 21st International Conference on Design Science Research in Information Systems and Technology.
 
