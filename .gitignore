@@ -48,3 +48,8 @@ app.*.map.json
 *.freezed.dart
 *.g.dart 
 *.mock.dart
+
+# Signing related
+android/key.properties
+*.jks
+*.keystore
