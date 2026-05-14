@@ -80,7 +80,6 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" 
                  android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     
     <!-- Lets app run code after device has restarted -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -91,10 +90,7 @@
     <!-- Lets app read or change "Do not Disturb" settings -->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
-    <!-- For the screen to be always on; TODO: ask PO if thats wanted? -->
+    <!-- For the screen to be always on -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
-    <!-- Needed to have the timer run in the background -->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 </manifest>
