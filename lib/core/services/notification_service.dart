@@ -48,14 +48,6 @@ class NotificationService {
   Future<bool> requestPermission() async {
     final status = await Permission.notification.request();
 
-    // For Android 13+, specifically need to check for exact alarms
-    if (Platform.isAndroid) {
-      final alarmStatus = await Permission.scheduleExactAlarm.status;
-      if (alarmStatus.isDenied) {
-        await openNotificationSettings();
-      }
-    }
-
     return status.isGranted;
   }
 
@@ -259,7 +251,7 @@ class NotificationService {
       body,
       scheduledDate,
       notificationDetails,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: matchComponents,
     );
   }
