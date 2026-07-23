@@ -1,4 +1,4 @@
-package com.masterthesis.srl.app
+package com.selbstlernen.app.android
 
 import io.flutter.embedding.android.FlutterActivity
 
